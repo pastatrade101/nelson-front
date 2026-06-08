@@ -321,6 +321,11 @@
           <a class={`mt-2 inline-flex items-center justify-center rounded-xl px-4 py-3 text-[16px] font-bold shadow-sm transition ${isActive(path, '/plan-my-trip') ? 'bg-deep-green text-white' : 'bg-goldfinch-gold text-deep-green'}`} href="/plan-my-trip" on:click={() => (menuOpen = false)}>
             {brand.primaryCta}
           </a>
+
+          <a class="inline-flex items-center justify-center gap-2 rounded-xl bg-deep-green px-4 py-3 text-[16px] font-bold text-white shadow-sm transition hover:bg-forest" href="/admin/login" on:click={() => (menuOpen = false)}>
+            <User size={17} strokeWidth={2.4} />
+            Login
+          </a>
         </nav>
 
         <div class="mt-6 grid gap-2.5 border-t border-ink/10 pt-5">

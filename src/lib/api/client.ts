@@ -89,6 +89,9 @@ export const api = {
     update: (id: string, body: Record<string, unknown>) => apiRequest<Tour>(`/tours/${id}`, { method: 'PUT', body }),
     remove: (id: string) => apiRequest(`/tours/${id}`, { method: 'DELETE' })
   },
+  departures: {
+    list: (params?: Record<string, QueryValue>) => apiRequest<Record<string, unknown>[]>(`/departures${queryString(params)}`)
+  },
   itineraries: {
     list: (params?: Record<string, QueryValue>) =>
       apiRequest<Paginated<Record<string, unknown>>>(`/itineraries${queryString(params)}`),
