@@ -16,8 +16,10 @@ FROM node:22-alpine AS runtime
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
-# PUBLIC_API_URL is read at runtime ($env/dynamic/public) — set it when running the container.
-ENV PUBLIC_API_URL=http://localhost:5000/api
+# PUBLIC_API_URL and PUBLIC_SITE_URL are read at runtime ($env/dynamic/public).
+# Do NOT bake a value here — provide them when running the container, e.g.:
+#   docker run -e PUBLIC_API_URL=https://api.your-domain/api -e PUBLIC_SITE_URL=https://your-domain ...
+# (or via docker-compose / your host's env). If unset, the app falls back to localhost.
 WORKDIR /app
 
 COPY --from=build /app/build ./build
