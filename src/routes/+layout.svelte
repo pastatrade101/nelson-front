@@ -8,9 +8,15 @@
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
   import { api } from '$lib/api/client';
   import { applyBranding, branding } from '$lib/branding';
+  import { SITE_URL } from '$lib/config/env';
   import { loadPublicSettings } from '$lib/settings';
 
   $: isAdmin = $page.url.pathname.startsWith('/admin');
+
+  // Site origin from PUBLIC_SITE_URL (.env), falling back to the live request origin.
+  $: siteOrigin = SITE_URL || $page.url.origin;
+  $: canonicalUrl = `${siteOrigin}${$page.url.pathname}`;
+  $: orgUrl = `${siteOrigin}/`;
 
   let smoothScrollCleanup: (() => void) | undefined;
 
@@ -50,13 +56,13 @@
   <meta property="og:title" content={$branding.site_name} />
   <meta property="og:description" content={$branding.positioning} />
   <meta property="og:type" content="website" />
-  <link rel="canonical" href="http://localhost:5173/" />
+  <link rel="canonical" href={canonicalUrl} />
   <script type="application/ld+json">
     {JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'TravelAgency',
       name: $branding.company_name,
-      url: 'http://localhost:5173/',
+      url: orgUrl,
       slogan: $branding.tagline
     })}
   </script>

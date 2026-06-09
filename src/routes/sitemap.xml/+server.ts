@@ -1,3 +1,6 @@
+import { SITE_URL } from '$lib/config/env';
+import type { RequestHandler } from './$types';
+
 const routes = [
   '/',
   '/tours',
@@ -10,8 +13,8 @@ const routes = [
   '/departures'
 ];
 
-export const GET = () => {
-  const origin = 'http://localhost:5173';
+export const GET: RequestHandler = ({ url }) => {
+  const origin = SITE_URL || url.origin;
   const urls = routes
     .map((route) => `<url><loc>${origin}${route}</loc><changefreq>weekly</changefreq><priority>${route === '/' ? '1.0' : '0.7'}</priority></url>`)
     .join('');

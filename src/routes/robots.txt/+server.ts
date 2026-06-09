@@ -1,9 +1,13 @@
-export const GET = () =>
-  new Response(
+import { SITE_URL } from '$lib/config/env';
+import type { RequestHandler } from './$types';
+
+export const GET: RequestHandler = ({ url }) => {
+  const origin = SITE_URL || url.origin;
+  return new Response(
     `User-agent: *
 Allow: /
 
-Sitemap: http://localhost:5173/sitemap.xml
+Sitemap: ${origin}/sitemap.xml
 `,
     {
       headers: {
@@ -11,3 +15,4 @@ Sitemap: http://localhost:5173/sitemap.xml
       }
     }
   );
+};
