@@ -54,7 +54,8 @@
     'blog_preview',
     'ai_advisor_cta',
     'final_cta',
-    'partners'
+    'partners',
+    'login_slider'
   ];
 
   const imageModeOptions: Option[] = [
@@ -141,29 +142,37 @@
     media_position: bg.media_position || 'center'
   });
 
-  // ── partner logos repeater (stored in extra_data.logos) ───────────────────
+  // ── repeaters stored inside extra_data (partner logos + login slides) ──────
   type LogoRow = { image_url: string; name: string; url: string };
+  type SlideRow = { image_url: string; title: string; subtitle: string };
   let logos: LogoRow[] = [];
-  let logoPickerIndex: null | number = null;
+  let slides: SlideRow[] = [];
 
-  const MANAGED_KEYS = [...BG_KEYS, 'logos'];
+  // Shared media-library picker — targets either a logo row or a slide row.
+  let mediaPicker: { list: 'logos' | 'slides'; index: number } | null = null;
+
+  const MANAGED_KEYS = [...BG_KEYS, 'logos', 'slides'];
+
+  const openMediaPicker = async (list: 'logos' | 'slides', index: number) => {
+    mediaPicker = { list, index };
+    await loadMedia();
+  };
+  const pickMedia = (url: string) => {
+    if (mediaPicker?.list === 'logos' && logos[mediaPicker.index]) {
+      logos[mediaPicker.index].image_url = url;
+      logos = logos;
+    } else if (mediaPicker?.list === 'slides' && slides[mediaPicker.index]) {
+      slides[mediaPicker.index].image_url = url;
+      slides = slides;
+    }
+    mediaPicker = null;
+  };
 
   const addLogo = () => {
     logos = [...logos, { name: '', image_url: '', url: '' }];
   };
   const removeLogo = (index: number) => {
     logos = logos.filter((_, i) => i !== index);
-  };
-  const openLogoPicker = async (index: number) => {
-    logoPickerIndex = index;
-    await loadMedia();
-  };
-  const pickLogo = (url: string) => {
-    if (logoPickerIndex !== null && logos[logoPickerIndex]) {
-      logos[logoPickerIndex].image_url = url;
-      logos = logos;
-    }
-    logoPickerIndex = null;
   };
   const extraToLogos = (ed: Record<string, unknown>): LogoRow[] =>
     Array.isArray(ed.logos)
@@ -180,6 +189,29 @@
         name: l.name.trim() || undefined,
         image_url: l.image_url.trim(),
         ...(l.url.trim() ? { url: l.url.trim() } : {})
+      }));
+
+  const addSlide = () => {
+    slides = [...slides, { image_url: '', title: '', subtitle: '' }];
+  };
+  const removeSlide = (index: number) => {
+    slides = slides.filter((_, i) => i !== index);
+  };
+  const extraToSlides = (ed: Record<string, unknown>): SlideRow[] =>
+    Array.isArray(ed.slides)
+      ? (ed.slides as Array<Record<string, unknown>>).map((s) => ({
+          image_url: String(s?.image_url ?? ''),
+          title: String(s?.title ?? ''),
+          subtitle: String(s?.subtitle ?? '')
+        }))
+      : [];
+  const slidesToExtra = () =>
+    slides
+      .filter((s) => s.image_url.trim())
+      .map((s) => ({
+        image_url: s.image_url.trim(),
+        ...(s.title.trim() ? { title: s.title.trim() } : {}),
+        ...(s.subtitle.trim() ? { subtitle: s.subtitle.trim() } : {})
       }));
 
   $: sorted = [...rows].sort((a, b) => a.sort_order - b.sort_order || a.section_key.localeCompare(b.section_key));
@@ -229,6 +261,7 @@
     extraDataText = '{}';
     bg = emptyBg();
     logos = [];
+    slides = [];
     imageMode = 'none';
     mediaId = '';
     modalOpen = true;
@@ -250,6 +283,7 @@
     const ed = (section.extra_data ?? {}) as Record<string, unknown>;
     bg = extraToBg(ed);
     logos = extraToLogos(ed);
+    slides = extraToSlides(ed);
     const rest = Object.fromEntries(Object.entries(ed).filter(([key]) => !MANAGED_KEYS.includes(key)));
     extraDataText = Object.keys(rest).length ? JSON.stringify(rest, null, 2) : '{}';
     imageMode = section.image_url ? 'url' : 'none';
@@ -257,7 +291,7 @@
     modalOpen = true;
   };
 
-  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); extraDataText = '{}'; bg = emptyBg(); logos = []; logoPickerIndex = null; };
+  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); extraDataText = '{}'; bg = emptyBg(); logos = []; slides = []; mediaPicker = null; };
 
   const applyImageMode = async () => {
     if (imageMode === 'none') { form.image_url = ''; mediaId = ''; }
@@ -292,6 +326,11 @@
     // Merge partner logos when this is a logo-strip section.
     if (form.section_key.trim() === 'partners' || logos.some((l) => l.image_url.trim())) {
       extra = { ...extra, logos: logosToExtra() };
+    }
+
+    // Merge login slides when this is the login slider section.
+    if (form.section_key.trim() === 'login_slider' || slides.some((s) => s.image_url.trim())) {
+      extra = { ...extra, slides: slidesToExtra() };
     }
 
     saving = true;
@@ -568,11 +607,51 @@
                   <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Partner name" bind:value={logo.name} />
                   <div class="flex gap-2">
                     <input class="h-9 min-w-0 flex-1 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Logo image URL" bind:value={logo.image_url} />
-                    <button type="button" class="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-white px-2.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" on:click={() => openLogoPicker(i)}><ImageIcon size={13} />Media</button>
+                    <button type="button" class="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-white px-2.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" on:click={() => openMediaPicker('logos', i)}><ImageIcon size={13} />Media</button>
                   </div>
                   <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Link URL (optional)" bind:value={logo.url} />
                 </div>
                 <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-white text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove logo" on:click={() => removeLogo(i)}><Trash2 size={15} /></button>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- login page slider repeater -->
+        {#if form.section_key.trim() === 'login_slider'}
+          <div class="grid gap-3 rounded-[22px] border border-ink/10 bg-sand/25 p-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Login page slides</p>
+                <p class="mt-1 text-xs text-ink/50">Shown on the admin login screen — each slide has an image, a heading and a short line. Rotates automatically.</p>
+              </div>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addSlide}>
+                <Plus size={14} />Add slide
+              </button>
+            </div>
+
+            {#if slides.length === 0}
+              <p class="rounded-xl border border-dashed border-ink/15 bg-white/60 py-4 text-center text-xs text-ink/45">No slides yet — add your first slide.</p>
+            {/if}
+
+            {#each slides as slide, i (i)}
+              <div class="grid gap-2 rounded-xl border border-ink/10 bg-white p-3 sm:grid-cols-[96px_1fr_auto] sm:items-start">
+                <div class="grid aspect-[4/3] w-full place-items-center overflow-hidden rounded-lg bg-sand/40 ring-1 ring-ink/10 sm:w-24">
+                  {#if slide.image_url}
+                    <img class="h-full w-full object-cover" src={slide.image_url} alt={slide.title || 'Slide'} />
+                  {:else}
+                    <ImageIcon size={16} class="text-ink/30" />
+                  {/if}
+                </div>
+                <div class="grid gap-2">
+                  <div class="flex gap-2">
+                    <input class="h-9 min-w-0 flex-1 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Image URL" bind:value={slide.image_url} />
+                    <button type="button" class="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-white px-2.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" on:click={() => openMediaPicker('slides', i)}><ImageIcon size={13} />Media</button>
+                  </div>
+                  <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Heading (e.g. Plan East Africa with confidence)" bind:value={slide.title} />
+                  <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Short line (optional)" bind:value={slide.subtitle} />
+                </div>
+                <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-white text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove slide" on:click={() => removeSlide(i)}><Trash2 size={15} /></button>
               </div>
             {/each}
           </div>
@@ -646,7 +725,7 @@
   </div>
 {/if}
 
-{#if logoPickerIndex !== null}
+{#if mediaPicker}
   <div
     class="fixed inset-0 z-[60] grid place-items-center bg-ink/45 p-4 backdrop-blur-sm"
     transition:fade={{ duration: 140 }}
@@ -656,12 +735,12 @@
       transition:scale={{ duration: 160, start: 0.98 }}
     >
       <div class="flex items-center justify-between border-b border-ink/10 bg-sand/30 p-4">
-        <h3 class="text-base font-bold text-ink">Choose a logo image</h3>
+        <h3 class="text-base font-bold text-ink">Choose an image</h3>
         <button
           class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand"
           type="button"
           aria-label="Close"
-          on:click={() => (logoPickerIndex = null)}
+          on:click={() => (mediaPicker = null)}
         >
           <X size={16} />
         </button>
@@ -678,7 +757,7 @@
                 class="group grid aspect-square place-items-center overflow-hidden rounded-xl border border-ink/10 bg-sand/30 p-2 transition hover:border-goldfinch-gold/50 hover:bg-sand/60"
                 type="button"
                 title={m.file_name}
-                on:click={() => pickLogo(m.file_url)}
+                on:click={() => pickMedia(m.file_url)}
               >
                 <img class="max-h-full max-w-full object-contain" src={m.file_url} alt={m.file_name} loading="lazy" />
               </button>
