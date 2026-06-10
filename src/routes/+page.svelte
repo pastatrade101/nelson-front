@@ -151,7 +151,12 @@
 
 <section class="bg-white py-14" use:sectionReveal>
   <div class="container-shell">
-    <SectionHeader eyebrow="Places" title={cms('featured_destinations', 'title', 'Destinations')} description={cms('featured_destinations', 'subtitle', 'Destination content can be managed from the CMS.')} />
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <SectionHeader eyebrow="Places" title={cms('featured_destinations', 'title', 'Destinations')} description={cms('featured_destinations', 'subtitle', 'Destination content can be managed from the CMS.')} />
+      <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" href="/destinations">
+        See all Destinations <ArrowRight size={16} />
+      </a>
+    </div>
     <div class="mt-8 grid gap-6 md:grid-cols-3" use:staggeredCardReveal>
       {#each destinations as destination}
         <DestinationCard {destination} />

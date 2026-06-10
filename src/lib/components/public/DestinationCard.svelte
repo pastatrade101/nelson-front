@@ -7,7 +7,7 @@
 </script>
 
 <article class="overflow-hidden rounded-lg border border-ink/10 bg-white shadow-soft">
-  <a href={`/destinations/${destination.slug}`} class="block">
+  <a href={`/destinations?d=${destination.slug}`} class="block">
     <div class="aspect-[4/3] bg-skywash">
       {#if imageUrl}
         <img class="h-full w-full object-cover" src={imageUrl} alt={destination.name} />
