@@ -7,6 +7,7 @@
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import DestinationCard from '$lib/components/public/DestinationCard.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
+  import ActivityCard from '$lib/components/public/ActivityCard.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
@@ -14,7 +15,7 @@
   import TourCard from '$lib/components/public/TourCard.svelte';
   import { placeholderDestinations } from '$lib/data/placeholders';
   import { breadcrumbLd } from '$lib/seo';
-  import type { BlogPost, Destination, Lodge, Tour } from '$lib/types';
+  import type { Activity, BlogPost, Destination, Lodge, Tour } from '$lib/types';
 
   $: origin = $page.url.origin;
 
@@ -27,17 +28,19 @@
   let otherDestinations: Destination[] = [];
   let recentPosts: BlogPost[] = [];
   let lodges: Lodge[] = [];
+  let activities: Activity[] = [];
 
   $: heroImage = destination
     ? destination.banner_image_url || destination.main_image_url || destination.image_url || ''
     : '';
 
   const loadRelated = async (dest: Destination) => {
-    const [tourRes, destRes, postRes, lodgeRes] = await Promise.allSettled([
+    const [tourRes, destRes, postRes, lodgeRes, activityRes] = await Promise.allSettled([
       api.tours.list({ destination_id: dest.id, limit: 3 }),
       api.destinations.list({ limit: 7 }),
       api.blog.list({ limit: 3 }),
-      api.lodges.list({ destination_id: dest.id, limit: 3 })
+      api.lodges.list({ destination_id: dest.id, limit: 3 }),
+      api.activities.list({ destination_id: dest.id, limit: 3 })
     ]);
 
     if (tourRes.status === 'fulfilled') {
@@ -54,6 +57,9 @@
     if (lodgeRes.status === 'fulfilled') {
       lodges = lodgeRes.value.data.items ?? [];
     }
+    if (activityRes.status === 'fulfilled') {
+      activities = activityRes.value.data.items ?? [];
+    }
   };
 
   const load = async (slug: string) => {
@@ -63,6 +69,7 @@
     otherDestinations = [];
     recentPosts = [];
     lodges = [];
+    activities = [];
     try {
       const response = await api.destinations.get(slug);
       destination = response.data;
@@ -133,6 +140,24 @@
         <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
           {#each relatedTours as tour (tour.id)}
             <TourCard {tour} />
+          {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
+
+  <!-- Top things to do (activities) -->
+  {#if activities.length}
+    <section class="py-14 md:py-20">
+      <div class="container-shell">
+        <SectionHeader
+          eyebrow="Things to do"
+          title={`Top experiences in ${destination.name}`}
+          description="Stand-out activities our specialists build into trips here — book them as part of your itinerary."
+        />
+        <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
+          {#each activities as activity (activity.id)}
+            <ActivityCard {activity} />
           {/each}
         </div>
       </div>

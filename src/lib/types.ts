@@ -100,6 +100,33 @@ export type Lodge = {
   meta_description?: string;
 };
 
+export type Activity = {
+  id: string;
+  name: string;
+  slug: string;
+  destination_id?: string | null;
+  destinations?: { name: string; slug: string } | null;
+  location_label?: string | null;
+  category: 'wildlife' | 'adventure' | 'cultural' | 'water' | 'trekking' | 'relaxation';
+  difficulty?: 'easy' | 'moderate' | 'challenging' | 'strenuous' | null;
+  description?: string;
+  why_we_recommend?: string;
+  highlights?: string[];
+  hero_image_url?: string;
+  image_url?: string;
+  duration_label?: string | null;
+  price_from?: number | null;
+  currency?: string;
+  price_unit?: string | null;
+  badge?: string | null;
+  best_season?: string[];
+  status?: string;
+  is_featured?: boolean;
+  seo_title?: string;
+  meta_title?: string;
+  meta_description?: string;
+};
+
 export type BlogPost = {
   id: string;
   title: string;
