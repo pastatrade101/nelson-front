@@ -5,6 +5,7 @@ import type { RequestHandler } from './$types';
 const routes = [
   '/',
   '/tours',
+  '/experiences',
   '/trip-finder',
   '/destinations',
   '/gallery',
