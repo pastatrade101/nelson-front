@@ -75,6 +75,31 @@ export type Country = {
   og_image_url?: string;
 };
 
+export type Lodge = {
+  id: string;
+  name: string;
+  slug: string;
+  destination_id?: string | null;
+  destinations?: { name: string; slug: string } | null;
+  accommodation_level: 'budget' | 'mid_range' | 'luxury' | 'ultra_luxury';
+  lodge_type: 'tented_camp' | 'lodge' | 'hotel' | 'mobile_camp' | 'treehouse';
+  description?: string;
+  why_we_recommend?: string;
+  hero_image_url?: string;
+  image_url?: string;
+  price_per_night_from?: number | null;
+  currency?: string;
+  best_for?: string[];
+  romantic_rating?: number | null;
+  family_rating?: number | null;
+  website_url?: string;
+  status?: string;
+  is_featured?: boolean;
+  seo_title?: string;
+  meta_title?: string;
+  meta_description?: string;
+};
+
 export type BlogPost = {
   id: string;
   title: string;

@@ -9,11 +9,12 @@
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
   import { placeholderDestinations } from '$lib/data/placeholders';
   import { breadcrumbLd } from '$lib/seo';
-  import type { BlogPost, Destination, Tour } from '$lib/types';
+  import type { BlogPost, Destination, Lodge, Tour } from '$lib/types';
 
   $: origin = $page.url.origin;
 
@@ -25,16 +26,18 @@
   let relatedTours: Tour[] = [];
   let otherDestinations: Destination[] = [];
   let recentPosts: BlogPost[] = [];
+  let lodges: Lodge[] = [];
 
   $: heroImage = destination
     ? destination.banner_image_url || destination.main_image_url || destination.image_url || ''
     : '';
 
   const loadRelated = async (dest: Destination) => {
-    const [tourRes, destRes, postRes] = await Promise.allSettled([
+    const [tourRes, destRes, postRes, lodgeRes] = await Promise.allSettled([
       api.tours.list({ destination_id: dest.id, limit: 3 }),
       api.destinations.list({ limit: 7 }),
-      api.blog.list({ limit: 3 })
+      api.blog.list({ limit: 3 }),
+      api.lodges.list({ destination_id: dest.id, limit: 3 })
     ]);
 
     if (tourRes.status === 'fulfilled') {
@@ -48,6 +51,9 @@
     if (postRes.status === 'fulfilled') {
       recentPosts = postRes.value.data.items ?? [];
     }
+    if (lodgeRes.status === 'fulfilled') {
+      lodges = lodgeRes.value.data.items ?? [];
+    }
   };
 
   const load = async (slug: string) => {
@@ -56,6 +62,7 @@
     relatedTours = [];
     otherDestinations = [];
     recentPosts = [];
+    lodges = [];
     try {
       const response = await api.destinations.get(slug);
       destination = response.data;
@@ -126,6 +133,24 @@
         <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
           {#each relatedTours as tour (tour.id)}
             <TourCard {tour} />
+          {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
+
+  <!-- Where to stay (recommended lodges & camps) -->
+  {#if lodges.length}
+    <section class="border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
+      <div class="container-shell">
+        <SectionHeader
+          eyebrow="Where to stay"
+          title={`Lodges & camps in ${destination.name}`}
+          description="Accommodation our specialists recommend and book — chosen for location, comfort and value."
+        />
+        <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
+          {#each lodges as lodge (lodge.id)}
+            <LodgeCard {lodge} />
           {/each}
         </div>
       </div>
