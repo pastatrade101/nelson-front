@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { API_URL } from '$lib/config/env';
-import type { AiChatResponse, ApiResponse, BlogPost, Destination, FAQ, Paginated, Testimonial, Tour } from '$lib/types';
+import type { AiChatResponse, ApiResponse, BlogPost, Country, Destination, FAQ, Paginated, Testimonial, Tour } from '$lib/types';
 
 type QueryValue = string | number | boolean | undefined | null;
 type RequestOptions = Omit<RequestInit, 'body'> & {
@@ -160,6 +160,13 @@ export const api = {
     create: (body: Record<string, unknown>) => apiRequest<Destination>('/destinations', { method: 'POST', body }),
     update: (id: string, body: Record<string, unknown>) => apiRequest<Destination>(`/destinations/${id}`, { method: 'PUT', body }),
     remove: (id: string) => apiRequest(`/destinations/${id}`, { method: 'DELETE' })
+  },
+  countries: {
+    list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Country>>(`/countries${queryString(params)}`),
+    get: (slug: string) => apiRequest<Country>(`/countries/${slug}`),
+    create: (body: Record<string, unknown>) => apiRequest<Country>('/countries', { method: 'POST', body }),
+    update: (id: string, body: Record<string, unknown>) => apiRequest<Country>(`/countries/${id}`, { method: 'PUT', body }),
+    remove: (id: string) => apiRequest(`/countries/${id}`, { method: 'DELETE' })
   },
   categories: {
     list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Record<string, unknown>>>(`/categories${queryString(params)}`),

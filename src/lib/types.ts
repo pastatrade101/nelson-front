@@ -55,6 +55,26 @@ export type Destination = {
   og_image_url?: string;
 };
 
+export type Country = {
+  id: string;
+  name: string;
+  slug: string;
+  hero_image_url?: string;
+  intro_text?: string;
+  best_months?: string[];
+  visa_info?: string;
+  health_info?: string;
+  currency?: string;
+  capital?: string;
+  phase?: string;
+  status?: string;
+  is_featured?: boolean;
+  seo_title?: string;
+  meta_title?: string;
+  meta_description?: string;
+  og_image_url?: string;
+};
+
 export type BlogPost = {
   id: string;
   title: string;

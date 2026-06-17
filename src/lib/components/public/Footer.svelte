@@ -66,6 +66,7 @@
       <div class="mt-3 grid gap-2 text-sm text-white/70">
         <a class="w-fit transition hover:text-white" href="/tours">Tours</a>
         <a class="w-fit transition hover:text-white" href="/destinations">Destinations</a>
+        <a class="w-fit transition hover:text-white" href="/countries">Countries</a>
         <a class="w-fit transition hover:text-white" href="/destination-scores">Destination Scores</a>
         <a class="w-fit transition hover:text-white" href="/experiences">Experiences</a>
         <a class="w-fit transition hover:text-white" href="/travel-styles">Travel Styles</a>
