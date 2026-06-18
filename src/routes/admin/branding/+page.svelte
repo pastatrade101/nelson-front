@@ -161,7 +161,7 @@
       <!-- forms -->
       <div class="grid gap-6">
         <!-- identity -->
-        <section class="grid gap-4 rounded-[24px] border border-ink/10 bg-white p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-white p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Brand identity</p>
             <h2 class="mt-1 text-lg font-bold text-ink">Name & messaging</h2>
@@ -176,7 +176,7 @@
         </section>
 
         <!-- colors -->
-        <section class="grid gap-4 rounded-[24px] border border-ink/10 bg-white p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-white p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
           <div class="flex items-start justify-between gap-4">
             <div>
               <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Color palette</p>
@@ -203,7 +203,7 @@
         </section>
 
         <!-- logo & favicon -->
-        <section class="grid gap-4 rounded-[24px] border border-ink/10 bg-white p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-white p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Logo & favicon</p>
             <h2 class="mt-1 text-lg font-bold text-ink">Brand assets</h2>
@@ -235,7 +235,7 @@
         </section>
 
         <!-- CTAs & contact -->
-        <section class="grid gap-4 rounded-[24px] border border-ink/10 bg-white p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-white p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Calls to action & contact</p>
             <h2 class="mt-1 text-lg font-bold text-ink">Buttons & support details</h2>
@@ -262,7 +262,7 @@
 
       <!-- live preview -->
       <aside class="xl:sticky xl:top-4">
-        <div class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
           <div class="flex items-center gap-2 border-b border-ink/10 bg-sand/40 px-4 py-2.5">
             <Palette size={14} class="text-forest" />
             <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Live preview</span>

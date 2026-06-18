@@ -474,7 +474,7 @@
   {:else}
     <div class="grid gap-4">
       {#each sorted as section, index (section.id)}
-        <article class={`grid gap-4 rounded-[24px] border bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] lg:grid-cols-[auto_140px_1fr_auto] lg:items-center ${section.is_active ? 'border-ink/10' : 'border-dashed border-ink/20 opacity-75'}`} transition:fade={{ duration: 120 }}>
+        <article class={`grid gap-4 rounded-[8px] border bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] lg:grid-cols-[auto_140px_1fr_auto] lg:items-center ${section.is_active ? 'border-ink/10' : 'border-dashed border-ink/20 opacity-75'}`} transition:fade={{ duration: 120 }}>
           <!-- reorder -->
           <div class="flex flex-row gap-1 lg:flex-col">
             <button class="grid h-8 w-8 place-items-center rounded-lg border border-ink/10 bg-white text-ink/55 transition hover:bg-sand/70 disabled:opacity-30" type="button" aria-label="Move up" disabled={index === 0 || reordering} on:click={() => move(section, 'up')}>
@@ -534,7 +534,7 @@
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[30px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >
@@ -568,7 +568,7 @@
         <AdminTextArea label="Content" name="content" bind:value={form.content} rows={3} placeholder="Optional body text for this section." />
 
         <!-- image -->
-        <div class="rounded-[22px] border border-ink/10 bg-sand/25 p-4">
+        <div class="rounded-[8px] border border-ink/10 bg-sand/25 p-4">
           <div class="grid gap-4 sm:grid-cols-[220px_1fr]">
             <AdminSelect label="Image source" name="image_mode" bind:value={imageMode} options={imageModeOptions} on:change={applyImageMode} />
             {#if imageMode === 'media'}
@@ -585,7 +585,7 @@
         </div>
 
         <!-- background video + overlay -->
-        <div class="grid gap-4 rounded-[22px] border border-ink/10 bg-sand/25 p-4">
+        <div class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Background &amp; overlay</p>
             <p class="mt-1 text-xs text-ink/50">Used by full-width sections (e.g. final CTA, hero). A video takes priority over the image. The overlay keeps text readable.</p>
@@ -613,7 +613,7 @@
 
         <!-- partner logos repeater -->
         {#if form.section_key.trim() === 'partners'}
-          <div class="grid gap-3 rounded-[22px] border border-ink/10 bg-sand/25 p-4">
+          <div class="grid gap-3 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Partner logos</p>
@@ -653,7 +653,7 @@
 
         <!-- login page slider repeater -->
         {#if form.section_key.trim() === 'login_slider'}
-          <div class="grid gap-3 rounded-[22px] border border-ink/10 bg-sand/25 p-4">
+          <div class="grid gap-3 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Login page slides</p>
@@ -693,7 +693,7 @@
 
         <!-- typical cost ranges repeater -->
         {#if form.section_key.trim() === 'cost_ranges'}
-          <div class="grid gap-3 rounded-[22px] border border-ink/10 bg-sand/25 p-4">
+          <div class="grid gap-3 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Typical cost ranges</p>
@@ -739,7 +739,7 @@
         </div>
 
         <!-- live preview -->
-        <div class="overflow-hidden rounded-[22px] border border-ink/10">
+        <div class="overflow-hidden rounded-[8px] border border-ink/10">
           <div class="border-b border-ink/10 bg-sand/40 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Live preview</div>
           <div class="relative grid min-h-[180px] place-items-center overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green p-6 text-center text-white">
             {#if bg.video}
@@ -793,7 +793,7 @@
     transition:fade={{ duration: 140 }}
   >
     <div
-      class="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
     >
       <div class="flex items-center justify-between border-b border-ink/10 bg-sand/30 p-4">

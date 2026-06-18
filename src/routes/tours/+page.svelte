@@ -191,7 +191,7 @@
 
 <section class="container-shell py-10 md:py-14">
   {#if personaCfg}
-    <div class="overflow-hidden rounded-[28px] border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
+    <div class="overflow-hidden rounded-[10px] border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
       <p class="text-sm font-semibold uppercase tracking-[0.16em] text-clay">For {personaCfg.label}</p>
       <h1 class="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight text-deep-green md:text-4xl">{personaCfg.headline}</h1>
       <p class="mt-3 max-w-2xl text-base leading-7 text-ink/70">{personaCfg.sub}</p>

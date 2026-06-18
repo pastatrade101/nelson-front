@@ -240,7 +240,7 @@
       on:action={() => goto('/admin/tours/new')}
     />
   {:else}
-    <div class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[1180px] text-start text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -303,7 +303,7 @@
   {/if}
 
   {#if pagination && pagination.totalPages > 1}
-    <div class="flex flex-col gap-3 rounded-[22px] border border-ink/10 bg-white/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-3 rounded-[8px] border border-ink/10 bg-white/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
       <p>Page {pagination.page} of {pagination.totalPages} · {pagination.total} tours</p>
       <div class="flex gap-2">
         <AdminButton variant="secondary" size="sm" disabled={page <= 1} on:click={() => goToPage(page - 1)}>Previous</AdminButton>

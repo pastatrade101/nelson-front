@@ -242,7 +242,7 @@
   {:else}
     <div class="grid gap-5">
       {#each grouped as [category, items] (category)}
-        <section class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+        <section class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
           <header class="flex items-center justify-between gap-3 border-b border-ink/10 bg-sand/40 px-5 py-3">
             <div class="flex items-center gap-2">
               <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Category</span>
@@ -303,7 +303,7 @@
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[30px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >

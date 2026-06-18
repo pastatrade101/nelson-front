@@ -90,7 +90,7 @@
 
   <section class="container-shell py-12 md:py-16">
     <!-- comparison table -->
-    <div class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-soft">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-soft">
       <div class="hidden grid-cols-[200px_1fr_1fr] border-b border-ink/10 bg-sand/40 sm:grid">
         <div class="p-4"></div>
         <div class="p-4 text-center text-lg font-extrabold text-deep-green">{cmp.a.name}</div>

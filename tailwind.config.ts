@@ -22,6 +22,17 @@ export default {
       },
       boxShadow: {
         soft: '0 18px 50px rgba(24, 33, 31, 0.08)'
+      },
+      // Tighter corners site-wide for a crisp, editorial tour feel.
+      // `full` (pills/avatars) and `none` keep their Tailwind defaults.
+      borderRadius: {
+        sm: '2px',
+        DEFAULT: '3px',
+        md: '4px',
+        lg: '5px',
+        xl: '6px',
+        '2xl': '8px',
+        '3xl': '10px'
       }
     }
   },

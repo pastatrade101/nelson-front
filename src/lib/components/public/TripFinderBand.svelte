@@ -4,7 +4,7 @@
 
 <section class="container-shell grid place-items-center py-14 md:py-20">
   <a
-    class="band group relative mx-auto flex w-full max-w-5xl flex-col items-start gap-6 overflow-hidden rounded-[28px] border border-goldfinch-gold/25 bg-gradient-to-br from-sand via-sand to-savanna/45 p-7 shadow-[0_14px_44px_rgba(15,47,36,0.07)] transition-shadow duration-500 hover:shadow-[0_24px_64px_rgba(15,47,36,0.12)] sm:flex-row sm:items-center sm:justify-between md:p-9"
+    class="band group relative mx-auto flex w-full max-w-5xl flex-col items-start gap-6 overflow-hidden rounded-[10px] border border-goldfinch-gold/25 bg-gradient-to-br from-sand via-sand to-savanna/45 p-7 shadow-[0_14px_44px_rgba(15,47,36,0.07)] transition-shadow duration-500 hover:shadow-[0_24px_64px_rgba(15,47,36,0.12)] sm:flex-row sm:items-center sm:justify-between md:p-9"
     href="/trip-finder"
   >
     <!-- soft decorative layers -->

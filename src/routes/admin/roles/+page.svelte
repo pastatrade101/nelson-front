@@ -119,7 +119,7 @@
 <ToastStack {toasts} on:dismiss={dismissToast} />
 
 <div class="mx-auto grid w-full max-w-[1500px] gap-6">
-  <div class="rounded-[28px] border border-ink/10 bg-white/70 p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+  <div class="rounded-[10px] border border-ink/10 bg-white/70 p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
     <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Administration</p>
     <h1 class="mt-1 text-3xl font-bold text-ink">Roles &amp; Permissions</h1>
     <p class="mt-2 max-w-3xl text-sm leading-6 text-ink/62">
@@ -134,7 +134,7 @@
   {:else}
     <div class="grid gap-4 lg:grid-cols-2">
       {#each roles as role (role.role)}
-        <article class="grid gap-4 rounded-[24px] border border-ink/10 bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <article class="grid gap-4 rounded-[8px] border border-ink/10 bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-2">
               <RoleBadge role={role.role} />
@@ -171,7 +171,7 @@
 <!-- edit permissions modal -->
 {#if editingRole}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[30px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4 border-b border-ink/10 bg-sand/30 p-5">
         <div class="flex items-center gap-3">
           <RoleBadge role={editingRole} />

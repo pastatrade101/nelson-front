@@ -320,7 +320,7 @@
     on:action={openCreateModal}
   />
 {:else}
-  <div class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+  <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
     <div class="overflow-x-auto">
       <table class="w-full min-w-[920px] text-start text-sm">
         <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -367,7 +367,7 @@
 
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[28px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editingCategory ? 'Edit category' : 'New category'}</p>
@@ -412,7 +412,7 @@
         </div>
 
         <div class="grid gap-4 lg:grid-cols-2">
-          <section class="grid gap-4 rounded-[22px] border border-ink/10 bg-sand/20 p-4">
+          <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
             <div>
               <h3 class="text-base font-semibold text-ink">Icon or animation</h3>
               <p class="mt-1 text-sm text-ink/55">Choose one visual source for the category badge.</p>
@@ -455,7 +455,7 @@
             {/if}
           </section>
 
-          <section class="grid gap-4 rounded-[22px] border border-ink/10 bg-sand/20 p-4">
+          <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
             <div>
               <h3 class="text-base font-semibold text-ink">Category image</h3>
               <p class="mt-1 text-sm text-ink/55">Choose one image source for category cards and headers.</p>

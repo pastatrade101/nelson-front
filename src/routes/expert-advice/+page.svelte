@@ -81,7 +81,7 @@
   </a>
 
   <!-- every guide surface ends with the primary action (SRS v2.0 §4.8) -->
-  <div class="mt-12 overflow-hidden rounded-[28px] bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
+  <div class="mt-12 overflow-hidden rounded-[10px] bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
     <h2 class="text-2xl font-extrabold md:text-3xl">Still have questions?</h2>
     <p class="mx-auto mt-3 max-w-xl text-white/75">Tell us what you're planning and a local expert will give honest, tailored advice — no pressure.</p>
     <a class="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-deep-green transition hover:brightness-105" href="/plan-my-trip">

@@ -296,7 +296,7 @@
 {:else if viewMode === 'grid'}
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
     {#each rows as media}
-      <article class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(15,47,36,0.1)]">
+      <article class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(15,47,36,0.1)]">
         <div class="aspect-[4/3] bg-sand/60">
           {#if media.file_type === 'image'}
             <img class="h-full w-full object-cover" src={media.file_url} alt={media.alt_text || media.file_name} />
@@ -338,7 +338,7 @@
     {/each}
   </div>
 {:else}
-  <div class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+  <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
     <div class="overflow-x-auto">
       <table class="w-full min-w-[980px] text-start text-sm">
         <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -397,7 +397,7 @@
 {/if}
 
 {#if pagination && pagination.totalPages > 1}
-  <div class="flex flex-col gap-3 rounded-[22px] border border-ink/10 bg-white/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex flex-col gap-3 rounded-[8px] border border-ink/10 bg-white/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
     <p>Page {pagination.page} of {pagination.totalPages} · {pagination.total} files</p>
     <div class="flex gap-2">
       <AdminButton variant="secondary" size="sm" disabled={page <= 1} on:click={() => goToPage(page - 1)}>Previous</AdminButton>
@@ -409,7 +409,7 @@
 
 {#if uploadModalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="w-full max-w-xl rounded-[28px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="w-full max-w-xl rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Upload media</p>
@@ -444,7 +444,7 @@
 
 {#if editModalOpen && mediaToEdit}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="w-full max-w-xl rounded-[28px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="w-full max-w-xl rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Edit metadata</p>

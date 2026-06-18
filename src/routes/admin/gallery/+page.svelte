@@ -336,7 +336,7 @@
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {#each sorted as item (item.id)}
         {@const meta = mediaTypeMeta(item.media_type)}
-        <article class="group overflow-hidden rounded-[22px] border border-ink/10 bg-white shadow-[0_12px_36px_rgba(15,47,36,0.06)]" transition:fade={{ duration: 120 }}>
+        <article class="group overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_12px_36px_rgba(15,47,36,0.06)]" transition:fade={{ duration: 120 }}>
           <div class="relative aspect-[4/3] overflow-hidden bg-sand/40">
             <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={item.image_url} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
             <span class={`absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ${meta.classes}`}>
@@ -369,7 +369,7 @@
       {/each}
     </div>
   {:else}
-    <div class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[900px] text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -423,7 +423,7 @@
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[30px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >
@@ -439,7 +439,7 @@
 
       <div class="mt-6 grid gap-4 lg:grid-cols-[300px_1fr]">
         <!-- image picker + preview -->
-        <div class="grid content-start gap-3 rounded-[22px] border border-ink/10 bg-sand/25 p-4">
+        <div class="grid content-start gap-3 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
           <AdminSelect label="Image source" name="image_mode" bind:value={imageMode} options={imageModeOptions} />
           {#if imageMode === 'media'}
             <AdminSelect label={loadingMedia ? 'Loading...' : 'Media Library'} name="media_id" bind:value={mediaId} options={mediaOptions} on:change={applyMediaSelection} />

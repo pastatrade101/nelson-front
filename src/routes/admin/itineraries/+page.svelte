@@ -398,7 +398,7 @@
       icon={Route}
     />
   {:else if !selectedTour}
-    <div class="grid gap-4 rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="grid gap-4 rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div>
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Select a parent tour</p>
         <h2 class="mt-1 text-xl font-bold text-ink">Itinerary days are child records</h2>
@@ -411,7 +411,7 @@
       <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {#each filteredTours as tour}
           <button
-            class="rounded-[22px] border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-goldfinch-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
+            class="rounded-[8px] border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-goldfinch-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
             type="button"
             on:click={() => selectTour(tour.id)}
           >
@@ -423,7 +423,7 @@
       </div>
     </div>
   {:else}
-    <section class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Selected parent tour</p>
@@ -457,7 +457,7 @@
     {:else}
       <div class="grid gap-4">
         {#each sortedDays as day}
-          <article class="grid gap-4 rounded-[26px] border border-ink/10 bg-white p-4 shadow-[0_16px_44px_rgba(15,47,36,0.055)] lg:grid-cols-[auto_1fr_auto] lg:items-start">
+          <article class="grid gap-4 rounded-[8px] border border-ink/10 bg-white p-4 shadow-[0_16px_44px_rgba(15,47,36,0.055)] lg:grid-cols-[auto_1fr_auto] lg:items-start">
             <div class="grid h-16 w-16 place-items-center rounded-2xl bg-forest text-center text-white shadow-sm shadow-forest/15">
               <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Day</span>
               <strong class="-mt-3 text-2xl">{day.day_number}</strong>
@@ -518,7 +518,7 @@
 
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <form class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[30px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={saveDay}>
+    <form class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={saveDay}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editingDay ? 'Edit itinerary day' : 'New itinerary day'}</p>
@@ -545,7 +545,7 @@
         <AdminTextArea label="Activities" name="activities" bind:value={form.activities} rows={3} placeholder="Game drive, transfer..." />
       </div>
 
-      <div class="mt-5 rounded-[24px] border border-ink/10 bg-sand/25 p-4">
+      <div class="mt-5 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
         <div class="grid gap-4 md:grid-cols-[260px_1fr]">
           <AdminSelect label="Image source" name="image_mode" bind:value={imageMode} options={imageModeOptions} on:change={applyImageMode} />
 

@@ -13,7 +13,7 @@
   const dispatch = createEventDispatcher<{ action: void; secondary: void }>();
 </script>
 
-<section class="relative overflow-hidden rounded-[28px] border border-ink/10 bg-gradient-to-br from-white via-white to-sand/70 p-5 shadow-[0_20px_60px_rgba(15,47,36,0.08)] sm:p-6">
+<section class="relative overflow-hidden rounded-[10px] border border-ink/10 bg-gradient-to-br from-white via-white to-sand/70 p-5 shadow-[0_20px_60px_rgba(15,47,36,0.08)] sm:p-6">
   <div class="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
   <div class="pointer-events-none absolute -bottom-24 left-12 h-52 w-52 rounded-full bg-forest/10 blur-3xl"></div>
 

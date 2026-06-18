@@ -98,7 +98,7 @@
   </div>
 
   <div class="relative z-20 mx-auto -mt-[86px] w-full max-w-[1500px] px-5 pb-14 md:-mt-[92px] md:px-4 md:pb-18">
-    <div class="relative rounded-[18px] bg-white px-4 pb-6 pt-5 shadow-[0_18px_42px_rgba(20,20,20,0.09)] md:rounded-[22px] md:px-10 md:pb-8 md:pt-14" use:fadeUpOnScroll={{ y: 18, start: 'top 96%', duration: 0.7 }}>
+    <div class="relative rounded-[6px] bg-white px-4 pb-6 pt-5 shadow-[0_18px_42px_rgba(20,20,20,0.09)] md:rounded-[8px] md:px-10 md:pb-8 md:pt-14" use:fadeUpOnScroll={{ y: 18, start: 'top 96%', duration: 0.7 }}>
       <!-- scope tabs: in-flow + scrollable on mobile, floating on the card edge on desktop -->
       <div class="hide-scroll layout-ltr z-10 mb-4 flex gap-1.5 overflow-x-auto md:absolute md:right-10 md:top-0 md:mb-0 md:w-auto md:-translate-y-1/2 md:gap-2 md:overflow-visible">
         {#each scopes as s (s.id)}

@@ -157,7 +157,7 @@
 
 <!-- CTA -->
 <section class="container-shell py-14 md:py-16">
-  <div class="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-12 text-center text-white md:px-12 md:py-16">
+  <div class="relative overflow-hidden rounded-[10px] bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-12 text-center text-white md:px-12 md:py-16">
     <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
     <div class="relative mx-auto max-w-2xl">
       <h2 class="text-2xl font-extrabold md:text-3xl">Still have a safety question?</h2>

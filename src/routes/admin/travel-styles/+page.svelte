@@ -215,7 +215,7 @@
   {:else if rows.length === 0}
     <AdminEmptyState title="No travel styles yet" message="Add your first travel style." actionLabel="New Style" icon={Heart} on:action={openCreate} />
   {:else}
-    <div class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[720px] text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -261,7 +261,7 @@
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[30px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >

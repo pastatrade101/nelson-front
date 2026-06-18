@@ -92,7 +92,7 @@
 
         {#if profileOpen}
           <div
-            class="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_24px_70px_rgba(15,47,36,0.18)]"
+            class="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_24px_70px_rgba(15,47,36,0.18)]"
             transition:scale={{ duration: 140, start: 0.97 }}
           >
             <div class="bg-gradient-to-br from-deep-green via-forest to-deep-green p-4 text-white">

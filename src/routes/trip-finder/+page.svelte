@@ -212,7 +212,7 @@
         </div>
 
         <!-- question -->
-        <div class="mt-8 rounded-[28px] border border-ink/10 bg-white p-6 shadow-[0_18px_50px_rgba(15,47,36,0.07)] md:p-8">
+        <div class="mt-8 rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_18px_50px_rgba(15,47,36,0.07)] md:p-8">
           <h2 class="text-xl font-bold text-deep-green md:text-2xl">{current.title}</h2>
           {#if current.subtitle}<p class="mt-1 text-sm text-ink/55">{current.subtitle}</p>{/if}
 
@@ -250,7 +250,7 @@
         <div class="mt-8 grid gap-4">
           {#if recommendations.length}
             {#each recommendations as rec (rec.tour.id)}
-              <article class="flex flex-col overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_14px_40px_rgba(15,47,36,0.07)] sm:flex-row">
+              <article class="flex flex-col overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_14px_40px_rgba(15,47,36,0.07)] sm:flex-row">
                 <div class="aspect-[16/10] w-full shrink-0 overflow-hidden bg-skywash sm:aspect-auto sm:w-44">
                   {#if rec.tour.main_image_url}
                     <img class="h-full w-full object-cover" src={rec.tour.main_image_url} alt={rec.tour.title} loading="lazy" />
@@ -278,7 +278,7 @@
               </article>
             {/each}
           {:else}
-            <div class="rounded-[24px] border border-dashed border-ink/15 bg-white p-8 text-center">
+            <div class="rounded-[8px] border border-dashed border-ink/15 bg-white p-8 text-center">
               <p class="font-semibold text-deep-green">We couldn't auto-match a trip — but we can still help.</p>
               <p class="mt-1 text-sm text-ink/60">Tell a specialist what you have in mind and we'll plan it around you.</p>
             </div>

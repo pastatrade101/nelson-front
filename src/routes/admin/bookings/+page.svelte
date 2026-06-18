@@ -437,7 +437,7 @@
       on:action={openCreate}
     />
   {:else}
-    <div class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[1080px] text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -493,7 +493,7 @@
   {@const lc = leadContext(viewing)}
   {@const summary = viewing.payment_summary as Record<string, unknown> | undefined}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[30px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4 border-b border-ink/10 bg-sand/30 p-5">
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
@@ -576,7 +576,7 @@
 
 {#if formOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <form class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={save}>
+    <form class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={save}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editingId ? 'Edit booking' : 'New booking'}</p>

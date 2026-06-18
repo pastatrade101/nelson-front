@@ -451,7 +451,7 @@
     <AdminEmptyState title="No tours found" message="Create a tour package first, then return here to manage its details." icon={ListPlus} />
   {:else if !selectedTour}
     <!-- tour picker grid -->
-    <div class="grid gap-4 rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="grid gap-4 rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div>
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Select a parent tour</p>
         <h2 class="mt-1 text-xl font-bold text-ink">Inclusions, exclusions, and images are child records</h2>
@@ -463,7 +463,7 @@
       <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {#each filteredTours as tour (tour.id)}
           <button
-            class="rounded-[22px] border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-goldfinch-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
+            class="rounded-[8px] border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-goldfinch-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
             type="button"
             on:click={() => selectTour(tour.id)}
           >
@@ -484,7 +484,7 @@
     </div>
   {:else}
     <!-- selected tour summary -->
-    <section class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Selected tour</p>
@@ -551,7 +551,7 @@
       {:else}
         <div class="grid gap-3">
           {#each sortedInclusions as item (item.id)}
-            <article class="flex items-center gap-4 rounded-[22px] border border-ink/10 bg-white p-4 shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
+            <article class="flex items-center gap-4 rounded-[8px] border border-ink/10 bg-white p-4 shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
               <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200/60">
                 <CheckCircle size={18} />
               </div>
@@ -584,7 +584,7 @@
       {:else}
         <div class="grid gap-3">
           {#each sortedExclusions as item (item.id)}
-            <article class="flex items-center gap-4 rounded-[22px] border border-ink/10 bg-white p-4 shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
+            <article class="flex items-center gap-4 rounded-[8px] border border-ink/10 bg-white p-4 shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
               <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-red-50 text-red-500 ring-1 ring-red-200/60">
                 <X size={18} />
               </div>
@@ -617,7 +617,7 @@
       {:else}
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {#each sortedImages as img (img.id)}
-            <article class="overflow-hidden rounded-[22px] border border-ink/10 bg-white shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
+            <article class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
               <div class="relative aspect-video bg-sand/40">
                 {#if img.image_url}
                   <img class="h-full w-full object-cover" src={img.image_url} alt={img.alt_text || img.caption || 'Tour image'} />
@@ -666,7 +666,7 @@
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[30px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6"
+      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={handleSave}
     >
@@ -697,7 +697,7 @@
 
       {:else}
         <!-- image form -->
-        <div class="mt-6 rounded-[24px] border border-ink/10 bg-sand/25 p-4">
+        <div class="mt-6 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
           <div class="grid gap-4 md:grid-cols-[260px_1fr]">
             <AdminSelect label="Image source" name="image_mode" bind:value={imageMode} options={imageModeOptions} on:change={applyImageMode} />
             {#if imageMode === 'media'}

@@ -175,7 +175,7 @@
 <section class="bg-sand/40 py-12 md:py-16">
   <div class="container-shell">
     <!-- ── filter bar ──────────────────────────────────────────────────── -->
-    <div class="rounded-[24px] border border-ink/10 bg-white p-4 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-5">
+    <div class="rounded-[8px] border border-ink/10 bg-white p-4 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-5">
       <div class="grid gap-3 lg:grid-cols-[1.4fr_repeat(4,1fr)_auto] lg:items-end">
         <label class="grid gap-2 text-sm font-medium text-ink">
           <span>Search</span>

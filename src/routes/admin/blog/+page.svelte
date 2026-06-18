@@ -156,7 +156,7 @@
       on:action={() => goto('/admin/blog/new')}
     />
   {:else}
-    <div class="overflow-hidden rounded-[24px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[900px] text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">

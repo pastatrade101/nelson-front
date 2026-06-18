@@ -350,10 +350,10 @@
 
 {#if loading}
   <div class="mx-auto grid w-full max-w-[1500px] gap-6">
-    <div class="min-h-[260px] animate-pulse rounded-[32px] bg-gradient-to-br from-forest/80 to-deep-green"></div>
+    <div class="min-h-[260px] animate-pulse rounded-[10px] bg-gradient-to-br from-forest/80 to-deep-green"></div>
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {#each Array(12) as _}
-        <div class="h-36 animate-pulse rounded-[24px] border border-ink/10 bg-white/80"></div>
+        <div class="h-36 animate-pulse rounded-[8px] border border-ink/10 bg-white/80"></div>
       {/each}
     </div>
   </div>
@@ -361,7 +361,7 @@
   <ErrorState message={error} />
 {:else}
   <div class="mx-auto grid w-full max-w-[1500px] gap-6">
-    <section class="relative overflow-hidden rounded-[34px] border border-white/10 bg-gradient-to-br from-deep-green via-forest to-[#14382d] p-6 text-white shadow-[0_26px_80px_rgba(15,47,36,0.18)] lg:p-8">
+    <section class="relative overflow-hidden rounded-[10px] border border-white/10 bg-gradient-to-br from-deep-green via-forest to-[#14382d] p-6 text-white shadow-[0_26px_80px_rgba(15,47,36,0.18)] lg:p-8">
       <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/25 blur-3xl"></div>
       <div class="pointer-events-none absolute bottom-0 left-1/3 h-44 w-44 rounded-full bg-savanna/10 blur-3xl"></div>
 
@@ -397,7 +397,7 @@
           </div>
         </div>
 
-        <div class="rounded-[28px] border border-white/10 bg-white/10 p-5 backdrop-blur">
+        <div class="rounded-[10px] border border-white/10 bg-white/10 p-5 backdrop-blur">
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-savanna/80">Current period</p>
           <p class="mt-2 text-2xl font-bold text-white">{currentPeriod}</p>
           <div class="mt-5 grid grid-cols-2 gap-3">
@@ -425,7 +425,7 @@
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {#each kpiCards as card}
           {@const Icon = card.icon}
-          <article class="group rounded-[24px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.055)] transition hover:-translate-y-0.5 hover:border-goldfinch-gold/35 hover:shadow-[0_24px_70px_rgba(15,47,36,0.1)]">
+          <article class="group rounded-[8px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.055)] transition hover:-translate-y-0.5 hover:border-goldfinch-gold/35 hover:shadow-[0_24px_70px_rgba(15,47,36,0.1)]">
             <div class="flex items-start justify-between gap-4">
               <div class={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${card.accent} ring-1 ring-ink/5`}>
                 <Icon size={21} />
@@ -443,7 +443,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-      <div class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Operational snapshot</p>
@@ -469,7 +469,7 @@
         </div>
       </div>
 
-      <div class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Quick actions</p>
@@ -496,7 +496,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-      <div class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Booking pipeline</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Request status</h2>
@@ -518,7 +518,7 @@
         </div>
       </div>
 
-      <div class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Content health</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Publishing readiness</h2>
@@ -550,7 +550,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-3">
-      <div class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)] xl:col-span-2">
+      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)] xl:col-span-2">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Recent activity</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Latest movement</h2>
@@ -623,7 +623,7 @@
         </div>
       </div>
 
-      <div class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Audit trail</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Admin actions</h2>
@@ -648,7 +648,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-3">
-      <div class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <h2 class="text-xl font-bold text-ink">Featured tours</h2>
         <div class="mt-4 grid gap-3">
           {#if stats.featured.tours.length}
@@ -664,7 +664,7 @@
         </div>
       </div>
 
-      <div class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <h2 class="text-xl font-bold text-ink">Featured destinations</h2>
         <div class="mt-4 grid gap-3">
           {#if stats.featured.destinations.length}
@@ -680,7 +680,7 @@
         </div>
       </div>
 
-      <div class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <h2 class="text-xl font-bold text-ink">Latest blog posts</h2>
         <div class="mt-4 grid gap-3">
           {#if stats.featured.blogPosts.length}

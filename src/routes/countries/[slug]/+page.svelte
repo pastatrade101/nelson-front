@@ -106,7 +106,7 @@
       </div>
     {/if}
 
-    <div class="mt-12 overflow-hidden rounded-[28px] bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
+    <div class="mt-12 overflow-hidden rounded-[10px] bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
       <h2 class="text-2xl font-extrabold md:text-3xl">Ready to plan {country.name}?</h2>
       <p class="mx-auto mt-3 max-w-xl text-white/75">Tell us what you have in mind and a local expert will tailor an honest plan — no pressure.</p>
       <a class="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-deep-green transition hover:brightness-105" href={`/plan-my-trip?destination=${country.slug}`}>Plan My Trip <ArrowRight size={18} /></a>

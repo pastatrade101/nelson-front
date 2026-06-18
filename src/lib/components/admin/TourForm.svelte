@@ -329,7 +329,7 @@
     <ErrorState message={error} />
   {:else}
     <form class="grid gap-6" on:submit|preventDefault={saveTour}>
-      <section class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div class="mb-5 flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Core details</p>
@@ -367,7 +367,7 @@
         </div>
       </section>
 
-      <section class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Pricing and logistics</p>
         <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminFormInput label="Duration days" name="duration_days" type="number" bind:value={form.duration_days} required />
@@ -389,7 +389,7 @@
         </div>
       </section>
 
-      <section class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">AI matching</p>
         <div class="mt-5 grid gap-4 md:grid-cols-3">
           <AdminFormInput label="Experience type" name="experience_type" bind:value={form.experience_type} placeholder="safari, beach, trekking" />
@@ -402,7 +402,7 @@
         </div>
       </section>
 
-      <section class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Media</p>
         <p class="mt-1 text-sm text-ink/60">Choose images from the Media Library or paste a URL manually.</p>
 
@@ -411,7 +411,7 @@
         {/if}
 
         <div class="mt-5 grid gap-4 lg:grid-cols-3">
-          <div class="grid gap-4 rounded-[22px] border border-ink/10 bg-sand/20 p-4">
+          <div class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
             <AdminSelect label="Main image source" name="main_image_mode" bind:value={mainImageMode} options={imageModeOptions} />
             {#if mainImageMode === 'url'}
               <AdminFormInput label="Main image URL" name="main_image_url" bind:value={form.main_image_url} />
@@ -423,7 +423,7 @@
             {/if}
           </div>
 
-          <div class="grid gap-4 rounded-[22px] border border-ink/10 bg-sand/20 p-4">
+          <div class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
             <AdminSelect label="Banner image source" name="banner_image_mode" bind:value={bannerImageMode} options={imageModeOptions} />
             {#if bannerImageMode === 'url'}
               <AdminFormInput label="Banner image URL" name="banner_image_url" bind:value={form.banner_image_url} />
@@ -435,7 +435,7 @@
             {/if}
           </div>
 
-          <div class="grid gap-4 rounded-[22px] border border-ink/10 bg-sand/20 p-4">
+          <div class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
             <AdminSelect label="Open Graph image source" name="og_image_mode" bind:value={ogImageMode} options={imageModeOptions} />
             {#if ogImageMode === 'url'}
               <AdminFormInput label="OG image URL" name="og_image_url" bind:value={form.og_image_url} />
@@ -449,7 +449,7 @@
         </div>
       </section>
 
-      <section class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Publishing flags</p>
         <div class="mt-5 grid gap-3 md:grid-cols-3">
           <label class="flex items-center gap-3 rounded-2xl border border-ink/10 bg-sand/20 px-4 py-3 text-sm font-semibold text-ink">
@@ -467,7 +467,7 @@
         </div>
       </section>
 
-      <section class="rounded-[28px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">SEO</p>
         <div class="mt-5 grid gap-4 md:grid-cols-2">
           <AdminFormInput label="SEO title" name="seo_title" bind:value={form.seo_title} />

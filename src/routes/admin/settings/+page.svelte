@@ -277,7 +277,7 @@
       </nav>
 
       <!-- form area -->
-      <section class="grid gap-4 rounded-[24px] border border-ink/10 bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-6">
+      <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-6">
         <div class="flex items-center gap-3 border-b border-ink/10 pb-4">
           <svelte:component this={group.icon} size={20} class="text-forest" />
           <h2 class="text-lg font-bold text-ink">{group.label} settings</h2>
@@ -360,7 +360,7 @@
 <!-- media picker modal -->
 {#if mediaPickerFor}
   <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-center justify-between border-b border-ink/10 bg-sand/30 p-4">
         <h3 class="text-base font-bold text-ink">Choose an image</h3>
         <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={() => (mediaPickerFor = null)}><X size={16} /></button>
