@@ -7,8 +7,10 @@
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import { faqLd } from '$lib/seo';
+  import FeaturedTripsShowcase from '$lib/components/public/FeaturedTripsShowcase.svelte';
   import HeroSection from '$lib/components/public/HeroSection.svelte';
   import PartnerStrip from '$lib/components/public/PartnerStrip.svelte';
+  import TrustStrip from '$lib/components/public/TrustStrip.svelte';
   import PlanningProcess from '$lib/components/public/PlanningProcess.svelte';
   import PopularActivitiesSlider from '$lib/components/public/PopularActivitiesSlider.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
@@ -121,10 +123,14 @@
   secondaryCtaUrl={typeof heroExtra.secondary_cta_url === 'string' ? heroExtra.secondary_cta_url : '/contact'}
 />
 
+<TrustStrip />
+
 <!-- Trip Finder entry (spec §4.1 B) -->
 <TripFinderBand />
 
 <PopularActivitiesSlider />
+
+<FeaturedTripsShowcase />
 
 <section class="container-shell py-14 md:py-20" use:sectionReveal>
   <div class="mx-auto max-w-2xl text-center" use:fadeUpOnScroll={{ y: 14 }}>
