@@ -27,8 +27,8 @@
   });
 </script>
 
-<section class="border-b border-ink/[0.06] bg-white">
-  <div class="container-shell flex flex-wrap items-center justify-center gap-x-8 gap-y-3 py-4 text-sm md:justify-between">
+<section class="container-shell pt-6">
+  <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-lg border border-forest/15 bg-forest/[0.07] px-6 py-4 text-sm md:justify-between">
     {#if count > 0 && avg > 0}
       <div class="flex items-center gap-2">
         <span class="flex" aria-hidden="true">
