@@ -2,15 +2,36 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { ChevronDown, CircleHelp, Mail, Menu, MessageCircle, Phone, Search, TicketsPlane, User, X } from '@lucide/svelte';
+  import { ArrowRight, ChevronDown, CircleHelp, Mail, Menu, MessageCircle, Phone, Search, TicketsPlane, User, X } from '@lucide/svelte';
   import { fade, fly } from 'svelte/transition';
   import { api } from '$lib/api/client';
   import { navbarEntrance } from '$lib/animations';
   import { brand } from '$lib/brand';
   import { publicSettings, settingText } from '$lib/settings';
 
-  type NavLink = { href: string; label: string };
+  type NavLink = { href: string; label: string; image?: string };
   type NavItem = { dropdown?: 'destinations' | 'tours'; href: string; label: string };
+
+  // Featured image panel + copy for each mega menu.
+  const FALLBACK_FEATURE_IMG = 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
+  const FEATURE: Record<'destinations' | 'tours', { eyebrow: string; title: string; blurb: string; cta: string; href: string }> = {
+    destinations: {
+      eyebrow: 'Where to go',
+      title: 'Explore East Africa',
+      blurb: 'Tanzania, Kenya, Rwanda, Uganda & Zanzibar.',
+      cta: 'All destinations',
+      href: '/destinations'
+    },
+    tours: {
+      eyebrow: 'Ready to plan?',
+      title: 'Find your perfect trip',
+      blurb: 'Browse by experience, or design a tailor-made journey.',
+      cta: 'Plan my trip',
+      href: '/plan-my-trip'
+    }
+  };
+  const featureImage = (key: 'destinations' | 'tours') =>
+    dropdownLinks(key).find((l) => l.image)?.image || FALLBACK_FEATURE_IMG;
 
   const NAV: NavItem[] = [
     { href: '/', label: 'Home' },
@@ -90,14 +111,14 @@
       try {
         const res = await api.destinations.list({ status: 'published', limit: 8 });
         const items = res.data.items ?? [];
-        if (items.length) destinations = items.map((d) => ({ label: String(d.name ?? d.slug), href: `/destinations/${d.slug}` }));
+        if (items.length) destinations = items.map((d) => ({ label: String(d.name ?? d.slug), href: `/destinations/${d.slug}`, image: d.main_image_url || d.image_url || d.banner_image_url || undefined }));
       } catch {
         // keep fallback
       }
       try {
         const res = await api.categories.list({ status: 'published', limit: 8 });
         const items = res.data.items ?? [];
-        if (items.length) categories = items.map((c) => ({ label: String(c.name ?? c.slug), href: `/tours?category=${c.slug}` }));
+        if (items.length) categories = items.map((c) => ({ label: String(c.name ?? c.slug), href: `/tours?category=${c.slug}`, image: (c.image_url as string) || undefined }));
       } catch {
         // keep fallback
       }
@@ -222,12 +243,40 @@
               </div>
 
               {#if openDropdown === item.dropdown}
-                <div id={`dd-${item.dropdown}`} class="absolute left-0 top-full z-50 w-[260px] overflow-hidden rounded-2xl border border-ink/10 bg-white p-2 shadow-[0_24px_60px_rgba(15,47,36,0.18)]" role="menu" transition:fly={{ y: 6, duration: 140 }}>
-                  <a class="block rounded-xl px-3 py-2 text-sm font-bold text-forest transition hover:bg-sand/60" href={item.href} role="menuitem">All {item.label}</a>
-                  <div class="my-1 h-px bg-ink/5"></div>
-                  {#each dropdownLinks(item.dropdown) as link (link.href)}
-                    <a class="block truncate rounded-xl px-3 py-2 text-sm font-medium text-[#333] transition hover:bg-sand/60 hover:text-forest" href={link.href} role="menuitem">{link.label}</a>
-                  {/each}
+                {@const feat = FEATURE[item.dropdown]}
+                <div
+                  id={`dd-${item.dropdown}`}
+                  class="absolute left-0 top-full z-50 grid w-[660px] grid-cols-[1fr_248px] overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-[0_24px_60px_rgba(15,47,36,0.18)]"
+                  role="menu"
+                  transition:fly={{ y: 6, duration: 140 }}
+                >
+                  <!-- link list -->
+                  <div class="p-4">
+                    <a class="flex items-center justify-between rounded-xl px-3 py-2 text-sm font-bold text-forest transition hover:bg-sand/60" href={item.href} role="menuitem">
+                      All {item.label}
+                      <ArrowRight size={14} strokeWidth={2.6} />
+                    </a>
+                    <div class="my-1.5 h-px bg-ink/5"></div>
+                    <div class="grid grid-cols-2 gap-0.5">
+                      {#each dropdownLinks(item.dropdown) as link (link.href)}
+                        <a class="truncate rounded-xl px-3 py-2.5 text-sm font-medium text-[#333] transition hover:bg-sand/60 hover:text-forest" href={link.href} role="menuitem">{link.label}</a>
+                      {/each}
+                    </div>
+                  </div>
+
+                  <!-- featured image panel -->
+                  <a href={feat.href} class="group/feat relative block overflow-hidden bg-deep-green" role="menuitem" aria-label={feat.cta}>
+                    <img class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover/feat:scale-105" src={featureImage(item.dropdown)} alt={feat.title} loading="lazy" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/45 to-deep-green/10"></div>
+                    <div class="relative flex h-full flex-col justify-end p-4 text-white">
+                      <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-savanna">{feat.eyebrow}</p>
+                      <p class="mt-1 text-lg font-extrabold leading-tight">{feat.title}</p>
+                      <p class="mt-1 text-xs leading-5 text-white/80">{feat.blurb}</p>
+                      <span class="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-goldfinch-gold">
+                        {feat.cta} <ArrowRight size={14} strokeWidth={2.6} class="transition-transform group-hover/feat:translate-x-0.5" />
+                      </span>
+                    </div>
+                  </a>
                 </div>
               {/if}
             </div>
