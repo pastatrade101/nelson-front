@@ -252,6 +252,7 @@ export type Testimonial = {
   rating?: number;
   message: string;
   tour_id?: string | null;
+  tours?: { id: string; slug: string; title: string } | null;
   status?: 'draft' | 'published' | 'archived';
   is_featured?: boolean;
   sort_order?: number;
