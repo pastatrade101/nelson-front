@@ -39,11 +39,27 @@ export type Tour = {
   highlights?: string[];
   difficulty_level?: string | null;
   group_size?: string;
+  group_size_min?: number | null;
+  group_size_max?: number | null;
+  minimum_age?: number | null;
   start_location?: string | null;
   end_location?: string | null;
+  itinerary_days?: ItineraryDay[];
+  tour_inclusions?: { title: string; sort_order?: number }[];
+  tour_exclusions?: { title: string; sort_order?: number }[];
   status?: string;
   is_featured?: boolean;
   is_popular?: boolean;
+};
+
+export type ItineraryDay = {
+  day_number: number;
+  title: string;
+  description?: string | null;
+  accommodation?: string | null;
+  meals?: string | null;
+  activities?: string | null;
+  image_url?: string | null;
 };
 
 export type Destination = {

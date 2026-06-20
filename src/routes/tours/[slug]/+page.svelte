@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowRight, Check, MessageCircle, Sparkles } from '@lucide/svelte';
+  import { ArrowRight, BedDouble, CalendarDays, Check, MapPin, MessageCircle, Mountain, Sparkles, Users, Utensils, X } from '@lucide/svelte';
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
@@ -67,6 +67,19 @@
         ]
       }
     : null;
+
+  // Day-by-day itinerary + what's included (embedded in the tour detail response).
+  $: itineraryDays = [...(tour?.itinerary_days ?? [])].sort((a, b) => (a.day_number ?? 0) - (b.day_number ?? 0));
+  $: inclusions = [...(tour?.tour_inclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  $: exclusions = [...(tour?.tour_exclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  $: highlights = tour?.highlights ?? [];
+  $: groupSize = tour
+    ? tour.group_size_min && tour.group_size_max
+      ? `${tour.group_size_min}–${tour.group_size_max} people`
+      : tour.group_size_max
+        ? `Up to ${tour.group_size_max} people`
+        : tour.group_size ?? ''
+    : '';
 
   // Relevant content for onward navigation (loaded best-effort after the tour).
   let relatedTours: Tour[] = [];
@@ -194,8 +207,120 @@
           {/each}
         </div>
 
+        <!-- trip facts -->
+        {#if tour.duration_days || tour.start_location || tour.end_location || groupSize || tour.difficulty_level || tour.minimum_age}
+          <div class="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {#if tour.duration_days}
+              <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><CalendarDays size={13} /> Duration</span>
+                <p class="mt-1 text-sm font-bold text-ink">{tour.duration_days} days{tour.duration_nights ? ` · ${tour.duration_nights} nights` : ''}</p>
+              </div>
+            {/if}
+            {#if tour.start_location || tour.end_location}
+              <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><MapPin size={13} /> Start / End</span>
+                <p class="mt-1 text-sm font-bold text-ink">{tour.start_location ?? '—'} → {tour.end_location ?? '—'}</p>
+              </div>
+            {/if}
+            {#if groupSize}
+              <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><Users size={13} /> Group size</span>
+                <p class="mt-1 text-sm font-bold text-ink">{groupSize}</p>
+              </div>
+            {/if}
+            {#if tour.difficulty_level}
+              <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><Mountain size={13} /> Difficulty</span>
+                <p class="mt-1 text-sm font-bold text-ink">{tour.difficulty_level}</p>
+              </div>
+            {/if}
+            {#if tour.minimum_age}
+              <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><Check size={13} /> Minimum age</span>
+                <p class="mt-1 text-sm font-bold text-ink">{tour.minimum_age}+</p>
+              </div>
+            {/if}
+          </div>
+        {/if}
+
+        <!-- trip highlights -->
+        {#if highlights.length}
+          <section class="mt-9">
+            <h2 class="text-xl font-bold text-deep-green">Trip highlights</h2>
+            <div class="mt-3 grid gap-2 sm:grid-cols-2">
+              {#each highlights as h}
+                <span class="inline-flex items-start gap-2 text-sm leading-6 text-ink/75">
+                  <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-goldfinch-gold/20 text-goldfinch-gold"><Check size={12} strokeWidth={3} /></span>
+                  {h}
+                </span>
+              {/each}
+            </div>
+          </section>
+        {/if}
+
+        <!-- day-by-day itinerary -->
+        {#if itineraryDays.length}
+          <section class="mt-10">
+            <h2 class="text-2xl font-bold text-deep-green">Day-by-day itinerary</h2>
+            <p class="mt-1 text-sm text-ink/55">A sample flow — your specialist can tailor every day to you.</p>
+            <ol class="mt-6 space-y-4">
+              {#each itineraryDays as day (day.day_number)}
+                <li class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-sm transition hover:border-forest/30">
+                  <div class="flex gap-4">
+                    <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-forest text-sm font-extrabold text-white">{day.day_number}</span>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-clay">Day {day.day_number}</p>
+                      <h3 class="mt-0.5 text-lg font-bold text-ink">{day.title}</h3>
+                      {#if day.description}<p class="mt-1.5 text-sm leading-6 text-ink/70">{day.description}</p>{/if}
+                      {#if day.accommodation || day.meals || day.activities}
+                        <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-ink/55">
+                          {#if day.activities}<span class="inline-flex items-center gap-1.5"><MapPin size={14} class="text-forest" /> {day.activities}</span>{/if}
+                          {#if day.accommodation}<span class="inline-flex items-center gap-1.5"><BedDouble size={14} class="text-forest" /> {day.accommodation}</span>{/if}
+                          {#if day.meals}<span class="inline-flex items-center gap-1.5"><Utensils size={14} class="text-forest" /> {day.meals}</span>{/if}
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                </li>
+              {/each}
+            </ol>
+          </section>
+        {/if}
+
+        <!-- what's included / not included -->
+        {#if inclusions.length || exclusions.length}
+          <section class="mt-10 grid gap-6 sm:grid-cols-2">
+            {#if inclusions.length}
+              <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-sm">
+                <h3 class="text-base font-bold text-ink">What's included</h3>
+                <ul class="mt-3 space-y-2">
+                  {#each inclusions as inc}
+                    <li class="flex gap-2 text-sm leading-6 text-ink/70">
+                      <span class="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-forest/10 text-forest"><Check size={11} strokeWidth={3} /></span>
+                      {inc.title}
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
+            {#if exclusions.length}
+              <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-sm">
+                <h3 class="text-base font-bold text-ink">Not included</h3>
+                <ul class="mt-3 space-y-2">
+                  {#each exclusions as exc}
+                    <li class="flex gap-2 text-sm leading-6 text-ink/55">
+                      <span class="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-ink/5 text-ink/40"><X size={11} strokeWidth={3} /></span>
+                      {exc.title}
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
+          </section>
+        {/if}
+
         <!-- cost confidence (spec §4.4 G) -->
-        <div class="mt-6">
+        <div class="mt-10">
           <TripCostSection priceFrom={tour.price_from} currency={tour.currency ?? 'USD'} tourSlug={tour.slug} />
         </div>
 
