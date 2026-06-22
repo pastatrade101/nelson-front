@@ -43,6 +43,42 @@ export function setFinalVisible(node: HTMLElement) {
   node.style.visibility = 'visible';
 }
 
+// ── Lightweight CSS reveals (WOW.js-style) ────────────────────────────────
+// Pure IntersectionObserver + GPU transitions (transform + opacity). No async
+// library load, no blur — instant and smooth, fires the moment it scrolls in.
+const REVEAL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
+function observeOnce(node: HTMLElement, onEnter: () => void) {
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (entries[0]?.isIntersecting) {
+        onEnter();
+        io.disconnect();
+      }
+    },
+    { rootMargin: '0px 0px -8% 0px', threshold: 0 }
+  );
+  io.observe(node);
+  return () => io.disconnect();
+}
+
+function hideEl(el: HTMLElement, y: number, duration: number, delay: number) {
+  el.style.opacity = '0';
+  el.style.transform = `translate3d(0, ${y}px, 0)`;
+  el.style.transition = `opacity ${duration}s ${REVEAL_EASE} ${delay}s, transform ${duration}s ${REVEAL_EASE} ${delay}s`;
+  el.style.willChange = 'opacity, transform';
+}
+
+function showEl(el: HTMLElement) {
+  el.style.opacity = '1';
+  el.style.transform = 'translate3d(0, 0, 0)';
+  const clear = () => {
+    el.style.willChange = '';
+    el.removeEventListener('transitionend', clear);
+  };
+  el.addEventListener('transitionend', clear);
+}
+
 export function setupGsap() {
   if (!browser) {
     return Promise.resolve(null);
@@ -143,66 +179,33 @@ function withMotion(node: HTMLElement, setup: (context: GsapContext) => () => vo
 }
 
 export const fadeUpOnScroll: Action<HTMLElement, RevealOptions | undefined> = (node, params = {}) => {
-  return withMotion(node, ({ gsap }) => {
-    const tween = gsap.fromTo(
-      node,
-      { autoAlpha: 0, y: params.y ?? 32, scale: 0.985, filter: 'blur(8px)' },
-      {
-        autoAlpha: 1,
-        delay: params.delay ?? 0,
-        duration: params.duration ?? 0.9,
-        ease: params.ease ?? 'power4.out',
-        filter: 'blur(0px)',
-        scale: 1,
-        scrollTrigger: {
-          once: params.once ?? true,
-          start: params.start ?? 'top 86%',
-          trigger: node
-        },
-        y: 0
-      }
-    );
-
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-    };
-  });
+  if (!browser || prefersReducedMotion()) {
+    setFinalVisible(node);
+    return {};
+  }
+  hideEl(node, params.y ?? 20, params.duration ?? 0.6, params.delay ?? 0);
+  const stop = observeOnce(node, () => showEl(node));
+  return { destroy: stop };
 };
 
 export const staggeredCardReveal: Action<HTMLElement, StaggerOptions | undefined> = (node, params = {}) => {
-  return withMotion(node, ({ gsap }) => {
-    const targets = params.selector
-      ? Array.from(node.querySelectorAll(params.selector))
-      : Array.from(node.children);
+  const targets = (
+    params.selector ? Array.from(node.querySelectorAll<HTMLElement>(params.selector)) : (Array.from(node.children) as HTMLElement[])
+  );
 
-    if (!targets.length) return () => {};
+  if (!browser || prefersReducedMotion()) {
+    targets.forEach(setFinalVisible);
+    return {};
+  }
+  if (!targets.length) return {};
 
-    const tween = gsap.fromTo(
-      targets,
-      { autoAlpha: 0, y: params.y ?? 26, scale: 0.965, filter: 'blur(6px)' },
-      {
-        autoAlpha: 1,
-        delay: params.delay ?? 0,
-        duration: params.duration ?? 0.8,
-        ease: params.ease ?? 'power4.out',
-        filter: 'blur(0px)',
-        scale: 1,
-        scrollTrigger: {
-          once: params.once ?? true,
-          start: params.start ?? 'top 84%',
-          trigger: node
-        },
-        stagger: params.stagger ?? 0.1,
-        y: 0
-      }
-    );
-
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-    };
-  });
+  const y = params.y ?? 20;
+  const duration = params.duration ?? 0.6;
+  const stagger = params.stagger ?? 0.07;
+  const base = params.delay ?? 0;
+  targets.forEach((el, i) => hideEl(el, y, duration, base + i * stagger));
+  const stop = observeOnce(node, () => targets.forEach(showEl));
+  return { destroy: stop };
 };
 
 export const heroImageParallax: Action<HTMLElement, { amount?: number } | undefined> = (node, params = {}) => {
@@ -238,29 +241,13 @@ export const heroImageParallax: Action<HTMLElement, { amount?: number } | undefi
 };
 
 export const sectionReveal: Action<HTMLElement, RevealOptions | undefined> = (node, params = {}) => {
-  return withMotion(node, ({ gsap }) => {
-    const tween = gsap.fromTo(
-      node,
-      { autoAlpha: 0, y: params.y ?? 16 },
-      {
-        autoAlpha: 1,
-        delay: params.delay ?? 0,
-        duration: params.duration ?? 0.75,
-        ease: params.ease ?? 'power2.out',
-        scrollTrigger: {
-          once: params.once ?? true,
-          start: params.start ?? 'top 88%',
-          trigger: node
-        },
-        y: 0
-      }
-    );
-
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-    };
-  });
+  if (!browser || prefersReducedMotion()) {
+    setFinalVisible(node);
+    return {};
+  }
+  hideEl(node, params.y ?? 16, params.duration ?? 0.6, params.delay ?? 0);
+  const stop = observeOnce(node, () => showEl(node));
+  return { destroy: stop };
 };
 
 export const numberCounter: Action<HTMLElement, CounterOptions | undefined> = (node, params = {}) => {
@@ -352,30 +339,15 @@ export const revealHeading: Action<HTMLElement, { stagger?: number; y?: number; 
   node.setAttribute('aria-label', text);
   node.innerHTML = text
     .split(/(\s+)/)
-    .map((part) => (/^\s+$/.test(part) ? part : `<span class="reveal-word" style="display:inline-block;will-change:transform,opacity,filter">${part}</span>`))
+    .map((part) => (/^\s+$/.test(part) ? part : `<span class="reveal-word" style="display:inline-block">${part}</span>`))
     .join('');
 
-  return withMotion(node, ({ gsap }) => {
-    const words = node.querySelectorAll('.reveal-word');
-    const tween = gsap.fromTo(
-      words,
-      { autoAlpha: 0, y: params.y ?? 26, filter: 'blur(7px)' },
-      {
-        autoAlpha: 1,
-        duration: 0.85,
-        ease: 'power4.out',
-        filter: 'blur(0px)',
-        stagger: params.stagger ?? 0.06,
-        scrollTrigger: { once: true, start: params.start ?? 'top 88%', trigger: node },
-        y: 0
-      }
-    );
-
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-    };
-  });
+  const words = Array.from(node.querySelectorAll<HTMLElement>('.reveal-word'));
+  const y = params.y ?? 18;
+  const stagger = params.stagger ?? 0.05;
+  words.forEach((el, i) => hideEl(el, y, 0.6, i * stagger));
+  const stop = observeOnce(node, () => words.forEach(showEl));
+  return { destroy: stop };
 };
 
 export const navbarEntrance: Action<HTMLElement, RevealOptions | undefined> = (node, params = {}) => {
