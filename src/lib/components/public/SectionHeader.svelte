@@ -7,7 +7,7 @@
 
 <div class="max-w-2xl">
   {#if eyebrow}
-    <p class="text-sm font-semibold uppercase tracking-[0.16em] text-clay">{eyebrow}</p>
+    <p class="font-serif text-xl italic text-clay">{eyebrow}</p>
   {/if}
   {#key title}
     <h2 class="mt-2 font-serif text-3xl font-bold tracking-normal text-ink md:text-4xl" use:revealHeading>{title}</h2>

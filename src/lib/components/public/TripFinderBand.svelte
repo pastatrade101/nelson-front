@@ -57,13 +57,13 @@
 
       <div class="relative">
         <div class="flex flex-wrap items-center gap-3">
-          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">Not sure where to start?</p>
+          <p class="font-serif text-xl italic text-savanna">Not sure where to start?</p>
           <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-bold text-savanna backdrop-blur">
             <Clock size={12} strokeWidth={2.6} /> ~60 seconds
           </span>
         </div>
 
-        <h2 class="mt-4 text-3xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-4xl lg:text-[42px]">
+        <h2 class="mt-4 font-serif text-3xl font-extrabold leading-[1.08] tracking-normal text-white sm:text-4xl lg:text-[42px]">
           Find your perfect Tanzania trip in <span class="text-goldfinch-gold">60 seconds</span>.
         </h2>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { ArrowRight, Check, Clock, MessageCircle, Sparkles } from '@lucide/svelte';
+  import { ArrowRight, Check, MessageCircle } from '@lucide/svelte';
   import { api } from '$lib/api/client';
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import DestinationCard from '$lib/components/public/DestinationCard.svelte';
@@ -142,9 +142,7 @@
   <span class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl" aria-hidden="true"></span>
   <div class="container-shell relative">
     <div class="mx-auto max-w-2xl text-center" use:fadeUpOnScroll={{ y: 14 }}>
-      <span class="inline-flex items-center gap-2 rounded-full border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-clay">
-        <Clock size={13} strokeWidth={2.6} /> Limited Time Offers
-      </span>
+      <p class="font-serif text-xl italic text-clay">Limited Time Offers</p>
       <h2 class="mt-4 font-serif text-3xl font-extrabold tracking-normal text-deep-green md:text-[40px]">
         {cms('featured_tours', 'title', 'Exclusive Safari Deals & Travel Offers')}
       </h2>
@@ -273,10 +271,7 @@
 
     <div class="container-shell relative py-16 text-center md:py-24" use:fadeUpOnScroll={{ y: 18 }}>
       <div class="mx-auto max-w-3xl">
-        <span class="inline-flex items-center gap-2 rounded-full border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">
-          <Sparkles size={14} strokeWidth={2.4} />
-          Start Your Journey
-        </span>
+        <p class="font-serif text-xl italic text-savanna">Start Your Journey</p>
 
         <h2 class="mt-5 font-serif text-3xl font-extrabold leading-[1.1] tracking-normal md:text-[44px]">
           {cms('final_cta', 'title', 'Ready to Plan Your East Africa Adventure?')}
