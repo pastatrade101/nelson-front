@@ -5,6 +5,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
+  import { revealHeading, staggeredCardReveal } from '$lib/animations';
   import { EXPERIENCE_TO_CATEGORY, PERSONA_ORDER, PERSONAS } from '$lib/data/personas';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
@@ -192,8 +193,10 @@
 <section class="container-shell py-10 md:py-14">
   {#if personaCfg}
     <div class="overflow-hidden rounded-[10px] border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
-      <p class="text-sm font-semibold uppercase tracking-[0.16em] text-clay">For {personaCfg.label}</p>
-      <h1 class="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight text-deep-green md:text-4xl">{personaCfg.headline}</h1>
+      <p class="font-serif text-xl italic text-clay">For {personaCfg.label}</p>
+      {#key personaCfg.headline}
+        <h1 class="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight text-deep-green md:text-4xl" use:revealHeading>{personaCfg.headline}</h1>
+      {/key}
       <p class="mt-3 max-w-2xl text-base leading-7 text-ink/70">{personaCfg.sub}</p>
       <div class="mt-5 flex flex-wrap gap-2.5">
         {#each personaCfg.concerns as concern}
@@ -205,8 +208,8 @@
       </div>
     </div>
   {:else}
-    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-goldfinch-gold">Safari &amp; Tours</p>
-    <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-deep-green md:text-[40px]">African Safari Tours &amp; Holidays</h1>
+    <p class="font-serif text-xl italic text-clay">Safari &amp; Tours</p>
+    <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-deep-green md:text-[40px]" use:revealHeading>African Safari Tours &amp; Holidays</h1>
     <p class="mt-3 max-w-3xl text-base leading-7 text-ink/70">
       Explore our trusted East Africa tours — safaris, Kilimanjaro climbs, gorilla trekking and beach escapes.
       Use the filters to find the trip that fits your dates, budget and style.
@@ -387,7 +390,7 @@
             message="Try widening your dates, budget or destination — or plan a custom trip and we'll tailor it to you."
           />
         {:else}
-          <div class="grid gap-6 sm:grid-cols-2">
+          <div class="grid gap-6 sm:grid-cols-2" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
             {#each sorted as tour (tour.slug)}
               <TourCardRich {tour} />
             {/each}

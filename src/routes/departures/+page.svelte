@@ -4,6 +4,7 @@
   import { page } from '$app/stores';
   import { CalendarDays, Clock, Compass, MapPin, Search, Tag, Users } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { revealHeading, staggeredCardReveal, tilt } from '$lib/animations';
   import Button from '$lib/components/public/Button.svelte';
   import SelectInput from '$lib/components/public/SelectInput.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
@@ -159,11 +160,8 @@
   <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
   <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
-    <span class="inline-flex items-center gap-2 rounded-full border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">
-      <Compass size={14} strokeWidth={2.4} />
-      Scheduled Departures
-    </span>
-    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-normal md:text-[44px]">
+    <p class="font-serif text-xl italic text-savanna">Scheduled Departures</p>
+    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-normal md:text-[44px]" use:revealHeading>
       Confirmed East Africa Departure Dates
     </h1>
     <p class="mx-auto mt-4 max-w-2xl text-[15px] font-medium leading-7 text-white/75 md:text-lg">
@@ -212,10 +210,10 @@
         </div>
       {:else}
         <p class="mb-5 text-sm font-medium text-ink/55">{grouped.length} tour{grouped.length === 1 ? '' : 's'} · {departures.length} upcoming departure{departures.length === 1 ? '' : 's'}</p>
-        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
           {#each grouped as g (g.tour.tour_id)}
             {@const dates = expanded.has(g.tour.tour_id) ? g.dates : g.dates.slice(0, 3)}
-            <article class="group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-[0_12px_36px_rgba(15,47,36,0.07)] transition hover:shadow-[0_20px_50px_rgba(15,47,36,0.12)]">
+            <article class="group flex flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-white shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" use:tilt={{ max: 5 }}>
               <div class="relative aspect-[16/10] overflow-hidden bg-skywash">
                 {#if g.tour.main_image_url}
                   <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={g.tour.main_image_url} alt={g.tour.tour_title} loading="lazy" />

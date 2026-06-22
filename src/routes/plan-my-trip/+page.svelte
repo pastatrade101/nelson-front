@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Compass, HeartHandshake, ShieldCheck } from '@lucide/svelte';
+  import { revealHeading } from '$lib/animations';
   import PlanMyTripForm from '$lib/components/public/PlanMyTripForm.svelte';
   import PlanningProcess from '$lib/components/public/PlanningProcess.svelte';
 
@@ -12,8 +13,8 @@
 
 <section class="container-shell grid items-start gap-10 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:py-16">
   <aside class="lg:sticky lg:top-24">
-    <p class="text-sm font-semibold uppercase tracking-[0.16em] text-goldfinch-gold">Plan My Trip</p>
-    <h1 class="mt-2 text-3xl font-bold leading-tight tracking-normal text-deep-green md:text-4xl">Plan East Africa with confidence</h1>
+    <p class="font-serif text-xl italic text-clay">Plan My Trip</p>
+    <h1 class="mt-2 text-3xl font-bold leading-tight tracking-normal text-deep-green md:text-4xl" use:revealHeading>Plan East Africa with confidence</h1>
     <p class="mt-3 text-base leading-7 text-ink/70">
       Tell us what you have in mind and a Goldfinch travel specialist will craft a confident, honest plan — whether it's a safari, Kilimanjaro climb, gorilla trek, or a beach escape in Zanzibar.
     </p>

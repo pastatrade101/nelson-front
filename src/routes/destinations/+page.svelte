@@ -78,7 +78,7 @@
     <div class="container-shell relative flex h-full flex-col justify-end pb-10 text-white md:pb-12">
       {#key selected.slug}
         <div in:fly={{ y: 16, duration: ms(450) }}>
-          <p class="text-sm font-bold uppercase tracking-[0.18em] text-goldfinch-gold">
+          <p class="font-serif text-xl italic text-savanna">
             Destinations{selected.country ? ` · ${selected.country}` : ''}
           </p>
           <h1 class="mt-2 max-w-2xl text-4xl font-extrabold leading-[1.05] tracking-tight md:text-6xl">{selected.name}</h1>
@@ -139,7 +139,7 @@
     <div in:fly={{ y: 16, duration: ms(400) }}>
     <div class="grid gap-10 lg:grid-cols-[1fr_0.8fr]">
       <div>
-        {#if selected.country}<p class="text-sm font-semibold uppercase tracking-[0.16em] text-clay">{selected.country}</p>{/if}
+        {#if selected.country}<p class="font-serif text-xl italic text-clay">{selected.country}</p>{/if}
         <h2 class="mt-2 text-3xl font-bold tracking-tight text-deep-green md:text-4xl">{selected.name}</h2>
         <p class="mt-4 whitespace-pre-line text-base leading-7 text-ink/70">{selected.description}</p>
         <div class="mt-6 flex flex-wrap gap-3">
@@ -173,7 +173,7 @@
       <div class="mt-12">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-clay">Things to do</p>
+            <p class="font-serif text-xl italic text-clay">Things to do</p>
             <h3 class="mt-1 text-2xl font-bold text-deep-green md:text-3xl">Trips in {selected.name}</h3>
           </div>
           <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" href="/tours">
