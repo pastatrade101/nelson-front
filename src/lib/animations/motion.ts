@@ -101,59 +101,13 @@ export function setupGsap() {
 }
 
 export function initSmoothScrolling() {
-  let destroyed = false;
-  let cleanup = () => {};
-
-  if (!browser) {
-    return cleanup;
-  }
-
-  if (prefersReducedMotion()) {
+  // Native, free scrolling — no smooth-scroll inertia (it made the page feel
+  // "stuck"/laggy behind the wheel). Scroll reveals (IntersectionObserver) and
+  // the hero parallax (ScrollTrigger) both work fine on native scroll.
+  if (browser) {
     document.documentElement.classList.remove('lenis');
-    return cleanup;
   }
-
-  void Promise.all([import('lenis'), setupGsap()]).then(([lenisModule, context]) => {
-    if (destroyed || !context) return;
-
-    const { gsap, ScrollTrigger } = context;
-    const Lenis = lenisModule.default;
-    const lenis = new Lenis({
-      lerp: 0.085,
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.6
-    });
-
-    // Drive Lenis from the GSAP ticker so smooth scroll and ScrollTrigger share a
-    // single frame loop — two competing requestAnimationFrame loops are the main
-    // cause of stutter and elements/images appearing to "reload" while scrolling.
-    lenis.on('scroll', ScrollTrigger.update);
-    const tick = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
-    document.documentElement.classList.add('lenis');
-
-    // Recompute trigger positions once late-loading (lazy / API) images settle,
-    // otherwise reveals and the hero parallax fire against a stale page height.
-    const refresh = () => ScrollTrigger.refresh();
-    window.addEventListener('load', refresh);
-    const refreshTimer = window.setTimeout(refresh, 800);
-
-    cleanup = () => {
-      gsap.ticker.remove(tick);
-      gsap.ticker.lagSmoothing(500, 33);
-      window.removeEventListener('load', refresh);
-      window.clearTimeout(refreshTimer);
-      lenis.destroy();
-      document.documentElement.classList.remove('lenis');
-    };
-  });
-
-  return () => {
-    destroyed = true;
-    cleanup();
-  };
+  return () => {};
 }
 
 function withMotion(node: HTMLElement, setup: (context: GsapContext) => () => void) {
