@@ -38,6 +38,18 @@
   let messages: ChatMessage[] = [{ role: 'assistant', text: WELCOME }];
   let scroller: HTMLDivElement;
 
+  // Auto-hide the launcher while scrolling DOWN so it never covers content;
+  // bring it back on scroll-up or near the top of the page.
+  let launcherHidden = false;
+  let lastScrollY = 0;
+  const onScroll = () => {
+    const y = window.scrollY;
+    if (y < 80) launcherHidden = false;
+    else if (y > lastScrollY + 6) launcherHidden = true;
+    else if (y < lastScrollY - 6) launcherHidden = false;
+    lastScrollY = y;
+  };
+
   const reduce = browser && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const motion = (y: number, duration: number) => (reduce ? { duration: 0 } : { y, duration });
 
@@ -172,16 +184,20 @@
         : 'bg-sand text-clay';
 </script>
 
-<!-- Floating launcher -->
+<svelte:window on:scroll={onScroll} />
+
+<!-- Floating launcher: compact circle on mobile, labelled pill on desktop.
+     Auto-hides on scroll-down so it never covers content. -->
 {#if !open}
   <button
-    class="fixed bottom-24 right-4 z-[60] inline-flex items-center gap-2 rounded-full bg-deep-green px-4 py-3 font-bold text-white shadow-[0_14px_40px_rgba(15,47,36,0.35)] transition hover:bg-forest md:bottom-6 md:right-6"
+    class={`fixed bottom-24 right-4 z-[60] grid h-14 w-14 place-items-center rounded-full bg-deep-green text-white shadow-[0_14px_40px_rgba(15,47,36,0.35)] transition-all duration-300 ease-out hover:bg-forest sm:inline-flex sm:h-auto sm:w-auto sm:items-center sm:gap-2.5 sm:px-5 sm:py-3.5 sm:font-bold md:bottom-6 md:right-6 ${
+      launcherHidden ? 'pointer-events-none translate-y-28 opacity-0' : 'translate-y-0 opacity-100'
+    }`}
     type="button"
     on:click={() => (open = true)}
     aria-label="Open the Goldfinch AI Travel Advisor"
   >
-    <LottieChatIcon size={26} />
-    <span class="sm:hidden">AI advisor</span>
+    <LottieChatIcon size={40} />
     <span class="hidden sm:inline">Ask our AI advisor</span>
   </button>
 {/if}
