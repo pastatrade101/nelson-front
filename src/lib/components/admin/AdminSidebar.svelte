@@ -34,7 +34,6 @@
     ScrollText,
     Settings,
     ShieldCheck,
-    Sparkles,
     Tags,
     Users
   } from '@lucide/svelte';
@@ -106,7 +105,7 @@
       label: 'AI System',
       links: [
         { href: '/admin/ai-conversations', label: 'AI Conversations', icon: Bot, exact: true },
-        { href: '/admin/ai-conversations', label: 'Tour Match Results', icon: Sparkles, inactivePlaceholder: true }
+        { href: '/admin/ai-usage', label: 'AI Usage & Cost', icon: CircleDollarSign }
       ]
     },
     {

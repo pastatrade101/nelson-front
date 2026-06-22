@@ -285,3 +285,43 @@ export type AiChatResponse = {
   reply: string;
   tourMatches: Array<Record<string, unknown>>;
 };
+
+// Goldfinch AI Travel Advisor — streamed chat (v2).
+export type AdvisorRecommendation = {
+  tour_id: string;
+  title: string;
+  slug: string;
+  destination: string | null;
+  duration_days: number | null;
+  price_from: number | null;
+  currency: string;
+  availability_note: string;
+  score: number; // internal — not shown to the visitor
+  confidence_label: string; // user-facing qualitative label
+  reasons: string[];
+  limitations: string[];
+  cta: string;
+};
+
+export type AdvisorAction = { type: string; label: string; url?: string };
+
+export type AdvisorMeta = { conversation_id: string; language: string; route: string; degraded: boolean };
+
+export type AdvisorDonePayload = {
+  conversation_id: string;
+  reply: string;
+  language: string;
+  lead_context?: Record<string, unknown>;
+  recommendations: AdvisorRecommendation[];
+  suggested_actions: AdvisorAction[];
+  handoff_required: boolean;
+  usage?: Record<string, unknown>;
+};
+
+export type AdvisorPageContext = {
+  path?: string;
+  tour_id?: string;
+  tour_slug?: string;
+  destination_id?: string;
+  departure_id?: string;
+};
