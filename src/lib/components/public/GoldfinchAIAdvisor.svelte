@@ -180,6 +180,7 @@
     aria-label="Open the Goldfinch AI Travel Advisor"
   >
     <Bot size={20} strokeWidth={2.2} />
+    <span class="sm:hidden">AI advisor</span>
     <span class="hidden sm:inline">Ask our AI advisor</span>
   </button>
 {/if}
