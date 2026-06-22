@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { API_URL } from '$lib/config/env';
-import type { Activity, AiChatResponse, ApiResponse, BlogPost, Comparison, Country, Destination, FAQ, Lodge, Paginated, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
+import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Country, Destination, FAQ, Lodge, Paginated, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
 
 type QueryValue = string | number | boolean | undefined | null;
 type RequestOptions = Omit<RequestInit, 'body'> & {
@@ -40,7 +40,8 @@ export const apiRequest = async <T>(path: string, options: RequestOptions = {}) 
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
     headers,
-    body: requestBody
+    body: requestBody,
+    credentials: 'include' // carry the AI advisor session cookie (§6)
   });
 
   const result = (await response.json().catch(() => ({
@@ -54,6 +55,91 @@ export const apiRequest = async <T>(path: string, options: RequestOptions = {}) 
   }
 
   return result;
+};
+
+// ── Goldfinch AI Travel Advisor — SSE streaming (§3.5) ───────────────────────
+export type AdvisorStreamBody = {
+  conversationId?: string;
+  message: string;
+  lead?: Record<string, unknown>;
+  page_context?: AdvisorPageContext;
+  shortlist?: string[];
+  turnstile_token?: string;
+  idempotency_key?: string;
+};
+
+export type AdvisorStreamHandlers = {
+  onMeta?: (meta: AdvisorMeta) => void;
+  onRecommendations?: (recs: AdvisorRecommendation[]) => void;
+  onDelta?: (text: string) => void;
+  onDone?: (payload: AdvisorDonePayload) => void;
+  onError?: (message: string) => void;
+};
+
+/**
+ * Stream a chat reply over SSE. Falls back to a friendly error via onError if
+ * the endpoint is unavailable (budget/rate/AI failure) — never throws to the UI.
+ */
+export const streamAdvisorChat = async (body: AdvisorStreamBody, handlers: AdvisorStreamHandlers): Promise<void> => {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/ai/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
+      credentials: 'include',
+      body: JSON.stringify(body)
+    });
+  } catch {
+    handlers.onError?.('I could not reach the planning engine. Please try again, or continue on WhatsApp.');
+    return;
+  }
+
+  if (!response.ok || !response.body) {
+    let message = 'The assistant is unavailable right now.';
+    try {
+      const data = (await response.json()) as { message?: string };
+      if (data?.message) message = data.message;
+    } catch {
+      // keep default
+    }
+    handlers.onError?.(message);
+    return;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  const dispatch = (rawEvent: string) => {
+    let event = 'message';
+    const dataLines: string[] = [];
+    for (const line of rawEvent.split('\n')) {
+      if (line.startsWith('event:')) event = line.slice(6).trim();
+      else if (line.startsWith('data:')) dataLines.push(line.slice(5).trim());
+    }
+    if (!dataLines.length) return;
+    let payload: unknown;
+    try {
+      payload = JSON.parse(dataLines.join('\n'));
+    } catch {
+      return;
+    }
+    if (event === 'meta') handlers.onMeta?.(payload as AdvisorMeta);
+    else if (event === 'recommendations') handlers.onRecommendations?.(payload as AdvisorRecommendation[]);
+    else if (event === 'delta') handlers.onDelta?.((payload as { text: string }).text ?? '');
+    else if (event === 'done') handlers.onDone?.(payload as AdvisorDonePayload);
+  };
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const blocks = buffer.split('\n\n');
+    buffer = blocks.pop() ?? '';
+    for (const block of blocks) if (block.trim()) dispatch(block);
+  }
+  if (buffer.trim()) dispatch(buffer);
 };
 
 export const api = {
@@ -328,8 +414,20 @@ export const api = {
     list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Record<string, unknown>>>(`/audit-logs${queryString(params)}`)
   },
   aiTravelAdvisor: {
-    chat: (body: { conversationId?: string; message: string; lead?: Record<string, unknown> }) =>
-      apiRequest<AiChatResponse>('/ai/chat', { method: 'POST', body }),
+    chat: (body: {
+      conversationId?: string;
+      message: string;
+      lead?: Record<string, unknown>;
+      page_context?: AdvisorPageContext;
+      shortlist?: string[];
+      turnstile_token?: string;
+      idempotency_key?: string;
+    }) => apiRequest<AiChatResponse>('/ai/chat', { method: 'POST', body }),
+    createBookingRequest: (conversationId: string, body: { confirmed_by_user: true; idempotency_key: string }) =>
+      apiRequest<{ booking_request_id?: string; status?: string; error?: string; missing?: string[] }>(
+        `/ai/conversations/${conversationId}/create-booking-request`,
+        { method: 'POST', body }
+      ),
     conversations: (params?: Record<string, QueryValue>) =>
       apiRequest<Paginated<Record<string, unknown>>>(`/ai/conversations${queryString(params)}`),
     conversation: (id: string) => apiRequest<Record<string, unknown>>(`/ai/conversations/${id}`),

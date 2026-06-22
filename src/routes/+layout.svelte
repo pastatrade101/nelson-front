@@ -5,6 +5,7 @@
   import '../app.css';
   import Navbar from '$lib/components/public/Navbar.svelte';
   import Footer from '$lib/components/public/Footer.svelte';
+  import GoldfinchAIAdvisor from '$lib/components/public/GoldfinchAIAdvisor.svelte';
   import PersistentCTA from '$lib/components/public/PersistentCTA.svelte';
   import ShortlistFab from '$lib/components/public/ShortlistFab.svelte';
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
@@ -82,4 +83,5 @@
   <div class="h-16 lg:hidden" aria-hidden="true"></div>
   <ShortlistFab />
   <PersistentCTA />
+  <GoldfinchAIAdvisor />
 {/if}
