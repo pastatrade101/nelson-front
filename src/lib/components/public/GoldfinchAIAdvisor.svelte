@@ -173,6 +173,17 @@
     // plan_my_trip / whatsapp render as links below.
   };
 
+  // Render a small, safe subset of Markdown the model may still emit (bold,
+  // bullets, headings) so visitors never see raw ** or # characters. Content is
+  // HTML-escaped first, so this is XSS-safe.
+  const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const formatReply = (text: string): string =>
+    escapeHtml(text)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/__(.+?)__/g, '<strong>$1</strong>')
+      .replace(/(^|\n)\s*[-*]\s+/g, '$1• ')
+      .replace(/(^|\n)#{1,6}\s+/g, '$1');
+
   const money = (rec: AdvisorRecommendation) =>
     rec.price_from != null ? `${rec.currency} ${rec.price_from.toLocaleString()}` : '';
 
@@ -234,7 +245,7 @@
         {:else}
           <div class="flex flex-col gap-2" in:fade={{ duration: reduce ? 0 : 120 }}>
             {#if m.text}
-              <p class="max-w-[90%] whitespace-pre-wrap rounded-[14px] rounded-bl-sm bg-white px-3.5 py-2.5 text-sm leading-6 text-ink shadow-sm">{m.text}</p>
+              <p class="max-w-[90%] whitespace-pre-wrap rounded-[14px] rounded-bl-sm bg-white px-3.5 py-2.5 text-sm leading-6 text-ink shadow-sm">{@html formatReply(m.text)}</p>
             {:else if loading && i === messages.length - 1}
               <p class="inline-flex w-fit items-center gap-1 rounded-[14px] rounded-bl-sm bg-white px-3.5 py-3 shadow-sm" aria-label="Advisor is typing">
                 <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-ink/40" style="animation-delay:0ms"></span>
