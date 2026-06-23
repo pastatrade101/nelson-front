@@ -446,7 +446,12 @@ export const api = {
     evals: () => apiRequest<Array<Record<string, unknown>>>('/ai/evals'),
     runEvals: () => apiRequest<{ total: number; passed: number; failed: number }>('/ai/evals/run', { method: 'POST' }),
     purgeRetention: () => apiRequest<{ purged: number; cutoff: string; retentionDays: number }>('/ai/retention/purge', { method: 'POST' }),
-    refreshEmbeddings: () => apiRequest<{ started: boolean; alreadyRunning: boolean }>('/ai/embeddings/refresh', { method: 'POST' })
+    refreshEmbeddings: () => apiRequest<{ started: boolean; alreadyRunning: boolean }>('/ai/embeddings/refresh', { method: 'POST' }),
+    assist: (body: { task: string; text?: string; language?: string; context?: Record<string, unknown> }) =>
+      apiRequest<{ task: string; text?: string; items?: string[]; seo_title?: string; meta_description?: string; itinerary?: Array<Record<string, unknown>> }>(
+        '/ai/assist',
+        { method: 'POST', body }
+      )
   },
   hubspot: {
     syncLead: (body: Record<string, unknown>) => apiRequest('/hubspot/sync-lead', { method: 'POST', body }),

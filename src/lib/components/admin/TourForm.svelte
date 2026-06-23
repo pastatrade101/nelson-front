@@ -8,6 +8,7 @@
   import AdminPageHeader from '$lib/components/admin/AdminPageHeader.svelte';
   import AdminSelect from '$lib/components/admin/AdminSelect.svelte';
   import AdminTextArea from '$lib/components/admin/AdminTextArea.svelte';
+  import AiAssistButton from '$lib/components/admin/AiAssistButton.svelte';
   import AdminToolbar from '$lib/components/admin/AdminToolbar.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
@@ -106,6 +107,17 @@
     status: 'draft' as PublishStatus,
     title: ''
   };
+
+  // Live context handed to the AI co-pilot so its drafts fit the trip.
+  const aiContext = () => ({
+    title: form.title || undefined,
+    destination: destinationOptions.find((o) => o.value === form.destination_id)?.label,
+    duration_days: Number(form.duration_days) || undefined,
+    budget_tier: form.budget_tier || undefined,
+    highlights: form.highlights || undefined,
+    short_description: form.short_description || undefined,
+    full_description: form.full_description || undefined
+  });
 
   const showToast = (message: string, type: Toast['type'] = 'success') => {
     const id = crypto.randomUUID();
@@ -362,8 +374,21 @@
         </div>
 
         <div class="mt-4 grid gap-4">
-          <AdminTextArea label="Short description" name="short_description" bind:value={form.short_description} rows={3} />
-          <AdminTextArea label="Full description" name="full_description" bind:value={form.full_description} rows={6} />
+          <div class="grid gap-1.5">
+            <div class="flex justify-end gap-1.5">
+              <AiAssistButton task="write_short" label="Write" getContext={aiContext} on:apply={(e) => (form.short_description = e.detail.text ?? form.short_description)} />
+              <AiAssistButton task="improve" label="Improve" getContext={aiContext} getText={() => form.short_description} on:apply={(e) => (form.short_description = e.detail.text ?? form.short_description)} />
+            </div>
+            <AdminTextArea label="Short description" name="short_description" bind:value={form.short_description} rows={3} />
+          </div>
+          <div class="grid gap-1.5">
+            <div class="flex justify-end gap-1.5">
+              <AiAssistButton task="write_description" label="Write" getContext={aiContext} on:apply={(e) => (form.full_description = e.detail.text ?? form.full_description)} />
+              <AiAssistButton task="improve" label="Improve" getContext={aiContext} getText={() => form.full_description} on:apply={(e) => (form.full_description = e.detail.text ?? form.full_description)} />
+              <AiAssistButton task="shorten" label="Shorten" getContext={aiContext} getText={() => form.full_description} on:apply={(e) => (form.full_description = e.detail.text ?? form.full_description)} />
+            </div>
+            <AdminTextArea label="Full description" name="full_description" bind:value={form.full_description} rows={6} />
+          </div>
         </div>
       </section>
 
@@ -397,7 +422,10 @@
           <AdminFormInput label="Persona tags" name="persona_tags" bind:value={form.persona_tags} placeholder="family, luxury, adventure" />
         </div>
 
-        <div class="mt-4 grid gap-4">
+        <div class="mt-4 grid gap-1.5">
+          <div class="flex justify-end">
+            <AiAssistButton task="suggest_highlights" label="Suggest highlights" getContext={aiContext} on:apply={(e) => (form.highlights = (e.detail.items ?? []).join('\n') || form.highlights)} />
+          </div>
           <AdminTextArea label="Highlights" name="highlights" bind:value={form.highlights} rows={4} placeholder="One highlight per line. Day-by-day itinerary is managed separately in Itineraries." />
         </div>
       </section>
@@ -468,7 +496,10 @@
       </section>
 
       <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
-        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">SEO</p>
+        <div class="flex items-center justify-between">
+          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">SEO</p>
+          <AiAssistButton task="seo_meta" label="Generate SEO" getContext={aiContext} on:apply={(e) => { form.seo_title = e.detail.seo_title || form.seo_title; form.meta_description = e.detail.meta_description || form.meta_description; }} />
+        </div>
         <div class="mt-5 grid gap-4 md:grid-cols-2">
           <AdminFormInput label="SEO title" name="seo_title" bind:value={form.seo_title} />
           <AdminTextArea label="Meta description" name="meta_description" bind:value={form.meta_description} rows={3} />
