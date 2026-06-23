@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { ArrowRight, ChevronDown, CircleHelp, Menu, MessageCircle, Search, TicketsPlane, User, X } from '@lucide/svelte';
   import { fade, fly } from 'svelte/transition';
@@ -107,6 +107,14 @@
     openDropdown = openDropdown === key ? '' : key;
   };
 
+  // Always close the mobile drawer (and any open dropdowns) after a navigation,
+  // so tapping any link reliably closes it.
+  afterNavigate(() => {
+    menuOpen = false;
+    mobileAccordion = '';
+    openDropdown = '';
+  });
+
   onMount(() => {
     const loadNav = async () => {
       try {
@@ -159,7 +167,7 @@
 <header class={`sticky top-0 z-40 border-b bg-white transition-[box-shadow,border-color] duration-[400ms] ease-out ${scrolled ? 'border-transparent shadow-[0_8px_28px_rgba(15,47,36,0.10)]' : 'border-[#e8e8e8]'}`} use:navbarEntrance>
   <!-- ── mobile top bar ─────────────────────────────────────────────────── -->
   <div class="flex h-[70px] items-center justify-between gap-3 px-4 sm:px-5 lg:hidden">
-    <button class="grid h-11 w-11 place-items-center rounded-xl border border-[#e5e5e5] bg-white text-[#111111]" type="button" aria-label="Open menu" aria-expanded={menuOpen} on:click={() => (menuOpen = true)}>
+    <button class="grid h-11 w-11 place-items-center rounded-xl border border-[#e5e5e5] bg-white text-[#111111]" type="button" aria-label="Toggle menu" aria-expanded={menuOpen} on:click={() => (menuOpen = !menuOpen)}>
       <Menu size={24} strokeWidth={2.4} />
     </button>
 
