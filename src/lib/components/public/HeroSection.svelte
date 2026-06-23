@@ -33,7 +33,9 @@
     { label: 'Zanzibar Beach', href: '/tours?category=zanzibar-beach' }
   ];
 
-  let slides: Slide[] = [];
+  // Start with one lightweight (sized) slide so an image paints on first render
+  // for a fast LCP, instead of waiting for the destinations API in onMount.
+  let slides: Slide[] = [{ ...FALLBACK_SLIDES[0], eyebrow: 'Rated 4.9/5 by travellers', title, subtitle: description }];
   let destinationOptions: Opt[] = [];
   let destination = '';
   let index = 0;
