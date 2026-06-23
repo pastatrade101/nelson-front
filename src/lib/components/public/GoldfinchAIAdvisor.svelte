@@ -6,7 +6,7 @@
   import { page } from '$app/stores';
   import { env as publicEnv } from '$env/dynamic/public';
   import { streamAdvisorChat } from '$lib/api/client';
-  import { aiAdvisorOpen } from '$lib/aiAdvisor';
+  import { aiAdvisorOpen, aiAdvisorSeed } from '$lib/aiAdvisor';
   import { brand } from '$lib/brand';
   import LottieChatIcon from './LottieChatIcon.svelte';
   import type { AdvisorAction, AdvisorPageContext, AdvisorRecommendation } from '$lib/types';
@@ -79,6 +79,13 @@
   // with a trip-specific welcome). Stops once the conversation starts.
   $: if ($aiAdvisorOpen && !started) {
     messages = [{ role: 'assistant', text: computeWelcome($page.url.pathname) }];
+  }
+
+  // A seeded question (e.g. from an Expert Advice chip) is auto-sent on open.
+  $: if ($aiAdvisorOpen && $aiAdvisorSeed && !loading) {
+    const seeded = $aiAdvisorSeed;
+    aiAdvisorSeed.set(null);
+    void send(seeded);
   }
 
   const turnstileSiteKey = publicEnv.PUBLIC_TURNSTILE_SITE_KEY;

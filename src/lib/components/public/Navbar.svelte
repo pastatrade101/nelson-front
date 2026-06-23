@@ -195,7 +195,7 @@
       </form>
 
       <div class="flex items-center gap-4 text-[13px] font-semibold">
-        <button type="button" class="inline-flex items-center gap-1 text-forest transition hover:text-deep-green" on:click={openAiAdvisor}>
+        <button type="button" class="inline-flex items-center gap-1 text-forest transition hover:text-deep-green" on:click={() => openAiAdvisor()}>
           <CircleHelp size={15} strokeWidth={2.6} />
           Need help?
         </button>

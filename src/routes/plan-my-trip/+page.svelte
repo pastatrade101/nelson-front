@@ -24,7 +24,7 @@
          same booking request, then a specialist confirms). -->
     <button
       type="button"
-      on:click={openAiAdvisor}
+      on:click={() => openAiAdvisor()}
       class="group mt-5 flex w-full items-center gap-3 rounded-2xl border border-forest/25 bg-forest/[0.04] p-4 text-left transition hover:bg-forest/[0.08]"
     >
       <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-deep-green text-white"><Sparkles size={19} strokeWidth={2.4} /></span>
