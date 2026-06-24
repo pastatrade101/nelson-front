@@ -259,7 +259,7 @@
 <AdminToolbar className="grid gap-3 lg:grid-cols-[1fr_190px_auto_auto] lg:items-end">
   <label class="grid gap-2 text-sm font-medium text-ink">
     <span>Search</span>
-    <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+    <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
       <Search size={16} class="text-ink/45" />
       <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Search file name, alt text, or caption..." on:keydown={(event) => event.key === 'Enter' && applyFilters()} />
     </span>
@@ -269,12 +269,12 @@
 
   <AdminButton variant="secondary" on:click={applyFilters}>Apply</AdminButton>
 
-  <div class="flex h-11 rounded-2xl border border-ink/10 bg-white p-1 shadow-sm">
-    <button class={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition ${viewMode === 'grid' ? 'bg-forest text-white shadow-sm' : 'text-ink/60 hover:bg-sand/70 hover:text-deep-green'}`} type="button" on:click={() => (viewMode = 'grid')} aria-label="Show media grid">
+  <div class="flex h-11 rounded-2xl border border-ink/10 bg-surface p-1 shadow-sm">
+    <button class={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition ${viewMode === 'grid' ? 'bg-forest text-white shadow-sm' : 'text-ink/60 hover:bg-sand/70 hover:text-heading'}`} type="button" on:click={() => (viewMode = 'grid')} aria-label="Show media grid">
       <Grid2X2 size={15} />
       Grid
     </button>
-    <button class={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition ${viewMode === 'list' ? 'bg-forest text-white shadow-sm' : 'text-ink/60 hover:bg-sand/70 hover:text-deep-green'}`} type="button" on:click={() => (viewMode = 'list')} aria-label="Show media list">
+    <button class={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition ${viewMode === 'list' ? 'bg-forest text-white shadow-sm' : 'text-ink/60 hover:bg-sand/70 hover:text-heading'}`} type="button" on:click={() => (viewMode = 'list')} aria-label="Show media list">
       <List size={15} />
       List
     </button>
@@ -296,7 +296,7 @@
 {:else if viewMode === 'grid'}
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
     {#each rows as media}
-      <article class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(15,47,36,0.1)]">
+      <article class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(15,47,36,0.1)]">
         <div class="aspect-[4/3] bg-sand/60">
           {#if media.file_type === 'image'}
             <img class="h-full w-full object-cover" src={media.file_url} alt={media.alt_text || media.file_name} />
@@ -320,15 +320,15 @@
           </div>
 
           <div class="flex flex-wrap justify-end gap-2">
-            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => copyUrl(media)}>
+            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => copyUrl(media)}>
               <Copy size={14} />
               Copy URL
             </button>
-            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(media)}>
+            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(media)}>
               <Edit size={14} />
               Edit
             </button>
-            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(media)}>
+            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(media)}>
               <Trash2 size={14} />
               Delete
             </button>
@@ -338,7 +338,7 @@
     {/each}
   </div>
 {:else}
-  <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+  <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
     <div class="overflow-x-auto">
       <table class="w-full min-w-[980px] text-start text-sm">
         <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -374,15 +374,15 @@
               <td class="px-4 py-3 text-ink/65">{formatDate(media.created_at)}</td>
               <td class="px-4 py-3">
                 <div class="flex justify-end gap-2">
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => copyUrl(media)}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => copyUrl(media)}>
                     <Copy size={14} />
                     Copy
                   </button>
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(media)}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(media)}>
                     <Edit size={14} />
                     Edit
                   </button>
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(media)}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(media)}>
                     <Trash2 size={14} />
                     Delete
                   </button>
@@ -397,7 +397,7 @@
 {/if}
 
 {#if pagination && pagination.totalPages > 1}
-  <div class="flex flex-col gap-3 rounded-[8px] border border-ink/10 bg-white/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex flex-col gap-3 rounded-[8px] border border-ink/10 bg-surface/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
     <p>Page {pagination.page} of {pagination.totalPages} · {pagination.total} files</p>
     <div class="flex gap-2">
       <AdminButton variant="secondary" size="sm" disabled={page <= 1} on:click={() => goToPage(page - 1)}>Previous</AdminButton>
@@ -408,14 +408,14 @@
 </div>
 
 {#if uploadModalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="w-full max-w-xl rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <div class="w-full max-w-xl rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Upload media</p>
           <h2 class="mt-2 text-2xl font-bold tracking-normal text-ink">Add Image</h2>
         </div>
-        <button class="grid h-10 w-10 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close modal" on:click={closeUploadModal}>
+        <button class="grid h-10 w-10 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close modal" on:click={closeUploadModal}>
           <X size={18} />
         </button>
       </div>
@@ -443,14 +443,14 @@
 {/if}
 
 {#if editModalOpen && mediaToEdit}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="w-full max-w-xl rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <div class="w-full max-w-xl rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Edit metadata</p>
           <h2 class="mt-2 text-xl font-bold tracking-normal text-ink">{mediaToEdit.file_name}</h2>
         </div>
-        <button class="grid h-10 w-10 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close modal" on:click={closeEditModal}>
+        <button class="grid h-10 w-10 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close modal" on:click={closeEditModal}>
           <X size={18} />
         </button>
       </div>
@@ -482,7 +482,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting media...
   </div>
 {/if}

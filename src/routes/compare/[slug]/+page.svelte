@@ -93,20 +93,20 @@
 
   <section class="container-shell py-12 md:py-16">
     <!-- comparison table -->
-    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-soft">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-soft">
       <div class="hidden grid-cols-[200px_1fr_1fr] border-b border-ink/10 bg-sand/40 sm:grid">
         <div class="p-4"></div>
-        <div class="p-4 text-center text-lg font-extrabold text-deep-green">{cmp.a.name}</div>
-        <div class="p-4 text-center text-lg font-extrabold text-deep-green">{cmp.b.name}</div>
+        <div class="p-4 text-center text-lg font-extrabold text-heading">{cmp.a.name}</div>
+        <div class="p-4 text-center text-lg font-extrabold text-heading">{cmp.b.name}</div>
       </div>
       {#each cmp.dimensions as dim, i}
-        <div class={`grid sm:grid-cols-[200px_1fr_1fr] ${i % 2 ? 'bg-sand/20' : 'bg-white'}`}>
+        <div class={`grid sm:grid-cols-[200px_1fr_1fr] ${i % 2 ? 'bg-sand/20' : 'bg-surface'}`}>
           <div class="px-4 pt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-clay sm:py-4 sm:text-xs">{dim.label}</div>
           <div class="px-4 pb-2 pt-1 text-sm leading-6 text-ink/75 sm:border-l sm:border-ink/10 sm:py-4">
-            <span class="mb-1 block text-xs font-bold text-deep-green sm:hidden">{cmp.a.name}</span>{dim.a}
+            <span class="mb-1 block text-xs font-bold text-heading sm:hidden">{cmp.a.name}</span>{dim.a}
           </div>
           <div class="px-4 pb-4 pt-1 text-sm leading-6 text-ink/75 sm:border-l sm:border-ink/10 sm:py-4">
-            <span class="mb-1 block text-xs font-bold text-deep-green sm:hidden">{cmp.b.name}</span>{dim.b}
+            <span class="mb-1 block text-xs font-bold text-heading sm:hidden">{cmp.b.name}</span>{dim.b}
           </div>
         </div>
       {/each}
@@ -126,10 +126,10 @@
 
     {#if cmp.faqs?.length}
       <div class="mt-10">
-        <h2 class="text-2xl font-bold text-deep-green">Common questions</h2>
+        <h2 class="text-2xl font-bold text-heading">Common questions</h2>
         <div class="mt-4 grid gap-3">
           {#each cmp.faqs as faq}
-            <div class="rounded-2xl border border-ink/10 bg-white p-5">
+            <div class="rounded-2xl border border-ink/10 bg-surface p-5">
               <p class="flex items-start gap-2 font-semibold text-ink">
                 <Check size={16} class="mt-1 shrink-0 text-forest" />{faq.q}
               </p>
@@ -142,13 +142,13 @@
 
     {#if others.length}
       <div class="mt-12">
-        <h2 class="text-xl font-bold text-deep-green">More comparisons</h2>
+        <h2 class="text-xl font-bold text-heading">More comparisons</h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           {#each others as o (o.slug)}
-            <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white p-5 transition hover:border-goldfinch-gold/40" href={`/compare/${o.slug}`}>
+            <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-surface p-5 transition hover:border-goldfinch-gold/40" href={`/compare/${o.slug}`}>
               <span>
                 <span class="block text-xs font-bold uppercase tracking-[0.14em] text-clay">{o.eyebrow}</span>
-                <span class="mt-0.5 block font-extrabold text-deep-green">{o.title}</span>
+                <span class="mt-0.5 block font-extrabold text-heading">{o.title}</span>
               </span>
               <ArrowRight size={18} class="shrink-0 text-ink/30 transition group-hover:text-forest" />
             </a>
@@ -159,7 +159,7 @@
   </section>
 {:else if loaded}
   <section class="container-shell py-20 text-center">
-    <h1 class="text-2xl font-bold text-deep-green">Comparison not found</h1>
-    <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-deep-green" href="/compare">See all comparisons <ArrowRight size={16} /></a>
+    <h1 class="text-2xl font-bold text-heading">Comparison not found</h1>
+    <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-heading" href="/compare">See all comparisons <ArrowRight size={16} /></a>
   </section>
 {/if}

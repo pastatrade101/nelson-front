@@ -217,7 +217,7 @@
     label.startsWith('Excellent')
       ? 'bg-forest text-white'
       : label.startsWith('Strong')
-        ? 'bg-goldfinch-gold text-deep-green'
+        ? 'bg-goldfinch-gold text-heading'
         : 'bg-sand text-clay';
 </script>
 
@@ -242,7 +242,7 @@
 <!-- Panel -->
 {#if $aiAdvisorOpen}
   <div
-    class="fixed inset-0 z-[60] flex flex-col bg-white md:inset-auto md:bottom-6 md:right-6 md:h-[640px] md:max-h-[85vh] md:w-[400px] md:rounded-[16px] md:border md:border-ink/10 md:shadow-[0_30px_80px_rgba(15,47,36,0.28)]"
+    class="fixed inset-0 z-[60] flex flex-col bg-surface md:inset-auto md:bottom-6 md:right-6 md:h-[640px] md:max-h-[85vh] md:w-[400px] md:rounded-[16px] md:border md:border-ink/10 md:shadow-[0_30px_80px_rgba(15,47,36,0.28)]"
     role="dialog"
     aria-label="Goldfinch AI Travel Advisor"
     transition:fly={motion(20, 220)}
@@ -250,13 +250,13 @@
     <!-- Header -->
     <header class="flex items-center justify-between gap-3 border-b border-ink/10 bg-deep-green px-4 py-3 text-white md:rounded-t-[16px]">
       <div class="flex items-center gap-2.5">
-        <span class="grid h-9 w-9 place-items-center rounded-full bg-white/15"><LottieChatIcon size={24} /></span>
+        <span class="grid h-9 w-9 place-items-center rounded-full bg-surface/15"><LottieChatIcon size={24} /></span>
         <div class="leading-tight">
           <p class="text-sm font-bold">{brand.aiAdvisorName}</p>
           <p class="text-[11px] text-white/70">AI assistant · replies are guidance, not a final booking</p>
         </div>
       </div>
-      <button class="rounded-full p-1.5 text-white/80 transition hover:bg-white/10 hover:text-white" type="button" on:click={() => ($aiAdvisorOpen = false)} aria-label="Close advisor">
+      <button class="rounded-full p-1.5 text-white/80 transition hover:bg-surface/10 hover:text-white" type="button" on:click={() => ($aiAdvisorOpen = false)} aria-label="Close advisor">
         <X size={18} />
       </button>
     </header>
@@ -271,12 +271,12 @@
         {:else}
           <div class="flex flex-col gap-2" in:fade={{ duration: reduce ? 0 : 120 }}>
             {#if m.text}
-              <p class="max-w-[90%] whitespace-pre-wrap rounded-[14px] rounded-bl-sm bg-white px-3.5 py-2.5 text-sm leading-6 text-ink shadow-sm">{@html formatReply(m.text)}</p>
+              <p class="max-w-[90%] whitespace-pre-wrap rounded-[14px] rounded-bl-sm bg-surface px-3.5 py-2.5 text-sm leading-6 text-ink shadow-sm">{@html formatReply(m.text)}</p>
             {:else if loading && i === messages.length - 1}
-              <p class="inline-flex w-fit items-center gap-1 rounded-[14px] rounded-bl-sm bg-white px-3.5 py-3 shadow-sm" aria-label="Advisor is typing">
-                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-ink/40" style="animation-delay:0ms"></span>
-                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-ink/40" style="animation-delay:120ms"></span>
-                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-ink/40" style="animation-delay:240ms"></span>
+              <p class="inline-flex w-fit items-center gap-1 rounded-[14px] rounded-bl-sm bg-surface px-3.5 py-3 shadow-sm" aria-label="Advisor is typing">
+                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-black/40" style="animation-delay:0ms"></span>
+                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-black/40" style="animation-delay:120ms"></span>
+                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-black/40" style="animation-delay:240ms"></span>
               </p>
             {/if}
 
@@ -284,15 +284,15 @@
             {#if m.recommendations?.length}
               <div class="grid gap-2">
                 {#each m.recommendations as rec (rec.tour_id)}
-                  <article class="rounded-[12px] border border-ink/10 bg-white p-3 shadow-sm">
+                  <article class="rounded-[12px] border border-ink/10 bg-surface p-3 shadow-sm">
                     <div class="flex items-start justify-between gap-2">
-                      <h4 class="text-sm font-extrabold leading-snug text-deep-green">{rec.title}</h4>
+                      <h4 class="text-sm font-extrabold leading-snug text-heading">{rec.title}</h4>
                       <span class={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${labelTone(rec.confidence_label)}`}>{rec.confidence_label}</span>
                     </div>
                     <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-semibold text-ink/55">
                       {#if rec.destination}<span class="inline-flex items-center gap-1"><MapPin size={11} /> {rec.destination}</span>{/if}
                       {#if rec.duration_days}<span>· {rec.duration_days} days</span>{/if}
-                      {#if money(rec)}<span class="text-deep-green">· from {money(rec)}</span>{/if}
+                      {#if money(rec)}<span class="text-heading">· from {money(rec)}</span>{/if}
                     </div>
                     {#if rec.reasons?.length}
                       <ul class="mt-2 space-y-0.5">
@@ -301,7 +301,7 @@
                         {/each}
                       </ul>
                     {/if}
-                    <a class="mt-2 inline-flex items-center gap-1 text-[12px] font-bold text-forest transition hover:text-deep-green" href={rec.cta}>
+                    <a class="mt-2 inline-flex items-center gap-1 text-[12px] font-bold text-forest transition hover:text-heading" href={rec.cta}>
                       View this trip <ArrowUpRight size={13} strokeWidth={2.6} />
                     </a>
                   </article>
@@ -315,7 +315,7 @@
                 {#each m.actions as action}
                   {#if action.url}
                     <a
-                      class="inline-flex items-center gap-1.5 rounded-full border border-forest/25 bg-white px-3 py-1.5 text-[12px] font-bold text-forest transition hover:bg-forest hover:text-white"
+                      class="inline-flex items-center gap-1.5 rounded-full border border-forest/25 bg-surface px-3 py-1.5 text-[12px] font-bold text-forest transition hover:bg-forest hover:text-white"
                       href={action.url}
                       target={action.type === 'whatsapp' ? '_blank' : undefined}
                       rel={action.type === 'whatsapp' ? 'noopener noreferrer' : undefined}
@@ -325,7 +325,7 @@
                     </a>
                   {:else}
                     <button
-                      class="inline-flex items-center gap-1.5 rounded-full bg-goldfinch-gold px-3 py-1.5 text-[12px] font-bold text-deep-green transition hover:brightness-105"
+                      class="inline-flex items-center gap-1.5 rounded-full bg-goldfinch-gold px-3 py-1.5 text-[12px] font-bold text-heading transition hover:brightness-105"
                       type="button"
                       on:click={() => onAction(action)}
                     >
@@ -343,7 +343,7 @@
       {#if !started}
         <div class="flex flex-wrap gap-2 pt-1">
           {#each QUICK_REPLIES as q}
-            <button class="rounded-full border border-ink/15 bg-white px-3 py-1.5 text-[12px] font-semibold text-ink/70 transition hover:border-forest/40 hover:text-forest" type="button" on:click={() => onQuickReply(q)}>{q}</button>
+            <button class="rounded-full border border-ink/15 bg-surface px-3 py-1.5 text-[12px] font-semibold text-ink/70 transition hover:border-forest/40 hover:text-forest" type="button" on:click={() => onQuickReply(q)}>{q}</button>
           {/each}
         </div>
       {/if}
@@ -354,10 +354,10 @@
     </div>
 
     <!-- Composer + consent -->
-    <form class="border-t border-ink/10 bg-white px-3 py-3 md:rounded-b-[16px]" on:submit={onSubmit}>
+    <form class="border-t border-ink/10 bg-surface px-3 py-3 md:rounded-b-[16px]" on:submit={onSubmit}>
       <div class="flex items-end gap-2">
         <input
-          class="min-w-0 flex-1 rounded-full border border-ink/15 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-forest"
+          class="min-w-0 flex-1 rounded-full border border-ink/15 bg-surface px-4 py-2.5 text-sm outline-none transition focus:border-forest"
           bind:value={input}
           placeholder="Ask about destinations, dates, budget…"
           aria-label="Message the AI advisor"

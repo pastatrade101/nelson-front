@@ -96,7 +96,7 @@
           </p>
           <p class="mt-4 text-xl font-bold">New safari experiences in Tanzania</p>
 
-          <div class="mt-7 flex h-14 items-center gap-2 rounded-lg bg-white/95 px-3 shadow-lg">
+          <div class="mt-7 flex h-14 items-center gap-2 rounded-lg bg-surface/95 px-3 shadow-lg">
             <MapPin size={18} class="shrink-0 text-forest" />
             <select class="h-12 w-full cursor-pointer appearance-none bg-transparent text-sm font-semibold text-ink outline-none" bind:value={dest} aria-label="Choose a destination">
               <option value="">Where do you want to go?</option>
@@ -108,7 +108,7 @@
           </div>
 
           <button
-            class="mt-5 inline-flex h-12 items-center gap-2 rounded-lg bg-goldfinch-gold px-7 font-bold text-deep-green shadow-lg transition hover:-translate-y-0.5 hover:brightness-105"
+            class="mt-5 inline-flex h-12 items-center gap-2 rounded-lg bg-goldfinch-gold px-7 font-bold text-heading shadow-lg transition hover:-translate-y-0.5 hover:brightness-105"
             type="button"
             on:click={bookNow}
           >
@@ -122,7 +122,7 @@
         <span class="pointer-events-none absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #0F2F24 1px, transparent 1.5px); background-size: 24px 24px;" aria-hidden="true"></span>
         <div class="relative">
           <p class="font-serif text-xl italic text-clay">Top Destinations</p>
-          <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-deep-green md:text-[40px]" use:revealHeading>Explore Popular Destinations</h2>
+          <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>Explore Popular Destinations</h2>
           <p class="mt-3 max-w-xl text-[15px] leading-7 text-ink/60">
             From the Serengeti's endless plains to Zanzibar's white-sand shores — handpicked places our local specialists know inside out.
           </p>
@@ -136,7 +136,7 @@
                   <img class="h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105" src={imgOf(d)} alt={d.name} loading="lazy" />
 
                   {#if rating}
-                    <span class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-goldfinch-gold px-2.5 py-1 text-xs font-bold text-deep-green shadow">
+                    <span class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-goldfinch-gold px-2.5 py-1 text-xs font-bold text-heading shadow">
                       <Star size={12} fill="currentColor" /> {rating.toFixed(1)}
                     </span>
                   {/if}
@@ -146,7 +146,7 @@
                     <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-savanna">Destination</p>
                     <h3 class="text-lg font-extrabold leading-tight">{d.name}</h3>
                     <p class="mt-1.5 line-clamp-2 text-sm leading-5 text-white/80">{taglineOf(d)}</p>
-                    <span class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/40 px-4 py-1.5 text-sm font-bold transition group-hover:bg-white group-hover:text-deep-green">
+                    <span class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/40 px-4 py-1.5 text-sm font-bold transition group-hover:bg-surface group-hover:text-heading">
                       Discover <ArrowRight size={14} strokeWidth={2.6} />
                     </span>
                   </div>
@@ -160,7 +160,7 @@
             <div class="mt-7 flex items-center gap-2">
               {#each Array(pageCount) as _, i}
                 <button
-                  class={`h-2.5 rounded-full transition-all ${i === page ? 'w-7 bg-forest' : 'w-2.5 bg-ink/15 hover:bg-ink/30'}`}
+                  class={`h-2.5 rounded-full transition-all ${i === page ? 'w-7 bg-forest' : 'w-2.5 bg-black/15 hover:bg-black/30'}`}
                   type="button"
                   aria-label={`Go to slide ${i + 1}`}
                   aria-current={i === page}

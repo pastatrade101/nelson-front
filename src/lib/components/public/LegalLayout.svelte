@@ -24,7 +24,7 @@
 </section>
 
 <section class="container-shell py-12 md:py-16">
-  <div class="legal-prose mx-auto max-w-3xl rounded-[12px] border border-ink/10 bg-white p-6 shadow-[0_14px_40px_rgba(15,47,36,0.06)] md:p-10">
+  <div class="legal-prose mx-auto max-w-3xl rounded-[12px] border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(15,47,36,0.06)] md:p-10">
     <slot />
   </div>
 

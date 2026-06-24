@@ -72,10 +72,10 @@
       <h1 class="max-w-3xl text-3xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">{name}</h1>
       {#if exp.description}<p class="mt-4 max-w-2xl text-[15px] leading-7 text-white/85 md:text-base">{String(exp.description)}</p>{/if}
       <div class="mt-6 flex flex-wrap gap-3">
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-deep-green transition hover:brightness-105" href={`/plan-my-trip?experience=${slug}`}>
+        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading transition hover:brightness-105" href={`/plan-my-trip?experience=${slug}`}>
           <Sparkles size={18} /> Plan a {name} trip
         </a>
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-white/10" href={`/tours?experience=${slug}`}>
+        <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10" href={`/tours?experience=${slug}`}>
           See {name} tours <ArrowRight size={18} />
         </a>
       </div>
@@ -85,14 +85,14 @@
   <section class="container-shell py-12 md:py-16">
     {#if info}
       <div class="grid gap-6 md:grid-cols-[1fr_1fr]">
-        <div class="rounded-2xl border border-ink/10 bg-white p-6 shadow-soft">
+        <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
           <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">Who it's for</p>
           <p class="mt-2 text-base leading-7 text-ink/75">{info.whoItsFor}</p>
           {#if info.fitness}
-            <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-sand/60 px-3 py-1.5 text-sm font-semibold text-deep-green">Fitness: {info.fitness}</p>
+            <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-sand/60 px-3 py-1.5 text-sm font-semibold text-heading">Fitness: {info.fitness}</p>
           {/if}
         </div>
-        <div class="rounded-2xl border border-ink/10 bg-white p-6 shadow-soft">
+        <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
           <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">Highlights</p>
           <div class="mt-3 grid gap-2.5">
             {#each info.highlights as h}
@@ -108,8 +108,8 @@
     {#if tours.length}
       <div class="mt-12">
         <div class="flex flex-wrap items-end justify-between gap-4">
-          <h2 class="text-2xl font-bold text-deep-green md:text-3xl">{name} trips</h2>
-          <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" href={`/tours?experience=${slug}`}>
+          <h2 class="text-2xl font-bold text-heading md:text-3xl">{name} trips</h2>
+          <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href={`/tours?experience=${slug}`}>
             See all <ArrowRight size={16} />
           </a>
         </div>
@@ -123,7 +123,7 @@
   </section>
 {:else}
   <section class="container-shell py-20 text-center">
-    <h1 class="text-2xl font-bold text-deep-green">Experience not found</h1>
-    <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-deep-green" href="/experiences">All experiences <ArrowRight size={16} /></a>
+    <h1 class="text-2xl font-bold text-heading">Experience not found</h1>
+    <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-heading" href="/experiences">All experiences <ArrowRight size={16} /></a>
   </section>
 {/if}

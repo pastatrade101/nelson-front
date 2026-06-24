@@ -18,10 +18,10 @@
   }));
 </script>
 
-<form class={`grid gap-4 rounded-lg border border-ink/10 bg-white p-5 shadow-soft ${compact ? '' : 'md:p-6'}`}>
+<form class={`grid gap-4 rounded-lg border border-ink/10 bg-surface p-5 shadow-soft ${compact ? '' : 'md:p-6'}`}>
   <div>
     <p class="text-sm font-semibold uppercase tracking-[0.14em] text-goldfinch-gold">Goldfinch Lead Engine</p>
-    <h3 class="mt-2 text-2xl font-bold tracking-normal text-deep-green">{title}</h3>
+    <h3 class="mt-2 text-2xl font-bold tracking-normal text-heading">{title}</h3>
     <p class="mt-2 text-sm leading-6 text-ink/70">Tell us the basics and a local advisor can shape a confident safari, Kilimanjaro, gorilla trekking, or beach plan.</p>
   </div>
 

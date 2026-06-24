@@ -213,7 +213,7 @@
   <AdminToolbar className="grid gap-3 xl:grid-cols-[1fr_170px_190px_170px_150px_150px_150px_auto] xl:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search</span>
-      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
         <Search size={16} class="text-ink/45" />
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Search tours..." on:keydown={(event) => event.key === 'Enter' && applyFilters()} />
       </span>
@@ -240,7 +240,7 @@
       on:action={() => goto('/admin/tours/new')}
     />
   {:else}
-    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[1180px] text-start text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -272,7 +272,7 @@
                       {tour.is_available ? 'Available' : 'Unavailable'}
                     </span>
                     {#if tour.is_featured}
-                      <span class="inline-flex rounded-full bg-goldfinch-gold/15 px-2.5 py-1 text-xs font-bold text-deep-green ring-1 ring-goldfinch-gold/25">Featured</span>
+                      <span class="inline-flex rounded-full bg-goldfinch-gold/15 px-2.5 py-1 text-xs font-bold text-heading ring-1 ring-goldfinch-gold/25">Featured</span>
                     {/if}
                     {#if tour.is_popular}
                       <span class="inline-flex rounded-full bg-sand px-2.5 py-1 text-xs font-bold text-ink ring-1 ring-ink/10">Popular</span>
@@ -284,11 +284,11 @@
                 <td class="px-4 py-4 text-ink/65">{formatDate(tour.updated_at ?? tour.created_at)}</td>
                 <td class="px-4 py-4">
                   <div class="flex justify-end gap-2">
-                    <a class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" href={`/admin/tours/${tour.id}/edit`}>
+                    <a class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" href={`/admin/tours/${tour.id}/edit`}>
                       <Edit size={14} />
                       Edit
                     </a>
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(tour)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(tour)}>
                       <Trash2 size={14} />
                       Delete
                     </button>
@@ -303,7 +303,7 @@
   {/if}
 
   {#if pagination && pagination.totalPages > 1}
-    <div class="flex flex-col gap-3 rounded-[8px] border border-ink/10 bg-white/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-3 rounded-[8px] border border-ink/10 bg-surface/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
       <p>Page {pagination.page} of {pagination.totalPages} · {pagination.total} tours</p>
       <div class="flex gap-2">
         <AdminButton variant="secondary" size="sm" disabled={page <= 1} on:click={() => goToPage(page - 1)}>Previous</AdminButton>
@@ -325,7 +325,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting tour...
   </div>
 {/if}

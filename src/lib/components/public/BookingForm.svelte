@@ -81,7 +81,7 @@
 
   // Field classes: neutral by default, red when that field has an error.
   const inputBase =
-    'w-full rounded-md border bg-white px-3 py-3 text-sm text-ink outline-none transition focus:ring-2';
+    'w-full rounded-md border bg-surface px-3 py-3 text-sm text-ink outline-none transition focus:ring-2';
   $: cls = (field: string) =>
     `${inputBase} ${errors[field] ? 'border-red-300 focus:border-red-400 focus:ring-red-200' : 'border-ink/15 focus:border-forest focus:ring-forest/15'}`;
 
@@ -179,23 +179,23 @@
 </script>
 
 {#if submitted}
-  <div class="grid gap-5 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-soft md:p-8">
+  <div class="grid gap-5 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-surface p-6 shadow-soft md:p-8">
     <div class="flex items-center gap-3">
       <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-600">
         <CheckCircle2 size={26} />
       </span>
       <div>
-        <h3 class="text-xl font-bold text-deep-green">Thank you! Your request has been received.</h3>
+        <h3 class="text-xl font-bold text-heading">Thank you! Your request has been received.</h3>
         <p class="mt-1 text-sm text-ink/70">A local travel specialist will contact you shortly.</p>
       </div>
     </div>
 
     {#if bookingCode}
-      <div class="rounded-xl border border-emerald-200 bg-white p-4">
+      <div class="rounded-xl border border-emerald-200 bg-surface p-4">
         <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">Your request reference</p>
         <div class="mt-1 flex items-center gap-3">
-          <p class="text-2xl font-extrabold tracking-wide text-deep-green">{bookingCode}</p>
-          <button class="inline-flex items-center gap-1.5 rounded-lg border border-ink/15 bg-white px-2.5 py-1 text-xs font-semibold text-ink/70 transition hover:bg-sand" type="button" on:click={copyCode}>
+          <p class="text-2xl font-extrabold tracking-wide text-heading">{bookingCode}</p>
+          <button class="inline-flex items-center gap-1.5 rounded-lg border border-ink/15 bg-surface px-2.5 py-1 text-xs font-semibold text-ink/70 transition hover:bg-sand" type="button" on:click={copyCode}>
             <Copy size={13} />{copied ? 'Copied' : 'Copy'}
           </button>
         </div>
@@ -206,16 +206,16 @@
     <Button type="button" variant="secondary" on:click={resetForm}>Submit another request</Button>
   </div>
 {:else}
-  <form class="relative flex max-h-[88vh] flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-soft" on:submit|preventDefault={submit} novalidate>
+  <form class="relative flex max-h-[88vh] flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-soft" on:submit|preventDefault={submit} novalidate>
     <!-- Header — stays visible while the body scrolls -->
     <div class="shrink-0 border-b border-ink/10 px-5 py-4 md:px-6">
       <p class="text-xs font-semibold uppercase tracking-[0.14em] text-goldfinch-gold">Booking request</p>
-      <h3 class="mt-0.5 text-xl font-bold tracking-normal text-deep-green">Request this trip with confidence</h3>
+      <h3 class="mt-0.5 text-xl font-bold tracking-normal text-heading">Request this trip with confidence</h3>
       {#if tour}
         <div class="mt-3 flex items-center gap-2.5 rounded-xl border border-forest/20 bg-forest/[0.05] px-3 py-2">
           <MapPin size={15} class="shrink-0 text-forest" />
           <span class="text-[10px] font-bold uppercase tracking-[0.14em] text-forest/70">Trip</span>
-          <span class="truncate text-sm font-bold text-deep-green">{tour.title}</span>
+          <span class="truncate text-sm font-bold text-heading">{tour.title}</span>
         </div>
       {:else}
         <p class="mt-1 text-sm leading-6 text-ink/65">Share a few details and a local specialist will tailor your plan — no payment now.</p>
@@ -309,8 +309,8 @@
             <label
               class={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
                 travel_interests.includes(interest)
-                  ? 'border-forest bg-forest/[0.07] font-semibold text-deep-green'
-                  : 'border-ink/12 bg-white text-ink/70 hover:border-forest/40'
+                  ? 'border-forest bg-forest/[0.07] font-semibold text-heading'
+                  : 'border-ink/12 bg-surface text-ink/70 hover:border-forest/40'
               }`}
             >
               <input type="checkbox" class="h-4 w-4 accent-forest" checked={travel_interests.includes(interest)} on:change={() => toggleInterest(interest)} />
@@ -349,7 +349,7 @@
     </div>
 
     <!-- Footer — submit button always visible above the fold -->
-    <div class="shrink-0 space-y-2.5 border-t border-ink/10 bg-white px-5 py-3.5 md:px-6">
+    <div class="shrink-0 space-y-2.5 border-t border-ink/10 bg-surface px-5 py-3.5 md:px-6">
       {#if errorMessage}
         <div class="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-2.5 text-xs text-red-700">
           <AlertCircle size={15} class="mt-0.5 shrink-0" />

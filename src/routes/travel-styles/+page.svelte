@@ -48,11 +48,11 @@
 <section class="container-shell py-12 md:py-16">
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
     {#each styles as style (style.slug)}
-      <a class="group flex flex-col rounded-[12px] border border-ink/10 bg-white p-6 shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" href={`/travel-styles/${style.slug}`} use:tilt={{ max: 5 }}>
-        <h2 class="text-xl font-extrabold text-deep-green">{style.name}</h2>
+      <a class="group flex flex-col rounded-[12px] border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" href={`/travel-styles/${style.slug}`} use:tilt={{ max: 5 }}>
+        <h2 class="text-xl font-extrabold text-heading">{style.name}</h2>
         <p class="mt-1 text-sm font-semibold text-clay">{style.emotionalPromise}</p>
         <p class="mt-2 flex-1 text-sm leading-6 text-ink/65">{style.description}</p>
-        <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition group-hover:text-deep-green">Explore {style.name} <ArrowRight size={15} /></span>
+        <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition group-hover:text-heading">Explore {style.name} <ArrowRight size={15} /></span>
       </a>
     {/each}
   </div>

@@ -294,7 +294,7 @@
   <AdminToolbar className="grid gap-3 lg:grid-cols-[1fr_repeat(4,150px)_auto] lg:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search</span>
-      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
         <Search size={16} class="text-ink/45" />
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Title, caption, alt text..." on:keydown={(e) => e.key === 'Enter' && load()} />
       </span>
@@ -309,7 +309,7 @@
   {#if !loading && !error && rows.length > 0}
     <div class="flex items-center justify-between">
       <p class="text-sm text-ink/55">{sorted.length} item{sorted.length === 1 ? '' : 's'}</p>
-      <div class="flex gap-1 rounded-xl border border-ink/10 bg-white p-1 shadow-sm">
+      <div class="flex gap-1 rounded-xl border border-ink/10 bg-surface p-1 shadow-sm">
         <button class={`grid h-9 w-9 place-items-center rounded-lg transition ${viewMode === 'grid' ? 'bg-forest text-white' : 'text-ink/50 hover:bg-sand/60'}`} type="button" aria-label="Grid view" on:click={() => (viewMode = 'grid')}>
           <LayoutGrid size={16} />
         </button>
@@ -336,7 +336,7 @@
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {#each sorted as item (item.id)}
         {@const meta = mediaTypeMeta(item.media_type)}
-        <article class="group overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_12px_36px_rgba(15,47,36,0.06)]" transition:fade={{ duration: 120 }}>
+        <article class="group overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_12px_36px_rgba(15,47,36,0.06)]" transition:fade={{ duration: 120 }}>
           <div class="relative aspect-[4/3] overflow-hidden bg-sand/40">
             <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={item.image_url} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
             <span class={`absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ${meta.classes}`}>
@@ -353,14 +353,14 @@
                 <span class="inline-flex items-center gap-1 rounded-full bg-forest/10 px-2 py-0.5 text-[11px] font-semibold text-forest"><MapPin size={10} />{relationLabel(item.destinations, 'name')}</span>
               {/if}
               {#if relationLabel(item.tours, 'title')}
-                <span class="inline-flex items-center gap-1 rounded-full bg-goldfinch-gold/20 px-2 py-0.5 text-[11px] font-semibold text-deep-green"><MapIcon size={10} />{relationLabel(item.tours, 'title')}</span>
+                <span class="inline-flex items-center gap-1 rounded-full bg-goldfinch-gold/20 px-2 py-0.5 text-[11px] font-semibold text-heading"><MapIcon size={10} />{relationLabel(item.tours, 'title')}</span>
               {/if}
             </div>
             <div class="mt-1 flex gap-2">
-              <button class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
+              <button class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
                 <Edit size={13} />Edit
               </button>
-              <button class="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(item)}>
+              <button class="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(item)}>
                 <Trash2 size={13} />
               </button>
             </div>
@@ -369,7 +369,7 @@
       {/each}
     </div>
   {:else}
-    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[900px] text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -403,10 +403,10 @@
                 <td class="px-4 py-3 text-ink/65">{item.sort_order}</td>
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-2">
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
                       <Edit size={14} />Edit
                     </button>
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(item)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(item)}>
                       <Trash2 size={14} />Delete
                     </button>
                   </div>
@@ -421,9 +421,9 @@
 </div>
 
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >
@@ -432,7 +432,7 @@
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editing ? 'Edit gallery item' : 'New gallery item'}</p>
           <h2 class="mt-1 text-2xl font-bold text-ink">{editing ? 'Update image' : 'Publish image'}</h2>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
           <X size={18} />
         </button>
       </div>
@@ -447,7 +447,7 @@
             <AdminFormInput label="Image URL" name="image_url" bind:value={form.image_url} placeholder="https://..." />
           {/if}
 
-          <div class="aspect-[4/3] overflow-hidden rounded-2xl bg-white ring-1 ring-ink/10">
+          <div class="aspect-[4/3] overflow-hidden rounded-2xl bg-surface ring-1 ring-ink/10">
             {#if form.image_url}
               <img class="h-full w-full object-cover" src={form.image_url} alt="Preview" />
             {:else}
@@ -495,7 +495,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting gallery item...
   </div>
 {/if}

@@ -46,7 +46,7 @@
   };
 </script>
 
-<form class="grid gap-4 rounded-lg border border-ink/10 bg-white p-5 shadow-soft" on:submit|preventDefault={submit}>
+<form class="grid gap-4 rounded-lg border border-ink/10 bg-surface p-5 shadow-soft" on:submit|preventDefault={submit}>
   <div class="grid gap-4 md:grid-cols-2">
     <FormInput label="Full name" name="full_name" bind:value={full_name} required />
     <FormInput label="Email" name="email" type="email" bind:value={email} required />

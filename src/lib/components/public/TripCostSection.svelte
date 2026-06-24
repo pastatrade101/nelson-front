@@ -20,12 +20,12 @@
   $: planHref = `/plan-my-trip${tourSlug ? `?tour=${tourSlug}` : ''}`;
 </script>
 
-<section class="rounded-[8px] border border-ink/10 bg-white p-6 shadow-soft md:p-7">
-  <h2 class="text-xl font-bold tracking-normal text-deep-green md:text-2xl">What this trip costs</h2>
+<section class="rounded-[8px] border border-ink/10 bg-surface p-6 shadow-soft md:p-7">
+  <h2 class="text-xl font-bold tracking-normal text-heading md:text-2xl">What this trip costs</h2>
 
   {#if priceFrom}
     <div class="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      <span class="text-3xl font-extrabold text-deep-green">{currency} {fmt(low)}</span>
+      <span class="text-3xl font-extrabold text-heading">{currency} {fmt(low)}</span>
       <span class="text-sm font-medium text-ink/55">per person, from</span>
     </div>
     <p class="mt-2 text-sm leading-6 text-ink/65">

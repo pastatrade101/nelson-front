@@ -11,13 +11,13 @@
 
 {#if !onPlanPage}
   <div
-    class="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-white/95 backdrop-blur lg:hidden"
+    class="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-surface/95 backdrop-blur lg:hidden"
     style="padding-bottom: env(safe-area-inset-bottom);"
   >
     <div class="px-3 py-2.5">
       <a
         href="/plan-my-trip"
-        class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-4 text-[15px] font-bold text-deep-green shadow-sm transition active:brightness-95"
+        class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-4 text-[15px] font-bold text-heading shadow-sm transition active:brightness-95"
       >
         <Sparkles size={18} strokeWidth={2.4} />
         Plan My Trip

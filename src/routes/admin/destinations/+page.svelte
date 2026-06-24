@@ -384,7 +384,7 @@
 <AdminToolbar className="grid gap-3 md:grid-cols-[1fr_190px_auto] md:items-end">
   <label class="grid gap-2 text-sm font-medium text-ink">
     <span>Search</span>
-    <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+    <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
       <Search size={16} class="text-ink/45" />
       <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Search destinations..." on:keydown={(event) => event.key === 'Enter' && loadDestinations()} />
     </span>
@@ -407,7 +407,7 @@
     on:action={openCreateModal}
   />
 {:else}
-  <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+  <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
     <div class="overflow-x-auto">
       <table class="w-full min-w-[980px] text-start text-sm">
         <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -433,7 +433,7 @@
               <td class="px-4 py-4"><StatusBadge status={destination.status} /></td>
               <td class="px-4 py-4">
                 {#if destination.is_featured}
-                  <span class="inline-flex rounded-full bg-goldfinch-gold/15 px-2.5 py-1 text-xs font-semibold text-deep-green ring-1 ring-goldfinch-gold/30">Featured</span>
+                  <span class="inline-flex rounded-full bg-goldfinch-gold/15 px-2.5 py-1 text-xs font-semibold text-heading ring-1 ring-goldfinch-gold/30">Featured</span>
                 {:else}
                   <span class="text-xs text-ink/45">No</span>
                 {/if}
@@ -441,11 +441,11 @@
               <td class="px-4 py-4 text-ink/65">{formatDate(destination.updated_at ?? destination.created_at)}</td>
               <td class="px-4 py-4">
                 <div class="flex justify-end gap-2">
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(destination)}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(destination)}>
                     <Edit size={14} />
                     Edit
                   </button>
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(destination)}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(destination)}>
                     <Trash2 size={14} />
                     Delete
                   </button>
@@ -461,14 +461,14 @@
 </div>
 
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <div class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editingDestination ? 'Edit destination' : 'New destination'}</p>
           <h2 class="mt-2 text-2xl font-bold tracking-normal text-ink">{editingDestination ? editingDestination.name : 'Create Destination'}</h2>
         </div>
-        <button class="grid h-10 w-10 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close modal" on:click={closeModal}>
+        <button class="grid h-10 w-10 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close modal" on:click={closeModal}>
           <X size={18} />
         </button>
       </div>
@@ -480,7 +480,7 @@
           <label class="grid gap-2 text-sm font-medium text-ink">
             <span>Slug</span>
             <input
-              class="h-11 rounded-2xl border border-ink/10 bg-white px-3 text-sm outline-none shadow-sm transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+              class="h-11 rounded-2xl border border-ink/10 bg-surface px-3 text-sm outline-none shadow-sm transition focus:border-forest focus:ring-2 focus:ring-forest/15"
               name="slug"
               bind:value={form.slug}
               required
@@ -559,7 +559,7 @@
                 on:error={(event) => showToast(event.detail, 'error')}
               />
             {:else}
-              <p class="rounded-2xl border border-dashed border-ink/15 bg-white px-3 py-3 text-sm text-ink/55">No main image will be saved.</p>
+              <p class="rounded-2xl border border-dashed border-ink/15 bg-surface px-3 py-3 text-sm text-ink/55">No main image will be saved.</p>
             {/if}
           </section>
 
@@ -584,7 +584,7 @@
                 on:error={(event) => showToast(event.detail, 'error')}
               />
             {:else}
-              <p class="rounded-2xl border border-dashed border-ink/15 bg-white px-3 py-3 text-sm text-ink/55">No banner image will be saved.</p>
+              <p class="rounded-2xl border border-dashed border-ink/15 bg-surface px-3 py-3 text-sm text-ink/55">No banner image will be saved.</p>
             {/if}
           </section>
 
@@ -609,7 +609,7 @@
                 on:error={(event) => showToast(event.detail, 'error')}
               />
             {:else}
-              <p class="rounded-2xl border border-dashed border-ink/15 bg-white px-3 py-3 text-sm text-ink/55">No Open Graph image will be saved.</p>
+              <p class="rounded-2xl border border-dashed border-ink/15 bg-surface px-3 py-3 text-sm text-ink/55">No Open Graph image will be saved.</p>
             {/if}
           </section>
         </div>
@@ -642,7 +642,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting destination...
   </div>
 {/if}

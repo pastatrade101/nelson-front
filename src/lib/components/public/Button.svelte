@@ -5,8 +5,8 @@
   export let className = '';
 
   const variants = {
-    primary: 'bg-forest text-white hover:bg-ink',
-    secondary: 'bg-white text-ink ring-1 ring-ink/10 hover:bg-skywash',
+    primary: 'bg-forest text-white hover:bg-black',
+    secondary: 'bg-surface text-ink ring-1 ring-ink/10 hover:bg-skywash',
     ghost: 'text-forest hover:bg-skywash'
   };
 </script>

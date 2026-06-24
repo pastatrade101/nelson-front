@@ -246,20 +246,20 @@
   };
 
   const statusClass = (count: number) =>
-    count > 0 ? 'bg-goldfinch-gold/15 text-deep-green ring-goldfinch-gold/25' : 'bg-forest/10 text-forest ring-forest/20';
+    count > 0 ? 'bg-goldfinch-gold/15 text-heading ring-goldfinch-gold/25' : 'bg-forest/10 text-forest ring-forest/20';
 
   $: kpiCards = [
     { label: 'Total Tours', value: stats.counts.totalTours, helper: 'All CMS tour packages', trend: `${stats.counts.publishedTours} published`, icon: Map, accent: 'from-forest/12 to-forest/5 text-forest' },
     { label: 'Published Tours', value: stats.counts.publishedTours, helper: 'Visible on website', trend: 'Public inventory', icon: CheckCircle, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Draft Tours', value: stats.counts.draftTours, helper: 'Waiting for publishing', trend: stats.counts.draftTours ? 'Needs review' : 'Clear', icon: FileClock, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-deep-green' },
-    { label: 'Destinations', value: stats.counts.destinations, helper: 'CMS destinations', trend: `${stats.contentHealth.publishedDestinations} published`, icon: MapPin, accent: 'from-savanna/50 to-savanna/15 text-deep-green' },
+    { label: 'Draft Tours', value: stats.counts.draftTours, helper: 'Waiting for publishing', trend: stats.counts.draftTours ? 'Needs review' : 'Clear', icon: FileClock, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
+    { label: 'Destinations', value: stats.counts.destinations, helper: 'CMS destinations', trend: `${stats.contentHealth.publishedDestinations} published`, icon: MapPin, accent: 'from-savanna/50 to-savanna/15 text-heading' },
     { label: 'Bookings', value: stats.counts.totalBookings, helper: 'Total booking requests', trend: `${stats.counts.pendingBookings} pending`, icon: ClipboardList, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Pending Bookings', value: stats.counts.pendingBookings, helper: 'Need response', trend: stats.counts.pendingBookings ? 'Action needed' : 'No backlog', icon: Clock, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-deep-green' },
+    { label: 'Pending Bookings', value: stats.counts.pendingBookings, helper: 'Need response', trend: stats.counts.pendingBookings ? 'Action needed' : 'No backlog', icon: Clock, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
     { label: 'Revenue', value: formatMoney(stats.counts.totalRevenue), helper: 'Paid booking records', trend: 'Finance view', icon: CircleDollarSign, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Messages', value: stats.counts.unreadMessages, helper: 'Unread customer messages', trend: stats.counts.unreadMessages ? 'Follow up' : 'Inbox clear', icon: Mail, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-deep-green' },
-    { label: 'Media Files', value: stats.counts.mediaFiles, helper: 'Reusable CMS assets', trend: 'Image library', icon: Images, accent: 'from-savanna/50 to-savanna/15 text-deep-green' },
+    { label: 'Messages', value: stats.counts.unreadMessages, helper: 'Unread customer messages', trend: stats.counts.unreadMessages ? 'Follow up' : 'Inbox clear', icon: Mail, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
+    { label: 'Media Files', value: stats.counts.mediaFiles, helper: 'Reusable CMS assets', trend: 'Image library', icon: Images, accent: 'from-savanna/50 to-savanna/15 text-heading' },
     { label: 'Blog Posts', value: stats.counts.blogPosts, helper: 'Published and draft posts', trend: `${stats.contentHealth.publishedBlogPosts} published`, icon: Newspaper, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'AI Conversations', value: stats.counts.aiConversations, helper: 'Travel advisor sessions', trend: 'Lead intelligence', icon: Bot, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-deep-green' },
+    { label: 'AI Conversations', value: stats.counts.aiConversations, helper: 'Travel advisor sessions', trend: 'Lead intelligence', icon: Bot, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
     { label: 'Confirmed Bookings', value: stats.counts.confirmedBookings, helper: 'Ready for operations', trend: 'Operations queue', icon: CalendarCheck, accent: 'from-forest/12 to-forest/5 text-forest' }
   ] satisfies KpiCard[];
 
@@ -410,7 +410,7 @@
     <div class="min-h-[260px] animate-pulse rounded-[10px] bg-gradient-to-br from-forest/80 to-deep-green"></div>
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {#each Array(12) as _}
-        <div class="h-36 animate-pulse rounded-[8px] border border-ink/10 bg-white/80"></div>
+        <div class="h-36 animate-pulse rounded-[8px] border border-ink/10 bg-surface/80"></div>
       {/each}
     </div>
   </div>
@@ -424,7 +424,7 @@
 
       <div class="relative grid gap-8 xl:grid-cols-[1fr_360px] xl:items-end">
         <div>
-          <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-semibold text-savanna backdrop-blur">
+          <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/10 px-3 py-1.5 text-xs font-semibold text-savanna backdrop-blur">
             <Sparkles size={14} />
             Goldfinch Travel Platform
           </div>
@@ -439,30 +439,30 @@
           </p>
 
           <div class="mt-6 flex flex-wrap gap-3">
-            <a class="inline-flex h-11 items-center gap-2 rounded-2xl bg-goldfinch-gold px-4 text-sm font-bold text-deep-green shadow-lg shadow-black/10 transition hover:bg-savanna focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/tours/new">
+            <a class="inline-flex h-11 items-center gap-2 rounded-2xl bg-goldfinch-gold px-4 text-sm font-bold text-heading shadow-lg shadow-black/10 transition hover:bg-savanna focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/tours/new">
               <Plus size={16} />
               Add Tour
             </a>
-            <a class="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 text-sm font-bold text-white backdrop-blur transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/bookings">
+            <a class="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-surface/10 px-4 text-sm font-bold text-white backdrop-blur transition hover:bg-surface/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/bookings">
               <ClipboardList size={16} />
               View Bookings
             </a>
-            <a class="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 text-sm font-bold text-white backdrop-blur transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/media">
+            <a class="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-surface/10 px-4 text-sm font-bold text-white backdrop-blur transition hover:bg-surface/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/media">
               <Upload size={16} />
               Upload Media
             </a>
           </div>
         </div>
 
-        <div class="rounded-[10px] border border-white/10 bg-white/10 p-5 backdrop-blur">
+        <div class="rounded-[10px] border border-white/10 bg-surface/10 p-5 backdrop-blur">
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-savanna/80">Current period</p>
           <p class="mt-2 text-2xl font-bold text-white">{currentPeriod}</p>
           <div class="mt-5 grid grid-cols-2 gap-3">
-            <div class="rounded-2xl bg-white/10 p-3">
+            <div class="rounded-2xl bg-surface/10 p-3">
               <p class="text-xs text-savanna/75">Pending bookings</p>
               <p class="mt-1 text-2xl font-bold">{stats.counts.pendingBookings}</p>
             </div>
-            <div class="rounded-2xl bg-white/10 p-3">
+            <div class="rounded-2xl bg-surface/10 p-3">
               <p class="text-xs text-savanna/75">Unread messages</p>
               <p class="mt-1 text-2xl font-bold">{stats.counts.unreadMessages}</p>
             </div>
@@ -482,7 +482,7 @@
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {#each kpiCards as card}
           {@const Icon = card.icon}
-          <article class="group rounded-[8px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.055)] transition hover:-translate-y-0.5 hover:border-goldfinch-gold/35 hover:shadow-[0_24px_70px_rgba(15,47,36,0.1)]">
+          <article class="group rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.055)] transition hover:-translate-y-0.5 hover:border-goldfinch-gold/35 hover:shadow-[0_24px_70px_rgba(15,47,36,0.1)]">
             <div class="flex items-start justify-between gap-4">
               <div class={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${card.accent} ring-1 ring-ink/5`}>
                 <Icon size={21} />
@@ -501,7 +501,7 @@
 
     <!-- Analytics charts (ApexCharts) -->
     <section class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-card">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Booking pipeline</p>
@@ -518,7 +518,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-card">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Content overview</p>
@@ -533,7 +533,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Operational snapshot</p>
@@ -546,7 +546,7 @@
           {#each operationalItems as item}
             {@const Icon = item.icon}
             <a class="flex items-center gap-3 rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-goldfinch-gold/35 hover:bg-sand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={item.href}>
-              <span class="grid h-10 w-10 place-items-center rounded-xl bg-white text-forest ring-1 ring-ink/10">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10">
                 <Icon size={17} />
               </span>
               <span class="min-w-0 flex-1">
@@ -559,7 +559,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Quick actions</p>
@@ -571,7 +571,7 @@
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
           {#each quickActions as action}
             {@const Icon = action.icon}
-            <a class="group flex items-center gap-3 rounded-2xl border border-ink/10 bg-white p-3 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={action.href} aria-label={action.label}>
+            <a class="group flex items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-3 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={action.href} aria-label={action.label}>
               <span class="grid h-10 w-10 place-items-center rounded-xl bg-forest/10 text-forest transition group-hover:bg-forest group-hover:text-white">
                 <Icon size={17} />
               </span>
@@ -586,7 +586,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Booking pipeline</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Request status</h2>
@@ -608,7 +608,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Content health</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Publishing readiness</h2>
@@ -619,7 +619,7 @@
             {@const Icon = item.icon}
             <div class="rounded-2xl border border-ink/10 bg-sand/20 p-4">
               <div class="flex items-start gap-3">
-                <span class="grid h-10 w-10 place-items-center rounded-xl bg-white text-forest ring-1 ring-ink/10">
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10">
                   <Icon size={17} />
                 </span>
                 <div class="min-w-0 flex-1">
@@ -628,7 +628,7 @@
                     <p class="text-xs font-bold text-forest">{item.value}%</p>
                   </div>
                   <p class="mt-1 text-xs text-ink/55">{item.helper}</p>
-                  <div class="mt-3 h-2 overflow-hidden rounded-full bg-white">
+                  <div class="mt-3 h-2 overflow-hidden rounded-full bg-surface">
                     <div class="h-full rounded-full bg-gradient-to-r from-forest to-goldfinch-gold" style={`width: ${item.value}%`}></div>
                   </div>
                 </div>
@@ -640,7 +640,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-3">
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)] xl:col-span-2">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)] xl:col-span-2">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Recent activity</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Latest movement</h2>
@@ -652,13 +652,13 @@
             <div class="mt-3 grid gap-3">
               {#if stats.recent.bookings.length}
                 {#each stats.recent.bookings as booking}
-                  <div class="rounded-xl bg-white p-3 ring-1 ring-ink/10">
+                  <div class="rounded-xl bg-surface p-3 ring-1 ring-ink/10">
                     <p class="text-sm font-semibold text-ink">{textValue(booking, 'full_name', 'Guest')}</p>
                     <p class="mt-1 text-xs text-ink/55">{relationText(booking, 'tours') || textValue(booking, 'booking_code')} · {textValue(booking, 'status')}</p>
                   </div>
                 {/each}
               {:else}
-                <p class="rounded-xl bg-white p-3 text-sm text-ink/55 ring-1 ring-ink/10">No booking activity yet.</p>
+                <p class="rounded-xl bg-surface p-3 text-sm text-ink/55 ring-1 ring-ink/10">No booking activity yet.</p>
               {/if}
             </div>
           </div>
@@ -668,13 +668,13 @@
             <div class="mt-3 grid gap-3">
               {#if stats.recent.messages.length}
                 {#each stats.recent.messages as message}
-                  <div class="rounded-xl bg-white p-3 ring-1 ring-ink/10">
+                  <div class="rounded-xl bg-surface p-3 ring-1 ring-ink/10">
                     <p class="text-sm font-semibold text-ink">{textValue(message, 'full_name', 'Visitor')}</p>
                     <p class="mt-1 text-xs text-ink/55">{textValue(message, 'subject', 'General inquiry')} · {textValue(message, 'status')}</p>
                   </div>
                 {/each}
               {:else}
-                <p class="rounded-xl bg-white p-3 text-sm text-ink/55 ring-1 ring-ink/10">No recent messages.</p>
+                <p class="rounded-xl bg-surface p-3 text-sm text-ink/55 ring-1 ring-ink/10">No recent messages.</p>
               {/if}
             </div>
           </div>
@@ -684,13 +684,13 @@
             <div class="mt-3 grid gap-3">
               {#if stats.recent.tours.length}
                 {#each stats.recent.tours as tour}
-                  <div class="rounded-xl bg-white p-3 ring-1 ring-ink/10">
+                  <div class="rounded-xl bg-surface p-3 ring-1 ring-ink/10">
                     <p class="text-sm font-semibold text-ink">{textValue(tour, 'title', 'Untitled tour')}</p>
                     <p class="mt-1 text-xs text-ink/55">{textValue(tour, 'status')} · {formatDate(tour.created_at)}</p>
                   </div>
                 {/each}
               {:else}
-                <p class="rounded-xl bg-white p-3 text-sm text-ink/55 ring-1 ring-ink/10">No tours have been added yet.</p>
+                <p class="rounded-xl bg-surface p-3 text-sm text-ink/55 ring-1 ring-ink/10">No tours have been added yet.</p>
               {/if}
             </div>
           </div>
@@ -700,20 +700,20 @@
             <div class="mt-3 grid gap-3">
               {#if stats.recent.media.length}
                 {#each stats.recent.media as media}
-                  <div class="rounded-xl bg-white p-3 ring-1 ring-ink/10">
+                  <div class="rounded-xl bg-surface p-3 ring-1 ring-ink/10">
                     <p class="truncate text-sm font-semibold text-ink">{textValue(media, 'file_name', 'Media file')}</p>
                     <p class="mt-1 text-xs text-ink/55">{textValue(media, 'file_type')} · {formatDate(media.created_at)}</p>
                   </div>
                 {/each}
               {:else}
-                <p class="rounded-xl bg-white p-3 text-sm text-ink/55 ring-1 ring-ink/10">No media uploads yet.</p>
+                <p class="rounded-xl bg-surface p-3 text-sm text-ink/55 ring-1 ring-ink/10">No media uploads yet.</p>
               {/if}
             </div>
           </div>
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Audit trail</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Admin actions</h2>
@@ -738,7 +738,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-3">
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <h2 class="text-xl font-bold text-ink">Featured tours</h2>
         <div class="mt-4 grid gap-3">
           {#if stats.featured.tours.length}
@@ -754,7 +754,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <h2 class="text-xl font-bold text-ink">Featured destinations</h2>
         <div class="mt-4 grid gap-3">
           {#if stats.featured.destinations.length}
@@ -770,7 +770,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <h2 class="text-xl font-bold text-ink">Latest blog posts</h2>
         <div class="mt-4 grid gap-3">
           {#if stats.featured.blogPosts.length}

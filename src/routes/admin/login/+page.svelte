@@ -79,7 +79,7 @@
       <p class="text-sm font-semibold uppercase tracking-[0.18em] text-clay">{brandName} · Admin</p>
 
       <div class="mt-3 flex items-center gap-3">
-        <h1 class="text-4xl font-extrabold tracking-tight text-deep-green md:text-5xl">Welcome</h1>
+        <h1 class="text-4xl font-extrabold tracking-tight text-heading md:text-5xl">Welcome</h1>
         <!-- decorative flight path (swap for a Lottie later) -->
         <svg class="mt-2 h-8 w-24 shrink-0 text-goldfinch-gold" viewBox="0 0 96 32" fill="none" aria-hidden="true">
           <path d="M2 27 C 28 27, 48 10, 80 7" stroke="currentColor" stroke-width="2" stroke-dasharray="3 5" stroke-linecap="round" />
@@ -94,7 +94,7 @@
           <div class="relative">
             <Mail class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/40" size={18} />
             <input
-              class="w-full rounded-xl border border-ink/15 bg-white py-3 pl-10 pr-3 outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+              class="w-full rounded-xl border border-ink/15 bg-surface py-3 pl-10 pr-3 outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
               type="email"
               name="email"
               autocomplete="email"
@@ -110,7 +110,7 @@
           <div class="relative">
             <Lock class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/40" size={18} />
             <input
-              class="w-full rounded-xl border border-ink/15 bg-white py-3 pl-10 pr-11 outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+              class="w-full rounded-xl border border-ink/15 bg-surface py-3 pl-10 pr-11 outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
               type={showPassword ? 'text' : 'password'}
               name="password"
               autocomplete="current-password"

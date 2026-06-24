@@ -474,13 +474,13 @@
   {:else}
     <div class="grid gap-4">
       {#each sorted as section, index (section.id)}
-        <article class={`grid gap-4 rounded-[8px] border bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] lg:grid-cols-[auto_140px_1fr_auto] lg:items-center ${section.is_active ? 'border-ink/10' : 'border-dashed border-ink/20 opacity-75'}`} transition:fade={{ duration: 120 }}>
+        <article class={`grid gap-4 rounded-[8px] border bg-surface p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] lg:grid-cols-[auto_140px_1fr_auto] lg:items-center ${section.is_active ? 'border-ink/10' : 'border-dashed border-ink/20 opacity-75'}`} transition:fade={{ duration: 120 }}>
           <!-- reorder -->
           <div class="flex flex-row gap-1 lg:flex-col">
-            <button class="grid h-8 w-8 place-items-center rounded-lg border border-ink/10 bg-white text-ink/55 transition hover:bg-sand/70 disabled:opacity-30" type="button" aria-label="Move up" disabled={index === 0 || reordering} on:click={() => move(section, 'up')}>
+            <button class="grid h-8 w-8 place-items-center rounded-lg border border-ink/10 bg-surface text-ink/55 transition hover:bg-sand/70 disabled:opacity-30" type="button" aria-label="Move up" disabled={index === 0 || reordering} on:click={() => move(section, 'up')}>
               <ArrowUp size={15} />
             </button>
-            <button class="grid h-8 w-8 place-items-center rounded-lg border border-ink/10 bg-white text-ink/55 transition hover:bg-sand/70 disabled:opacity-30" type="button" aria-label="Move down" disabled={index === sorted.length - 1 || reordering} on:click={() => move(section, 'down')}>
+            <button class="grid h-8 w-8 place-items-center rounded-lg border border-ink/10 bg-surface text-ink/55 transition hover:bg-sand/70 disabled:opacity-30" type="button" aria-label="Move down" disabled={index === sorted.length - 1 || reordering} on:click={() => move(section, 'down')}>
               <ArrowDown size={15} />
             </button>
           </div>
@@ -502,26 +502,26 @@
               {#if section.is_active}
                 <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-600 ring-1 ring-emerald-200/60">Active</span>
               {:else}
-                <span class="rounded-full bg-ink/5 px-2 py-0.5 text-[11px] font-bold text-ink/45">Inactive</span>
+                <span class="rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-bold text-ink/45">Inactive</span>
               {/if}
             </div>
             <h3 class="mt-2 truncate text-lg font-bold text-ink">{section.title || prettyKey(section.section_key)}</h3>
             {#if section.subtitle}<p class="mt-0.5 line-clamp-1 text-sm text-ink/60">{section.subtitle}</p>{/if}
             {#if section.button_text}
-              <span class="mt-2 inline-flex items-center gap-1 rounded-lg bg-goldfinch-gold/20 px-2 py-0.5 text-[11px] font-semibold text-deep-green">Button: {section.button_text}</span>
+              <span class="mt-2 inline-flex items-center gap-1 rounded-lg bg-goldfinch-gold/20 px-2 py-0.5 text-[11px] font-semibold text-heading">Button: {section.button_text}</span>
             {/if}
           </div>
 
           <!-- actions -->
           <div class="flex flex-wrap items-center gap-2 lg:justify-end">
-            <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 py-2 text-xs font-semibold text-ink shadow-sm">
+            <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 py-2 text-xs font-semibold text-ink shadow-sm">
               <input class="h-4 w-4 accent-forest" type="checkbox" checked={section.is_active} on:change={() => toggleActive(section)} />
               {section.is_active ? 'Active' : 'Inactive'}
             </label>
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(section)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(section)}>
               <Edit size={14} />Edit
             </button>
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(section)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(section)}>
               <Trash2 size={14} />Delete
             </button>
           </div>
@@ -532,9 +532,9 @@
 </div>
 
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >
@@ -543,7 +543,7 @@
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editing ? 'Edit section' : 'New section'}</p>
           <h2 class="mt-1 text-2xl font-bold text-ink">{editing ? prettyKey(editing.section_key) : 'Create homepage section'}</h2>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
           <X size={18} />
         </button>
       </div>
@@ -576,7 +576,7 @@
             {:else if imageMode === 'url'}
               <AdminFormInput label="Image URL" name="image_url" bind:value={form.image_url} placeholder="https://..." />
             {:else}
-              <div class="grid place-items-center rounded-2xl border border-dashed border-ink/15 bg-white/70 p-3 text-sm text-ink/50">No image.</div>
+              <div class="grid place-items-center rounded-2xl border border-dashed border-ink/15 bg-surface/70 p-3 text-sm text-ink/50">No image.</div>
             {/if}
           </div>
           {#if form.image_url && imageMode !== 'none'}
@@ -594,8 +594,8 @@
           <div class="grid gap-4 sm:grid-cols-3">
             <label class="grid gap-2 text-sm font-medium text-ink">
               <span>Overlay color</span>
-              <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-2 shadow-sm">
-                <input class="h-8 w-10 shrink-0 cursor-pointer rounded-lg border border-ink/10 bg-white p-0.5" type="color" bind:value={bg.overlay_color} aria-label="Overlay color" />
+              <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-2 shadow-sm">
+                <input class="h-8 w-10 shrink-0 cursor-pointer rounded-lg border border-ink/10 bg-surface p-0.5" type="color" bind:value={bg.overlay_color} aria-label="Overlay color" />
                 <input class="min-w-0 flex-1 bg-transparent font-mono text-sm uppercase outline-none" bind:value={bg.overlay_color} spellcheck="false" />
               </span>
             </label>
@@ -605,7 +605,7 @@
             </label>
             <AdminSelect label="Crop / focus" name="media_position" bind:value={bg.media_position} options={positionOptions} />
           </div>
-          <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-white p-3">
+          <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-3">
             <input class="h-4 w-4 accent-forest" type="checkbox" bind:checked={bg.overlay_gradient} />
             <span class="text-sm font-semibold text-ink">Gradient overlay <span class="font-normal text-ink/50">(fades diagonally for depth)</span></span>
           </label>
@@ -619,17 +619,17 @@
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Partner logos</p>
                 <p class="mt-1 text-xs text-ink/50">Shown as an auto-scrolling strip. Transparent PNG or SVG works best.</p>
               </div>
-              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addLogo}>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addLogo}>
                 <Plus size={14} />Add logo
               </button>
             </div>
 
             {#if logos.length === 0}
-              <p class="rounded-xl border border-dashed border-ink/15 bg-white/60 py-4 text-center text-xs text-ink/45">No logos yet — add your first partner.</p>
+              <p class="rounded-xl border border-dashed border-ink/15 bg-surface/60 py-4 text-center text-xs text-ink/45">No logos yet — add your first partner.</p>
             {/if}
 
             {#each logos as logo, i (i)}
-              <div class="grid gap-2 rounded-xl border border-ink/10 bg-white p-3 sm:grid-cols-[64px_1fr_auto] sm:items-start">
+              <div class="grid gap-2 rounded-xl border border-ink/10 bg-surface p-3 sm:grid-cols-[64px_1fr_auto] sm:items-start">
                 <div class="grid h-12 w-16 place-items-center overflow-hidden rounded-lg bg-sand/40 ring-1 ring-ink/10">
                   {#if logo.image_url}
                     <img class="max-h-10 max-w-[56px] object-contain" src={logo.image_url} alt={logo.name || 'Logo'} />
@@ -638,14 +638,14 @@
                   {/if}
                 </div>
                 <div class="grid gap-2">
-                  <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Partner name" bind:value={logo.name} />
+                  <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Partner name" bind:value={logo.name} />
                   <div class="flex gap-2">
-                    <input class="h-9 min-w-0 flex-1 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Logo image URL" bind:value={logo.image_url} />
-                    <button type="button" class="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-white px-2.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" on:click={() => openMediaPicker('logos', i)}><ImageIcon size={13} />Media</button>
+                    <input class="h-9 min-w-0 flex-1 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Logo image URL" bind:value={logo.image_url} />
+                    <button type="button" class="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-surface px-2.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" on:click={() => openMediaPicker('logos', i)}><ImageIcon size={13} />Media</button>
                   </div>
-                  <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Link URL (optional)" bind:value={logo.url} />
+                  <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Link URL (optional)" bind:value={logo.url} />
                 </div>
-                <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-white text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove logo" on:click={() => removeLogo(i)}><Trash2 size={15} /></button>
+                <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove logo" on:click={() => removeLogo(i)}><Trash2 size={15} /></button>
               </div>
             {/each}
           </div>
@@ -659,17 +659,17 @@
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Login page slides</p>
                 <p class="mt-1 text-xs text-ink/50">Shown on the admin login screen — each slide has an image, a heading and a short line. Rotates automatically.</p>
               </div>
-              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addSlide}>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addSlide}>
                 <Plus size={14} />Add slide
               </button>
             </div>
 
             {#if slides.length === 0}
-              <p class="rounded-xl border border-dashed border-ink/15 bg-white/60 py-4 text-center text-xs text-ink/45">No slides yet — add your first slide.</p>
+              <p class="rounded-xl border border-dashed border-ink/15 bg-surface/60 py-4 text-center text-xs text-ink/45">No slides yet — add your first slide.</p>
             {/if}
 
             {#each slides as slide, i (i)}
-              <div class="grid gap-2 rounded-xl border border-ink/10 bg-white p-3 sm:grid-cols-[96px_1fr_auto] sm:items-start">
+              <div class="grid gap-2 rounded-xl border border-ink/10 bg-surface p-3 sm:grid-cols-[96px_1fr_auto] sm:items-start">
                 <div class="grid aspect-[4/3] w-full place-items-center overflow-hidden rounded-lg bg-sand/40 ring-1 ring-ink/10 sm:w-24">
                   {#if slide.image_url}
                     <img class="h-full w-full object-cover" src={slide.image_url} alt={slide.title || 'Slide'} />
@@ -679,13 +679,13 @@
                 </div>
                 <div class="grid gap-2">
                   <div class="flex gap-2">
-                    <input class="h-9 min-w-0 flex-1 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Image URL" bind:value={slide.image_url} />
-                    <button type="button" class="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-white px-2.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" on:click={() => openMediaPicker('slides', i)}><ImageIcon size={13} />Media</button>
+                    <input class="h-9 min-w-0 flex-1 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Image URL" bind:value={slide.image_url} />
+                    <button type="button" class="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-surface px-2.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" on:click={() => openMediaPicker('slides', i)}><ImageIcon size={13} />Media</button>
                   </div>
-                  <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Heading (e.g. Plan East Africa with confidence)" bind:value={slide.title} />
-                  <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Short line (optional)" bind:value={slide.subtitle} />
+                  <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Heading (e.g. Plan East Africa with confidence)" bind:value={slide.title} />
+                  <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Short line (optional)" bind:value={slide.subtitle} />
                 </div>
-                <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-white text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove slide" on:click={() => removeSlide(i)}><Trash2 size={15} /></button>
+                <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove slide" on:click={() => removeSlide(i)}><Trash2 size={15} /></button>
               </div>
             {/each}
           </div>
@@ -699,21 +699,21 @@
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Typical cost ranges</p>
                 <p class="mt-1 text-xs text-ink/50">The "What trips typically cost" band on the homepage. Each row: trip type, a "from" price, and an optional note. (Built-in defaults show until you add rows.)</p>
               </div>
-              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addCostRange}>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addCostRange}>
                 <Plus size={14} />Add row
               </button>
             </div>
 
             {#if costRanges.length === 0}
-              <p class="rounded-xl border border-dashed border-ink/15 bg-white/60 py-4 text-center text-xs text-ink/45">No rows yet — add your first trip type.</p>
+              <p class="rounded-xl border border-dashed border-ink/15 bg-surface/60 py-4 text-center text-xs text-ink/45">No rows yet — add your first trip type.</p>
             {/if}
 
             {#each costRanges as row, i (i)}
-              <div class="grid gap-2 rounded-xl border border-ink/10 bg-white p-3 sm:grid-cols-[1fr_1fr_1.4fr_auto] sm:items-center">
-                <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Trip type (e.g. Safari)" bind:value={row.label} />
-                <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="from $1,500" bind:value={row.from} />
-                <input class="h-9 rounded-lg border border-ink/10 bg-white px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Note (e.g. Guiding &amp; park fees)" bind:value={row.note} />
-                <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-white text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove row" on:click={() => removeCostRange(i)}><Trash2 size={15} /></button>
+              <div class="grid gap-2 rounded-xl border border-ink/10 bg-surface p-3 sm:grid-cols-[1fr_1fr_1.4fr_auto] sm:items-center">
+                <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Trip type (e.g. Safari)" bind:value={row.label} />
+                <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="from $1,500" bind:value={row.from} />
+                <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Note (e.g. Guiding &amp; park fees)" bind:value={row.note} />
+                <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove row" on:click={() => removeCostRange(i)}><Trash2 size={15} /></button>
               </div>
             {/each}
           </div>
@@ -726,13 +726,13 @@
 
         <label class="grid gap-2 text-sm font-medium text-ink">
           <span>Extra data (JSON)</span>
-          <textarea class="min-h-[120px] rounded-2xl border border-ink/10 bg-white px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" bind:value={extraDataText} spellcheck="false" placeholder={'{\n  "secondary_cta_text": "Talk to a Travel Advisor"\n}'}></textarea>
+          <textarea class="min-h-[120px] rounded-2xl border border-ink/10 bg-surface px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" bind:value={extraDataText} spellcheck="false" placeholder={'{\n  "secondary_cta_text": "Talk to a Travel Advisor"\n}'}></textarea>
           <span class="text-xs text-ink/45">Advanced configuration stored as JSON (e.g. secondary CTA, feature lists).</span>
         </label>
 
         <div class="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
           <AdminFormInput label="Sort order" name="sort_order" type="number" bind:value={form.sort_order} />
-          <label class="flex h-11 cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-white px-4 transition hover:bg-sand/30">
+          <label class="flex h-11 cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-surface px-4 transition hover:bg-sand/30">
             <input class="h-4 w-4 accent-forest" type="checkbox" bind:checked={form.is_active} />
             <span class="text-sm font-semibold text-ink">Active (visible on site)</span>
           </label>
@@ -755,7 +755,7 @@
               <h3 class="text-xl font-extrabold">{form.title || prettyKey(form.section_key || 'section')}</h3>
               {#if form.subtitle}<p class="mx-auto mt-2 max-w-md text-sm text-white/80">{form.subtitle}</p>{/if}
               {#if form.button_text}
-                <span class="mt-4 inline-flex h-10 items-center rounded-xl bg-goldfinch-gold px-5 text-sm font-bold text-deep-green">{form.button_text}</span>
+                <span class="mt-4 inline-flex h-10 items-center rounded-xl bg-goldfinch-gold px-5 text-sm font-bold text-heading">{form.button_text}</span>
               {/if}
             </div>
           </div>
@@ -782,24 +782,24 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting section...
   </div>
 {/if}
 
 {#if mediaPicker}
   <div
-    class="fixed inset-0 z-[60] grid place-items-center bg-ink/45 p-4 backdrop-blur-sm"
+    class="fixed inset-0 z-[60] grid place-items-center bg-black/45 p-4 backdrop-blur-sm"
     transition:fade={{ duration: 140 }}
   >
     <div
-      class="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
     >
       <div class="flex items-center justify-between border-b border-ink/10 bg-sand/30 p-4">
         <h3 class="text-base font-bold text-ink">Choose an image</h3>
         <button
-          class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand"
+          class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand"
           type="button"
           aria-label="Close"
           on:click={() => (mediaPicker = null)}

@@ -206,7 +206,7 @@
 
   <div class="grid grid-cols-3 gap-3">
     {#each [['Total users', stats.total, 'text-ink'], ['Active', stats.active, 'text-emerald-600'], ['Super admins', stats.superAdmins, 'text-goldfinch-gold']] as [label, value, tone]}
-      <div class="rounded-2xl border border-ink/10 bg-white p-4 shadow-sm">
+      <div class="rounded-2xl border border-ink/10 bg-surface p-4 shadow-sm">
         <p class="text-xs font-semibold text-ink/50">{label}</p>
         <p class={`mt-1 text-2xl font-extrabold ${tone}`}>{value}</p>
       </div>
@@ -216,7 +216,7 @@
   <AdminToolbar className="grid gap-3 md:grid-cols-[1fr_180px_160px_auto] md:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search</span>
-      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
         <Search size={16} class="text-ink/45" />
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Name, email, phone..." on:keydown={(e) => e.key === 'Enter' && load()} />
       </span>
@@ -233,7 +233,7 @@
   {:else if rows.length === 0}
     <AdminEmptyState title="No admin users found" message="Create your first CMS team member to grant access to the Goldfinch admin." actionLabel="New User" icon={UserPlus} on:action={openCreate} />
   {:else}
-    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[900px] text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -269,10 +269,10 @@
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-1.5">
                     {#if canManage(u)}
-                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-white text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Edit" on:click={() => openEdit(u)}><Edit size={15} /></button>
-                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-white text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Change password" on:click={() => openPassword(u)}><KeyRound size={15} /></button>
-                      <button class={`grid h-9 w-9 place-items-center rounded-xl border bg-white shadow-sm transition ${u.is_active ? 'border-amber-200 text-amber-600 hover:bg-amber-50' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'}`} type="button" aria-label={u.is_active ? 'Deactivate' : 'Activate'} on:click={() => toggleStatus(u)}><Power size={15} /></button>
-                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-white text-red-600 shadow-sm transition hover:bg-red-50 disabled:opacity-30" type="button" aria-label="Delete" disabled={isSelf(u)} on:click={() => openDelete(u)}><Trash2 size={15} /></button>
+                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Edit" on:click={() => openEdit(u)}><Edit size={15} /></button>
+                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Change password" on:click={() => openPassword(u)}><KeyRound size={15} /></button>
+                      <button class={`grid h-9 w-9 place-items-center rounded-xl border bg-surface shadow-sm transition ${u.is_active ? 'border-amber-200 text-amber-600 hover:bg-amber-50' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'}`} type="button" aria-label={u.is_active ? 'Deactivate' : 'Activate'} on:click={() => toggleStatus(u)}><Power size={15} /></button>
+                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50 disabled:opacity-30" type="button" aria-label="Delete" disabled={isSelf(u)} on:click={() => openDelete(u)}><Trash2 size={15} /></button>
                     {:else}
                       <span class="inline-flex items-center gap-1 text-xs text-ink/35"><ShieldCheck size={13} />Super admin</span>
                     {/if}
@@ -289,14 +289,14 @@
 
 <!-- create / edit modal -->
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <form class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={save}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <form class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={save}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editing ? 'Edit user' : 'New user'}</p>
           <h2 class="mt-1 text-2xl font-bold text-ink">{editing ? editing.full_name : 'Create admin user'}</h2>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}><X size={18} /></button>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}><X size={18} /></button>
       </div>
 
       <div class="mt-6 grid gap-4">
@@ -312,7 +312,7 @@
           <AdminSelect label="Role" name="role" bind:value={form.role} options={assignableRoles} />
         </div>
         <AdminFormInput label="Avatar URL" name="avatar_url" bind:value={form.avatar_url} placeholder="https://..." />
-        <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-white p-4 transition hover:bg-sand/30">
+        <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-4 transition hover:bg-sand/30">
           <input class="h-4 w-4 accent-forest" type="checkbox" bind:checked={form.is_active} />
           <div>
             <p class="text-sm font-semibold text-ink">Active account</p>
@@ -331,14 +331,14 @@
 
 <!-- change password modal -->
 {#if pwUser}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <form class="w-full max-w-md rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={savePassword}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <form class="w-full max-w-md rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={savePassword}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Change password</p>
           <h2 class="mt-1 text-xl font-bold text-ink">{pwUser.full_name}</h2>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closePassword}><X size={18} /></button>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closePassword}><X size={18} /></button>
       </div>
       <div class="mt-5">
         <AdminFormInput label="New password" name="new_password" type="password" bind:value={newPassword} placeholder="At least 8 characters" required />
@@ -360,5 +360,5 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">Removing user...</div>
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">Removing user...</div>
 {/if}

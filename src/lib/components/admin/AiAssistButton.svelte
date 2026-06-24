@@ -59,7 +59,7 @@
   </button>
 
   {#if open}
-    <div class="absolute right-0 z-50 mt-1.5 w-80 rounded-[10px] border border-ink/15 bg-white p-3 text-left shadow-[0_18px_50px_rgba(15,47,36,0.18)]" transition:fade={{ duration: 100 }}>
+    <div class="absolute right-0 z-50 mt-1.5 w-80 rounded-[10px] border border-ink/15 bg-surface p-3 text-left shadow-[0_18px_50px_rgba(15,47,36,0.18)]" transition:fade={{ duration: 100 }}>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold uppercase tracking-[0.14em] text-forest/70">AI draft · review before inserting</span>
         <button type="button" class="text-ink/50 hover:text-ink" on:click={close} aria-label="Close"><X size={14} /></button>
@@ -81,7 +81,7 @@
           {/if}
         </div>
         <div class="mt-3 flex justify-end gap-2">
-          <button type="button" class="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold text-ink/70 transition hover:bg-ink/5" on:click={close}>Cancel</button>
+          <button type="button" class="rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold text-ink/70 transition hover:bg-black/5" on:click={close}>Cancel</button>
           <button type="button" class="inline-flex items-center gap-1 rounded-lg bg-forest px-3 py-1.5 text-xs font-bold text-white transition hover:bg-deep-green" on:click={apply}>
             <Check size={13} strokeWidth={2.6} /> Insert
           </button>

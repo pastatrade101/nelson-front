@@ -119,7 +119,7 @@
 <ToastStack {toasts} on:dismiss={dismissToast} />
 
 <div class="mx-auto grid w-full max-w-[1500px] gap-6">
-  <div class="rounded-[10px] border border-ink/10 bg-white/70 p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+  <div class="rounded-[10px] border border-ink/10 bg-surface/70 p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
     <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Administration</p>
     <h1 class="mt-1 text-3xl font-bold text-ink">Roles &amp; Permissions</h1>
     <p class="mt-2 max-w-3xl text-sm leading-6 text-ink/62">
@@ -134,7 +134,7 @@
   {:else}
     <div class="grid gap-4 lg:grid-cols-2">
       {#each roles as role (role.role)}
-        <article class="grid gap-4 rounded-[8px] border border-ink/10 bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <article class="grid gap-4 rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-2">
               <RoleBadge role={role.role} />
@@ -143,7 +143,7 @@
             <div class="flex items-center gap-3">
               <span class="text-sm font-semibold text-ink/60">{role.permissions.length} / {permissionCount}</span>
               {#if canEdit(role.role)}
-                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(role)}><Pencil size={13} />Edit</button>
+                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(role)}><Pencil size={13} />Edit</button>
               {:else}
                 <span class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-sand/40 px-3 text-xs font-semibold text-ink/40"><Lock size={13} />Locked</span>
               {/if}
@@ -170,8 +170,8 @@
 
 <!-- edit permissions modal -->
 {#if editingRole}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4 border-b border-ink/10 bg-sand/30 p-5">
         <div class="flex items-center gap-3">
           <RoleBadge role={editingRole} />
@@ -180,16 +180,16 @@
             <p class="text-xs text-ink/55">{selected.size} of {permissionCount} permissions selected</p>
           </div>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeEdit}><X size={18} /></button>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeEdit}><X size={18} /></button>
       </div>
 
       <div class="grid gap-4 overflow-y-auto p-5">
         {#each modules as [mod, keys]}
           {@const state = moduleState(keys)}
-          <section class="rounded-2xl border border-ink/10 bg-white p-4">
+          <section class="rounded-2xl border border-ink/10 bg-surface p-4">
             <button class="mb-3 flex w-full items-center justify-between gap-2 text-left" type="button" on:click={() => toggleModule(keys)}>
               <span class="text-sm font-bold text-ink">{modLabel(mod)}</span>
-              <span class={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[11px] font-bold ${state.all ? 'bg-forest text-white' : state.some ? 'bg-goldfinch-gold/20 text-deep-green' : 'bg-sand/70 text-ink/50'}`}>
+              <span class={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[11px] font-bold ${state.all ? 'bg-forest text-white' : state.some ? 'bg-goldfinch-gold/20 text-heading' : 'bg-sand/70 text-ink/50'}`}>
                 {#if state.all}<Check size={11} />All{:else if state.some}Partial{:else}None{/if}
               </span>
             </button>

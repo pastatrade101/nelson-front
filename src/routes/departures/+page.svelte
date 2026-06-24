@@ -173,11 +173,11 @@
 <section class="bg-sand/40 py-12 md:py-16">
   <div class="container-shell">
     <!-- ── filter bar ──────────────────────────────────────────────────── -->
-    <div class="rounded-[8px] border border-ink/10 bg-white p-4 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-5">
+    <div class="rounded-[8px] border border-ink/10 bg-surface p-4 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-5">
       <div class="grid gap-3 lg:grid-cols-[1.4fr_repeat(4,1fr)_auto] lg:items-end">
         <label class="grid gap-2 text-sm font-medium text-ink">
           <span>Search</span>
-          <span class="flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-white px-3 shadow-sm transition focus-within:border-forest focus-within:ring-2 focus-within:ring-forest/15">
+          <span class="flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-surface px-3 shadow-sm transition focus-within:border-forest focus-within:ring-2 focus-within:ring-forest/15">
             <Search size={16} class="text-ink/45" />
             <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Search by tour..." on:keydown={(e) => e.key === 'Enter' && load()} />
           </span>
@@ -188,7 +188,7 @@
         <SelectInput label="Status" name="status" bind:value={status} options={statusOptions} />
         <div class="flex gap-2">
           <button class="inline-flex h-11 items-center rounded-xl bg-forest px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-deep-green" type="button" on:click={load}>Search</button>
-          <button class="inline-flex h-11 items-center rounded-xl border border-ink/15 bg-white px-4 text-sm font-semibold text-ink/60 transition hover:bg-sand/60" type="button" on:click={clearFilters}>Clear</button>
+          <button class="inline-flex h-11 items-center rounded-xl border border-ink/15 bg-surface px-4 text-sm font-semibold text-ink/60 transition hover:bg-sand/60" type="button" on:click={clearFilters}>Clear</button>
         </div>
       </div>
       <div class="mt-3 flex items-center justify-end gap-2 border-t border-ink/10 pt-3">
@@ -213,7 +213,7 @@
         <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
           {#each grouped as g (g.tour.tour_id)}
             {@const dates = expanded.has(g.tour.tour_id) ? g.dates : g.dates.slice(0, 3)}
-            <article class="group flex flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-white shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" use:tilt={{ max: 5 }}>
+            <article class="group flex flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" use:tilt={{ max: 5 }}>
               <div class="relative aspect-[16/10] overflow-hidden bg-skywash">
                 {#if g.tour.main_image_url}
                   <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={g.tour.main_image_url} alt={g.tour.tour_title} loading="lazy" />
@@ -224,14 +224,14 @@
                   <CalendarDays size={11} />{g.dates.length} date{g.dates.length === 1 ? '' : 's'}
                 </span>
                 {#if g.tour.category_name}
-                  <span class="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-deep-green backdrop-blur">
+                  <span class="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-surface/90 px-2.5 py-1 text-[11px] font-semibold text-heading backdrop-blur">
                     <Tag size={11} />{g.tour.category_name}
                   </span>
                 {/if}
               </div>
 
               <div class="flex flex-1 flex-col p-5">
-                <h3 class="text-lg font-extrabold leading-snug tracking-normal text-deep-green">{g.tour.tour_title}</h3>
+                <h3 class="text-lg font-extrabold leading-snug tracking-normal text-heading">{g.tour.tour_title}</h3>
                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                   {#if g.tour.destination_name}<span class="inline-flex items-center gap-1.5 font-semibold text-clay"><MapPin size={14} />{g.tour.destination_name}</span>{/if}
                   {#if g.tour.duration_days}<span class="inline-flex items-center gap-1.5 text-ink/60"><Clock size={14} class="text-forest" />{g.tour.duration_days} day{g.tour.duration_days === 1 ? '' : 's'}</span>{/if}
@@ -239,7 +239,7 @@
 
                 <div class="mt-3 flex items-baseline gap-1.5">
                   <span class="text-[11px] font-semibold uppercase tracking-wide text-ink/45">From</span>
-                  <span class="text-xl font-extrabold text-deep-green">{fmtMoney(g.minPrice, g.currency)}</span>
+                  <span class="text-xl font-extrabold text-heading">{fmtMoney(g.minPrice, g.currency)}</span>
                 </div>
 
                 <p class="mt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-forest/70">Upcoming departures</p>
@@ -258,7 +258,7 @@
                   {/each}
                 </div>
                 {#if g.dates.length > 3}
-                  <button class="mt-2 inline-flex items-center gap-1 self-start text-xs font-semibold text-forest transition hover:text-deep-green" type="button" on:click={() => toggleExpand(g.tour.tour_id)}>
+                  <button class="mt-2 inline-flex items-center gap-1 self-start text-xs font-semibold text-forest transition hover:text-heading" type="button" on:click={() => toggleExpand(g.tour.tour_id)}>
                     {expanded.has(g.tour.tour_id) ? 'Show fewer dates' : `+ ${g.dates.length - 3} more date${g.dates.length - 3 === 1 ? '' : 's'}`}
                   </button>
                 {/if}

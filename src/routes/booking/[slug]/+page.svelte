@@ -39,10 +39,10 @@
   <aside class="lg:sticky lg:top-24">
     <p class="font-serif text-xl italic text-clay">Booking</p>
     {#key tour.title}
-      <h1 class="mt-2 text-3xl font-bold tracking-normal text-deep-green md:text-4xl" use:revealHeading>{tour.title}</h1>
+      <h1 class="mt-2 text-3xl font-bold tracking-normal text-heading md:text-4xl" use:revealHeading>{tour.title}</h1>
     {/key}
 
-    <div class="mt-6 overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-soft">
+    <div class="mt-6 overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-soft">
       <div class="aspect-[16/10] bg-skywash">
         {#if heroImage}
           <img class="h-full w-full object-cover" src={heroImage} alt={tour.title} />
@@ -68,7 +68,7 @@
         {#if tour.price_from}
           <div class="mt-1 flex items-end justify-between border-t border-ink/10 pt-4">
             <span class="text-sm font-medium text-ink/55">From</span>
-            <span class="text-2xl font-extrabold text-deep-green">{tour.currency || 'USD'} {Number(tour.price_from).toLocaleString()}</span>
+            <span class="text-2xl font-extrabold text-heading">{tour.currency || 'USD'} {Number(tour.price_from).toLocaleString()}</span>
           </div>
         {/if}
       </div>

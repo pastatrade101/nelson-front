@@ -119,7 +119,7 @@
 {#if !loading && tabs.length && active}
   <section class="bg-sand/40 py-14 md:py-20" use:fadeUpOnScroll={{ y: 18 }}>
     <div class="container-shell">
-      <h2 class="text-center font-serif text-3xl font-bold tracking-tight text-deep-green md:text-[40px]" use:revealHeading>
+      <h2 class="text-center font-serif text-3xl font-bold tracking-tight text-heading md:text-[40px]" use:revealHeading>
         What a trip with {brand.name.split(' ')[0]} can look like
       </h2>
 
@@ -156,7 +156,7 @@
               <div class="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {#each chips as chip}
                   {@const Icon = iconFor(chip)}
-                  <span class="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-2 text-sm font-semibold text-ink/75 shadow-sm">
+                  <span class="inline-flex items-center gap-2 rounded-full bg-surface px-3.5 py-2 text-sm font-semibold text-ink/75 shadow-sm">
                     <Icon size={16} class="shrink-0 text-forest" /> <span class="truncate">{chip}</span>
                   </span>
                 {/each}

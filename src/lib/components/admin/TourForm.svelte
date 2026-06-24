@@ -346,7 +346,7 @@
     <ErrorState message={error} />
   {:else}
     <form class="grid gap-6" on:submit|preventDefault={saveTour}>
-      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div class="mb-5 flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Core details</p>
@@ -363,7 +363,7 @@
           <label class="grid gap-2 text-sm font-medium text-ink">
             <span>Slug</span>
             <input
-              class="h-11 rounded-2xl border border-ink/10 bg-white px-3 text-sm outline-none shadow-sm transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+              class="h-11 rounded-2xl border border-ink/10 bg-surface px-3 text-sm outline-none shadow-sm transition focus:border-forest focus:ring-2 focus:ring-forest/15"
               name="slug"
               bind:value={form.slug}
               required
@@ -397,7 +397,7 @@
         </div>
       </section>
 
-      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Pricing and logistics</p>
         <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminFormInput label="Duration days" name="duration_days" type="number" bind:value={form.duration_days} required />
@@ -419,7 +419,7 @@
         </div>
       </section>
 
-      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">AI matching</p>
         <div class="mt-5 grid gap-4 md:grid-cols-3">
           <AdminFormInput label="Experience type" name="experience_type" bind:value={form.experience_type} placeholder="safari, beach, trekking" />
@@ -435,7 +435,7 @@
         </div>
       </section>
 
-      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Media</p>
         <p class="mt-1 text-sm text-ink/60">Choose images from the Media Library or paste a URL manually.</p>
 
@@ -482,7 +482,7 @@
         </div>
       </section>
 
-      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Publishing flags</p>
         <div class="mt-5 grid gap-3 md:grid-cols-3">
           <label class="flex items-center gap-3 rounded-2xl border border-ink/10 bg-sand/20 px-4 py-3 text-sm font-semibold text-ink">
@@ -500,7 +500,7 @@
         </div>
       </section>
 
-      <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <section class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div class="flex items-center justify-between">
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">SEO</p>
           <AiAssistButton task="seo_meta" label="Generate SEO" getContext={aiContext} on:apply={(e) => { form.seo_title = e.detail.seo_title || form.seo_title; form.meta_description = e.detail.meta_description || form.meta_description; }} />

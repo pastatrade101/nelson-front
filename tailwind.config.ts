@@ -2,6 +2,7 @@ import type { Config } from 'tailwindcss';
 
 export default {
   content: ['./src/**/*.{html,js,svelte,ts}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -9,6 +10,12 @@ export default {
         charcoal: '#1E1E1E',
         moss: '#6b8e23',
         skywash: '#e8f2f1',
+        // Theme surfaces — flip between light/dark via CSS variables (app.css).
+        // `surface` = cards/inputs (was bg-white), `canvas` = page background,
+        // `heading` = primary heading text (was text-deep-green in light).
+        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+        canvas: 'rgb(var(--c-canvas) / <alpha-value>)',
+        heading: 'rgb(var(--c-heading) / <alpha-value>)',
         // Branded tokens — driven by CSS variables so the admin Branding page can
         // recolor the whole site at runtime. Defaults live in app.css :root and
         // match the original hex values exactly (no visual change by default).

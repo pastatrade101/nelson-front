@@ -58,11 +58,11 @@
     </p>
     <div class="mt-7 flex flex-wrap justify-center gap-3">
       {#if aiOn}
-        <button type="button" on:click={() => openAiAdvisor()} class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-deep-green shadow-lg transition hover:brightness-105">
+        <button type="button" on:click={() => openAiAdvisor()} class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-lg transition hover:brightness-105">
           <Sparkles size={18} strokeWidth={2.4} /> Ask our AI advisor
         </button>
       {/if}
-      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-white/10">
+      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10">
         Plan My Trip <ArrowRight size={18} />
       </a>
     </div>
@@ -73,7 +73,7 @@
 {#if aiOn}
   <section class="container-shell py-12 md:py-16" use:fadeUpOnScroll={{ y: 16 }}>
     <p class="font-serif text-xl italic text-clay">Ask away</p>
-    <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-deep-green md:text-[34px]" use:revealHeading>Popular questions, answered instantly</h2>
+    <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[34px]" use:revealHeading>Popular questions, answered instantly</h2>
     <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/60">Tap a question and our AI travel advisor will answer it for you — grounded in real Goldfinch trips, with honest limitations.</p>
 
     <div class="mt-6 flex flex-wrap gap-2.5">
@@ -81,7 +81,7 @@
         <button
           type="button"
           on:click={() => openAiAdvisor(topic)}
-          class="group inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white px-4 py-2 text-sm font-semibold text-ink/70 shadow-sm transition hover:border-forest/40 hover:text-forest"
+          class="group inline-flex items-center gap-2 rounded-full border border-ink/10 bg-surface px-4 py-2 text-sm font-semibold text-ink/70 shadow-sm transition hover:border-forest/40 hover:text-forest"
         >
           <MessageSquare size={14} class="text-forest/60 transition group-hover:text-forest" />
           {topic}
@@ -95,7 +95,7 @@
 <section class="bg-sand/30 py-12 md:py-16">
   <div class="container-shell">
     <p class="font-serif text-xl italic text-clay">Guides</p>
-    <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-deep-green md:text-[34px]" use:revealHeading>Latest planning guides</h2>
+    <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[34px]" use:revealHeading>Latest planning guides</h2>
     <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/60">Practical, no-fluff reads from the team who plans these trips every day.</p>
 
     <div class="mt-8">
@@ -113,15 +113,15 @@
     </div>
 
     <!-- compare promo -->
-    <div class="group mt-10 flex flex-col items-start justify-between gap-3 rounded-[12px] border border-ink/10 bg-white p-6 shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)] sm:flex-row sm:items-center">
+    <div class="group mt-10 flex flex-col items-start justify-between gap-3 rounded-[12px] border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)] sm:flex-row sm:items-center">
       <div class="flex items-start gap-3">
         <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest"><GitCompare size={20} /></span>
         <div>
           <p class="font-serif text-lg italic text-clay">Decision help</p>
-          <p class="mt-0.5 text-lg font-extrabold text-deep-green">Compare destinations &amp; routes side by side</p>
+          <p class="mt-0.5 text-lg font-extrabold text-heading">Compare destinations &amp; routes side by side</p>
         </div>
       </div>
-      <a href="/compare" class="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-forest/20 bg-white px-5 font-semibold text-forest transition group-hover:bg-sand/40">
+      <a href="/compare" class="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-forest/20 bg-surface px-5 font-semibold text-forest transition group-hover:bg-sand/40">
         See comparisons <ArrowRight size={16} />
       </a>
     </div>
@@ -133,10 +133,10 @@
   <section class="container-shell grid gap-8 py-12 md:grid-cols-[0.7fr_1.3fr] md:py-16" use:fadeUpOnScroll={{ y: 16 }}>
     <div>
       <p class="font-serif text-xl italic text-clay">Good to know</p>
-      <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-deep-green md:text-4xl" use:revealHeading>Frequently asked</h2>
+      <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-4xl" use:revealHeading>Frequently asked</h2>
       <p class="mt-3 text-[15px] leading-7 text-ink/60">The questions East Africa travellers ask us most. Need something specific? Our AI advisor or a specialist can help.</p>
       {#if aiOn}
-        <button type="button" on:click={() => openAiAdvisor()} class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-forest transition hover:text-deep-green">
+        <button type="button" on:click={() => openAiAdvisor()} class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-forest transition hover:text-heading">
           <Sparkles size={15} /> Ask the AI advisor
         </button>
       {/if}
@@ -154,11 +154,11 @@
       <p class="mx-auto mt-3 text-white/75">Get an instant answer from our AI advisor, or tell us what you're planning and a local expert will follow up — honest advice, no pressure.</p>
       <div class="mt-7 flex flex-wrap justify-center gap-3">
         {#if aiOn}
-          <button type="button" on:click={() => openAiAdvisor()} class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-deep-green transition hover:brightness-105">
+          <button type="button" on:click={() => openAiAdvisor()} class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-heading transition hover:brightness-105">
             <Sparkles size={18} strokeWidth={2.4} /> Ask our AI advisor
           </button>
         {/if}
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-7 font-semibold text-white transition hover:bg-white/10" href="/plan-my-trip">
+        <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-7 font-semibold text-white transition hover:bg-surface/10" href="/plan-my-trip">
           Plan My Trip <ArrowRight size={18} />
         </a>
       </div>

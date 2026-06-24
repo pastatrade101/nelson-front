@@ -12,8 +12,8 @@
   const dispatch = createEventDispatcher<{ action: void }>();
 </script>
 
-<section class="rounded-[10px] border border-dashed border-forest/20 bg-white/85 p-8 text-center shadow-[0_18px_50px_rgba(15,47,36,0.05)]">
-  <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-goldfinch-gold/20 text-deep-green ring-1 ring-goldfinch-gold/25">
+<section class="rounded-[10px] border border-dashed border-forest/20 bg-surface/85 p-8 text-center shadow-[0_18px_50px_rgba(15,47,36,0.05)]">
+  <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-goldfinch-gold/20 text-heading ring-1 ring-goldfinch-gold/25">
     <svelte:component this={icon} size={25} />
   </div>
   <h2 class="mt-4 text-lg font-bold tracking-normal text-ink">{title}</h2>

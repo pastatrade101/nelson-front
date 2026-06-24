@@ -130,7 +130,7 @@
 
   const priceTypeClass = (value: string) => {
     if (value === 'discount') return 'bg-red-50 text-red-700 ring-red-100';
-    if (['upgrade', 'single_supplement'].includes(value)) return 'bg-goldfinch-gold/15 text-deep-green ring-goldfinch-gold/25';
+    if (['upgrade', 'single_supplement'].includes(value)) return 'bg-goldfinch-gold/15 text-heading ring-goldfinch-gold/25';
     return 'bg-forest/10 text-forest ring-forest/20';
   };
 
@@ -332,7 +332,7 @@
   <AdminToolbar className="grid gap-3 lg:grid-cols-[1fr_360px] lg:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search tours</span>
-      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
         <Search size={16} class="text-ink/45" />
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Find a parent tour..." />
       </span>
@@ -352,7 +352,7 @@
       icon={CircleDollarSign}
     />
   {:else if !selectedTour}
-    <div class="grid gap-4 rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="grid gap-4 rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div>
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Select a parent tour</p>
         <h2 class="mt-1 text-xl font-bold text-ink">Pricing options are child records</h2>
@@ -380,7 +380,7 @@
       </div>
     </div>
   {:else}
-    <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <section class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Selected parent tour</p>
@@ -413,7 +413,7 @@
         on:action={openCreateModal}
       />
     {:else}
-      <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div class="overflow-x-auto">
           <table class="w-full min-w-[980px] text-start text-sm">
             <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -452,11 +452,11 @@
                   </td>
                   <td class="px-4 py-4">
                     <div class="flex justify-end gap-2">
-                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(option)}>
+                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(option)}>
                         <Edit size={14} />
                         Edit
                       </button>
-                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(option)}>
+                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(option)}>
                         <Trash2 size={14} />
                         Delete
                       </button>
@@ -473,15 +473,15 @@
 </div>
 
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <form class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={savePricingOption}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <form class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={savePricingOption}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editingOption ? 'Edit pricing option' : 'New pricing option'}</p>
           <h2 class="mt-1 text-2xl font-bold text-ink">{editingOption ? editingOption.title : 'Add price variation'}</h2>
           <p class="mt-2 text-sm leading-6 text-ink/60">Save the price option for {selectedTour?.title ?? 'the selected tour'}.</p>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close pricing option form" on:click={closeModal}>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close pricing option form" on:click={closeModal}>
           <X size={18} />
         </button>
       </div>
@@ -524,7 +524,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting pricing option...
   </div>
 {/if}

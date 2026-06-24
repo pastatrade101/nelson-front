@@ -18,7 +18,7 @@
   $: firstName = specialist.name.split(' ')[0];
 </script>
 
-<div class="rounded-2xl border border-ink/10 bg-white p-5 shadow-soft">
+<div class="rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
   {#if heading}<p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{heading}</p>{/if}
   <div class="mt-3 flex items-center gap-3">
     {#if specialist.photo}

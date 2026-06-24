@@ -46,18 +46,18 @@
 
 <div class="rounded-2xl border border-ink/10 bg-sand/30 p-5">
   {#if done}
-    <div class="flex items-center gap-3 text-deep-green">
+    <div class="flex items-center gap-3 text-heading">
       <CheckCircle2 size={22} class="shrink-0 text-emerald-600" />
       <p class="text-sm font-semibold">On its way — check your inbox shortly. A specialist will follow up to help you plan.</p>
     </div>
   {:else}
-    <p class="text-sm font-bold text-deep-green">Want it in your inbox?</p>
+    <p class="text-sm font-bold text-heading">Want it in your inbox?</p>
     <p class="mt-0.5 text-xs text-ink/55">We'll email you this itinerary — no obligation.</p>
     <form class="mt-3 flex flex-col gap-2 sm:flex-row" on:submit|preventDefault={submit}>
       <div class="relative flex-1">
         <Mail class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/40" size={16} />
         <input
-          class="h-11 w-full rounded-xl border border-ink/15 bg-white pl-9 pr-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+          class="h-11 w-full rounded-xl border border-ink/15 bg-surface pl-9 pr-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
           type="email"
           placeholder="you@example.com"
           autocomplete="email"

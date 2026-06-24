@@ -9,5 +9,5 @@
 
 <label class="grid gap-2 text-sm font-medium text-ink">
   <span>{label}</span>
-  <input class="rounded-md border border-ink/15 bg-white px-3 py-3 outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" {name} {type} bind:value {placeholder} {required} />
+  <input class="rounded-md border border-ink/15 bg-surface px-3 py-3 outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" {name} {type} bind:value {placeholder} {required} />
 </label>

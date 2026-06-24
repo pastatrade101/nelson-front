@@ -16,7 +16,7 @@
       .join('') || '?';
 </script>
 
-<article class="flex h-full flex-col gap-4 rounded-[8px] border border-ink/10 bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] transition hover:border-forest/25 hover:shadow-[0_20px_50px_rgba(15,47,36,0.10)]">
+<article class="flex h-full flex-col gap-4 rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] transition hover:border-forest/25 hover:shadow-[0_20px_50px_rgba(15,47,36,0.10)]">
   <!-- header -->
   <div class="flex items-start gap-3">
     {#if testimonial.client_image_url}
@@ -33,7 +33,7 @@
       {/if}
     </div>
     {#if featured}
-      <span class="flex shrink-0 items-center gap-1 rounded-full bg-goldfinch-gold px-2 py-0.5 text-[11px] font-bold text-deep-green">
+      <span class="flex shrink-0 items-center gap-1 rounded-full bg-goldfinch-gold px-2 py-0.5 text-[11px] font-bold text-heading">
         <Star size={10} fill="currentColor" />Featured
       </span>
     {/if}

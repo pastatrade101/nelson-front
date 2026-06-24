@@ -166,7 +166,7 @@
           {#if tour.price_from}
             <p class="text-sm text-ink/55">
               from
-              <span class="text-lg font-extrabold text-deep-green">{tour.currency ?? 'USD'} {tour.price_from.toLocaleString()}</span>
+              <span class="text-lg font-extrabold text-heading">{tour.currency ?? 'USD'} {tour.price_from.toLocaleString()}</span>
               <span class="text-ink/45">/ person</span>
             </p>
           {/if}
@@ -177,7 +177,7 @@
         <!-- primary actions (mobile; desktop uses the sticky booking card) -->
         <div class="mt-7 grid gap-3 lg:hidden">
           <button
-            class="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-deep-green shadow-sm transition hover:brightness-105"
+            class="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-sm transition hover:brightness-105"
             type="button"
             on:click={openForm}
           >
@@ -254,7 +254,7 @@
         <!-- trip highlights -->
         {#if highlights.length}
           <section class="mt-9">
-            <h2 class="text-xl font-bold text-deep-green">Trip highlights</h2>
+            <h2 class="text-xl font-bold text-heading">Trip highlights</h2>
             <div class="mt-3 grid gap-2 sm:grid-cols-2">
               {#each highlights as h}
                 <span class="inline-flex items-start gap-2 text-sm leading-6 text-ink/75">
@@ -269,11 +269,11 @@
         <!-- day-by-day itinerary -->
         {#if itineraryDays.length}
           <section class="mt-10">
-            <h2 class="text-2xl font-bold text-deep-green">Day-by-day itinerary</h2>
+            <h2 class="text-2xl font-bold text-heading">Day-by-day itinerary</h2>
             <p class="mt-1 text-sm text-ink/55">A sample flow — your specialist can tailor every day to you.</p>
             <ol class="mt-6 space-y-4">
               {#each itineraryDays as day (day.day_number)}
-                <li class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-sm transition hover:border-forest/30">
+                <li class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-sm transition hover:border-forest/30">
                   <div class="flex gap-4">
                     <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-forest text-sm font-extrabold text-white">{day.day_number}</span>
                     <div class="min-w-0 flex-1">
@@ -299,7 +299,7 @@
         {#if inclusions.length || exclusions.length}
           <section class="mt-10 grid gap-6 sm:grid-cols-2">
             {#if inclusions.length}
-              <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-sm">
+              <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-sm">
                 <h3 class="text-base font-bold text-ink">What's included</h3>
                 <ul class="mt-3 space-y-2">
                   {#each inclusions as inc}
@@ -312,12 +312,12 @@
               </div>
             {/if}
             {#if exclusions.length}
-              <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-sm">
+              <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-sm">
                 <h3 class="text-base font-bold text-ink">Not included</h3>
                 <ul class="mt-3 space-y-2">
                   {#each exclusions as exc}
                     <li class="flex gap-2 text-sm leading-6 text-ink/55">
-                      <span class="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-ink/5 text-ink/40"><X size={11} strokeWidth={3} /></span>
+                      <span class="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-black/5 text-ink/40"><X size={11} strokeWidth={3} /></span>
                       {exc.title}
                     </li>
                   {/each}
@@ -340,7 +340,7 @@
       <div>
         <!-- sticky booking summary card -->
         <div class="lg:sticky lg:top-24">
-          <div class="overflow-hidden rounded-[12px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.10)]">
+          <div class="overflow-hidden rounded-[12px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.10)]">
             <div class="bg-gradient-to-br from-deep-green to-forest p-5 text-white">
               <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-savanna">From</p>
               <p class="mt-0.5 text-3xl font-extrabold leading-none">
@@ -355,7 +355,7 @@
 
             <div class="grid gap-3 p-5">
               <button
-                class="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-deep-green shadow-sm transition hover:brightness-105"
+                class="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-sm transition hover:brightness-105"
                 type="button"
                 on:click={openForm}
               >
@@ -400,10 +400,10 @@
 <!-- booking request modal -->
 {#if formOpen && tour}
   <div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto p-4" role="dialog" aria-modal="true" aria-label="Booking request">
-    <button class="fixed inset-0 cursor-default bg-ink/55 backdrop-blur-sm" type="button" aria-label="Close" on:click={closeForm} transition:fade={{ duration: 150 }}></button>
+    <button class="fixed inset-0 cursor-default bg-black/55 backdrop-blur-sm" type="button" aria-label="Close" on:click={closeForm} transition:fade={{ duration: 150 }}></button>
     <div class="relative my-auto w-full max-w-xl" transition:scale={{ duration: 180, start: 0.97 }}>
       <button
-        class="absolute -top-3 right-0 z-10 grid h-9 w-9 place-items-center rounded-full bg-white text-ink shadow-md transition hover:bg-sand sm:-right-3"
+        class="absolute -top-3 right-0 z-10 grid h-9 w-9 place-items-center rounded-full bg-surface text-ink shadow-md transition hover:bg-sand sm:-right-3"
         type="button"
         aria-label="Close"
         on:click={closeForm}
@@ -432,7 +432,7 @@
             description="Other trusted trips travellers book with us."
           />
           <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
             href="/tours"
           >
             Browse all tours <ArrowRight size={16} />
@@ -458,7 +458,7 @@
             description="Travel inspiration, tips and stories from the field."
           />
           <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
             href="/blog"
           >
             Read the blog <ArrowRight size={16} />

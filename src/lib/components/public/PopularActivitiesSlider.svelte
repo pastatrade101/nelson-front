@@ -108,11 +108,11 @@
   onMount(loadActivities);
 </script>
 
-<section class="bg-white py-14 md:py-20" use:fadeUpOnScroll={{ y: 18 }}>
+<section class="bg-surface py-14 md:py-20" use:fadeUpOnScroll={{ y: 18 }}>
   <div class="container-shell">
     <div class="mx-auto max-w-2xl text-center">
       <p class="font-serif text-xl italic text-clay">Things to do</p>
-      <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-deep-green md:text-[40px]" use:revealHeading>Popular Activities</h2>
+      <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>Popular Activities</h2>
       <p class="mx-auto mt-3 max-w-[620px] text-[15px] leading-7 text-ink/60 md:text-base">
         A curated list of the most-loved experiences across our East-Africa destinations.
       </p>
@@ -124,7 +124,7 @@
     >
       {#each activities as activity}
         <article
-          class="activity-card group relative flex h-full flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-white shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]"
+          class="activity-card group relative flex h-full flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]"
           use:tilt={{ max: 5 }}
         >
           <a href={activity.href} class="relative block aspect-[16/10] overflow-hidden bg-skywash">
@@ -139,7 +139,7 @@
             {#if activity.badge}
               <span
                 class={`absolute right-3 top-3 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide shadow-md ${
-                  activity.badgeTone === 'red' ? 'bg-clay text-white' : 'bg-goldfinch-gold text-deep-green'
+                  activity.badgeTone === 'red' ? 'bg-clay text-white' : 'bg-goldfinch-gold text-heading'
                 }`}
               >
                 {activity.badge}
@@ -176,7 +176,7 @@
               {#if activity.price != null}
                 <div class="text-right leading-tight">
                   <p class="text-[11px] font-medium uppercase tracking-wide text-ink/45">{activity.priceLabel}</p>
-                  <p class="text-lg font-extrabold text-deep-green">${activity.price.toLocaleString()}</p>
+                  <p class="text-lg font-extrabold text-heading">${activity.price.toLocaleString()}</p>
                 </div>
               {/if}
             </div>

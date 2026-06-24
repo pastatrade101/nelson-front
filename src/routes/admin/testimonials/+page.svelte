@@ -284,7 +284,7 @@
   <AdminToolbar className="grid gap-3 lg:grid-cols-[1fr_repeat(4,150px)_auto] lg:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search</span>
-      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
         <Search size={16} class="text-ink/45" />
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Name, country, message..." on:keydown={(e) => e.key === 'Enter' && load()} />
       </span>
@@ -311,7 +311,7 @@
   {:else}
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {#each rows as t (t.id)}
-        <article class="flex flex-col gap-4 rounded-[8px] border border-ink/10 bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)]" transition:fade={{ duration: 120 }}>
+        <article class="flex flex-col gap-4 rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)]" transition:fade={{ duration: 120 }}>
           <div class="flex items-start gap-3">
             {#if t.client_image_url}
               <img class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-ink/10" src={t.client_image_url} alt={t.client_name} />
@@ -327,7 +327,7 @@
               {/if}
             </div>
             {#if t.is_featured}
-              <span class="flex shrink-0 items-center gap-1 rounded-full bg-goldfinch-gold px-2 py-0.5 text-[11px] font-bold text-deep-green">
+              <span class="flex shrink-0 items-center gap-1 rounded-full bg-goldfinch-gold px-2 py-0.5 text-[11px] font-bold text-heading">
                 <Star size={10} fill="currentColor" />Featured
               </span>
             {/if}
@@ -353,14 +353,14 @@
           </div>
 
           <div class="mt-auto flex flex-wrap gap-2 border-t border-ink/10 pt-3">
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl bg-goldfinch-gold/15 px-3 text-xs font-semibold text-deep-green transition hover:bg-goldfinch-gold/30" type="button" on:click={() => toggleFeatured(t)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl bg-goldfinch-gold/15 px-3 text-xs font-semibold text-heading transition hover:bg-goldfinch-gold/30" type="button" on:click={() => toggleFeatured(t)}>
               <Star size={13} fill={t.is_featured ? 'currentColor' : 'none'} />
               {t.is_featured ? 'Unfeature' : 'Feature'}
             </button>
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(t)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(t)}>
               <Edit size={13} />Edit
             </button>
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(t)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(t)}>
               <Trash2 size={13} />Delete
             </button>
           </div>
@@ -371,9 +371,9 @@
 </div>
 
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >
@@ -382,7 +382,7 @@
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editing ? 'Edit testimonial' : 'New testimonial'}</p>
           <h2 class="mt-1 text-2xl font-bold text-ink">{editing ? 'Update review' : 'Add client review'}</h2>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
           <X size={18} />
         </button>
       </div>
@@ -417,11 +417,11 @@
             {:else if imageMode === 'url'}
               <AdminFormInput label="Image URL" name="client_image_url" bind:value={form.client_image_url} placeholder="https://..." />
             {:else}
-              <div class="grid place-items-center rounded-2xl border border-dashed border-ink/15 bg-white/70 p-3 text-sm text-ink/50">No client image.</div>
+              <div class="grid place-items-center rounded-2xl border border-dashed border-ink/15 bg-surface/70 p-3 text-sm text-ink/50">No client image.</div>
             {/if}
           </div>
           {#if form.client_image_url}
-            <div class="mt-4 flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-ink/10">
+            <div class="mt-4 flex items-center gap-3 rounded-2xl bg-surface p-3 ring-1 ring-ink/10">
               <img class="h-12 w-12 rounded-full object-cover" src={form.client_image_url} alt="Client preview" />
               <p class="min-w-0 truncate text-xs text-ink/55">{form.client_image_url}</p>
             </div>
@@ -435,7 +435,7 @@
 
         <div class="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
           <AdminFormInput label="Sort order" name="sort_order" type="number" bind:value={form.sort_order} />
-          <label class="flex h-11 cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-white px-4 transition hover:bg-sand/30">
+          <label class="flex h-11 cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-surface px-4 transition hover:bg-sand/30">
             <input class="h-4 w-4 accent-forest" type="checkbox" bind:checked={form.is_featured} />
             <span class="text-sm font-semibold text-ink">Featured testimonial</span>
           </label>
@@ -461,7 +461,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting testimonial...
   </div>
 {/if}

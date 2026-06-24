@@ -260,7 +260,7 @@
   {:else}
     <div class="grid gap-5 lg:grid-cols-[240px_1fr] lg:items-start">
       <!-- group nav -->
-      <nav class="flex gap-2 overflow-x-auto rounded-2xl border border-ink/10 bg-white p-2 shadow-sm lg:sticky lg:top-24 lg:flex-col lg:overflow-visible">
+      <nav class="flex gap-2 overflow-x-auto rounded-2xl border border-ink/10 bg-surface p-2 shadow-sm lg:sticky lg:top-24 lg:flex-col lg:overflow-visible">
         {#each GROUPS as g}
           {@const Icon = g.icon}
           {@const groupDirty = g.fields.some((f) => dirtyKeys.includes(f.key))}
@@ -269,7 +269,7 @@
             type="button"
             on:click={() => (activeGroup = g.key)}
           >
-            <span class={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${activeGroup === g.key ? 'bg-white/15' : 'bg-sand/70'}`}><Icon size={15} /></span>
+            <span class={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${activeGroup === g.key ? 'bg-surface/15' : 'bg-sand/70'}`}><Icon size={15} /></span>
             <span class="whitespace-nowrap">{g.label}</span>
             {#if groupDirty}<span class="ml-auto hidden h-2 w-2 shrink-0 rounded-full bg-goldfinch-gold lg:block"></span>{/if}
           </button>
@@ -277,7 +277,7 @@
       </nav>
 
       <!-- form area -->
-      <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-white p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-6">
+      <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-6">
         <div class="flex items-center gap-3 border-b border-ink/10 pb-4">
           <svelte:component this={group.icon} size={20} class="text-forest" />
           <h2 class="text-lg font-bold text-ink">{group.label} settings</h2>
@@ -293,7 +293,7 @@
           {#each group.fields as field (field.key)}
             <div class={field.type === 'textarea' || field.type === 'json' || field.type === 'image' ? 'sm:col-span-2' : ''}>
               {#if field.type === 'boolean'}
-                <label class="flex h-full cursor-pointer items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white p-4 transition hover:bg-sand/30">
+                <label class="flex h-full cursor-pointer items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-surface p-4 transition hover:bg-sand/30">
                   <span>
                     <span class="text-sm font-semibold text-ink">{field.label}</span>
                     {#if field.helper}<span class="mt-0.5 block text-xs text-ink/50">{field.helper}</span>{/if}
@@ -306,7 +306,7 @@
               {:else if field.type === 'json'}
                 <label class="grid gap-2 text-sm font-medium text-ink">
                   <span>{field.label}</span>
-                  <textarea class="min-h-[100px] rounded-2xl border border-ink/10 bg-white px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" bind:value={values[field.key]} spellcheck="false"></textarea>
+                  <textarea class="min-h-[100px] rounded-2xl border border-ink/10 bg-surface px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" bind:value={values[field.key]} spellcheck="false"></textarea>
                   {#if field.helper}<span class="text-xs font-normal text-ink/50">{field.helper}</span>{/if}
                 </label>
               {:else if field.type === 'select'}
@@ -314,8 +314,8 @@
               {:else if field.type === 'color'}
                 <label class="grid gap-2 text-sm font-medium text-ink">
                   <span>{field.label}</span>
-                  <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-2 shadow-sm">
-                    <input class="h-8 w-10 shrink-0 cursor-pointer rounded-lg border border-ink/10 bg-white p-0.5" type="color" bind:value={values[field.key]} aria-label={field.label} />
+                  <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-2 shadow-sm">
+                    <input class="h-8 w-10 shrink-0 cursor-pointer rounded-lg border border-ink/10 bg-surface p-0.5" type="color" bind:value={values[field.key]} aria-label={field.label} />
                     <input class="min-w-0 flex-1 bg-transparent font-mono text-sm uppercase outline-none" bind:value={values[field.key]} spellcheck="false" />
                   </span>
                 </label>
@@ -326,8 +326,8 @@
                     <div class="grid h-14 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-ink/10 bg-sand/40">
                       {#if values[field.key]}<img class="h-full w-full object-cover" src={String(values[field.key])} alt={field.label} />{:else}<ImageIcon size={18} class="text-ink/30" />{/if}
                     </div>
-                    <input class="h-11 min-w-0 flex-1 rounded-2xl border border-ink/10 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" bind:value={values[field.key]} placeholder="https://..." />
-                    <button class="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-2xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" type="button" on:click={() => openMediaPicker(field.key)}><ImageIcon size={14} />Media</button>
+                    <input class="h-11 min-w-0 flex-1 rounded-2xl border border-ink/10 bg-surface px-3 text-sm shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" bind:value={values[field.key]} placeholder="https://..." />
+                    <button class="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-2xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" type="button" on:click={() => openMediaPicker(field.key)}><ImageIcon size={14} />Media</button>
                   </div>
                   {#if field.helper}<span class="text-xs font-normal text-ink/50">{field.helper}</span>{/if}
                 </label>
@@ -345,7 +345,7 @@
 <!-- sticky save bar -->
 {#if !loading && !error}
   <div class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center p-4">
-    <div class="pointer-events-auto flex w-full max-w-[1500px] items-center justify-between gap-4 rounded-2xl border border-ink/10 bg-white/95 px-5 py-3 shadow-[0_-6px_30px_rgba(15,47,36,0.12)] backdrop-blur">
+    <div class="pointer-events-auto flex w-full max-w-[1500px] items-center justify-between gap-4 rounded-2xl border border-ink/10 bg-surface/95 px-5 py-3 shadow-[0_-6px_30px_rgba(15,47,36,0.12)] backdrop-blur">
       <p class="text-sm font-medium text-ink/60">
         {#if hasChanges}<span class="font-bold text-goldfinch-gold">{dirtyKeys.length}</span> unsaved change{dirtyKeys.length === 1 ? '' : 's'}{:else}All changes saved{/if}
       </p>
@@ -359,11 +359,11 @@
 
 <!-- media picker modal -->
 {#if mediaPickerFor}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-center justify-between border-b border-ink/10 bg-sand/30 p-4">
         <h3 class="text-base font-bold text-ink">Choose an image</h3>
-        <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={() => (mediaPickerFor = null)}><X size={16} /></button>
+        <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={() => (mediaPickerFor = null)}><X size={16} /></button>
       </div>
       <div class="overflow-y-auto p-4">
         {#if loadingMedia}

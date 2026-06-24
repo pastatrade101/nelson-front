@@ -150,7 +150,7 @@
             description={`Trusted trips that start in or pass through ${destination.name}.`}
           />
           <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
             href="/tours"
           >
             Browse all tours <ArrowRight size={16} />
@@ -212,7 +212,7 @@
         />
         <div class="mt-9 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           {#if destination.safety_overview}
-            <div class="rounded-2xl border border-ink/10 bg-white p-6 shadow-soft">
+            <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
               <div class="flex items-center gap-3">
                 <span class="grid h-11 w-11 place-items-center rounded-xl bg-forest/10 text-forest"><ShieldCheck size={20} /></span>
                 <h3 class="text-lg font-bold text-ink">Is it safe?</h3>
@@ -223,32 +223,32 @@
 
           <div class="grid gap-4">
             {#if destination.health_vaccinations}
-              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-white p-5 shadow-soft">
+              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
                 <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-clay/10 text-clay"><HeartPulse size={18} /></span>
                 <div><p class="text-sm font-bold text-ink">Health &amp; vaccinations</p><p class="mt-1 text-sm leading-6 text-ink/65">{destination.health_vaccinations}</p></div>
               </div>
             {/if}
             {#if destination.security_advice}
-              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-white p-5 shadow-soft">
+              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
                 <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-forest/10 text-forest"><Shield size={18} /></span>
                 <div><p class="text-sm font-bold text-ink">Security</p><p class="mt-1 text-sm leading-6 text-ink/65">{destination.security_advice}</p></div>
               </div>
             {/if}
             {#if destination.travel_insurance_note}
-              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-white p-5 shadow-soft">
+              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
                 <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-goldfinch-gold/15 text-goldfinch-gold"><FileCheck size={18} /></span>
                 <div><p class="text-sm font-bold text-ink">Travel insurance</p><p class="mt-1 text-sm leading-6 text-ink/65">{destination.travel_insurance_note}</p></div>
               </div>
             {/if}
             {#if destination.emergency_contacts}
-              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-white p-5 shadow-soft">
+              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
                 <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-forest/10 text-forest"><Phone size={18} /></span>
                 <div><p class="text-sm font-bold text-ink">Emergency contacts</p><p class="mt-1 text-sm leading-6 text-ink/65">{destination.emergency_contacts}</p></div>
               </div>
             {/if}
           </div>
         </div>
-        <a class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" href="/safety">
+        <a class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href="/safety">
           Read the full health &amp; safety guide <ArrowRight size={16} />
         </a>
       </div>
@@ -266,7 +266,7 @@
         />
         <div class="mt-9 grid gap-5 sm:grid-cols-2">
           {#each tripPoints as point (point.id)}
-            <div class="flex gap-4 rounded-2xl border border-ink/10 bg-white p-5 shadow-soft">
+            <div class="flex gap-4 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
               <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest">
                 <Plane size={20} />
               </div>
@@ -302,7 +302,7 @@
             description="Other places our local experts know and love across the region."
           />
           <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
             href="/destinations"
           >
             All destinations <ArrowRight size={16} />
@@ -328,7 +328,7 @@
             description="Travel inspiration, tips and stories from the field."
           />
           <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
             href="/blog"
           >
             Read the blog <ArrowRight size={16} />
@@ -355,13 +355,13 @@
         </p>
         <div class="mt-7 flex flex-wrap justify-center gap-3">
           <a
-            class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-deep-green shadow-lg transition hover:brightness-105"
+            class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-lg transition hover:brightness-105"
             href="/plan-my-trip"
           >
             Plan My Trip <ArrowRight size={18} />
           </a>
           <a
-            class="inline-flex h-12 items-center rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-white/10"
+            class="inline-flex h-12 items-center rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10"
             href="/contact"
           >
             Talk to an Advisor

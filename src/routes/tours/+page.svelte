@@ -195,12 +195,12 @@
     <div class="overflow-hidden rounded-[10px] border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
       <p class="font-serif text-xl italic text-clay">For {personaCfg.label}</p>
       {#key personaCfg.headline}
-        <h1 class="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight text-deep-green md:text-4xl" use:revealHeading>{personaCfg.headline}</h1>
+        <h1 class="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight text-heading md:text-4xl" use:revealHeading>{personaCfg.headline}</h1>
       {/key}
       <p class="mt-3 max-w-2xl text-base leading-7 text-ink/70">{personaCfg.sub}</p>
       <div class="mt-5 flex flex-wrap gap-2.5">
         {#each personaCfg.concerns as concern}
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-forest/15 bg-white/70 px-3 py-1.5 text-sm font-medium text-ink/70">
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-forest/15 bg-surface/70 px-3 py-1.5 text-sm font-medium text-ink/70">
             <span class="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-forest/10 text-forest"><Check size={11} strokeWidth={3} /></span>
             {concern}
           </span>
@@ -209,7 +209,7 @@
     </div>
   {:else}
     <p class="font-serif text-xl italic text-clay">Safari &amp; Tours</p>
-    <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-deep-green md:text-[40px]" use:revealHeading>African Safari Tours &amp; Holidays</h1>
+    <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>African Safari Tours &amp; Holidays</h1>
     <p class="mt-3 max-w-3xl text-base leading-7 text-ink/70">
       Explore our trusted East Africa tours — safaris, Kilimanjaro climbs, gorilla trekking and beach escapes.
       Use the filters to find the trip that fits your dates, budget and style.
@@ -221,7 +221,7 @@
     <span class="text-sm font-medium text-ink/50">Who's travelling?</span>
     {#each PERSONA_ORDER as key}
       <a
-        class={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${persona === key ? 'border-forest bg-forest text-white' : 'border-ink/15 bg-white text-ink/65 hover:border-forest/40'}`}
+        class={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${persona === key ? 'border-forest bg-forest text-white' : 'border-ink/15 bg-surface text-ink/65 hover:border-forest/40'}`}
         href={withParams({ persona: persona === key ? null : key })}
       >
         {PERSONAS[key].label}
@@ -235,12 +235,12 @@
       <div class="filter-scroll grid gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overscroll-contain lg:pb-2">
         <!-- search card -->
         <div class="rounded-2xl border border-goldfinch-gold/30 bg-sand/40 p-5">
-          <p class="font-serif text-lg font-bold text-deep-green">Your Safari</p>
+          <p class="font-serif text-lg font-bold text-heading">Your Safari</p>
           <form class="mt-4 grid gap-3" on:submit={submitSearch}>
             <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/55">
               Where to
               <select
-                class="h-11 rounded-xl border border-ink/15 bg-white px-3 text-sm font-medium text-ink outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+                class="h-11 rounded-xl border border-ink/15 bg-surface px-3 text-sm font-medium text-ink outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
                 value={destSlug}
                 on:change={(e) => setDestination(e.currentTarget.value)}
               >
@@ -252,7 +252,7 @@
             </label>
             <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/55">
               Keyword
-              <span class="flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-white px-3 transition focus-within:border-forest focus-within:ring-2 focus-within:ring-forest/15">
+              <span class="flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-surface px-3 transition focus-within:border-forest focus-within:ring-2 focus-within:ring-forest/15">
                 <Search size={16} class="text-ink/40" />
                 <input name="q" value={searchTerm} placeholder="e.g. migration, gorilla" class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" />
               </span>
@@ -263,7 +263,7 @@
 
         <!-- tour length -->
         {#if rangesReady}
-          <div class="rounded-2xl border border-ink/10 bg-white p-5">
+          <div class="rounded-2xl border border-ink/10 bg-surface p-5">
             <p class="text-sm font-bold text-ink">Tour Length</p>
             <div class="mt-4">
               <RangeSlider min={lenMin} max={lenMax} bind:lo={lengthLo} bind:hi={lengthHi} format={days} />
@@ -271,7 +271,7 @@
           </div>
 
           <!-- price -->
-          <div class="rounded-2xl border border-ink/10 bg-white p-5">
+          <div class="rounded-2xl border border-ink/10 bg-surface p-5">
             <p class="text-sm font-bold text-ink">Rates in USD</p>
             <p class="mt-0.5 text-xs text-ink/45">Per person, excl. international flights</p>
             <div class="mt-4">
@@ -281,7 +281,7 @@
         {/if}
 
         <!-- comfort level -->
-        <div class="rounded-2xl border border-ink/10 bg-white p-5">
+        <div class="rounded-2xl border border-ink/10 bg-surface p-5">
           <p class="text-sm font-bold text-ink">Comfort Level</p>
           <div class="mt-3 grid gap-2.5">
             {#each TIERS as t}
@@ -298,7 +298,7 @@
 
         <!-- safari type / experience (category) -->
         {#if categoryOptions.length}
-          <div class="rounded-2xl border border-ink/10 bg-white p-5">
+          <div class="rounded-2xl border border-ink/10 bg-surface p-5">
             <p class="text-sm font-bold text-ink">Safari Type</p>
             <div class="mt-3 grid gap-2.5">
               {#each categoryOptions as c}
@@ -315,7 +315,7 @@
         {/if}
 
         <!-- quick toggle -->
-        <div class="rounded-2xl border border-ink/10 bg-white p-5">
+        <div class="rounded-2xl border border-ink/10 bg-surface p-5">
           <p class="text-sm font-bold text-ink">Other</p>
           <label class="mt-3 flex cursor-pointer items-center gap-2.5 text-sm text-ink/75">
             <input type="checkbox" class="h-4 w-4 accent-forest" bind:checked={popularOnly} />
@@ -332,7 +332,7 @@
         <div class="flex items-center gap-3">
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl border border-ink/15 bg-white px-3.5 py-2 text-sm font-semibold text-ink lg:hidden"
+            class="inline-flex items-center gap-2 rounded-xl border border-ink/15 bg-surface px-3.5 py-2 text-sm font-semibold text-ink lg:hidden"
             on:click={() => (filtersOpen = !filtersOpen)}
           >
             <SlidersHorizontal size={15} /> Filters{#if activeCount}<span class="rounded-full bg-forest px-1.5 text-xs text-white">{activeCount}</span>{/if}
@@ -341,7 +341,7 @@
         </div>
         <label class="flex items-center gap-2 text-sm text-ink/55">
           Sort
-          <select class="h-9 rounded-lg border border-ink/15 bg-white px-2 text-sm font-medium text-ink outline-none focus:border-forest" bind:value={sort}>
+          <select class="h-9 rounded-lg border border-ink/15 bg-surface px-2 text-sm font-medium text-ink outline-none focus:border-forest" bind:value={sort}>
             <option value="recommended">Recommended</option>
             <option value="price_asc">Price: low to high</option>
             <option value="price_desc">Price: high to low</option>

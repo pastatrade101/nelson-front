@@ -189,7 +189,7 @@
       <div class="text-center">
         <p class="font-serif text-xl italic text-clay">Trip Finder</p>
         {#key isResults}
-          <h1 class="mx-auto mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-tight text-deep-green md:text-[40px]" use:revealHeading>
+          <h1 class="mx-auto mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-tight text-heading md:text-[40px]" use:revealHeading>
             {isResults ? 'Your best-fit trips' : 'Find the right trip in a minute'}
           </h1>
         {/key}
@@ -202,19 +202,19 @@
         <!-- progress -->
         <div class="mt-8 flex items-center gap-3">
           {#if step > 0}
-            <button type="button" class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/15 bg-white text-ink/60 transition hover:bg-white" aria-label="Back" on:click={back}>
+            <button type="button" class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/15 bg-surface text-ink/60 transition hover:bg-surface" aria-label="Back" on:click={back}>
               <ArrowLeft size={16} />
             </button>
           {/if}
-          <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-ink/10">
+          <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-black/10">
             <div class="h-full rounded-full bg-goldfinch-gold transition-all duration-300" style:width={`${(step / questions.length) * 100}%`}></div>
           </div>
           <span class="shrink-0 text-xs font-semibold text-ink/45">{step + 1} / {questions.length}</span>
         </div>
 
         <!-- question -->
-        <div class="mt-8 rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_18px_50px_rgba(15,47,36,0.07)] md:p-8">
-          <h2 class="text-xl font-bold text-deep-green md:text-2xl">{current.title}</h2>
+        <div class="mt-8 rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_18px_50px_rgba(15,47,36,0.07)] md:p-8">
+          <h2 class="text-xl font-bold text-heading md:text-2xl">{current.title}</h2>
           {#if current.subtitle}<p class="mt-1 text-sm text-ink/55">{current.subtitle}</p>{/if}
 
           <div class={`mt-6 grid gap-3 ${current.key === 'when' ? 'grid-cols-3 sm:grid-cols-4' : 'sm:grid-cols-2'}`}>
@@ -224,7 +224,7 @@
                 class={`group flex items-center justify-between gap-2 rounded-2xl border px-4 py-3.5 text-left transition ${
                   answers[current.key] === opt.value
                     ? 'border-forest bg-forest/[0.06] ring-1 ring-forest/20'
-                    : 'border-ink/12 bg-white hover:border-forest/40 hover:bg-sand/40'
+                    : 'border-ink/12 bg-surface hover:border-forest/40 hover:bg-sand/40'
                 }`}
                 on:click={() => select(current.key, opt.value)}
               >
@@ -240,9 +240,9 @@
 
         <p class="mt-6 text-center text-sm text-ink/50">
           Prefer to skip ahead?
-          <a class="font-semibold text-forest hover:text-deep-green" href="/plan-my-trip">Talk to a specialist</a>
+          <a class="font-semibold text-forest hover:text-heading" href="/plan-my-trip">Talk to a specialist</a>
           ·
-          <a class="font-semibold text-forest hover:text-deep-green" href="/tours">See all tours</a>
+          <a class="font-semibold text-forest hover:text-heading" href="/tours">See all tours</a>
         </p>
       {:else if loading}
         <div class="mt-10"><LoadingState message="Finding your best-fit trips…" /></div>
@@ -251,7 +251,7 @@
         <div class="mt-8 grid gap-4">
           {#if recommendations.length}
             {#each recommendations as rec (rec.tour.id)}
-              <article class="flex flex-col overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_14px_40px_rgba(15,47,36,0.07)] sm:flex-row">
+              <article class="flex flex-col overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(15,47,36,0.07)] sm:flex-row">
                 <div class="aspect-[16/10] w-full shrink-0 overflow-hidden bg-skywash sm:aspect-auto sm:w-44">
                   {#if rec.tour.main_image_url}
                     <img class="h-full w-full object-cover" src={rec.tour.main_image_url} alt={rec.tour.title} loading="lazy" />
@@ -261,17 +261,17 @@
                   <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
                     {#if destName(rec.tour)}<span class="text-clay">{destName(rec.tour)}</span>{/if}
                     {#if rec.tour.duration_days}<span class="text-ink/45">{rec.tour.duration_days} days</span>{/if}
-                    <span class="text-ink/45">from <span class="text-deep-green">{fmtPrice(rec.tour)}</span></span>
+                    <span class="text-ink/45">from <span class="text-heading">{fmtPrice(rec.tour)}</span></span>
                   </div>
-                  <h3 class="mt-1 text-lg font-extrabold leading-snug text-deep-green">{rec.tour.title}</h3>
+                  <h3 class="mt-1 text-lg font-extrabold leading-snug text-heading">{rec.tour.title}</h3>
                   <p class="mt-1.5 inline-flex items-start gap-1.5 text-sm font-medium text-forest">
                     <Sparkles size={15} class="mt-0.5 shrink-0 text-goldfinch-gold" />{rec.reason}
                   </p>
                   <div class="mt-4 flex flex-wrap gap-2.5">
-                    <a class="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-goldfinch-gold px-4 text-sm font-bold text-deep-green transition hover:brightness-105" href={planHref(rec.tour.slug)}>
+                    <a class="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-goldfinch-gold px-4 text-sm font-bold text-heading transition hover:brightness-105" href={planHref(rec.tour.slug)}>
                       <Sparkles size={15} /> Plan This Trip
                     </a>
-                    <a class="inline-flex h-10 flex-1 items-center justify-center rounded-xl border border-ink/15 bg-white px-4 text-sm font-semibold text-ink/70 transition hover:bg-sand/60" href={`/tours/${rec.tour.slug}`}>
+                    <a class="inline-flex h-10 flex-1 items-center justify-center rounded-xl border border-ink/15 bg-surface px-4 text-sm font-semibold text-ink/70 transition hover:bg-sand/60" href={`/tours/${rec.tour.slug}`}>
                       View Trip
                     </a>
                   </div>
@@ -279,8 +279,8 @@
               </article>
             {/each}
           {:else}
-            <div class="rounded-[8px] border border-dashed border-ink/15 bg-white p-8 text-center">
-              <p class="font-semibold text-deep-green">We couldn't auto-match a trip — but we can still help.</p>
+            <div class="rounded-[8px] border border-dashed border-ink/15 bg-surface p-8 text-center">
+              <p class="font-semibold text-heading">We couldn't auto-match a trip — but we can still help.</p>
               <p class="mt-1 text-sm text-ink/60">Tell a specialist what you have in mind and we'll plan it around you.</p>
             </div>
           {/if}
@@ -291,12 +291,12 @@
           <a class="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-deep-green px-5 font-bold text-white shadow-sm transition hover:bg-forest" href={specialistHref}>
             <MessageCircle size={18} /> Talk to a specialist
           </a>
-          <a class="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-ink/15 bg-white px-5 font-semibold text-ink transition hover:bg-sand/60" href={allToursHref}>
+          <a class="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-ink/15 bg-surface px-5 font-semibold text-ink transition hover:bg-sand/60" href={allToursHref}>
             See all tours <ArrowRight size={16} />
           </a>
         </div>
         <div class="mt-5 text-center">
-          <button type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" on:click={restart}>
+          <button type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" on:click={restart}>
             <Check size={15} /> Start over
           </button>
         </div>

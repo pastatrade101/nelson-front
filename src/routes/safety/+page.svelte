@@ -76,7 +76,7 @@
   <div class="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
   <div class="container-shell relative py-16 md:py-24">
     <div class="max-w-2xl">
-      <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-savanna">
+      <span class="inline-flex items-center gap-2 rounded-full bg-surface/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-savanna">
         <ShieldCheck size={14} /> Health &amp; Safety
       </span>
       <h1 class="mt-5 text-4xl font-extrabold leading-tight md:text-5xl">Travel with confidence</h1>
@@ -107,7 +107,7 @@
     <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
       {#each topics as topic (topic.id)}
         {@const Icon = iconFor(topic.icon)}
-        <article class="flex h-full flex-col rounded-2xl border border-ink/10 bg-white p-6 shadow-soft">
+        <article class="flex h-full flex-col rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
           <div class="grid h-12 w-12 place-items-center rounded-xl bg-forest/10 text-forest">
             <Icon size={22} />
           </div>
@@ -140,12 +140,12 @@
       <div class="mt-9 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {#each destinations as dest (dest.id)}
           <a
-            class="group flex h-full flex-col rounded-2xl border border-ink/10 bg-white p-6 shadow-soft transition hover:border-goldfinch-gold/40 hover:shadow-md"
+            class="group flex h-full flex-col rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft transition hover:border-goldfinch-gold/40 hover:shadow-md"
             href={`/destinations/${dest.slug}`}
           >
             <h3 class="text-lg font-bold text-ink">{dest.name}</h3>
             <p class="mt-2 line-clamp-4 text-sm leading-6 text-ink/65">{dest.safety_overview}</p>
-            <span class="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-forest transition group-hover:text-deep-green">
+            <span class="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-forest transition group-hover:text-heading">
               Read full safety notes <ArrowRight size={16} />
             </span>
           </a>
@@ -166,10 +166,10 @@
         wildlife or logistics — before you commit.
       </p>
       <div class="mt-7 flex flex-wrap justify-center gap-3">
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-deep-green shadow-lg transition hover:brightness-105" href="/plan-my-trip">
+        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-lg transition hover:brightness-105" href="/plan-my-trip">
           Plan My Trip <ArrowRight size={18} />
         </a>
-        <a class="inline-flex h-12 items-center rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-white/10" href="/contact">
+        <a class="inline-flex h-12 items-center rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10" href="/contact">
           Talk to an Advisor
         </a>
       </div>

@@ -7,7 +7,7 @@
 
 {#if count > 0}
   <a
-    class="fixed bottom-24 left-4 z-40 inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white/95 px-4 py-2.5 text-sm font-bold text-deep-green shadow-[0_10px_30px_rgba(15,47,36,0.15)] backdrop-blur transition hover:bg-white lg:bottom-6"
+    class="fixed bottom-24 left-4 z-40 inline-flex items-center gap-2 rounded-full border border-ink/10 bg-surface/95 px-4 py-2.5 text-sm font-bold text-heading shadow-[0_10px_30px_rgba(15,47,36,0.15)] backdrop-blur transition hover:bg-surface lg:bottom-6"
     href="/shortlist"
     aria-label={`${count} saved trips`}
   >

@@ -435,7 +435,7 @@
   <AdminToolbar className="grid gap-3 lg:grid-cols-[1fr_360px] lg:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search tours</span>
-      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
         <Search size={16} class="text-ink/45" />
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Find a tour..." />
       </span>
@@ -451,7 +451,7 @@
     <AdminEmptyState title="No tours found" message="Create a tour package first, then return here to manage its details." icon={ListPlus} />
   {:else if !selectedTour}
     <!-- tour picker grid -->
-    <div class="grid gap-4 rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="grid gap-4 rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div>
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Select a parent tour</p>
         <h2 class="mt-1 text-xl font-bold text-ink">Inclusions, exclusions, and images are child records</h2>
@@ -484,7 +484,7 @@
     </div>
   {:else}
     <!-- selected tour summary -->
-    <section class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <section class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Selected tour</p>
@@ -516,7 +516,7 @@
     </section>
 
     <!-- tabs -->
-    <div class="flex gap-1 rounded-2xl border border-ink/10 bg-white p-1.5 shadow-sm">
+    <div class="flex gap-1 rounded-2xl border border-ink/10 bg-surface p-1.5 shadow-sm">
       {#each ([['inclusions', ListPlus, 'Inclusions'], ['exclusions', ListMinus, 'Exclusions'], ['images', Images, 'Tour Images']] as const) as [tab, Icon, label]}
         <button
           class={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20 ${
@@ -527,7 +527,7 @@
         >
           <Icon size={15} />
           {label}
-          <span class={`ml-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${activeTab === tab ? 'bg-white/20 text-white' : 'bg-sand/70 text-ink/60'}`}>
+          <span class={`ml-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${activeTab === tab ? 'bg-surface/20 text-white' : 'bg-sand/70 text-ink/60'}`}>
             {tabCount[tab]}
           </span>
         </button>
@@ -551,7 +551,7 @@
       {:else}
         <div class="grid gap-3">
           {#each sortedInclusions as item (item.id)}
-            <article class="flex items-center gap-4 rounded-[8px] border border-ink/10 bg-white p-4 shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
+            <article class="flex items-center gap-4 rounded-[8px] border border-ink/10 bg-surface p-4 shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
               <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200/60">
                 <CheckCircle size={18} />
               </div>
@@ -560,10 +560,10 @@
                 <p class="text-xs text-ink/40">Sort order: {item.sort_order}</p>
               </div>
               <div class="flex shrink-0 gap-2">
-                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit('inclusion', item)}>
+                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit('inclusion', item)}>
                   <Edit size={13} />Edit
                 </button>
-                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openConfirm('inclusion', item.id, item.title)}>
+                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openConfirm('inclusion', item.id, item.title)}>
                   <Trash2 size={13} />Delete
                 </button>
               </div>
@@ -584,7 +584,7 @@
       {:else}
         <div class="grid gap-3">
           {#each sortedExclusions as item (item.id)}
-            <article class="flex items-center gap-4 rounded-[8px] border border-ink/10 bg-white p-4 shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
+            <article class="flex items-center gap-4 rounded-[8px] border border-ink/10 bg-surface p-4 shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
               <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-red-50 text-red-500 ring-1 ring-red-200/60">
                 <X size={18} />
               </div>
@@ -593,10 +593,10 @@
                 <p class="text-xs text-ink/40">Sort order: {item.sort_order}</p>
               </div>
               <div class="flex shrink-0 gap-2">
-                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit('exclusion', item)}>
+                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit('exclusion', item)}>
                   <Edit size={13} />Edit
                 </button>
-                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openConfirm('exclusion', item.id, item.title)}>
+                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openConfirm('exclusion', item.id, item.title)}>
                   <Trash2 size={13} />Delete
                 </button>
               </div>
@@ -617,7 +617,7 @@
       {:else}
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {#each sortedImages as img (img.id)}
-            <article class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
+            <article class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_10px_30px_rgba(15,47,36,0.05)]" transition:fade={{ duration: 120 }}>
               <div class="relative aspect-video bg-sand/40">
                 {#if img.image_url}
                   <img class="h-full w-full object-cover" src={img.image_url} alt={img.alt_text || img.caption || 'Tour image'} />
@@ -627,7 +627,7 @@
                   </div>
                 {/if}
                 {#if img.is_featured}
-                  <span class="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-goldfinch-gold px-2.5 py-1 text-[11px] font-bold text-deep-green shadow">
+                  <span class="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-goldfinch-gold px-2.5 py-1 text-[11px] font-bold text-heading shadow">
                     <Star size={11} fill="currentColor" />Featured
                   </span>
                 {/if}
@@ -642,7 +642,7 @@
                 <p class="mt-1 text-xs text-ink/35">Sort: {img.sort_order}</p>
                 <div class="mt-3 flex flex-wrap gap-2">
                   {#if !img.is_featured}
-                    <button class="inline-flex h-8 items-center gap-1.5 rounded-xl bg-goldfinch-gold/15 px-3 text-xs font-semibold text-deep-green transition hover:bg-goldfinch-gold/30" type="button" on:click={() => setFeatured(img)}>
+                    <button class="inline-flex h-8 items-center gap-1.5 rounded-xl bg-goldfinch-gold/15 px-3 text-xs font-semibold text-heading transition hover:bg-goldfinch-gold/30" type="button" on:click={() => setFeatured(img)}>
                       <Star size={12} />Set featured
                     </button>
                   {/if}
@@ -664,9 +664,9 @@
 
 <!-- ─── add / edit modal ─────────────────────────────────────────────────── -->
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6"
+      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={handleSave}
     >
@@ -678,7 +678,7 @@
           </p>
           <h2 class="mt-1 text-2xl font-bold text-ink">{selectedTour?.title ?? ''}</h2>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
           <X size={18} />
         </button>
       </div>
@@ -705,11 +705,11 @@
             {:else if imageMode === 'url'}
               <AdminFormInput label="Image URL" name="image_url" bind:value={imageForm.image_url} placeholder="https://..." required />
             {:else}
-              <div class="rounded-2xl border border-dashed border-ink/15 bg-white/70 p-4 text-sm text-ink/50">Select an image source above.</div>
+              <div class="rounded-2xl border border-dashed border-ink/15 bg-surface/70 p-4 text-sm text-ink/50">Select an image source above.</div>
             {/if}
           </div>
           {#if imageForm.image_url}
-            <div class="mt-4 flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-ink/10">
+            <div class="mt-4 flex items-center gap-3 rounded-2xl bg-surface p-3 ring-1 ring-ink/10">
               <img class="h-14 w-20 rounded-xl object-cover" src={imageForm.image_url} alt="Preview" />
               <p class="min-w-0 truncate text-xs text-ink/50">{imageForm.image_url}</p>
             </div>
@@ -723,7 +723,7 @@
         <div class="mt-4">
           <AdminTextArea label="Caption" name="caption" bind:value={imageForm.caption} rows={2} placeholder="Optional caption shown beneath the image" />
         </div>
-        <label class="mt-4 flex cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-white p-4 transition hover:bg-sand/30">
+        <label class="mt-4 flex cursor-pointer items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-4 transition hover:bg-sand/30">
           <input class="h-4 w-4 accent-forest" type="checkbox" bind:checked={imageForm.is_featured} />
           <div>
             <p class="text-sm font-semibold text-ink">Set as featured image</p>
@@ -752,7 +752,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting...
   </div>
 {/if}

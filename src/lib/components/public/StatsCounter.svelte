@@ -82,7 +82,7 @@
       {#each stats as stat, i (stat.label)}
         {@const Icon = stat.icon}
         <div class="text-center">
-          <span class="mx-auto grid h-11 w-11 place-items-center rounded-full bg-white/10 text-goldfinch-gold">
+          <span class="mx-auto grid h-11 w-11 place-items-center rounded-full bg-surface/10 text-goldfinch-gold">
             <Icon size={20} />
           </span>
           <p class="mt-3 text-4xl font-extrabold leading-none tracking-tight text-goldfinch-gold md:text-5xl">

@@ -47,10 +47,10 @@
   type Toast = { id: string; message: string; type: 'error' | 'success' };
 
   const statusMeta: Record<Status, { chip: string; dot: string; label: string }> = {
-    new: { label: 'New', chip: 'bg-goldfinch-gold/20 text-deep-green ring-goldfinch-gold/30', dot: 'bg-goldfinch-gold' },
+    new: { label: 'New', chip: 'bg-goldfinch-gold/20 text-heading ring-goldfinch-gold/30', dot: 'bg-goldfinch-gold' },
     read: { label: 'Read', chip: 'bg-sky-50 text-sky-700 ring-sky-200/70', dot: 'bg-sky-500' },
     replied: { label: 'Replied', chip: 'bg-emerald-50 text-emerald-700 ring-emerald-200/70', dot: 'bg-emerald-500' },
-    archived: { label: 'Archived', chip: 'bg-ink/5 text-ink/50 ring-ink/10', dot: 'bg-ink/40' }
+    archived: { label: 'Archived', chip: 'bg-black/5 text-ink/50 ring-ink/10', dot: 'bg-black/40' }
   };
 
   const statusOrder: Status[] = ['new', 'read', 'replied', 'archived'];
@@ -222,7 +222,7 @@
   <!-- status filter chips -->
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
     <button
-      class={`flex items-center justify-between rounded-2xl border bg-white px-4 py-3 text-left shadow-sm transition hover:border-forest/40 ${statusFilter === 'all' ? 'border-forest/50 ring-1 ring-forest/20' : 'border-ink/10'}`}
+      class={`flex items-center justify-between rounded-2xl border bg-surface px-4 py-3 text-left shadow-sm transition hover:border-forest/40 ${statusFilter === 'all' ? 'border-forest/50 ring-1 ring-forest/20' : 'border-ink/10'}`}
       type="button"
       on:click={() => filterByStatus('all')}
     >
@@ -231,7 +231,7 @@
     </button>
     {#each statusOrder as s}
       <button
-        class={`flex items-center justify-between rounded-2xl border bg-white px-4 py-3 text-left shadow-sm transition hover:border-forest/40 ${statusFilter === s ? 'border-forest/50 ring-1 ring-forest/20' : 'border-ink/10'}`}
+        class={`flex items-center justify-between rounded-2xl border bg-surface px-4 py-3 text-left shadow-sm transition hover:border-forest/40 ${statusFilter === s ? 'border-forest/50 ring-1 ring-forest/20' : 'border-ink/10'}`}
         type="button"
         on:click={() => filterByStatus(s)}
       >
@@ -246,7 +246,7 @@
   <AdminToolbar className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search</span>
-      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
         <Search size={16} class="text-ink/45" />
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Name, email, phone, subject, message..." on:keydown={(e) => e.key === 'Enter' && load()} />
       </span>
@@ -265,7 +265,7 @@
       icon={Inbox}
     />
   {:else}
-    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[900px] text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -303,10 +303,10 @@
                 <td class="px-4 py-4 text-ink/65">{fmt(msg.created_at)}</td>
                 <td class="px-4 py-4">
                   <div class="flex justify-end gap-2" on:click|stopPropagation role="presentation">
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openDetail(msg)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openDetail(msg)}>
                       <MailOpen size={14} />View
                     </button>
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(msg)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(msg)}>
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -322,8 +322,8 @@
 
 <!-- detail modal -->
 {#if detailOpen && selected}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <!-- header -->
       <div class="flex items-start justify-between gap-4 border-b border-ink/10 bg-sand/30 p-5">
         <div class="flex items-center gap-3">
@@ -336,7 +336,7 @@
             </div>
           </div>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeDetail}>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeDetail}>
           <X size={18} />
         </button>
       </div>
@@ -360,7 +360,7 @@
             <div class="flex flex-wrap gap-2">
               {#each statusOrder as s}
                 <button
-                  class={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold ring-1 transition ${selected.status === s ? statusMeta[s].chip : 'bg-white text-ink/55 ring-ink/10 hover:bg-sand/60'}`}
+                  class={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold ring-1 transition ${selected.status === s ? statusMeta[s].chip : 'bg-surface text-ink/55 ring-ink/10 hover:bg-sand/60'}`}
                   type="button"
                   on:click={() => changeStatus(s)}
                 >
@@ -374,7 +374,7 @@
             <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Assigned to</p>
             <div class="flex items-center gap-2">
               <User size={15} class="shrink-0 text-ink/40" />
-              <select class="h-10 w-full rounded-xl border border-ink/10 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" value={selected.assigned_to ?? ''} on:change={assign}>
+              <select class="h-10 w-full rounded-xl border border-ink/10 bg-surface px-3 text-sm shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" value={selected.assigned_to ?? ''} on:change={assign}>
                 {#each assignOptions as opt}
                   <option value={opt.value}>{opt.label}</option>
                 {/each}
@@ -399,10 +399,10 @@
       <!-- footer -->
       <div class="flex flex-col-reverse gap-3 border-t border-ink/10 bg-sand/20 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex gap-2">
-          <button class="inline-flex h-10 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink/70 shadow-sm transition hover:bg-sand/70" type="button" on:click={() => changeStatus('archived')}>
+          <button class="inline-flex h-10 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink/70 shadow-sm transition hover:bg-sand/70" type="button" on:click={() => changeStatus('archived')}>
             <Archive size={14} />Archive
           </button>
-          <button class="inline-flex h-10 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => selected && openDelete(selected)}>
+          <button class="inline-flex h-10 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => selected && openDelete(selected)}>
             <Trash2 size={14} />Delete
           </button>
         </div>
@@ -423,7 +423,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting message...
   </div>
 {/if}

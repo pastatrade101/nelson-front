@@ -208,7 +208,7 @@
     <form class="grid gap-6" on:submit|preventDefault={save}>
 
       <!-- main content card -->
-      <div class="grid gap-5 rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="grid gap-5 rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Post content</p>
           <h2 class="mt-1 text-lg font-bold text-ink">Title, slug, excerpt & body</h2>
@@ -220,7 +220,7 @@
           <label class="grid gap-2 text-sm font-medium text-ink">
             <span>Slug</span>
             <input
-              class="h-11 rounded-2xl border border-ink/10 bg-white px-3 font-mono text-sm shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+              class="h-11 rounded-2xl border border-ink/10 bg-surface px-3 font-mono text-sm shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
               name="slug"
               bind:value={form.slug}
               required
@@ -238,7 +238,7 @@
       <!-- sidebar settings -->
       <div class="grid gap-6 xl:grid-cols-[1fr_360px]">
         <!-- images -->
-        <div class="grid gap-5 rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+        <div class="grid gap-5 rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Featured image</p>
             <h2 class="mt-1 text-lg font-bold text-ink">Post thumbnail</h2>
@@ -270,7 +270,7 @@
         </div>
 
         <!-- publish settings -->
-        <div class="grid content-start gap-5 rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+        <div class="grid content-start gap-5 rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Publish settings</p>
             <h2 class="mt-1 text-lg font-bold text-ink">Status & details</h2>
@@ -291,7 +291,7 @@
       </div>
 
       <!-- SEO card -->
-      <div class="grid gap-5 rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="grid gap-5 rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Search engine optimisation</p>
           <h2 class="mt-1 text-lg font-bold text-ink">SEO & Open Graph</h2>
@@ -331,7 +331,7 @@
       </div>
 
       <!-- footer actions -->
-      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between rounded-[8px] border border-ink/10 bg-white px-6 py-4 shadow-sm">
+      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between rounded-[8px] border border-ink/10 bg-surface px-6 py-4 shadow-sm">
         <a class="inline-flex items-center gap-2 text-sm font-semibold text-ink/60 transition hover:text-ink" href="/admin/blog">
           <ArrowLeft size={16} />
           Back to blog posts

@@ -39,11 +39,11 @@
     </span>
     <div>
       <p class="text-sm font-semibold text-goldfinch-gold">{brand.aiAdvisorName}</p>
-      <h3 class="text-xl font-bold tracking-normal text-deep-green">Get confidence before you book</h3>
+      <h3 class="text-xl font-bold tracking-normal text-heading">Get confidence before you book</h3>
     </div>
   </div>
 
-  <div class="mt-4 rounded-md bg-white p-4 text-sm leading-6 text-ink/75">
+  <div class="mt-4 rounded-md bg-surface p-4 text-sm leading-6 text-ink/75">
     {reply}
   </div>
 
@@ -52,7 +52,7 @@
   {/if}
 
   <form class="mt-4 flex gap-2" on:submit|preventDefault={submit}>
-    <input class="min-w-0 flex-1 rounded-md border border-ink/10 bg-white px-3 py-3 text-sm outline-none focus:border-forest" bind:value={message} placeholder="Ask about Tanzania, Kenya, Rwanda, budget, timing..." />
+    <input class="min-w-0 flex-1 rounded-md border border-ink/10 bg-surface px-3 py-3 text-sm outline-none focus:border-forest" bind:value={message} placeholder="Ask about Tanzania, Kenya, Rwanda, budget, timing..." />
     <button class="grid h-11 w-11 place-items-center rounded-md bg-forest text-white disabled:opacity-60" type="submit" disabled={loading} aria-label="Send message">
       <Send size={18} />
     </button>

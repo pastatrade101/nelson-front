@@ -138,12 +138,12 @@
 
 <StatsCounter />
 
-<section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-white to-white py-14 md:py-20" use:sectionReveal>
+<section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-surface to-surface py-14 md:py-20" use:sectionReveal>
   <span class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl" aria-hidden="true"></span>
   <div class="container-shell relative">
     <div class="mx-auto max-w-2xl text-center" use:fadeUpOnScroll={{ y: 14 }}>
       <p class="font-serif text-xl italic text-clay">Limited Time Offers</p>
-      <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-deep-green md:text-[40px]">
+      <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]">
         {cms('featured_tours', 'title', 'Exclusive Safari Deals & Travel Offers')}
       </h2>
       <p class="mt-3 text-[15px] font-medium leading-7 text-ink/60 md:text-lg">
@@ -169,11 +169,11 @@
   </div>
 </section>
 
-<section class="bg-white py-14" use:sectionReveal>
+<section class="bg-surface py-14" use:sectionReveal>
   <div class="container-shell">
     <div class="flex flex-wrap items-end justify-between gap-4">
       <SectionHeader eyebrow="Places" title={cms('featured_destinations', 'title', 'Destinations')} description={cms('featured_destinations', 'subtitle', 'Destination content can be managed from the CMS.')} />
-      <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" href="/destinations">
+      <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href="/destinations">
         See all Destinations <ArrowRight size={16} />
       </a>
     </div>
@@ -188,7 +188,7 @@
 <section class="container-shell py-14" use:sectionReveal>
   <div class="flex flex-wrap items-end justify-between gap-4">
     <SectionHeader eyebrow="Stories" title={cms('blog_preview', 'title', 'Latest Blog Posts')} description={cms('blog_preview', 'subtitle', 'Blog posts are pulled from the backend when available.')} />
-    <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" href="/blog">
+    <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href="/blog">
       View all <ArrowRight size={16} />
     </a>
   </div>
@@ -199,10 +199,10 @@
   </div>
 </section>
 
-<section class="bg-white py-14 md:py-20" use:sectionReveal>
+<section class="bg-surface py-14 md:py-20" use:sectionReveal>
   <div class="container-shell">
     <div class="mx-auto max-w-2xl text-center" use:fadeUpOnScroll={{ y: 14 }}>
-      <h2 class="text-3xl font-extrabold tracking-normal text-deep-green md:text-[40px]">
+      <h2 class="text-3xl font-extrabold tracking-normal text-heading md:text-[40px]">
         {cms('testimonials', 'title', 'What Our Travelers Say')}
       </h2>
       <p class="mx-auto mt-3 max-w-xl text-[15px] font-medium leading-7 text-ink/60 md:text-lg">
@@ -227,7 +227,7 @@
   </div>
 </section>
 
-<section class="bg-white py-14 md:py-20" use:sectionReveal>
+<section class="bg-surface py-14 md:py-20" use:sectionReveal>
   <div class="container-shell">
     <PlanningProcess
       title={cms('how_it_works', 'title', 'How planning works')}
@@ -283,14 +283,14 @@
 
         <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a
-            class="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-7 text-sm font-bold text-deep-green shadow-lg shadow-goldfinch-gold/20 transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-deep-green sm:w-auto md:h-[52px] md:text-base"
+            class="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-7 text-sm font-bold text-heading shadow-lg shadow-goldfinch-gold/20 transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-deep-green sm:w-auto md:h-[52px] md:text-base"
             href={cms('final_cta', 'button_url', '/plan-my-trip')}
           >
             {cms('final_cta', 'button_text', 'Plan My Trip')}
             <ArrowRight size={18} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
           </a>
           <a
-            class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/5 px-7 text-sm font-bold text-white backdrop-blur transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:w-auto md:h-[52px] md:text-base"
+            class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-surface/5 px-7 text-sm font-bold text-white backdrop-blur transition hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:w-auto md:h-[52px] md:text-base"
             href="/contact"
           >
             <MessageCircle size={17} strokeWidth={2.4} />

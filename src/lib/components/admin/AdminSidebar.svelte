@@ -213,14 +213,14 @@
   } ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} w-[min(88vw,304px)]`}
 >
   <div class={`flex h-20 items-center gap-3 border-b border-white/10 px-4 ${collapsed ? 'lg:justify-center' : ''}`}>
-    <a class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-goldfinch-gold text-base font-black text-deep-green shadow-lg shadow-black/10" href="/admin" title={brand.adminName} on:click={handleNavigate}>
+    <a class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-goldfinch-gold text-base font-black text-heading shadow-lg shadow-black/10" href="/admin" title={brand.adminName} on:click={handleNavigate}>
       GA
     </a>
     <div class={`min-w-0 transition duration-200 ${collapsed ? 'lg:hidden lg:opacity-0' : 'opacity-100'}`}>
       <a class="block truncate text-base font-bold tracking-normal text-white" href="/admin" on:click={handleNavigate}>{brand.adminName}</a>
       <p class="truncate text-xs font-medium text-savanna/75">Goldfinch Travel Platform</p>
     </div>
-    <button class={`ml-auto hidden h-9 w-9 place-items-center rounded-lg border border-white/10 text-savanna transition hover:bg-white/10 hover:text-white lg:grid ${collapsed ? 'lg:hidden' : ''}`} type="button" aria-label="Collapse sidebar" on:click={onToggleDesktop}>
+    <button class={`ml-auto hidden h-9 w-9 place-items-center rounded-lg border border-white/10 text-savanna transition hover:bg-surface/10 hover:text-white lg:grid ${collapsed ? 'lg:hidden' : ''}`} type="button" aria-label="Collapse sidebar" on:click={onToggleDesktop}>
       <ChevronLeft size={17} />
     </button>
   </div>
@@ -236,11 +236,11 @@
             <!-- top-level single link: no category header -->
           {:else if collapsed}
             <div class="my-1 flex justify-center">
-              <span class="h-px w-6 rounded bg-white/10"></span>
+              <span class="h-px w-6 rounded bg-surface/10"></span>
             </div>
           {:else}
             <button
-              class="group/header flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/60"
+              class="group/header flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition hover:bg-surface/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/60"
               type="button"
               aria-expanded={open}
               on:click={() => toggleGroup(group.label)}
@@ -264,14 +264,14 @@
                   } ${
                     active
                       ? 'bg-goldfinch-gold/20 text-white shadow-inner ring-1 ring-goldfinch-gold/25'
-                      : 'text-savanna/75 hover:bg-white/10 hover:text-white'
+                      : 'text-savanna/75 hover:bg-surface/10 hover:text-white'
                   }`}
                   href={link.href}
                   title={collapsed ? link.label : undefined}
                   aria-current={active ? 'page' : undefined}
                   on:click={handleNavigate}
                 >
-                  <span class={`grid h-8 w-8 shrink-0 place-items-center rounded-lg transition ${active ? 'bg-goldfinch-gold text-deep-green' : 'bg-white/10 text-savanna/80 group-hover:bg-white/10 group-hover:text-white'}`}>
+                  <span class={`grid h-8 w-8 shrink-0 place-items-center rounded-lg transition ${active ? 'bg-goldfinch-gold text-heading' : 'bg-surface/10 text-savanna/80 group-hover:bg-surface/10 group-hover:text-white'}`}>
                     <Icon size={17} strokeWidth={2} />
                   </span>
                   <span class={`min-w-0 truncate transition ${collapsed ? 'lg:hidden lg:opacity-0' : 'opacity-100'}`}>{link.label}</span>

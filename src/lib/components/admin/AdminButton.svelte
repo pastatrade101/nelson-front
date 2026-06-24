@@ -7,10 +7,10 @@
   export let variant: 'danger' | 'ghost' | 'primary' | 'secondary' = 'primary';
 
   const variantClass = {
-    danger: 'border border-red-200 bg-white text-red-700 shadow-sm hover:bg-red-50',
-    ghost: 'border border-transparent bg-transparent text-ink/70 hover:bg-ink/[0.04] hover:text-deep-green',
+    danger: 'border border-red-200 bg-surface text-red-700 shadow-sm hover:bg-red-50',
+    ghost: 'border border-transparent bg-transparent text-ink/70 hover:bg-black/[0.04] hover:text-heading',
     primary: 'border border-forest bg-forest text-white shadow-sm shadow-forest/15 hover:bg-deep-green hover:border-deep-green',
-    secondary: 'border border-ink/15 bg-white text-ink shadow-sm hover:border-forest/30 hover:bg-ink/[0.02]'
+    secondary: 'border border-ink/15 bg-surface text-ink shadow-sm hover:border-forest/30 hover:bg-black/[0.02]'
   };
 
   const sizeClass = {

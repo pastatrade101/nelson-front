@@ -42,7 +42,7 @@
   };
 </script>
 
-<article class="group relative flex h-full flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-white shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" use:tilt={{ max: 5 }}>
+<article class="group relative flex h-full flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" use:tilt={{ max: 5 }}>
   <div class="absolute right-3 top-3 z-10">
     <ShortlistButton {item} />
   </div>
@@ -57,7 +57,7 @@
 
       <div class="absolute left-3 top-3 flex flex-col gap-1.5">
         {#if tour.is_featured}
-          <span class="inline-flex items-center gap-1 rounded-md bg-goldfinch-gold px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-deep-green shadow">
+          <span class="inline-flex items-center gap-1 rounded-md bg-goldfinch-gold px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-heading shadow">
             <Star size={11} fill="currentColor" /> Top Rated
           </span>
         {/if}
@@ -103,7 +103,7 @@
         {:else}
           <span></span>
         {/if}
-        <span class="inline-flex items-center gap-1.5 text-sm font-bold text-forest transition group-hover:text-deep-green">
+        <span class="inline-flex items-center gap-1.5 text-sm font-bold text-forest transition group-hover:text-heading">
           View tour <ArrowRight size={15} />
         </span>
       </div>

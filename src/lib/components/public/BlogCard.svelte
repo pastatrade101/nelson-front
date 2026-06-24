@@ -5,7 +5,7 @@
   export let post: BlogPost;
 </script>
 
-<article class="group flex h-full flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-white shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" use:tilt={{ max: 5 }}>
+<article class="group flex h-full flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" use:tilt={{ max: 5 }}>
   <a href={`/blog/${post.slug}`} class="flex h-full flex-col">
     <div class="aspect-[16/10] overflow-hidden bg-skywash">
       {#if post.featured_image_url}

@@ -10,7 +10,7 @@
 <label class="grid gap-1.5">
   <span class="text-[13px] font-semibold text-ink/65">{label}</span>
   <input
-    class="h-11 rounded-md border border-ink/15 bg-ink/[0.02] px-3.5 text-sm text-ink outline-none transition placeholder:text-ink/35 hover:border-ink/25 focus:border-forest focus:bg-white focus:ring-2 focus:ring-forest/20"
+    class="h-11 rounded-md border border-ink/15 bg-black/[0.02] px-3.5 text-sm text-ink outline-none transition placeholder:text-ink/35 hover:border-ink/25 focus:border-forest focus:bg-surface focus:ring-2 focus:ring-forest/20"
     {name}
     {type}
     bind:value

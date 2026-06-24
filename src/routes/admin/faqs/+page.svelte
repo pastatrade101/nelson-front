@@ -217,7 +217,7 @@
   <AdminToolbar className="grid gap-3 md:grid-cols-[1fr_200px_190px_auto] md:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search</span>
-      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
         <Search size={16} class="text-ink/45" />
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Search question, answer, or category..." on:keydown={(e) => e.key === 'Enter' && load()} />
       </span>
@@ -242,7 +242,7 @@
   {:else}
     <div class="grid gap-5">
       {#each grouped as [category, items] (category)}
-        <section class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+        <section class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
           <header class="flex items-center justify-between gap-3 border-b border-ink/10 bg-sand/40 px-5 py-3">
             <div class="flex items-center gap-2">
               <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Category</span>
@@ -256,7 +256,7 @@
               <article class="px-5 py-4">
                 <div class="flex items-start gap-3">
                   <button
-                    class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-ink/10 bg-white text-ink/55 transition hover:bg-sand/70"
+                    class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-ink/10 bg-surface text-ink/55 transition hover:bg-sand/70"
                     type="button"
                     aria-label={expanded.has(faq.id) ? 'Collapse answer' : 'Expand answer'}
                     on:click={() => toggleExpand(faq.id)}
@@ -282,10 +282,10 @@
                     {/if}
 
                     <div class="mt-3 flex gap-2">
-                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-white px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(faq)}>
+                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(faq)}>
                         <Edit size={14} />Edit
                       </button>
-                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(faq)}>
+                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(faq)}>
                         <Trash2 size={14} />Delete
                       </button>
                     </div>
@@ -301,9 +301,9 @@
 </div>
 
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >
@@ -312,7 +312,7 @@
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editingFaq ? 'Edit FAQ' : 'New FAQ'}</p>
           <h2 class="mt-1 text-2xl font-bold text-ink">{editingFaq ? 'Update question' : 'Add question'}</h2>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
           <X size={18} />
         </button>
       </div>
@@ -347,7 +347,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
     Deleting FAQ...
   </div>
 {/if}

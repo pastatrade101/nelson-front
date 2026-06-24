@@ -107,7 +107,7 @@
   <div class="relative">
     <input
       {id}
-      class={`w-full rounded-md border bg-white px-3 py-3 pr-9 text-sm text-ink outline-none transition focus:ring-2 ${
+      class={`w-full rounded-md border bg-surface px-3 py-3 pr-9 text-sm text-ink outline-none transition focus:ring-2 ${
         invalid ? 'border-red-300 focus:border-red-400 focus:ring-red-200' : 'border-ink/15 focus:border-forest focus:ring-forest/15'
       }`}
       role="combobox"
@@ -129,7 +129,7 @@
       id="country-listbox"
       role="listbox"
       bind:this={listEl}
-      class="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-md border border-ink/12 bg-white py-1 shadow-lg"
+      class="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-md border border-ink/12 bg-surface py-1 shadow-lg"
     >
       {#if filtered.length === 0}
         <li class="px-3 py-2 text-sm text-ink/50">No match. Try another spelling.</li>
@@ -139,7 +139,7 @@
             <button
               type="button"
               class={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition ${
-                i === activeIndex ? 'bg-forest/[0.08] text-deep-green' : 'text-ink/80 hover:bg-sand/60'
+                i === activeIndex ? 'bg-forest/[0.08] text-heading' : 'text-ink/80 hover:bg-sand/60'
               }`}
               on:mouseenter={() => (activeIndex = i)}
               on:click={() => commit(c.name)}

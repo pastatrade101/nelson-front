@@ -6,7 +6,7 @@
   let openId = '';
 </script>
 
-<div class="divide-y divide-ink/10 rounded-lg border border-ink/10 bg-white">
+<div class="divide-y divide-ink/10 rounded-lg border border-ink/10 bg-surface">
   {#each faqs as faq}
     <div>
       <button class="flex w-full items-center justify-between gap-4 px-5 py-4 text-start font-semibold text-ink" type="button" on:click={() => (openId = openId === faq.id ? '' : faq.id)}>

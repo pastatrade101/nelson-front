@@ -39,8 +39,8 @@
     <ol class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
       {#each steps as step, i}
         <li class="relative flex flex-col items-center text-center lg:items-start lg:text-left">
-          <span class="grid h-12 w-12 place-items-center rounded-2xl bg-goldfinch-gold text-lg font-extrabold text-deep-green shadow-sm">{i + 1}</span>
-          <p class="mt-4 font-bold text-deep-green">{step.title}</p>
+          <span class="grid h-12 w-12 place-items-center rounded-2xl bg-goldfinch-gold text-lg font-extrabold text-heading shadow-sm">{i + 1}</span>
+          <p class="mt-4 font-bold text-heading">{step.title}</p>
           <p class="mt-1 text-sm leading-6 text-ink/60">{step.text}</p>
         </li>
       {/each}

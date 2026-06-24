@@ -10,7 +10,7 @@
 </script>
 
 {#if valid.length}
-  <section class="border-t border-ink/[0.06] bg-white py-12 md:py-16">
+  <section class="border-t border-ink/[0.06] bg-surface py-12 md:py-16">
     <div class="container-shell">
       {#if title}
         <p class="text-center text-xs font-bold uppercase tracking-[0.2em] text-ink/40 md:text-[13px]">{title}</p>

@@ -71,7 +71,7 @@
   $: wantsExactDates = travel_month === 'I know exact dates';
   $: sent = submitted;
 
-  const inputBase = 'w-full rounded-md border bg-white px-3 py-3 text-sm text-ink outline-none transition focus:ring-2';
+  const inputBase = 'w-full rounded-md border bg-surface px-3 py-3 text-sm text-ink outline-none transition focus:ring-2';
   $: cls = (field: string) =>
     `${inputBase} ${errors[field] ? 'border-red-300 focus:border-red-400 focus:ring-red-200' : 'border-ink/15 focus:border-forest focus:ring-forest/15'}`;
 
@@ -276,21 +276,21 @@
 </script>
 
 {#if sent}
-  <div class="grid gap-5 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-soft md:p-8">
+  <div class="grid gap-5 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-surface p-6 shadow-soft md:p-8">
     <div class="flex items-center gap-3">
       <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-600"><CheckCircle2 size={26} /></span>
       <div>
-        <h3 class="text-xl font-bold text-deep-green">Thank you! Your trip request has been received.</h3>
+        <h3 class="text-xl font-bold text-heading">Thank you! Your trip request has been received.</h3>
         <p class="mt-1 text-sm text-ink/70">A Goldfinch travel specialist will contact you shortly.</p>
       </div>
     </div>
 
     {#if bookingCode}
-      <div class="rounded-xl border border-emerald-200 bg-white p-4">
+      <div class="rounded-xl border border-emerald-200 bg-surface p-4">
         <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">Your request reference</p>
         <div class="mt-1 flex items-center gap-3">
-          <p class="text-2xl font-extrabold tracking-wide text-deep-green">{bookingCode}</p>
-          <button class="inline-flex items-center gap-1.5 rounded-lg border border-ink/15 bg-white px-2.5 py-1 text-xs font-semibold text-ink/70 transition hover:bg-sand" type="button" on:click={copyCode}>
+          <p class="text-2xl font-extrabold tracking-wide text-heading">{bookingCode}</p>
+          <button class="inline-flex items-center gap-1.5 rounded-lg border border-ink/15 bg-surface px-2.5 py-1 text-xs font-semibold text-ink/70 transition hover:bg-sand" type="button" on:click={copyCode}>
             <Copy size={13} />{copied ? 'Copied' : 'Copy'}
           </button>
         </div>
@@ -298,7 +298,7 @@
     {/if}
 
     <!-- what happens next -->
-    <div class="rounded-xl border border-emerald-200 bg-white p-4">
+    <div class="rounded-xl border border-emerald-200 bg-surface p-4">
       <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">What happens next</p>
       <ol class="mt-3 grid gap-3">
         {#each [{ t: 'We review your request', s: 'A specialist reads your details — usually within one business day.' }, { t: 'We craft a tailored itinerary', s: 'Shaped around your dates, budget and travel style.' }, { t: 'You refine it with us', s: 'Adjust pace, lodges and activities until it feels right.' }, { t: 'Confirm when you are ready', s: 'No pressure — you decide if and when to book.' }] as step, i}
@@ -326,10 +326,10 @@
     <p class="text-center text-xs text-ink/45">A confirmation email is on its way to the address you provided.</p>
   </div>
 {:else}
-  <form class="relative rounded-2xl border border-ink/10 bg-white p-5 shadow-soft md:p-6" on:submit|preventDefault={submit} novalidate>
+  <form class="relative rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft md:p-6" on:submit|preventDefault={submit} novalidate>
     <div>
       <p class="text-sm font-semibold uppercase tracking-[0.14em] text-goldfinch-gold">Plan My Trip</p>
-      <h3 class="mt-1 text-2xl font-bold tracking-normal text-deep-green">Tell us about your dream trip</h3>
+      <h3 class="mt-1 text-2xl font-bold tracking-normal text-heading">Tell us about your dream trip</h3>
       {#if tripContext}
         <p class="mt-1 text-sm leading-6 text-ink/65">We've carried your trip across — adjust anything below and a local specialist will tailor it to you.</p>
       {:else}
@@ -393,8 +393,8 @@
               <label
                 class={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
                   experience_interests.includes(exp)
-                    ? 'border-forest bg-forest/[0.07] font-semibold text-deep-green'
-                    : 'border-ink/12 bg-white text-ink/70 hover:border-forest/40'
+                    ? 'border-forest bg-forest/[0.07] font-semibold text-heading'
+                    : 'border-ink/12 bg-surface text-ink/70 hover:border-forest/40'
                 }`}
               >
                 <input type="checkbox" class="h-4 w-4 accent-forest" checked={experience_interests.includes(exp)} on:change={() => toggleExperience(exp)} />

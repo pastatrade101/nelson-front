@@ -91,10 +91,10 @@
       <h1 class="mt-2 max-w-3xl text-3xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">{style.emotionalPromise}</h1>
       <p class="mt-4 max-w-2xl text-[15px] leading-7 text-white/85 md:text-base">{style.description}</p>
       <div class="mt-6 flex flex-wrap gap-3">
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-deep-green transition hover:brightness-105" href={planHref}>
+        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading transition hover:brightness-105" href={planHref}>
           <Sparkles size={18} /> Plan a {style.name.toLowerCase()} trip
         </a>
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-white/10" href={toursHref}>
+        <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10" href={toursHref}>
           Browse trips <ArrowRight size={18} />
         </a>
       </div>
@@ -103,7 +103,7 @@
 
   <section class="container-shell py-12 md:py-16">
     <div class="grid gap-6 md:grid-cols-2">
-      <div class="rounded-2xl border border-ink/10 bg-white p-6 shadow-soft">
+      <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
         <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">What you want</p>
         <div class="mt-3 grid gap-2.5">
           {#each style.desires as d}
@@ -126,8 +126,8 @@
     {#if featured.length}
       <div class="mt-12">
         <div class="flex flex-wrap items-end justify-between gap-4">
-          <h2 class="text-2xl font-bold text-deep-green md:text-3xl">Trips to start from</h2>
-          <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" href={toursHref}>Browse all <ArrowRight size={16} /></a>
+          <h2 class="text-2xl font-bold text-heading md:text-3xl">Trips to start from</h2>
+          <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href={toursHref}>Browse all <ArrowRight size={16} /></a>
         </div>
         <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {#each featured as tour (tour.slug)}
@@ -138,11 +138,11 @@
     {/if}
 
     <div class="mt-12">
-      <h2 class="text-xl font-bold text-deep-green">Other travel styles</h2>
+      <h2 class="text-xl font-bold text-heading">Other travel styles</h2>
       <div class="mt-4 grid gap-4 sm:grid-cols-3">
         {#each others as o (o.slug)}
-          <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white p-5 transition hover:border-goldfinch-gold/40" href={`/travel-styles/${o.slug}`}>
-            <span class="font-extrabold text-deep-green">{o.name}</span>
+          <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-surface p-5 transition hover:border-goldfinch-gold/40" href={`/travel-styles/${o.slug}`}>
+            <span class="font-extrabold text-heading">{o.name}</span>
             <ArrowRight size={18} class="shrink-0 text-ink/30 transition group-hover:text-forest" />
           </a>
         {/each}
@@ -151,7 +151,7 @@
   </section>
 {:else if loaded}
   <section class="container-shell py-20 text-center">
-    <h1 class="text-2xl font-bold text-deep-green">Travel style not found</h1>
-    <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-deep-green" href="/travel-styles">All travel styles <ArrowRight size={16} /></a>
+    <h1 class="text-2xl font-bold text-heading">Travel style not found</h1>
+    <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-heading" href="/travel-styles">All travel styles <ArrowRight size={16} /></a>
   </section>
 {/if}

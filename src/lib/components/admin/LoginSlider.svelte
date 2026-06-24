@@ -59,7 +59,7 @@
 
   <!-- constant brand wordmark -->
   <div class="pointer-events-none absolute inset-x-0 top-0 flex items-center gap-2 p-9 md:p-12">
-    <span class="grid h-9 w-9 place-items-center rounded-xl bg-goldfinch-gold/90 text-deep-green shadow-sm">
+    <span class="grid h-9 w-9 place-items-center rounded-xl bg-goldfinch-gold/90 text-heading shadow-sm">
       <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>
       </svg>
@@ -73,7 +73,7 @@
       {#each valid as _, i (i)}
         <button
           type="button"
-          class={`h-1.5 rounded-full transition-all ${i === current ? 'w-7 bg-goldfinch-gold' : 'w-2.5 bg-white/45 hover:bg-white/70'}`}
+          class={`h-1.5 rounded-full transition-all ${i === current ? 'w-7 bg-goldfinch-gold' : 'w-2.5 bg-surface/45 hover:bg-surface/70'}`}
           on:click={() => go(i)}
           aria-label={`Go to slide ${i + 1}`}
         ></button>

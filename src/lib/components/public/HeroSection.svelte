@@ -126,7 +126,7 @@
       {#key index}
         <div class="min-h-[132px] sm:min-h-[230px] lg:min-h-[256px]">
           <span
-            class="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-savanna backdrop-blur"
+            class="inline-flex items-center gap-2 rounded-full bg-surface/12 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-savanna backdrop-blur"
             in:fly={{ y: 12, duration: 450 }}
           >
             <Star size={13} fill="currentColor" /> {current.eyebrow}
@@ -137,8 +137,8 @@
       {/key}
 
       <!-- search on top -->
-      <form class="mt-5 flex items-center gap-2 rounded-lg bg-white p-2 shadow-[0_20px_50px_rgba(15,47,36,0.30)] sm:mt-7" on:submit|preventDefault={submit}>
-        <label class="flex h-14 flex-1 items-center gap-2.5 rounded-md border border-ink/15 bg-ink/[0.03] px-3">
+      <form class="mt-5 flex items-center gap-2 rounded-lg bg-surface p-2 shadow-[0_20px_50px_rgba(15,47,36,0.30)] sm:mt-7" on:submit|preventDefault={submit}>
+        <label class="flex h-14 flex-1 items-center gap-2.5 rounded-md border border-ink/15 bg-black/[0.03] px-3">
           <MapPin class="shrink-0 text-forest" size={20} strokeWidth={2.4} />
           <select class="w-full cursor-pointer appearance-none bg-transparent text-[15px] font-semibold text-ink outline-none" bind:value={destination} aria-label="Choose a destination">
             <option value="">Where do you want to go?</option>
@@ -157,16 +157,16 @@
       <div class="mt-4 hidden flex-wrap items-center gap-2 sm:flex">
         <span class="text-sm font-medium text-white/70">Popular:</span>
         {#each quick as q}
-          <a class="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20" href={q.href}>{q.label}</a>
+          <a class="rounded-full border border-white/25 bg-surface/10 px-3 py-1 text-sm font-semibold text-white backdrop-blur transition hover:bg-surface/20" href={q.href}>{q.label}</a>
         {/each}
       </div>
 
       <!-- conversion CTAs + reassurance -->
       <div class="mt-5 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-3">
-        <a class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-goldfinch-gold px-6 font-bold text-deep-green shadow-lg transition hover:brightness-105 sm:w-auto" href="/plan-my-trip">
+        <a class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-goldfinch-gold px-6 font-bold text-heading shadow-lg transition hover:brightness-105 sm:w-auto" href="/plan-my-trip">
           {primaryCta} <ArrowRight size={18} strokeWidth={2.6} />
         </a>
-        <a class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/35 px-6 font-semibold text-white transition hover:bg-white/10 sm:w-auto" href={secondaryCtaUrl}>{secondaryCta}</a>
+        <a class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/35 px-6 font-semibold text-white transition hover:bg-surface/10 sm:w-auto" href={secondaryCtaUrl}>{secondaryCta}</a>
         <span class="hidden items-center gap-1.5 text-sm text-white/75 sm:inline-flex">
           <ShieldCheck size={15} class="text-savanna" /> Free, no-obligation planning · No hidden costs
         </span>
@@ -179,7 +179,7 @@
     <div class="absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 gap-2" role="tablist" aria-label="Hero slides">
       {#each slides as slide, i (slide.url)}
         <button
-          class={`h-2 rounded-full transition-all ${i === index ? 'w-7 bg-goldfinch-gold' : 'w-2 bg-white/50 hover:bg-white/80'}`}
+          class={`h-2 rounded-full transition-all ${i === index ? 'w-7 bg-goldfinch-gold' : 'w-2 bg-surface/50 hover:bg-surface/80'}`}
           type="button"
           aria-label={`Show slide ${i + 1}${slide.label ? ` — ${slide.label}` : ''}`}
           aria-selected={i === index}

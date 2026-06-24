@@ -42,7 +42,7 @@
   };
 
   const statusMeta: Record<string, { chip: string; label: string }> = {
-    pending: { label: 'Pending', chip: 'bg-goldfinch-gold/20 text-deep-green ring-goldfinch-gold/30' },
+    pending: { label: 'Pending', chip: 'bg-goldfinch-gold/20 text-heading ring-goldfinch-gold/30' },
     contacted: { label: 'Contacted', chip: 'bg-sky-50 text-sky-700 ring-sky-200/70' },
     itinerary_sent: { label: 'Itinerary Sent', chip: 'bg-indigo-50 text-indigo-700 ring-indigo-200/70' },
     negotiating: { label: 'Negotiating', chip: 'bg-amber-50 text-amber-700 ring-amber-200/70' },
@@ -392,7 +392,7 @@
 
   <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
     {#each [['Total', kpis.total, 'text-ink'], ['Pending', kpis.pending, 'text-goldfinch-gold'], ['Confirmed', kpis.confirmed, 'text-emerald-600'], ['Completed', kpis.completed, 'text-forest'], ['Cancelled / Rejected', kpis.cancelled, 'text-slate-500'], ['Unpaid', kpis.unpaid, 'text-red-500']] as [label, value, tone]}
-      <div class="rounded-2xl border border-ink/10 bg-white p-4 shadow-sm">
+      <div class="rounded-2xl border border-ink/10 bg-surface p-4 shadow-sm">
         <p class="text-xs font-semibold text-ink/50">{label}</p>
         <p class={`mt-1 text-2xl font-extrabold ${tone}`}>{value}</p>
       </div>
@@ -402,7 +402,7 @@
   <AdminToolbar className="grid gap-3 lg:grid-cols-[1fr_150px_150px_auto] lg:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search</span>
-      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
+      <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
         <Search size={16} class="text-ink/45" />
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Code, name, email, phone, country, message..." on:keydown={(e) => e.key === 'Enter' && loadBookings()} />
       </span>
@@ -420,7 +420,7 @@
     <AdminFormInput label="To" name="date_to" type="date" bind:value={dateTo} />
     <div class="flex gap-2">
       <AdminButton variant="secondary" on:click={loadBookings}>Filter</AdminButton>
-      <button class="inline-flex h-11 items-center rounded-2xl border border-ink/10 bg-white px-3 text-sm font-semibold text-ink/60 transition hover:bg-sand/60" type="button" on:click={clearFilters}>Clear</button>
+      <button class="inline-flex h-11 items-center rounded-2xl border border-ink/10 bg-surface px-3 text-sm font-semibold text-ink/60 transition hover:bg-sand/60" type="button" on:click={clearFilters}>Clear</button>
     </div>
   </AdminToolbar>
 
@@ -437,7 +437,7 @@
       on:action={openCreate}
     />
   {:else}
-    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[1080px] text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -457,7 +457,7 @@
           <tbody class="divide-y divide-ink/10">
             {#each rows as b (b.id)}
               <tr class="cursor-pointer transition hover:bg-sand/25" on:click={() => openView(b)}>
-                <td class="px-4 py-3 font-mono text-xs font-bold text-deep-green">{b.booking_code}</td>
+                <td class="px-4 py-3 font-mono text-xs font-bold text-heading">{b.booking_code}</td>
                 <td class="px-4 py-3">
                   <div class="font-semibold text-ink">{b.full_name}</div>
                   <div class="text-xs text-ink/55">{b.email}</div>
@@ -475,9 +475,9 @@
                 <td class="px-4 py-3 text-ink/65">{assigneeName(b.assigned_to) || '—'}</td>
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-1.5" role="presentation" on:click|stopPropagation>
-                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-white text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="View" on:click={() => openView(b)}><Eye size={15} /></button>
-                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-white text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Edit" on:click={() => openEdit(b)}><Edit size={15} /></button>
-                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-white text-red-600 shadow-sm transition hover:bg-red-50" type="button" aria-label="Delete" on:click={() => openDelete(b)}><Trash2 size={15} /></button>
+                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="View" on:click={() => openView(b)}><Eye size={15} /></button>
+                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Edit" on:click={() => openEdit(b)}><Edit size={15} /></button>
+                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" type="button" aria-label="Delete" on:click={() => openDelete(b)}><Trash2 size={15} /></button>
                   </div>
                 </td>
               </tr>
@@ -492,19 +492,19 @@
 {#if viewing}
   {@const lc = leadContext(viewing)}
   {@const summary = viewing.payment_summary as Record<string, unknown> | undefined}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <div class="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4 border-b border-ink/10 bg-sand/30 p-5">
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="font-mono text-sm font-bold text-deep-green">{viewing.booking_code}</span>
+            <span class="font-mono text-sm font-bold text-heading">{viewing.booking_code}</span>
             <span class={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ${statusMeta[String(viewing.status)]?.chip ?? ''}`}>{statusMeta[String(viewing.status)]?.label ?? viewing.status}</span>
             <span class={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ${paymentMeta[String(viewing.payment_status)]?.chip ?? ''}`}>{paymentMeta[String(viewing.payment_status)]?.label ?? viewing.payment_status}</span>
           </div>
           <h2 class="mt-1 truncate text-xl font-bold text-ink">{viewing.full_name}</h2>
           <p class="text-xs text-ink/50">Received {fmtDateTime(viewing.created_at)} · {sourceLabels[String(viewing.source)] ?? viewing.source}</p>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeView}><X size={18} /></button>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeView}><X size={18} /></button>
       </div>
 
       <div class="grid gap-5 overflow-y-auto p-5">
@@ -518,17 +518,17 @@
         </div>
 
         {#if viewing.estimated_amount != null || summary}
-          <div class="flex flex-wrap gap-6 rounded-2xl border border-ink/10 bg-white p-4 text-sm">
+          <div class="flex flex-wrap gap-6 rounded-2xl border border-ink/10 bg-surface p-4 text-sm">
             {#if viewing.estimated_amount != null}<div><span class="text-ink/50">Estimated</span><p class="font-bold text-ink">{money(viewing.estimated_amount, String(viewing.currency ?? 'USD'))}</p></div>{/if}
             {#if summary}<div><span class="text-ink/50">Paid to date</span><p class="font-bold text-emerald-600">{money(summary.total_paid, String(summary.currency ?? 'USD'))}</p></div>{/if}
           </div>
         {/if}
 
         {#if viewing.message}
-          <div><p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Message</p><p class="mt-1 whitespace-pre-line rounded-2xl border border-ink/10 bg-white p-3 text-sm leading-6 text-ink/75">{viewing.message}</p></div>
+          <div><p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Message</p><p class="mt-1 whitespace-pre-line rounded-2xl border border-ink/10 bg-surface p-3 text-sm leading-6 text-ink/75">{viewing.message}</p></div>
         {/if}
         {#if viewing.special_requests}
-          <div><p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Special requests</p><p class="mt-1 whitespace-pre-line rounded-2xl border border-ink/10 bg-white p-3 text-sm leading-6 text-ink/75">{viewing.special_requests}</p></div>
+          <div><p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Special requests</p><p class="mt-1 whitespace-pre-line rounded-2xl border border-ink/10 bg-surface p-3 text-sm leading-6 text-ink/75">{viewing.special_requests}</p></div>
         {/if}
 
         {#if Object.keys(lc).length > 0}
@@ -545,13 +545,13 @@
         <div class="grid gap-3 sm:grid-cols-2">
           <div>
             <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Status</p>
-            <select class="h-10 w-full rounded-xl border border-ink/10 bg-white px-3 text-sm shadow-sm outline-none focus:border-forest focus:ring-2 focus:ring-forest/15" value={String(viewing.status)} on:change={changeStatus}>
+            <select class="h-10 w-full rounded-xl border border-ink/10 bg-surface px-3 text-sm shadow-sm outline-none focus:border-forest focus:ring-2 focus:ring-forest/15" value={String(viewing.status)} on:change={changeStatus}>
               {#each statusOptions as opt}<option value={opt.value}>{opt.label}</option>{/each}
             </select>
           </div>
           <div>
             <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Assigned to</p>
-            <select class="h-10 w-full rounded-xl border border-ink/10 bg-white px-3 text-sm shadow-sm outline-none focus:border-forest focus:ring-2 focus:ring-forest/15" value={String(viewing.assigned_to ?? '')} on:change={assign}>
+            <select class="h-10 w-full rounded-xl border border-ink/10 bg-surface px-3 text-sm shadow-sm outline-none focus:border-forest focus:ring-2 focus:ring-forest/15" value={String(viewing.assigned_to ?? '')} on:change={assign}>
               {#each assignOptions as opt}<option value={opt.value}>{opt.label}</option>{/each}
             </select>
           </div>
@@ -567,7 +567,7 @@
       </div>
 
       <div class="flex flex-col-reverse gap-3 border-t border-ink/10 bg-sand/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <button class="inline-flex h-10 items-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => viewing && openDelete(viewing)}><Trash2 size={14} />Archive</button>
+        <button class="inline-flex h-10 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => viewing && openDelete(viewing)}><Trash2 size={14} />Archive</button>
         <AdminButton type="button" on:click={() => viewing && openEdit(viewing)}><Edit size={15} />Edit Booking</AdminButton>
       </div>
     </div>
@@ -575,14 +575,14 @@
 {/if}
 
 {#if formOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <form class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[10px] border border-ink/10 bg-white p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={save}>
+  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+    <form class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_24px_80px_rgba(15,47,36,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={save}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editingId ? 'Edit booking' : 'New booking'}</p>
           <h2 class="mt-1 text-2xl font-bold text-ink">{editingId ? 'Update booking request' : 'Create booking request'}</h2>
         </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeForm}><X size={18} /></button>
+        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeForm}><X size={18} /></button>
       </div>
 
       <div class="mt-6 grid gap-4">
@@ -647,5 +647,5 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">Archiving booking...</div>
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">Archiving booking...</div>
 {/if}

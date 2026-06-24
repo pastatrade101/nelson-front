@@ -20,7 +20,7 @@
     type="button"
     aria-pressed={saved}
     class={`inline-flex h-12 items-center justify-center gap-2 rounded-xl border px-5 font-semibold transition ${
-      saved ? 'border-clay/40 bg-clay/10 text-clay' : 'border-ink/15 bg-white text-ink/70 hover:bg-sand/60'
+      saved ? 'border-clay/40 bg-clay/10 text-clay' : 'border-ink/15 bg-surface text-ink/70 hover:bg-sand/60'
     }`}
     on:click={toggle}
   >
@@ -33,7 +33,7 @@
     aria-label={saved ? 'Remove from saved trips' : 'Save this trip'}
     aria-pressed={saved}
     class={`grid h-9 w-9 place-items-center rounded-full shadow-sm backdrop-blur transition ${
-      saved ? 'bg-clay text-white' : 'bg-white/85 text-ink/55 hover:bg-white hover:text-clay'
+      saved ? 'bg-clay text-white' : 'bg-surface/85 text-ink/55 hover:bg-surface hover:text-clay'
     }`}
     on:click={toggle}
   >

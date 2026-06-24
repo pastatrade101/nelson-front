@@ -89,7 +89,7 @@
   <!-- guide → primary action (SRS v2.0 §4.8: every guide ends with Plan My Trip) -->
   <section class="container-shell pb-4 pt-2 md:pb-8">
     <div class="flex flex-col items-start justify-between gap-4 rounded-2xl border border-goldfinch-gold/30 bg-savanna/20 p-5 sm:flex-row sm:items-center md:p-6">
-      <p class="text-base font-semibold text-deep-green">Ready to turn this into a real trip?</p>
+      <p class="text-base font-semibold text-heading">Ready to turn this into a real trip?</p>
       <a class="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-deep-green px-6 font-bold text-white transition hover:bg-forest" href="/plan-my-trip">
         Plan My Trip <ArrowRight size={16} />
       </a>
@@ -107,7 +107,7 @@
             description="Travel inspiration, tips and stories from the field."
           />
           <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
             href="/blog"
           >
             All articles <ArrowRight size={16} />
@@ -133,7 +133,7 @@
             description="Turn inspiration into a real itinerary across East Africa."
           />
           <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
             href="/destinations"
           >
             All destinations <ArrowRight size={16} />

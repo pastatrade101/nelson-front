@@ -19,7 +19,7 @@
   };
 </script>
 
-<div class="overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+<div class="overflow-hidden rounded-3xl border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
   <div class="overflow-x-auto">
     <table class="w-full min-w-[720px] text-start text-sm">
       <thead class="bg-sand/60 text-xs uppercase tracking-[0.08em] text-ink/55">

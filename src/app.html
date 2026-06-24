@@ -3,6 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      // Apply the saved/system theme before first paint (no flash of light).
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          var dark = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
     <link rel="icon" type="image/png" href="%sveltekit.assets%/favicon1.png" />
     <link rel="apple-touch-icon" href="%sveltekit.assets%/favicon1.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -74,14 +74,33 @@ export const hexToRgbTriple = (hex: string): string | null => {
   return `${(int >> 16) & 255} ${(int >> 8) & 255} ${int & 255}`;
 };
 
+const BRAND_STYLE_ID = 'brand-color-vars';
+
+/**
+ * Applies brand colors as a `:root { … }` rule in a <style> tag (not inline on
+ * <html>). This matters for dark mode: an inline style would beat the
+ * `html.dark` overrides, but a `:root` rule has lower specificity than
+ * `html.dark`, so the dark palette still wins when active — while these brand
+ * values still override the light defaults in app.css.
+ */
 export const applyBrandColors = (colors: Partial<BrandColors>) => {
   if (typeof document === 'undefined') return;
+  const declarations: string[] = [];
   for (const key of Object.keys(cssVarMap) as (keyof BrandColors)[]) {
     const value = colors[key];
     if (!value) continue;
     const triple = hexToRgbTriple(value);
-    if (triple) document.documentElement.style.setProperty(cssVarMap[key], triple);
+    if (triple) declarations.push(`${cssVarMap[key]}: ${triple};`);
   }
+  if (declarations.length === 0) return;
+
+  let style = document.getElementById(BRAND_STYLE_ID) as HTMLStyleElement | null;
+  if (!style) {
+    style = document.createElement('style');
+    style.id = BRAND_STYLE_ID;
+    document.head.appendChild(style);
+  }
+  style.textContent = `:root{${declarations.join('')}}`;
 };
 
 const setFavicon = (url: string) => {

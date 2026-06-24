@@ -89,16 +89,16 @@
 <svelte:head><title>AI Conversation | Goldfinch CMS</title></svelte:head>
 
 <section class="grid gap-5">
-  <a class="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-forest hover:text-deep-green" href="/admin/ai-conversations"><ArrowLeft size={15} /> All conversations</a>
+  <a class="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-forest hover:text-heading" href="/admin/ai-conversations"><ArrowLeft size={15} /> All conversations</a>
 
   {#if loading}
-    <div class="h-64 animate-pulse rounded-[10px] bg-ink/5"></div>
+    <div class="h-64 animate-pulse rounded-[10px] bg-black/5"></div>
   {:else if error}
     <p class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>
   {:else if data}
     {@const c = conv()}
     <!-- header + actions -->
-    <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-card">
+    <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 class="text-2xl font-bold text-ink">{str(c.visitor_name) || 'Anonymous visitor'}</h1>
@@ -114,8 +114,8 @@
         <div class="flex flex-wrap gap-2">
           <button class="rounded-lg bg-forest px-3 py-2 text-xs font-bold text-white transition hover:bg-deep-green disabled:opacity-50" disabled={busy} on:click={() => setLead('contacted' as string)}>Mark contacted</button>
           <button class="rounded-lg bg-forest px-3 py-2 text-xs font-bold text-white transition hover:bg-deep-green disabled:opacity-50" disabled={busy} on:click={() => setLead('qualified')}>Mark qualified</button>
-          <button class="rounded-lg border border-ink/15 px-3 py-2 text-xs font-bold text-ink/70 transition hover:bg-ink/5 disabled:opacity-50" disabled={busy} on:click={() => setLead('lost')}>Mark lost</button>
-          <button class="inline-flex items-center gap-1.5 rounded-lg bg-goldfinch-gold px-3 py-2 text-xs font-bold text-deep-green transition hover:brightness-105 disabled:opacity-50" disabled={busy} on:click={createBooking}><Sparkles size={13} /> Create booking</button>
+          <button class="rounded-lg border border-ink/15 px-3 py-2 text-xs font-bold text-ink/70 transition hover:bg-black/5 disabled:opacity-50" disabled={busy} on:click={() => setLead('lost')}>Mark lost</button>
+          <button class="inline-flex items-center gap-1.5 rounded-lg bg-goldfinch-gold px-3 py-2 text-xs font-bold text-heading transition hover:brightness-105 disabled:opacity-50" disabled={busy} on:click={createBooking}><Sparkles size={13} /> Create booking</button>
           {#if waDigits}<a class="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-2 text-xs font-bold text-white" href={`https://wa.me/${waDigits}`} target="_blank" rel="noopener noreferrer"><MessageCircle size={13} /> WhatsApp</a>{/if}
         </div>
       </div>
@@ -124,7 +124,7 @@
 
     <div class="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
       <!-- transcript -->
-      <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-card">
+      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
         <h2 class="text-sm font-bold uppercase tracking-wide text-ink/55">Transcript</h2>
         <div class="mt-3 grid gap-2.5">
           {#each data.messages as m (m.id)}
@@ -142,7 +142,7 @@
 
       <!-- sidebar: lead + recommendations -->
       <div class="grid gap-5">
-        <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-card">
+        <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
           <h2 class="text-sm font-bold uppercase tracking-wide text-ink/55">Lead context</h2>
           <dl class="mt-3 grid gap-1.5 text-sm">
             {#each LEAD_FIELDS as f}
@@ -158,13 +158,13 @@
           </dl>
         </div>
 
-        <div class="rounded-[10px] border border-ink/10 bg-white p-5 shadow-card">
+        <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
           <h2 class="text-sm font-bold uppercase tracking-wide text-ink/55">Recommended tours</h2>
           <div class="mt-3 grid gap-2.5">
             {#each data.tour_matches as m, i (i)}
               <article class="rounded-[10px] border border-ink/10 p-3">
                 <div class="flex items-start justify-between gap-2">
-                  <p class="text-sm font-bold text-deep-green">{m.tours?.title || 'Tour'}</p>
+                  <p class="text-sm font-bold text-heading">{m.tours?.title || 'Tour'}</p>
                   {#if m.confidence_label}<span class="shrink-0 rounded-full bg-sand px-2 py-0.5 text-[10px] font-bold text-clay">{m.confidence_label}{#if m.score != null} · {m.score}{/if}</span>{/if}
                 </div>
                 {#if m.reasons?.length}<ul class="mt-1.5 list-disc pl-4 text-xs text-ink/65">{#each m.reasons.slice(0, 3) as r}<li>{r}</li>{/each}</ul>{/if}

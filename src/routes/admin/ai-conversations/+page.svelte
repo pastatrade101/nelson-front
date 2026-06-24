@@ -62,18 +62,18 @@
     description="Goldfinch AI Travel Advisor leads — transcripts, lead score, recommendations, handoff and booking status."
   />
 
-  <div class="rounded-[10px] border border-ink/10 bg-white p-4 shadow-card">
+  <div class="rounded-[10px] border border-ink/10 bg-surface p-4 shadow-card">
     <div class="grid gap-3 md:grid-cols-[1fr_180px_180px]">
       <label class="grid gap-1.5 text-xs font-semibold text-ink/60">
         Search
-        <span class="flex h-10 items-center gap-2 rounded-lg border border-ink/15 bg-white px-3 focus-within:border-forest">
+        <span class="flex h-10 items-center gap-2 rounded-lg border border-ink/15 bg-surface px-3 focus-within:border-forest">
           <Search size={15} class="text-ink/40" />
           <input class="min-w-0 flex-1 bg-transparent text-sm outline-none" bind:value={search} placeholder="Name, email, status…" on:keydown={(e) => e.key === 'Enter' && load()} />
         </span>
       </label>
       <label class="grid gap-1.5 text-xs font-semibold text-ink/60">
         Status
-        <select class="h-10 rounded-lg border border-ink/15 bg-white px-2 text-sm outline-none focus:border-forest" bind:value={statusFilter} on:change={load}>
+        <select class="h-10 rounded-lg border border-ink/15 bg-surface px-2 text-sm outline-none focus:border-forest" bind:value={statusFilter} on:change={load}>
           <option value="all">All statuses</option>
           <option value="in_progress">In progress</option>
           <option value="handoff_ready">Handoff ready</option>
@@ -82,7 +82,7 @@
       </label>
       <label class="grid gap-1.5 text-xs font-semibold text-ink/60">
         Lead
-        <select class="h-10 rounded-lg border border-ink/15 bg-white px-2 text-sm outline-none focus:border-forest" bind:value={leadFilter}>
+        <select class="h-10 rounded-lg border border-ink/15 bg-surface px-2 text-sm outline-none focus:border-forest" bind:value={leadFilter}>
           <option value="all">All leads</option>
           <option value="qualified">Qualified</option>
           <option value="hot">Hot</option>
@@ -96,20 +96,20 @@
 
   {#if loading}
     <div class="grid gap-2">
-      {#each Array(5) as _}<div class="h-14 animate-pulse rounded-lg bg-ink/5"></div>{/each}
+      {#each Array(5) as _}<div class="h-14 animate-pulse rounded-lg bg-black/5"></div>{/each}
     </div>
   {:else if error}
     <p class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>
   {:else if !filtered.length}
-    <div class="grid place-items-center gap-2 rounded-[10px] border border-dashed border-ink/15 bg-white py-16 text-center">
+    <div class="grid place-items-center gap-2 rounded-[10px] border border-dashed border-ink/15 bg-surface py-16 text-center">
       <span class="grid h-12 w-12 place-items-center rounded-full bg-forest/10 text-forest"><Bot size={22} /></span>
       <p class="text-sm font-semibold text-ink">No AI conversations yet</p>
       <p class="max-w-sm text-sm text-ink/55">Leads from the public AI advisor widget will appear here.</p>
     </div>
   {:else}
-    <div class="overflow-hidden rounded-[10px] border border-ink/10 bg-white shadow-card">
+    <div class="overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-card">
       <table class="w-full text-left text-sm">
-        <thead class="border-b border-ink/10 bg-ink/[0.02] text-[11px] uppercase tracking-wide text-ink/50">
+        <thead class="border-b border-ink/10 bg-black/[0.02] text-[11px] uppercase tracking-wide text-ink/50">
           <tr>
             <th class="px-4 py-3 font-bold">Visitor</th>
             <th class="px-4 py-3 font-bold">Lead</th>
@@ -139,7 +139,7 @@
               <td class="px-4 py-3 text-ink/70">{money(c.total_estimated_cost_usd)}</td>
               <td class="px-4 py-3 text-xs text-ink/55">{fmt(c.updated_at || c.created_at)}</td>
               <td class="px-4 py-3 text-right">
-                <a class="inline-flex items-center gap-1 text-xs font-bold text-forest hover:text-deep-green" href={`/admin/ai-conversations/${c.id}`}>Open <ArrowRight size={13} /></a>
+                <a class="inline-flex items-center gap-1 text-xs font-bold text-forest hover:text-heading" href={`/admin/ai-conversations/${c.id}`}>Open <ArrowRight size={13} /></a>
               </td>
             </tr>
           {/each}

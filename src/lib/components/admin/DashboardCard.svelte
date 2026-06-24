@@ -8,7 +8,7 @@
   $: numericValue = typeof value === 'number' ? value : null;
 </script>
 
-<article class="rounded-lg border border-ink/10 bg-white p-5 shadow-soft">
+<article class="rounded-lg border border-ink/10 bg-surface p-5 shadow-soft">
   <p class="text-sm font-medium text-ink/60">{label}</p>
   {#if numericValue === null}
     <p class="mt-3 text-3xl font-bold text-ink">{value}</p>

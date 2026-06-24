@@ -2,7 +2,7 @@
   export let role = 'viewer';
 
   const tones: Record<string, string> = {
-    super_admin: 'bg-goldfinch-gold/20 text-deep-green ring-goldfinch-gold/30',
+    super_admin: 'bg-goldfinch-gold/20 text-heading ring-goldfinch-gold/30',
     admin: 'bg-forest/10 text-forest ring-forest/20',
     content_manager: 'bg-sky-50 text-sky-700 ring-sky-200/70',
     booking_manager: 'bg-indigo-50 text-indigo-700 ring-indigo-200/70',

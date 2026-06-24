@@ -86,10 +86,10 @@
             <p class="mt-3 max-w-xl text-sm leading-7 text-white/85 md:text-base">{selected.short_description}</p>
           {/if}
           <div class="mt-6 flex flex-wrap gap-3">
-            <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-deep-green transition hover:brightness-105" href={`/plan-my-trip?destination=${selected.slug}`}>
+            <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading transition hover:brightness-105" href={`/plan-my-trip?destination=${selected.slug}`}>
               <Sparkles size={18} /> Plan a trip to {selected.name}
             </a>
-            <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-white/10" href={`/destinations/${selected.slug}`}>
+            <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10" href={`/destinations/${selected.slug}`}>
               Full guide <ArrowRight size={18} />
             </a>
           </div>
@@ -99,7 +99,7 @@
   </section>
 
   <!-- filters + destination tabs -->
-  <section class="sticky top-0 z-20 border-b border-ink/10 bg-white/95 backdrop-blur">
+  <section class="sticky top-0 z-20 border-b border-ink/10 bg-surface/95 backdrop-blur">
     <div class="container-shell py-4">
       {#if countries.length > 2}
         <div class="hide-scroll mb-3 flex gap-2 overflow-x-auto">
@@ -107,7 +107,7 @@
             <button
               type="button"
               class={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
-                activeCountry === country ? 'border-forest bg-forest text-white' : 'border-ink/15 bg-white text-ink/60 hover:border-forest/40'
+                activeCountry === country ? 'border-forest bg-forest text-white' : 'border-ink/15 bg-surface text-ink/60 hover:border-forest/40'
               }`}
               on:click={() => selectCountry(country)}
             >
@@ -140,13 +140,13 @@
     <div class="grid gap-10 lg:grid-cols-[1fr_0.8fr]">
       <div>
         {#if selected.country}<p class="font-serif text-xl italic text-clay">{selected.country}</p>{/if}
-        <h2 class="mt-2 text-3xl font-bold tracking-tight text-deep-green md:text-4xl">{selected.name}</h2>
+        <h2 class="mt-2 text-3xl font-bold tracking-tight text-heading md:text-4xl">{selected.name}</h2>
         <p class="mt-4 whitespace-pre-line text-base leading-7 text-ink/70">{selected.description}</p>
         <div class="mt-6 flex flex-wrap gap-3">
           <a class="inline-flex h-11 items-center gap-2 rounded-xl bg-deep-green px-5 font-bold text-white transition hover:bg-forest" href={`/destinations/${selected.slug}`}>
             Explore {selected.name} in full <ArrowRight size={16} />
           </a>
-          <a class="inline-flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-white px-5 font-semibold text-ink transition hover:bg-sand/60" href={`/plan-my-trip?destination=${selected.slug}`}>
+          <a class="inline-flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-surface px-5 font-semibold text-ink transition hover:bg-sand/60" href={`/plan-my-trip?destination=${selected.slug}`}>
             Plan My Trip
           </a>
         </div>
@@ -158,10 +158,10 @@
           {/if}
         </div>
         {#if selectedScores}
-          <div class="rounded-2xl border border-ink/10 bg-white p-5 shadow-soft">
+          <div class="rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
             <div class="flex items-center justify-between">
               <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">How {selected.name} scores</p>
-              <a class="text-xs font-semibold text-forest transition hover:text-deep-green" href="/destination-scores">Compare all</a>
+              <a class="text-xs font-semibold text-forest transition hover:text-heading" href="/destination-scores">Compare all</a>
             </div>
             <div class="mt-3"><ScoreBars scores={selectedScores} /></div>
           </div>
@@ -174,9 +174,9 @@
         <div class="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p class="font-serif text-xl italic text-clay">Things to do</p>
-            <h3 class="mt-1 text-2xl font-bold text-deep-green md:text-3xl">Trips in {selected.name}</h3>
+            <h3 class="mt-1 text-2xl font-bold text-heading md:text-3xl">Trips in {selected.name}</h3>
           </div>
-          <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" href="/tours">
+          <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href="/tours">
             Browse all tours <ArrowRight size={16} />
           </a>
         </div>

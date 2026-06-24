@@ -58,7 +58,7 @@
       <div class="relative">
         <div class="flex flex-wrap items-center gap-3">
           <p class="font-serif text-xl italic text-savanna">Not sure where to start?</p>
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-bold text-savanna backdrop-blur">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-surface/10 px-2.5 py-1 text-[11px] font-bold text-savanna backdrop-blur">
             <Clock size={12} strokeWidth={2.6} /> ~60 seconds
           </span>
         </div>
@@ -75,7 +75,7 @@
         <div class="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
           <a
             href="/trip-finder"
-            class="inline-flex h-14 items-center gap-2.5 rounded-[10px] bg-goldfinch-gold px-7 text-[15px] font-bold text-deep-green shadow-[0_10px_28px_rgba(217,164,65,0.45)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            class="inline-flex h-14 items-center gap-2.5 rounded-[10px] bg-goldfinch-gold px-7 text-[15px] font-bold text-heading shadow-[0_10px_28px_rgba(217,164,65,0.45)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             Start Trip Finder
             <ArrowRight size={18} strokeWidth={2.6} class="transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -98,14 +98,14 @@
       <span class="pointer-events-none absolute inset-0 bg-gradient-to-t from-deep-green/45 to-transparent" aria-hidden="true"></span>
 
       <!-- main location pill -->
-      <span class="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-deep-green shadow-md backdrop-blur">
+      <span class="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-surface/90 px-3 py-1.5 text-xs font-bold text-heading shadow-md backdrop-blur">
         <MapPin size={13} strokeWidth={2.6} class="text-clay" /> Tanzania
       </span>
 
       <!-- floating destination previews (hidden on the smallest screens) -->
       <div class="absolute bottom-4 right-4 hidden w-36 flex-col gap-3 sm:flex">
         {#each previews as p (p.label)}
-          <div class="overflow-hidden rounded-[10px] border border-white/50 bg-white/90 p-1.5 shadow-[0_10px_26px_rgba(15,47,36,0.28)] backdrop-blur transition-transform duration-300 hover:-translate-y-0.5">
+          <div class="overflow-hidden rounded-[10px] border border-white/50 bg-surface/90 p-1.5 shadow-[0_10px_26px_rgba(15,47,36,0.28)] backdrop-blur transition-transform duration-300 hover:-translate-y-0.5">
             <div class="relative h-20 overflow-hidden rounded-[7px]">
               <img class="h-full w-full object-cover" src={p.src} alt={p.label} loading="lazy" />
               <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep-green/80 to-transparent px-2 py-1 text-[11px] font-bold text-white">

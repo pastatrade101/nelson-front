@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { scale } from 'svelte/transition';
-  import { Bell, ChevronDown, LogOut, Mail, Menu, PanelLeftClose, PanelLeftOpen, ShieldCheck } from '@lucide/svelte';
+  import { Bell, ChevronDown, LogOut, Mail, Menu, Moon, PanelLeftClose, PanelLeftOpen, ShieldCheck, Sun } from '@lucide/svelte';
+  import { theme, toggleTheme } from '$lib/theme';
 
   type AdminUser = {
     avatar_url?: string;
@@ -45,14 +46,14 @@
   });
 </script>
 
-<header class="sticky top-0 z-30 border-b border-ink/[0.08] bg-white">
+<header class="sticky top-0 z-30 border-b border-ink/[0.08] bg-surface">
   <div class="flex h-[68px] items-center justify-between gap-3 px-4 sm:px-6">
     <div class="flex min-w-0 items-center gap-3">
-      <button class="grid h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-white text-ink shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 lg:hidden" type="button" aria-label="Open sidebar" on:click={onOpenMobile}>
+      <button class="grid h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 lg:hidden" type="button" aria-label="Open sidebar" on:click={onOpenMobile}>
         <Menu size={19} />
       </button>
 
-      <button class="hidden h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-white text-ink/70 shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 lg:grid" type="button" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} on:click={onToggleDesktop}>
+      <button class="hidden h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 lg:grid" type="button" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} on:click={onToggleDesktop}>
         {#if collapsed}
           <PanelLeftOpen size={19} />
         {:else}
@@ -67,13 +68,23 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <button class="hidden h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-white text-ink/70 shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 sm:grid" type="button" aria-label="Notifications">
+      <button
+        class="grid h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30"
+        type="button"
+        on:click={toggleTheme}
+        aria-label={$theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        title={$theme === 'dark' ? 'Light mode' : 'Dark mode'}
+      >
+        {#if $theme === 'dark'}<Sun size={18} />{:else}<Moon size={18} />{/if}
+      </button>
+
+      <button class="hidden h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 sm:grid" type="button" aria-label="Notifications">
         <Bell size={18} />
       </button>
 
       <div class="relative">
         <button
-          class="inline-flex h-11 items-center gap-2 rounded-full border border-ink/10 bg-white py-1 pl-1 pr-2 text-sm font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/45 hover:bg-sand/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/25"
+          class="inline-flex h-11 items-center gap-2 rounded-full border border-ink/10 bg-surface py-1 pl-1 pr-2 text-sm font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/45 hover:bg-sand/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/25"
           type="button"
           aria-label="Open profile menu"
           aria-expanded={profileOpen}
@@ -92,12 +103,12 @@
 
         {#if profileOpen}
           <div
-            class="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-[8px] border border-ink/10 bg-white shadow-[0_24px_70px_rgba(15,47,36,0.18)]"
+            class="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_24px_70px_rgba(15,47,36,0.18)]"
             transition:scale={{ duration: 140, start: 0.97 }}
           >
             <div class="bg-gradient-to-br from-deep-green via-forest to-deep-green p-4 text-white">
               <div class="flex items-center gap-3">
-                <div class="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-white/12 text-sm font-bold uppercase ring-1 ring-goldfinch-gold/50">
+                <div class="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-surface/12 text-sm font-bold uppercase ring-1 ring-goldfinch-gold/50">
                   {#if user?.avatar_url}
                     <img class="h-full w-full object-cover" src={user.avatar_url} alt={displayName} />
                   {:else}
@@ -129,7 +140,7 @@
               </div>
 
               <button
-                class="mt-1 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-white text-sm font-semibold text-red-700 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200"
+                class="mt-1 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-surface text-sm font-semibold text-red-700 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200"
                 type="button"
                 on:click={onLogout}
               >

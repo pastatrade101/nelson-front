@@ -64,19 +64,19 @@
 <section class="container-shell py-12 md:py-16">
   <div class="grid gap-6 lg:grid-cols-2" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
     {#each rows as row (row.slug)}
-      <article class="flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-soft">
+      <article class="flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-soft">
         <div class="flex items-center gap-4 border-b border-ink/10 p-5">
           <div class="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-skywash">
             {#if row.image}<img class="h-full w-full object-cover" src={row.image} alt={row.name} loading="lazy" />{/if}
           </div>
           <div>
-            <h2 class="text-lg font-extrabold text-deep-green">{row.name}</h2>
+            <h2 class="text-lg font-extrabold text-heading">{row.name}</h2>
             <p class="text-sm font-semibold text-clay">Best for {topDimension(row.scores)}{row.scores.budgetFromUsd ? ` · from $${row.scores.budgetFromUsd.toLocaleString()}pp` : ''}</p>
           </div>
         </div>
         <div class="p-5">
           <ScoreBars scores={row.scores} />
-          <a class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-deep-green" href={`/destinations?d=${row.slug}`}>
+          <a class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href={`/destinations?d=${row.slug}`}>
             Explore {row.name} <ArrowRight size={15} />
           </a>
         </div>
@@ -87,6 +87,6 @@
   <div class="mt-12 overflow-hidden rounded-[10px] bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
     <h2 class="text-2xl font-extrabold md:text-3xl">Not sure which scores matter most for you?</h2>
     <p class="mx-auto mt-3 max-w-xl text-white/75">Tell us how you like to travel and we'll match the right destination — honestly.</p>
-    <a class="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-deep-green transition hover:brightness-105" href="/plan-my-trip">Plan My Trip <ArrowRight size={18} /></a>
+    <a class="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-heading transition hover:brightness-105" href="/plan-my-trip">Plan My Trip <ArrowRight size={18} /></a>
   </div>
 </section>

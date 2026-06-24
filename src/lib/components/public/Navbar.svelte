@@ -9,6 +9,7 @@
   import { navbarEntrance } from '$lib/animations';
   import { brand } from '$lib/brand';
   import { aiAdvisorEnabled, publicSettings, settingText } from '$lib/settings';
+  import ThemeToggle from './ThemeToggle.svelte';
 
   type NavLink = { href: string; label: string; image?: string };
   type NavItem = { dropdown?: 'destinations' | 'tours'; href: string; label: string };
@@ -165,17 +166,17 @@
   });
 </script>
 
-<header class={`sticky top-0 z-40 border-b bg-white transition-[box-shadow,border-color] duration-[400ms] ease-out ${scrolled ? 'border-transparent shadow-[0_8px_28px_rgba(15,47,36,0.10)]' : 'border-[#e8e8e8]'}`} use:navbarEntrance>
+<header class={`sticky top-0 z-40 border-b bg-surface transition-[box-shadow,border-color] duration-[400ms] ease-out ${scrolled ? 'border-transparent shadow-[0_8px_28px_rgba(15,47,36,0.10)]' : 'border-[#e8e8e8]'}`} use:navbarEntrance>
   <!-- ── mobile top bar ─────────────────────────────────────────────────── -->
   <div class="flex h-[70px] items-center justify-between gap-3 px-4 sm:px-5 lg:hidden">
-    <button class="grid h-11 w-11 place-items-center rounded-xl border border-[#e5e5e5] bg-white text-[#111111]" type="button" aria-label="Toggle menu" aria-expanded={menuOpen} on:click={() => (menuOpen = !menuOpen)}>
+    <button class="grid h-11 w-11 place-items-center rounded-xl border border-[#e5e5e5] bg-surface text-[#111111]" type="button" aria-label="Toggle menu" aria-expanded={menuOpen} on:click={() => (menuOpen = !menuOpen)}>
       <Menu size={24} strokeWidth={2.4} />
     </button>
 
     <a href="/" class="flex shrink-0 items-center gap-2" aria-label="Goldfinch Adventures home">
       <TicketsPlane class="text-goldfinch-gold" size={30} strokeWidth={2} />
       <div class="leading-none">
-        <p class="text-xl font-extrabold tracking-normal text-deep-green">Goldfinch</p>
+        <p class="text-xl font-extrabold tracking-normal text-heading">Goldfinch</p>
         <p class="mt-1 text-xs font-semibold text-[#555555]">Adventures</p>
       </div>
     </a>
@@ -191,7 +192,7 @@
       <a href="/" class="flex min-w-[150px] items-center gap-2.5" aria-label="Goldfinch Adventures home">
         <TicketsPlane class="text-goldfinch-gold" size={34} strokeWidth={2.1} />
         <div class="leading-none">
-          <p class="text-2xl font-extrabold tracking-normal text-deep-green">Goldfinch</p>
+          <p class="text-2xl font-extrabold tracking-normal text-heading">Goldfinch</p>
           <p class="mt-1.5 text-sm font-semibold text-[#555555]">Adventures</p>
         </div>
       </a>
@@ -205,16 +206,17 @@
 
       <div class="flex items-center gap-4 text-[13px] font-semibold">
         {#if aiOn}
-          <button type="button" class="inline-flex items-center gap-1 text-forest transition hover:text-deep-green" on:click={() => openAiAdvisor()}>
+          <button type="button" class="inline-flex items-center gap-1 text-forest transition hover:text-heading" on:click={() => openAiAdvisor()}>
             <CircleHelp size={15} strokeWidth={2.6} />
             Need help?
           </button>
         {:else}
-          <a class="inline-flex items-center gap-1 text-forest transition hover:text-deep-green" href="/contact">
+          <a class="inline-flex items-center gap-1 text-forest transition hover:text-heading" href="/contact">
             <CircleHelp size={15} strokeWidth={2.6} />
             Need help?
           </a>
         {/if}
+        <ThemeToggle />
       </div>
 
       <a href="/admin/login" class="inline-flex h-12 items-center gap-2.5 rounded-xl bg-deep-green px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-forest">
@@ -231,7 +233,7 @@
         {#if scrolled}
           <a href="/" class="mr-1 flex shrink-0 items-center gap-2" aria-label="Goldfinch Adventures home" transition:fly={{ x: -14, duration: 320 }}>
             <TicketsPlane class="text-goldfinch-gold" size={26} strokeWidth={2.2} />
-            <span class="text-lg font-extrabold tracking-normal text-deep-green">Goldfinch</span>
+            <span class="text-lg font-extrabold tracking-normal text-heading">Goldfinch</span>
           </a>
           <form class="mr-2 hidden h-9 items-center rounded-full bg-[#f1f1f1] pl-1 pr-2 transition focus-within:ring-2 focus-within:ring-goldfinch-gold/30 xl:flex" on:submit|preventDefault={submitSearch} role="search" transition:fly={{ x: -14, duration: 320 }}>
             <button class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#111]" type="submit" aria-label="Search tours"><Search size={15} strokeWidth={2.6} /></button>
@@ -269,7 +271,7 @@
                 {@const feat = FEATURE[item.dropdown]}
                 <div
                   id={`dd-${item.dropdown}`}
-                  class="absolute left-0 top-full z-50 grid w-[660px] grid-cols-[1fr_248px] overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-[0_24px_60px_rgba(15,47,36,0.18)]"
+                  class="absolute left-0 top-full z-50 grid w-[660px] grid-cols-[1fr_248px] overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-[0_24px_60px_rgba(15,47,36,0.18)]"
                   role="menu"
                   transition:fly={{ y: 6, duration: 140 }}
                 >
@@ -279,7 +281,7 @@
                       All {item.label}
                       <ArrowRight size={14} strokeWidth={2.6} />
                     </a>
-                    <div class="my-1.5 h-px bg-ink/5"></div>
+                    <div class="my-1.5 h-px bg-black/5"></div>
                     <div class="grid grid-cols-2 gap-0.5">
                       {#each dropdownLinks(item.dropdown) as link (link.href)}
                         <a class="truncate rounded-xl px-3 py-2.5 text-sm font-medium text-[#333] transition hover:bg-sand/60 hover:text-forest" href={link.href} role="menuitem">{link.label}</a>
@@ -317,7 +319,7 @@
 
         <!-- Plan My Trip CTA -->
         <a
-          class={`ml-2 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50 ${isActive(path, '/plan-my-trip') ? 'bg-deep-green text-white' : 'bg-goldfinch-gold text-deep-green hover:brightness-105'}`}
+          class={`ml-2 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50 ${isActive(path, '/plan-my-trip') ? 'bg-deep-green text-white' : 'bg-goldfinch-gold text-heading hover:brightness-105'}`}
           href="/plan-my-trip"
           aria-current={isActive(path, '/plan-my-trip') ? 'page' : undefined}
         >
@@ -347,18 +349,18 @@
   <!-- ── mobile drawer ──────────────────────────────────────────────────── -->
   {#if menuOpen}
     <div class="fixed inset-0 z-[90] lg:hidden" transition:fade={{ duration: 120 }}>
-      <button class="absolute inset-0 bg-ink/45 backdrop-blur-md" type="button" aria-label="Close menu" on:click={() => (menuOpen = false)}></button>
+      <button class="absolute inset-0 bg-black/45 backdrop-blur-md" type="button" aria-label="Close menu" on:click={() => (menuOpen = false)}></button>
 
-      <aside class="absolute right-0 top-0 flex min-h-dvh w-[86vw] min-w-[300px] max-w-[380px] flex-col overflow-y-auto border-l border-[#e8e8e8] bg-white px-5 py-5 shadow-[-20px_0_55px_rgba(0,0,0,0.12)]" transition:fly={{ x: 60, duration: 200 }}>
+      <aside class="absolute right-0 top-0 flex min-h-dvh w-[86vw] min-w-[300px] max-w-[380px] flex-col overflow-y-auto border-l border-[#e8e8e8] bg-surface px-5 py-5 shadow-[-20px_0_55px_rgba(0,0,0,0.12)]" transition:fly={{ x: 60, duration: 200 }}>
         <div class="flex items-center justify-between gap-4">
           <a href="/" class="flex shrink-0 items-center gap-2.5" on:click={() => (menuOpen = false)}>
             <TicketsPlane class="text-goldfinch-gold" size={32} strokeWidth={2.1} />
             <div class="leading-none">
-              <p class="text-xl font-extrabold tracking-normal text-deep-green">Goldfinch</p>
+              <p class="text-xl font-extrabold tracking-normal text-heading">Goldfinch</p>
               <p class="mt-1 text-xs font-semibold text-[#555555]">Adventures</p>
             </div>
           </a>
-          <button class="grid h-11 w-11 place-items-center rounded-xl border border-[#e5e5e5] bg-white text-[#111111]" type="button" aria-label="Close menu" on:click={() => (menuOpen = false)}>
+          <button class="grid h-11 w-11 place-items-center rounded-xl border border-[#e5e5e5] bg-surface text-[#111111]" type="button" aria-label="Close menu" on:click={() => (menuOpen = false)}>
             <X size={22} strokeWidth={2.4} />
           </button>
         </div>
@@ -405,6 +407,10 @@
         </nav>
 
         <div class="mt-6 grid gap-2.5 border-t border-ink/10 pt-5">
+          <div class="flex items-center justify-between rounded-2xl border border-ink/10 px-4 py-2.5">
+            <span class="text-sm font-semibold text-ink/70">Appearance</span>
+            <ThemeToggle />
+          </div>
           <a class="flex items-center gap-3 rounded-2xl bg-[#25D366]/10 px-4 py-3" href={waHref} target="_blank" rel="noopener noreferrer" on:click={() => (menuOpen = false)}>
             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#25D366] text-white"><MessageCircle size={20} strokeWidth={2.6} /></span>
             <span class="grid leading-tight">

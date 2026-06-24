@@ -38,7 +38,7 @@
   onMount(loadUser);
 </script>
 
-<div class="admin-shell h-screen overflow-hidden bg-[#eef0f4] font-admin text-ink">
+<div class="admin-shell h-screen overflow-hidden bg-[#eef0f4] font-admin text-ink dark:bg-canvas">
   <div class="flex h-full min-w-0">
     <AdminSidebar
       collapsed={sidebarCollapsed}
@@ -59,7 +59,7 @@
       />
 
       <main
-        class="min-h-0 flex-1 overflow-y-auto bg-[#f5f6f8] p-4 sm:p-6"
+        class="min-h-0 flex-1 overflow-y-auto bg-[#f5f6f8] p-4 sm:p-6 dark:bg-[#0b100e]"
         data-lenis-prevent
       >
         <slot />

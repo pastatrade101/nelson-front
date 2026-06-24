@@ -47,7 +47,7 @@
           {/if}
           <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/40 to-transparent"></div>
           <div class="relative p-5 text-white">
-            {#if c.phase && c.phase !== 'live'}<span class="mb-2 inline-block rounded-full bg-goldfinch-gold/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-deep-green">Coming soon</span>{/if}
+            {#if c.phase && c.phase !== 'live'}<span class="mb-2 inline-block rounded-full bg-goldfinch-gold/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-heading">Coming soon</span>{/if}
             <h2 class="text-2xl font-extrabold">{c.name}</h2>
             {#if c.capital}<p class="text-sm text-white/75">Capital: {c.capital}</p>{/if}
             <span class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-goldfinch-gold">Explore {c.name} <ArrowRight size={15} /></span>
