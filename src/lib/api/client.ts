@@ -419,7 +419,9 @@ export const api = {
     update: (body: Record<string, unknown>) => apiRequest<Record<string, unknown>>('/branding', { method: 'PUT', body })
   },
   auditLogs: {
-    list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Record<string, unknown>>>(`/audit-logs${queryString(params)}`)
+    list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Record<string, unknown>>>(`/audit-logs${queryString(params)}`),
+    get: (id: string) => apiRequest<Record<string, unknown>>(`/audit-logs/${id}`),
+    facets: () => apiRequest<{ entityTypes: string[]; actors: Array<{ id: string; name: string }> }>('/audit-logs/facets')
   },
   aiTravelAdvisor: {
     chat: (body: {
