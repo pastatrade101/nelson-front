@@ -10,6 +10,7 @@
   import AdminTextArea from '$lib/components/admin/AdminTextArea.svelte';
   import AiAssistButton from '$lib/components/admin/AiAssistButton.svelte';
   import AdminToolbar from '$lib/components/admin/AdminToolbar.svelte';
+  import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ToastStack from '$lib/components/admin/ToastStack.svelte';
@@ -26,7 +27,6 @@
   };
 
   type PublishStatus = 'draft' | 'published' | 'archived';
-  type ImageMode = 'none' | 'url' | 'media';
 
   type Toast = {
     id: string;
@@ -51,12 +51,6 @@
     { label: 'Ultra luxury', value: 'ultra_luxury' }
   ];
 
-  const imageModeOptions = [
-    { label: 'No image', value: 'none' },
-    { label: 'Manual URL', value: 'url' },
-    { label: 'Choose from Media Library', value: 'media' }
-  ];
-
   let loading = mode === 'edit';
   let loadingOptions = true;
   let saving = false;
@@ -66,15 +60,7 @@
 
   let destinationOptions: Option[] = [{ label: 'No destination', value: '' }];
   let categoryOptions: Option[] = [{ label: 'No category', value: '' }];
-  let mediaOptions: Option[] = [{ label: 'Choose image', value: '' }];
   let mediaItems: MediaItem[] = [];
-
-  let mainImageMode: ImageMode = 'none';
-  let bannerImageMode: ImageMode = 'none';
-  let ogImageMode: ImageMode = 'none';
-  let mainMediaId = '';
-  let bannerMediaId = '';
-  let ogMediaId = '';
 
   let form = {
     banner_image_url: '',
@@ -157,21 +143,9 @@
     return text === '' ? null : Number(text);
   };
 
-  const applyMediaSelection = (target: 'banner' | 'main' | 'og', id: string) => {
-    const media = mediaItems.find((item) => item.id === id);
-    const url = media?.file_url ?? '';
-    if (target === 'main') form.main_image_url = url;
-    if (target === 'banner') form.banner_image_url = url;
-    if (target === 'og') form.og_image_url = url;
-  };
-
   $: if (!slugManuallyEdited) {
     form.slug = slugify(form.title);
   }
-
-  $: if (mainImageMode === 'none') form.main_image_url = '';
-  $: if (bannerImageMode === 'none') form.banner_image_url = '';
-  $: if (ogImageMode === 'none') form.og_image_url = '';
 
   const loadOptions = async () => {
     loadingOptions = true;
@@ -200,13 +174,6 @@
       ];
 
       mediaItems = media.data.items as MediaItem[];
-      mediaOptions = [
-        { label: 'Choose image', value: '' },
-        ...mediaItems.map((item) => ({
-          label: item.file_name,
-          value: item.id
-        }))
-      ];
     } catch (requestError) {
       showToast(requestError instanceof Error ? requestError.message : 'Unable to load form options.', 'error');
     } finally {
@@ -255,9 +222,6 @@
         title: String(tour.title ?? '')
       };
 
-      mainImageMode = form.main_image_url ? 'url' : 'none';
-      bannerImageMode = form.banner_image_url ? 'url' : 'none';
-      ogImageMode = form.og_image_url ? 'url' : 'none';
       slugManuallyEdited = true;
     } catch (requestError) {
       error = requestError instanceof Error ? requestError.message : 'Unable to load tour.';
@@ -444,40 +408,14 @@
         {/if}
 
         <div class="mt-5 grid gap-4 lg:grid-cols-3">
-          <div class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
-            <AdminSelect label="Main image source" name="main_image_mode" bind:value={mainImageMode} options={imageModeOptions} />
-            {#if mainImageMode === 'url'}
-              <AdminFormInput label="Main image URL" name="main_image_url" bind:value={form.main_image_url} />
-            {:else if mainImageMode === 'media'}
-              <AdminSelect label="Media image" name="main_media" bind:value={mainMediaId} options={mediaOptions} on:change={() => applyMediaSelection('main', mainMediaId)} />
-            {/if}
-            {#if form.main_image_url}
-              <img class="aspect-[16/9] w-full rounded-2xl object-cover" src={form.main_image_url} alt="Main tour preview" />
-            {/if}
+          <div class="rounded-[8px] border border-ink/10 bg-sand/20 p-4">
+            <MediaPicker label="Main image" media={mediaItems} bind:value={form.main_image_url} />
           </div>
-
-          <div class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
-            <AdminSelect label="Banner image source" name="banner_image_mode" bind:value={bannerImageMode} options={imageModeOptions} />
-            {#if bannerImageMode === 'url'}
-              <AdminFormInput label="Banner image URL" name="banner_image_url" bind:value={form.banner_image_url} />
-            {:else if bannerImageMode === 'media'}
-              <AdminSelect label="Media image" name="banner_media" bind:value={bannerMediaId} options={mediaOptions} on:change={() => applyMediaSelection('banner', bannerMediaId)} />
-            {/if}
-            {#if form.banner_image_url}
-              <img class="aspect-[16/9] w-full rounded-2xl object-cover" src={form.banner_image_url} alt="Banner tour preview" />
-            {/if}
+          <div class="rounded-[8px] border border-ink/10 bg-sand/20 p-4">
+            <MediaPicker label="Banner image" media={mediaItems} bind:value={form.banner_image_url} />
           </div>
-
-          <div class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
-            <AdminSelect label="Open Graph image source" name="og_image_mode" bind:value={ogImageMode} options={imageModeOptions} />
-            {#if ogImageMode === 'url'}
-              <AdminFormInput label="OG image URL" name="og_image_url" bind:value={form.og_image_url} />
-            {:else if ogImageMode === 'media'}
-              <AdminSelect label="Media image" name="og_media" bind:value={ogMediaId} options={mediaOptions} on:change={() => applyMediaSelection('og', ogMediaId)} />
-            {/if}
-            {#if form.og_image_url}
-              <img class="aspect-[16/9] w-full rounded-2xl object-cover" src={form.og_image_url} alt="Open Graph tour preview" />
-            {/if}
+          <div class="rounded-[8px] border border-ink/10 bg-sand/20 p-4">
+            <MediaPicker label="Open Graph image" media={mediaItems} bind:value={form.og_image_url} />
           </div>
         </div>
       </section>
