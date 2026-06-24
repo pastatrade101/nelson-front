@@ -484,7 +484,7 @@
           {@const Icon = card.icon}
           <article class="group rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.055)] transition hover:-translate-y-0.5 hover:border-goldfinch-gold/35 hover:shadow-[0_24px_70px_rgba(15,47,36,0.1)]">
             <div class="flex items-start justify-between gap-4">
-              <div class={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${card.accent} ring-1 ring-ink/5`}>
+              <div class={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${card.accent} ring-1 ring-ink/5 dark:text-goldfinch-gold`}>
                 <Icon size={21} />
               </div>
               {#if card.trend}
@@ -546,7 +546,7 @@
           {#each operationalItems as item}
             {@const Icon = item.icon}
             <a class="flex items-center gap-3 rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-goldfinch-gold/35 hover:bg-sand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={item.href}>
-              <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10 dark:text-goldfinch-gold">
                 <Icon size={17} />
               </span>
               <span class="min-w-0 flex-1">
@@ -572,7 +572,7 @@
           {#each quickActions as action}
             {@const Icon = action.icon}
             <a class="group flex items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-3 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={action.href} aria-label={action.label}>
-              <span class="grid h-10 w-10 place-items-center rounded-xl bg-forest/10 text-forest transition group-hover:bg-forest group-hover:text-white">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-forest/10 text-forest transition group-hover:bg-forest group-hover:text-white dark:text-goldfinch-gold dark:group-hover:text-white">
                 <Icon size={17} />
               </span>
               <span class="min-w-0">
@@ -619,7 +619,7 @@
             {@const Icon = item.icon}
             <div class="rounded-2xl border border-ink/10 bg-sand/20 p-4">
               <div class="flex items-start gap-3">
-                <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10">
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10 dark:text-goldfinch-gold">
                   <Icon size={17} />
                 </span>
                 <div class="min-w-0 flex-1">

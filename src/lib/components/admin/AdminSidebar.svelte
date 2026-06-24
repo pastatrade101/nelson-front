@@ -208,7 +208,7 @@
 {/if}
 
 <aside
-  class={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col overflow-hidden border-r border-white/10 bg-gradient-to-b from-deep-green via-forest to-deep-green text-white shadow-2xl transition-[transform,width] duration-300 ease-out lg:sticky lg:translate-x-0 ${
+  class={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col overflow-hidden border-r border-white/10 bg-gradient-to-b from-deep-green via-forest to-deep-green text-white shadow-2xl transition-[transform,width] duration-300 ease-out dark:border-white/[0.06] dark:bg-none dark:bg-[#0b100e] lg:sticky lg:translate-x-0 ${
     collapsed ? 'lg:w-[78px]' : 'lg:w-[280px]'
   } ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} w-[min(88vw,304px)]`}
 >
