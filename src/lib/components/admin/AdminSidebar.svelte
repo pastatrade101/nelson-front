@@ -22,7 +22,6 @@
     Images,
     LayoutDashboard,
     ListCheck,
-    LogOut,
     Mail,
     Map,
     MapPin,
@@ -43,7 +42,6 @@
   export let currentPath = '/admin';
   export let mobileOpen = false;
   export let onCloseMobile: () => void = () => {};
-  export let onLogout: () => void = () => {};
   export let onToggleDesktop: () => void = () => {};
 
   type NavLink = {
@@ -286,19 +284,5 @@
       {/each}
     </div>
   </nav>
-
-  <div class="border-t border-white/10 p-3">
-    <!-- Profile card removed — it lives in the top-bar account menu (no duplicate). -->
-    <button
-      class={`flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-savanna/80 transition hover:bg-red-500/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/70 ${collapsed ? 'lg:justify-center lg:px-0' : ''}`}
-      type="button"
-      title={collapsed ? 'Logout' : undefined}
-      on:click={onLogout}
-    >
-      <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/10">
-        <LogOut size={17} />
-      </span>
-      <span class={`transition ${collapsed ? 'lg:hidden lg:opacity-0' : 'opacity-100'}`}>Logout</span>
-    </button>
-  </div>
+  <!-- Profile + Logout live in the top-bar account menu (no duplicate here). -->
 </aside>

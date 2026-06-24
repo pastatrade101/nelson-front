@@ -45,7 +45,6 @@
       {currentPath}
       mobileOpen={mobileSidebarOpen}
       onCloseMobile={() => (mobileSidebarOpen = false)}
-      onLogout={logout}
       onToggleDesktop={() => (sidebarCollapsed = !sidebarCollapsed)}
     />
 
