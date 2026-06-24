@@ -12,7 +12,8 @@
     Users
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
-  import ApexChart from '$lib/components/admin/ApexChart.svelte';
+  import ChartCanvas from '$lib/components/admin/ChartCanvas.svelte';
+  import { barConfig, doughnutConfig, funnelConfig, lineConfig } from '$lib/charts';
 
   type Tally = Array<{ label: string; value: number }>;
   type Overview = {
@@ -45,9 +46,6 @@
   let funnel: Funnel | null = null;
   let traffic: Traffic | null = null;
   let ga4: Ga4 | null = null;
-
-  const CHART_FONT = 'Figtree, Inter, sans-serif';
-  const LABEL = '#94a3b8';
 
   const load = async () => {
     loading = true;
@@ -86,48 +84,20 @@
       ]
     : [];
 
-  const DONUT_COLORS = ['#D9A441', '#1F4D3A', '#0F2F24', '#94a3b8', '#b86b45', '#E9D8A6', '#f87171'];
+  // ── Chart.js configs (reactive — rebuild when the underlying data changes) ──
+  const topRows = (t: Tally, n = 6) =>
+    (t ?? []).filter((x) => x.value > 0 && x.label !== 'Not specified' && x.label !== '(not set)').slice(0, n);
 
-  const donut = (t: Tally, max = 6) => {
-    const top = t.filter((x) => x.value > 0).slice(0, max);
-    return {
-      chart: { type: 'donut', height: 280, fontFamily: CHART_FONT },
-      labels: top.map((x) => x.label),
-      series: top.map((x) => x.value),
-      colors: DONUT_COLORS,
-      legend: { position: 'bottom', fontWeight: 600, labels: { colors: LABEL } },
-      dataLabels: { enabled: false },
-      stroke: { width: 2, colors: ['transparent'] },
-      plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, color: LABEL } } } } },
-      tooltip: { y: { formatter: (v: number) => `${v} lead${v === 1 ? '' : 's'}` } },
-      noData: { text: 'No data yet', style: { color: LABEL } }
-    };
-  };
-
-  $: leadsLineOptions = {
-    chart: { type: 'area', height: 280, fontFamily: CHART_FONT, toolbar: { show: false }, sparkline: { enabled: false } },
-    series: [{ name: 'Leads', data: (leads?.leadsByDay ?? []).map((d) => d.value) }],
-    xaxis: { categories: (leads?.leadsByDay ?? []).map((d) => d.date.slice(5)), labels: { style: { colors: LABEL } } },
-    yaxis: { labels: { style: { colors: LABEL } }, min: 0, forceNiceScale: true },
-    colors: ['#D9A441'],
-    fill: { type: 'gradient', gradient: { shadeIntensity: 0.4, opacityFrom: 0.35, opacityTo: 0.05 } },
-    stroke: { curve: 'smooth', width: 3 },
-    dataLabels: { enabled: false },
-    grid: { borderColor: 'rgba(148,163,184,0.18)' },
-    tooltip: { y: { formatter: (v: number) => `${v} lead${v === 1 ? '' : 's'}` } }
-  };
-
-  $: destBarOptions = {
-    chart: { type: 'bar', height: 280, fontFamily: CHART_FONT, toolbar: { show: false } },
-    series: [{ name: 'Leads', data: (leads?.byDestination ?? []).filter((x) => x.label !== 'Not specified').slice(0, 7).map((x) => x.value) }],
-    xaxis: { categories: (leads?.byDestination ?? []).filter((x) => x.label !== 'Not specified').slice(0, 7).map((x) => x.label), labels: { style: { colors: LABEL } } },
-    yaxis: { labels: { style: { colors: LABEL } } },
-    colors: ['#1F4D3A'],
-    plotOptions: { bar: { borderRadius: 4, horizontal: true } },
-    dataLabels: { enabled: false },
-    grid: { borderColor: 'rgba(148,163,184,0.18)' },
-    tooltip: { theme: 'dark' }
-  };
+  $: leadsLineCfg = lineConfig(
+    (leads?.leadsByDay ?? []).map((d) => d.date.slice(5)),
+    (leads?.leadsByDay ?? []).map((d) => d.value),
+    ' leads'
+  );
+  $: sourceDonutCfg = doughnutConfig(topRows(leads?.bySource ?? []), ' leads');
+  $: budgetDonutCfg = doughnutConfig(topRows(leads?.byBudget ?? []), ' leads');
+  $: destBarCfg = barConfig(topRows(leads?.byDestination ?? [], 7), { horizontal: true, unit: ' leads' });
+  $: funnelCfg = funnel ? funnelConfig(funnel.stages) : null;
+  $: deviceDonutCfg = doughnutConfig(topRows(traffic?.byDevice ?? [], 3));
 
   // Pre-clean ranked lists in the script (Svelte {@const} can't live under a <div>).
   const cleanRows = (t: Tally, n = 6) => {
@@ -265,17 +235,7 @@
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Conversion funnel</p>
           <h3 class="mt-1 text-xl font-bold text-ink">Visitor → Booked</h3>
         </div>
-        <div class="grid gap-2.5">
-          {#each funnel.stages as s}
-            <div class="flex items-center gap-3">
-              <span class="w-32 shrink-0 text-sm font-semibold text-ink/70">{s.label}</span>
-              <div class="relative h-8 flex-1 overflow-hidden rounded-lg bg-sand/40">
-                <div class="h-full rounded-lg bg-gradient-to-r from-forest to-goldfinch-gold transition-all" style={`width: ${Math.max(3, (s.value / funnelMax) * 100)}%`}></div>
-              </div>
-              <span class="w-12 shrink-0 text-right text-sm font-bold text-ink">{s.value}</span>
-            </div>
-          {/each}
-        </div>
+        {#if funnelCfg}<ChartCanvas {...funnelCfg} height={320} />{/if}
         <div class="mt-5 grid gap-3 sm:grid-cols-4">
           {#each [['Visitors → form', funnel.rates.visitorsToFormOpen], ['Form → submit', funnel.rates.formOpenToSubmit], ['Submit → contacted', funnel.rates.submitToContacted], ['Contacted → booked', funnel.rates.contactedToBooked]] as [label, rate]}
             <div class="rounded-xl border border-ink/10 bg-sand/25 p-3 text-center">
@@ -293,14 +253,14 @@
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Leads over time</p>
         <h3 class="mt-1 text-xl font-bold text-ink">Leads by day</h3>
         <div class="mt-3">
-          {#if (leads?.leadsByDay ?? []).length}<ApexChart options={leadsLineOptions} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No leads in this range yet.</p>{/if}
+          {#if (leads?.leadsByDay ?? []).length}<ChartCanvas {...leadsLineCfg} height={280} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No leads in this range yet.</p>{/if}
         </div>
       </div>
       <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Where leads come from</p>
         <h3 class="mt-1 text-xl font-bold text-ink">Lead source</h3>
         <div class="mt-3">
-          {#if (leads?.bySource ?? []).some((x) => x.value > 0)}<ApexChart options={donut(leads?.bySource ?? [])} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No leads yet.</p>{/if}
+          {#if (leads?.bySource ?? []).some((x) => x.value > 0)}<ChartCanvas {...sourceDonutCfg} height={280} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No leads yet.</p>{/if}
         </div>
       </div>
     </div>
@@ -310,14 +270,14 @@
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Demand</p>
         <h3 class="mt-1 text-xl font-bold text-ink">Most requested destinations</h3>
         <div class="mt-3">
-          {#if (leads?.byDestination ?? []).some((x) => x.label !== 'Not specified' && x.value > 0)}<ApexChart options={destBarOptions} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No destination data yet.</p>{/if}
+          {#if (leads?.byDestination ?? []).some((x) => x.label !== 'Not specified' && x.value > 0)}<ChartCanvas {...destBarCfg} height={280} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No destination data yet.</p>{/if}
         </div>
       </div>
       <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Budget</p>
         <h3 class="mt-1 text-xl font-bold text-ink">Budget range mix</h3>
         <div class="mt-3">
-          {#if (leads?.byBudget ?? []).some((x) => x.value > 0)}<ApexChart options={donut(leads?.byBudget ?? [])} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No budget data yet.</p>{/if}
+          {#if (leads?.byBudget ?? []).some((x) => x.value > 0)}<ChartCanvas {...budgetDonutCfg} height={280} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No budget data yet.</p>{/if}
         </div>
       </div>
     </div>
@@ -374,7 +334,7 @@
         <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
           <h3 class="text-sm font-bold text-ink">Devices</h3>
           <div class="mt-3">
-            {#if traffic.byDevice.some((x) => x.value > 0)}<ApexChart options={donut(traffic.byDevice, 3)} />{:else}<p class="grid h-[200px] place-items-center text-sm text-ink/45">No device data yet.</p>{/if}
+            {#if traffic.byDevice.some((x) => x.value > 0)}<ChartCanvas {...deviceDonutCfg} height={200} />{:else}<p class="grid h-[200px] place-items-center text-sm text-ink/45">No device data yet.</p>{/if}
           </div>
         </div>
       </div>

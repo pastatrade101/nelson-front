@@ -28,7 +28,8 @@
     Upload
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
-  import ApexChart from '$lib/components/admin/ApexChart.svelte';
+  import ChartCanvas from '$lib/components/admin/ChartCanvas.svelte';
+  import { barConfig, doughnutConfig } from '$lib/charts';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
 
   type CountStats = {
@@ -327,59 +328,25 @@
     year: 'numeric'
   }).format(new Date());
 
-  // ── ApexCharts options (brand-coloured) ──────────────────────────────────
-  const CHART_FONT = 'Figtree, Inter, sans-serif';
-  $: donutOptions = {
-    chart: { type: 'donut', height: 300, fontFamily: CHART_FONT },
-    labels: ['Pending', 'Confirmed', 'Cancelled', 'Completed', 'Rejected'],
-    series: [
-      stats.bookingPipeline.pending,
-      stats.bookingPipeline.confirmed,
-      stats.bookingPipeline.cancelled,
-      stats.bookingPipeline.completed,
-      stats.bookingPipeline.rejected
-    ],
-    colors: ['#D9A441', '#1F4D3A', '#94a3b8', '#0F2F24', '#f87171'],
-    legend: { position: 'bottom', fontWeight: 600, labels: { colors: '#5A655F' } },
-    dataLabels: { enabled: false },
-    stroke: { width: 2, colors: ['#ffffff'] },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: '68%',
-          labels: {
-            show: true,
-            value: { fontSize: '24px', fontWeight: 700, color: '#1B2420' },
-            total: { show: true, label: 'Total requests', color: '#5A655F', formatter: () => String(pipelineTotal) }
-          }
-        }
-      }
-    },
-    tooltip: { y: { formatter: (v: number) => `${v} request${v === 1 ? '' : 's'}` } }
-  };
+  // ── Chart.js configs (brand-coloured, animated) ──────────────────────────
+  $: pipelineDonutCfg = doughnutConfig(
+    [
+      { label: 'Pending', value: stats.bookingPipeline.pending },
+      { label: 'Confirmed', value: stats.bookingPipeline.confirmed },
+      { label: 'Cancelled', value: stats.bookingPipeline.cancelled },
+      { label: 'Completed', value: stats.bookingPipeline.completed },
+      { label: 'Rejected', value: stats.bookingPipeline.rejected }
+    ].filter((x) => x.value > 0),
+    ' requests'
+  );
 
-  $: barOptions = {
-    chart: { type: 'bar', height: 300, fontFamily: CHART_FONT, toolbar: { show: false } },
-    series: [
-      {
-        name: 'Items',
-        data: [
-          stats.counts.totalTours,
-          stats.counts.destinations,
-          stats.counts.totalBookings,
-          stats.counts.blogPosts,
-          stats.counts.mediaFiles
-        ]
-      }
-    ],
-    xaxis: { categories: ['Tours', 'Destinations', 'Bookings', 'Blog', 'Media'], labels: { style: { colors: '#5A655F', fontWeight: 600 } } },
-    yaxis: { labels: { style: { colors: '#5A655F' } } },
-    colors: ['#1F4D3A'],
-    plotOptions: { bar: { borderRadius: 5, columnWidth: '46%' } },
-    dataLabels: { enabled: false },
-    grid: { borderColor: 'rgba(15,47,36,0.07)', strokeDashArray: 4 },
-    tooltip: { theme: 'light' }
-  };
+  $: contentBarCfg = barConfig([
+    { label: 'Tours', value: stats.counts.totalTours },
+    { label: 'Destinations', value: stats.counts.destinations },
+    { label: 'Bookings', value: stats.counts.totalBookings },
+    { label: 'Blog', value: stats.counts.blogPosts },
+    { label: 'Media', value: stats.counts.mediaFiles }
+  ]);
 
   onMount(async () => {
     loading = true;
@@ -499,7 +466,7 @@
       </div>
     </section>
 
-    <!-- Analytics charts (ApexCharts) -->
+    <!-- Analytics charts (Chart.js) -->
     <section class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
       <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
         <div class="flex items-start justify-between gap-4">
@@ -511,7 +478,7 @@
         </div>
         <div class="mt-4">
           {#if pipelineTotal > 0}
-            <ApexChart options={donutOptions} />
+            <ChartCanvas {...pipelineDonutCfg} height={300} />
           {:else}
             <p class="grid h-[260px] place-items-center text-sm text-ink/45">No booking requests yet.</p>
           {/if}
@@ -527,7 +494,7 @@
           <ChartBar class="text-goldfinch-gold" size={22} />
         </div>
         <div class="mt-4">
-          <ApexChart options={barOptions} />
+          <ChartCanvas {...contentBarCfg} height={300} />
         </div>
       </div>
     </section>
