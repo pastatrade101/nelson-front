@@ -48,3 +48,15 @@ export const settingText = (settings: Record<string, unknown>, key: string): str
   const value = settings[key];
   return typeof value === 'string' ? value.trim() : '';
 };
+
+/** Reads a public setting as a boolean (with a fallback when unset). */
+export const settingBool = (settings: Record<string, unknown>, key: string, fallback = false): boolean => {
+  const value = settings[key];
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return ['true', '1', 'yes', 'on'].includes(value.trim().toLowerCase());
+  return fallback;
+};
+
+/** Whether the public AI advisor (widget + entry points) should be shown. */
+export const aiAdvisorEnabled = (settings: Record<string, unknown>): boolean =>
+  settingBool(settings, 'ai_enabled', true) && settingBool(settings, 'ai_widget_enabled', true);

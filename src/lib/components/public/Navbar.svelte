@@ -8,7 +8,7 @@
   import { openAiAdvisor } from '$lib/aiAdvisor';
   import { navbarEntrance } from '$lib/animations';
   import { brand } from '$lib/brand';
-  import { publicSettings, settingText } from '$lib/settings';
+  import { aiAdvisorEnabled, publicSettings, settingText } from '$lib/settings';
 
   type NavLink = { href: string; label: string; image?: string };
   type NavItem = { dropdown?: 'destinations' | 'tours'; href: string; label: string };
@@ -93,6 +93,7 @@
 
   // ── WhatsApp CTA (from public settings, with safe fallback) ─────────────────
   $: s = $publicSettings;
+  $: aiOn = aiAdvisorEnabled(s);
   $: waNumber = settingText(s, 'whatsapp_number') || '+255 700 000 000';
   $: waMessage = settingText(s, 'whatsapp_default_message') || 'Hello Goldfinch Adventures, I would like help planning an East Africa trip.';
   $: waDigits = waNumber.replace(/[^0-9]/g, '');
@@ -203,10 +204,17 @@
       </form>
 
       <div class="flex items-center gap-4 text-[13px] font-semibold">
-        <button type="button" class="inline-flex items-center gap-1 text-forest transition hover:text-deep-green" on:click={() => openAiAdvisor()}>
-          <CircleHelp size={15} strokeWidth={2.6} />
-          Need help?
-        </button>
+        {#if aiOn}
+          <button type="button" class="inline-flex items-center gap-1 text-forest transition hover:text-deep-green" on:click={() => openAiAdvisor()}>
+            <CircleHelp size={15} strokeWidth={2.6} />
+            Need help?
+          </button>
+        {:else}
+          <a class="inline-flex items-center gap-1 text-forest transition hover:text-deep-green" href="/contact">
+            <CircleHelp size={15} strokeWidth={2.6} />
+            Need help?
+          </a>
+        {/if}
       </div>
 
       <a href="/admin/login" class="inline-flex h-12 items-center gap-2.5 rounded-xl bg-deep-green px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-forest">
@@ -360,13 +368,15 @@
           <input class="min-w-0 flex-1 bg-transparent px-1 text-sm font-medium outline-none placeholder:text-[#a9a9a9]" aria-label="Search tour packages" placeholder="Search tours..." bind:value={searchQuery} />
         </form>
 
-        <button
-          type="button"
-          class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-deep-green px-4 py-3 text-sm font-bold text-white transition hover:bg-forest"
-          on:click={() => { openAiAdvisor(); menuOpen = false; }}
-        >
-          <CircleHelp size={16} strokeWidth={2.6} /> Ask our AI advisor
-        </button>
+        {#if aiOn}
+          <button
+            type="button"
+            class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-deep-green px-4 py-3 text-sm font-bold text-white transition hover:bg-forest"
+            on:click={() => { openAiAdvisor(); menuOpen = false; }}
+          >
+            <CircleHelp size={16} strokeWidth={2.6} /> Ask our AI advisor
+          </button>
+        {/if}
 
         <nav class="mt-5 grid gap-1" aria-label="Mobile">
           {#each NAV as item}
