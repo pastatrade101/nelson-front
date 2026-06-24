@@ -49,24 +49,25 @@ html.dark {
   --c-heading: 233 238 234; /* headings → light */
 }
 
-/* Keep text readable on bright brand accents that stay light in dark mode. */
+/* Dark mode site-wide: the brand green is too dim as an accent on dark surfaces,
+   so remap it to gold — labels, active states, icons, borders and rings all read
+   clearly. (ApexCharts use their own JS colors and are unaffected.) */
+html.dark {
+  --c-forest: 217 164 65;
+}
+
+/* Keep text readable on the gold CTAs (white-on-gold is illegible). */
 html.dark .bg-goldfinch-gold {
   color: rgb(var(--c-deep-green));
 }
 
-/* In the dark admin, the brand green is too dim as an accent on the near-black
-   canvas — remap it to gold so labels, durations and accents read clearly.
-   Scoped to .admin-shell + dark only, so the public site and light mode are
-   untouched. ApexCharts use their own JS colors and are unaffected. */
-html.dark .admin-shell {
-  --c-forest: 217 164 65;
-}
-
-/* Same treatment for the public nav mega-menu dropdown: its dark panel makes
-   green accents (the "All …" link, arrow and hover states) too dim, so use
-   gold there in dark mode. */
-html.dark .nav-dropdown {
-  --c-forest: 217 164 65;
+/* The remap above also turns solid forest BUTTON fills gold — keep those green
+   so their white labels stay readable and primary (gold) vs secondary (green)
+   buttons stay distinct. Only accent uses (text, icons, borders, rings, tab
+   underlines) read gold. Faint bg-forest/NN tiles keep the gold tint. */
+html.dark .bg-forest,
+html.dark [class~="hover:bg-forest"]:hover {
+  background-color: rgb(31 77 58);
 }
 
 body {
