@@ -67,14 +67,14 @@
 
         {#if tour.price_from}
           <div class="mt-1 flex items-end justify-between border-t border-ink/10 pt-4">
-            <span class="text-sm font-medium text-ink/55">From</span>
+            <span class="text-sm font-medium text-ink/70">From</span>
             <span class="text-2xl font-extrabold text-heading">{tour.currency || 'USD'} {Number(tour.price_from).toLocaleString()}</span>
           </div>
         {/if}
       </div>
     </div>
 
-    <p class="mt-4 text-xs leading-5 text-ink/50">
+    <p class="mt-4 text-xs leading-5 text-ink/70">
       Submitting a request does not charge you. A Goldfinch specialist confirms availability, finalises your itinerary, and shares secure payment options separately.
     </p>
   </aside>

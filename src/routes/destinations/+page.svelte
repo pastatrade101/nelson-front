@@ -107,7 +107,7 @@
             <button
               type="button"
               class={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
-                activeCountry === country ? 'border-forest bg-forest text-white' : 'border-ink/15 bg-surface text-ink/60 hover:border-forest/40'
+                activeCountry === country ? 'border-forest bg-forest text-white' : 'border-ink/15 bg-surface text-ink/70 hover:border-forest/40'
               }`}
               on:click={() => selectCountry(country)}
             >
@@ -191,7 +191,7 @@
    {/key}
   </section>
 {:else}
-  <section class="container-shell py-20 text-center text-ink/60">No destinations yet.</section>
+  <section class="container-shell py-20 text-center text-ink/70">No destinations yet.</section>
 {/if}
 
 <style>

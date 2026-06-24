@@ -79,7 +79,7 @@
     <div class="flex flex-1 flex-col p-5">
       <p class="text-lg font-extrabold text-forest">
         From {tour.currency ?? 'USD'} {(tour.price_from ?? 0).toLocaleString()}
-        <span class="text-sm font-semibold text-ink/50">pp</span>
+        <span class="text-sm font-semibold text-ink/70">pp</span>
       </p>
 
       {#if metaBits.length}
@@ -91,12 +91,12 @@
       {/if}
 
       {#if stops.length}
-        <p class="mt-2 text-sm leading-6 text-ink/60">
+        <p class="mt-2 text-sm leading-6 text-ink/70">
           <span class="inline-flex items-center gap-1 font-semibold text-ink/70"><MapPin size={13} /> You visit:</span>
           {stops.join(', ')}
         </p>
       {:else if tour.short_description}
-        <p class="mt-2 line-clamp-2 text-sm leading-6 text-ink/60">{tour.short_description}</p>
+        <p class="mt-2 line-clamp-2 text-sm leading-6 text-ink/70">{tour.short_description}</p>
       {/if}
 
       <div class="mt-auto flex items-center justify-between border-t border-ink/[0.08] pt-4">

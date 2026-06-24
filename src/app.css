@@ -15,7 +15,7 @@
   --c-savanna: 233 216 166; /* #E9D8A6 */
   --c-sand: 247 241 227; /* #F7F1E3 */
   --c-ink: 24 33 31; /* #18211f */
-  --c-clay: 184 107 69; /* #b86b45 */
+  --c-clay: 160 85 48; /* #a05530 — darkened for AA contrast on white AND cream/sand */
 
   /* Theme surfaces (light). Dark values are overridden in `html.dark` below. */
   --c-surface: 255 255 255; /* cards / inputs (was bg-white) */
@@ -47,6 +47,7 @@ html.dark {
   --c-surface: 23 30 27; /* cards */
   --c-canvas: 14 19 17; /* page background */
   --c-heading: 233 238 234; /* headings → light */
+  --c-clay: 224 150 110; /* lighter terracotta so text-clay reads on dark (light uses a darker clay for AA on white) */
 }
 
 /* Dark mode site-wide: the brand green is too dim as an accent on dark surfaces,
@@ -56,8 +57,10 @@ html.dark {
   --c-forest: 217 164 65;
 }
 
-/* Keep text readable on the gold CTAs (white-on-gold is illegible). */
-html.dark .bg-goldfinch-gold {
+/* Keep text readable on bright accent fills in dark mode (gold CTAs, and the
+   lighter clay badges) — white-on-light is illegible, so use dark text. */
+html.dark .bg-goldfinch-gold,
+html.dark .bg-clay {
   color: rgb(var(--c-deep-green));
 }
 

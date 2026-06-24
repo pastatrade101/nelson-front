@@ -123,7 +123,7 @@
         <div class="relative">
           <p class="font-serif text-xl italic text-clay">Top Destinations</p>
           <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>Explore Popular Destinations</h2>
-          <p class="mt-3 max-w-xl text-[15px] leading-7 text-ink/60">
+          <p class="mt-3 max-w-xl text-[15px] leading-7 text-ink/70">
             From the Serengeti's endless plains to Zanzibar's white-sand shores — handpicked places our local specialists know inside out.
           </p>
 

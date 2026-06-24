@@ -58,14 +58,14 @@
     {/if}
     <h3 class="mt-1.5 text-lg font-extrabold leading-snug tracking-tight text-ink">{tour.title}</h3>
     {#if tour.short_description}
-      <p class="mt-2 line-clamp-2 text-sm leading-6 text-ink/60">{tour.short_description}</p>
+      <p class="mt-2 line-clamp-2 text-sm leading-6 text-ink/70">{tour.short_description}</p>
     {/if}
 
     <div class="mt-auto flex items-center justify-between gap-3 border-t border-ink/[0.08] pt-4">
       <p class="leading-tight">
-        <span class="block text-[11px] font-medium uppercase tracking-wide text-ink/45">From</span>
+        <span class="block text-[11px] font-medium uppercase tracking-wide text-ink/65">From</span>
         <span class="text-lg font-extrabold text-heading">{tour.currency ?? 'USD'} {(tour.price_from ?? 0).toLocaleString()}</span>
-        <span class="text-xs font-semibold text-ink/45"> pp</span>
+        <span class="text-xs font-semibold text-ink/65"> pp</span>
       </p>
       <a
         href={`/tours/${tour.slug}`}

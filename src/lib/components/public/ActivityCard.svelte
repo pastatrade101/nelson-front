@@ -50,7 +50,7 @@
       <p class="mt-2 line-clamp-3 text-sm leading-6 text-ink/70">{activity.description}</p>
     {/if}
 
-    <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] font-semibold text-ink/55">
+    <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] font-semibold text-ink/70">
       {#if location}
         <span class="inline-flex items-center gap-1.5"><MapPin size={14} /> {location}</span>
       {/if}
@@ -64,7 +64,7 @@
 
     {#if priceLabel}
       <div class="mt-auto pt-4">
-        <p class="text-sm text-ink/60">
+        <p class="text-sm text-ink/70">
           From <span class="font-bold text-ink">{priceLabel}</span>{#if activity.price_unit} · {activity.price_unit}{/if}
         </p>
       </div>

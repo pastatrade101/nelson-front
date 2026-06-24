@@ -221,7 +221,7 @@
 
   <!-- persona switcher -->
   <div class="mt-6 flex flex-wrap items-center gap-2">
-    <span class="text-sm font-medium text-ink/50">Who's travelling?</span>
+    <span class="text-sm font-medium text-ink/70">Who's travelling?</span>
     {#each PERSONA_ORDER as key}
       <a
         class={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition ${persona === key ? 'border-forest bg-forest text-white' : 'border-ink/15 bg-surface text-ink/65 hover:border-forest/40'}`}
@@ -240,7 +240,7 @@
         <div class="rounded-2xl border border-goldfinch-gold/30 bg-sand/40 p-5">
           <p class="font-serif text-lg font-bold text-heading">Your Safari</p>
           <form class="mt-4 grid gap-3" on:submit={submitSearch}>
-            <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/55">
+            <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/70">
               Where to
               <select
                 class="h-11 rounded-xl border border-ink/15 bg-surface px-3 text-sm font-medium text-ink outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
@@ -253,7 +253,7 @@
                 {/each}
               </select>
             </label>
-            <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/55">
+            <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/70">
               Keyword
               <span class="flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-surface px-3 transition focus-within:border-forest focus-within:ring-2 focus-within:ring-forest/15">
                 <Search size={16} class="text-ink/40" />
@@ -276,7 +276,7 @@
           <!-- price -->
           <div class="rounded-2xl border border-ink/10 bg-surface p-5">
             <p class="text-sm font-bold text-ink">Rates in USD</p>
-            <p class="mt-0.5 text-xs text-ink/45">Per person, excl. international flights</p>
+            <p class="mt-0.5 text-xs text-ink/70">Per person, excl. international flights</p>
             <div class="mt-4">
               <RangeSlider min={priceMin} max={priceMax} step={50} bind:lo={priceLo} bind:hi={priceHi} format={money} />
             </div>
@@ -340,9 +340,9 @@
           >
             <SlidersHorizontal size={15} /> Filters{#if activeCount}<span class="rounded-full bg-forest px-1.5 text-xs text-white">{activeCount}</span>{/if}
           </button>
-          <p class="text-sm text-ink/60">{#if !loading}<span class="font-bold text-ink">{sorted.length}</span> tour{sorted.length === 1 ? '' : 's'}{/if}</p>
+          <p class="text-sm text-ink/70">{#if !loading}<span class="font-bold text-ink">{sorted.length}</span> tour{sorted.length === 1 ? '' : 's'}{/if}</p>
         </div>
-        <label class="flex items-center gap-2 text-sm text-ink/55">
+        <label class="flex items-center gap-2 text-sm text-ink/70">
           Sort
           <select class="h-9 rounded-lg border border-ink/15 bg-surface px-2 text-sm font-medium text-ink outline-none focus:border-forest" bind:value={sort}>
             <option value="recommended">Recommended</option>

@@ -113,7 +113,7 @@
     <div class="mx-auto max-w-2xl text-center">
       <p class="font-serif text-xl italic text-clay">Things to do</p>
       <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>Popular Activities</h2>
-      <p class="mx-auto mt-3 max-w-[620px] text-[15px] leading-7 text-ink/60 md:text-base">
+      <p class="mx-auto mt-3 max-w-[620px] text-[15px] leading-7 text-ink/70 md:text-base">
         A curated list of the most-loved experiences across our East-Africa destinations.
       </p>
     </div>
@@ -150,7 +150,7 @@
           <div class="flex flex-1 flex-col p-5">
             <h3 class="text-lg font-extrabold leading-snug tracking-tight text-ink">{activity.title}</h3>
 
-            <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-ink/55">
+            <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-ink/70">
               {#if activity.location}
                 <span class="inline-flex items-center gap-1.5">
                   <MapPin size={15} strokeWidth={2.4} class="text-forest" /> {activity.location}
@@ -175,7 +175,7 @@
 
               {#if activity.price != null}
                 <div class="text-right leading-tight">
-                  <p class="text-[11px] font-medium uppercase tracking-wide text-ink/45">{activity.priceLabel}</p>
+                  <p class="text-[11px] font-medium uppercase tracking-wide text-ink/65">{activity.priceLabel}</p>
                   <p class="text-lg font-extrabold text-heading">${activity.price.toLocaleString()}</p>
                 </div>
               {/if}

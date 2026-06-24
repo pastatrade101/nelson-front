@@ -27,7 +27,7 @@
         <li class="relative">
           <span class="absolute -left-[31px] grid h-6 w-6 place-items-center rounded-full bg-forest text-[11px] font-bold text-white ring-4 ring-white">{i + 1}</span>
           <p class="text-sm font-semibold text-ink">{step.title}</p>
-          <p class="mt-0.5 text-xs leading-5 text-ink/55">{step.text}</p>
+          <p class="mt-0.5 text-xs leading-5 text-ink/70">{step.text}</p>
         </li>
       {/each}
     </ol>
@@ -41,7 +41,7 @@
         <li class="relative flex flex-col items-center text-center lg:items-start lg:text-left">
           <span class="grid h-12 w-12 place-items-center rounded-2xl bg-goldfinch-gold text-lg font-extrabold text-heading shadow-sm">{i + 1}</span>
           <p class="mt-4 font-bold text-heading">{step.title}</p>
-          <p class="mt-1 text-sm leading-6 text-ink/60">{step.text}</p>
+          <p class="mt-1 text-sm leading-6 text-ink/70">{step.text}</p>
         </li>
       {/each}
     </ol>

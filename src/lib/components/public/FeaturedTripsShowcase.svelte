@@ -130,7 +130,7 @@
           <button
             type="button"
             class={`-mb-px border-b-2 px-1 pb-3 text-[15px] font-semibold transition ${
-              tab.slug === activeSlug ? 'border-forest text-forest' : 'border-transparent text-ink/55 hover:text-ink'
+              tab.slug === activeSlug ? 'border-forest text-forest' : 'border-transparent text-ink/70 hover:text-ink'
             }`}
             on:click={() => (activeSlug = tab.slug)}
           >
@@ -146,7 +146,7 @@
             <h3 class="text-2xl font-extrabold leading-tight text-ink md:text-3xl">{active.tour.title}</h3>
 
             {#if facts.length}
-              <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-ink/60">
+              <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-ink/70">
                 {#each facts as f, i}
                   {#if i > 0}<span class="text-ink/25">|</span>{/if}<span>{f}</span>
                 {/each}
@@ -171,7 +171,7 @@
                 {:else}{initials}{/if}
               </span>
               <div class="leading-tight">
-                <p class="text-xs font-medium text-ink/50">Designed by</p>
+                <p class="text-xs font-medium text-ink/70">Designed by</p>
                 <p class="text-sm font-bold text-ink">{defaultSpecialist.name}</p>
               </div>
             </div>

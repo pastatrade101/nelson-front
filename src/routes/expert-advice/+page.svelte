@@ -74,7 +74,7 @@
   <section class="container-shell py-12 md:py-16" use:fadeUpOnScroll={{ y: 16 }}>
     <p class="font-serif text-xl italic text-clay">Ask away</p>
     <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[34px]" use:revealHeading>Popular questions, answered instantly</h2>
-    <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/60">Tap a question and our AI travel advisor will answer it for you — grounded in real Goldfinch trips, with honest limitations.</p>
+    <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">Tap a question and our AI travel advisor will answer it for you — grounded in real Goldfinch trips, with honest limitations.</p>
 
     <div class="mt-6 flex flex-wrap gap-2.5">
       {#each topics as topic}
@@ -96,7 +96,7 @@
   <div class="container-shell">
     <p class="font-serif text-xl italic text-clay">Guides</p>
     <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[34px]" use:revealHeading>Latest planning guides</h2>
-    <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/60">Practical, no-fluff reads from the team who plans these trips every day.</p>
+    <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">Practical, no-fluff reads from the team who plans these trips every day.</p>
 
     <div class="mt-8">
       {#if loading}
@@ -134,7 +134,7 @@
     <div>
       <p class="font-serif text-xl italic text-clay">Good to know</p>
       <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-4xl" use:revealHeading>Frequently asked</h2>
-      <p class="mt-3 text-[15px] leading-7 text-ink/60">The questions East Africa travellers ask us most. Need something specific? Our AI advisor or a specialist can help.</p>
+      <p class="mt-3 text-[15px] leading-7 text-ink/70">The questions East Africa travellers ask us most. Need something specific? Our AI advisor or a specialist can help.</p>
       {#if aiOn}
         <button type="button" on:click={() => openAiAdvisor()} class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-forest transition hover:text-heading">
           <Sparkles size={15} /> Ask the AI advisor

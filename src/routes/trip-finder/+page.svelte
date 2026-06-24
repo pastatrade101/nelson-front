@@ -194,7 +194,7 @@
           </h1>
         {/key}
         {#if !isResults}
-          <p class="mx-auto mt-3 max-w-md text-ink/60">A few quick questions and we'll recommend trips that actually fit you.</p>
+          <p class="mx-auto mt-3 max-w-md text-ink/70">A few quick questions and we'll recommend trips that actually fit you.</p>
         {/if}
       </div>
 
@@ -202,20 +202,20 @@
         <!-- progress -->
         <div class="mt-8 flex items-center gap-3">
           {#if step > 0}
-            <button type="button" class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/15 bg-surface text-ink/60 transition hover:bg-surface" aria-label="Back" on:click={back}>
+            <button type="button" class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/15 bg-surface text-ink/70 transition hover:bg-surface" aria-label="Back" on:click={back}>
               <ArrowLeft size={16} />
             </button>
           {/if}
           <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-black/10">
             <div class="h-full rounded-full bg-goldfinch-gold transition-all duration-300" style:width={`${(step / questions.length) * 100}%`}></div>
           </div>
-          <span class="shrink-0 text-xs font-semibold text-ink/45">{step + 1} / {questions.length}</span>
+          <span class="shrink-0 text-xs font-semibold text-ink/70">{step + 1} / {questions.length}</span>
         </div>
 
         <!-- question -->
         <div class="mt-8 rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_18px_50px_rgba(15,47,36,0.07)] md:p-8">
           <h2 class="text-xl font-bold text-heading md:text-2xl">{current.title}</h2>
-          {#if current.subtitle}<p class="mt-1 text-sm text-ink/55">{current.subtitle}</p>{/if}
+          {#if current.subtitle}<p class="mt-1 text-sm text-ink/70">{current.subtitle}</p>{/if}
 
           <div class={`mt-6 grid gap-3 ${current.key === 'when' ? 'grid-cols-3 sm:grid-cols-4' : 'sm:grid-cols-2'}`}>
             {#each current.options as opt (opt.value)}
@@ -230,7 +230,7 @@
               >
                 <span class="min-w-0">
                   <span class="block font-semibold text-ink">{opt.label}</span>
-                  {#if opt.hint}<span class="block text-xs text-ink/45">{opt.hint}</span>{/if}
+                  {#if opt.hint}<span class="block text-xs text-ink/70">{opt.hint}</span>{/if}
                 </span>
                 <ArrowRight size={16} class="shrink-0 text-ink/25 transition group-hover:text-forest" />
               </button>
@@ -238,7 +238,7 @@
           </div>
         </div>
 
-        <p class="mt-6 text-center text-sm text-ink/50">
+        <p class="mt-6 text-center text-sm text-ink/70">
           Prefer to skip ahead?
           <a class="font-semibold text-forest hover:text-heading" href="/plan-my-trip">Talk to a specialist</a>
           ·
@@ -260,8 +260,8 @@
                 <div class="flex flex-1 flex-col p-5">
                   <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
                     {#if destName(rec.tour)}<span class="text-clay">{destName(rec.tour)}</span>{/if}
-                    {#if rec.tour.duration_days}<span class="text-ink/45">{rec.tour.duration_days} days</span>{/if}
-                    <span class="text-ink/45">from <span class="text-heading">{fmtPrice(rec.tour)}</span></span>
+                    {#if rec.tour.duration_days}<span class="text-ink/70">{rec.tour.duration_days} days</span>{/if}
+                    <span class="text-ink/70">from <span class="text-heading">{fmtPrice(rec.tour)}</span></span>
                   </div>
                   <h3 class="mt-1 text-lg font-extrabold leading-snug text-heading">{rec.tour.title}</h3>
                   <p class="mt-1.5 inline-flex items-start gap-1.5 text-sm font-medium text-forest">
@@ -281,7 +281,7 @@
           {:else}
             <div class="rounded-[8px] border border-dashed border-ink/15 bg-surface p-8 text-center">
               <p class="font-semibold text-heading">We couldn't auto-match a trip — but we can still help.</p>
-              <p class="mt-1 text-sm text-ink/60">Tell a specialist what you have in mind and we'll plan it around you.</p>
+              <p class="mt-1 text-sm text-ink/70">Tell a specialist what you have in mind and we'll plan it around you.</p>
             </div>
           {/if}
         </div>

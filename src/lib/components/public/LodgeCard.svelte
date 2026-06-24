@@ -59,7 +59,7 @@
 
     <div class="mt-auto flex items-center justify-between pt-4">
       {#if priceLabel}
-        <p class="text-sm text-ink/60">
+        <p class="text-sm text-ink/70">
           <span class="font-bold text-ink">{priceLabel}</span> / night
         </p>
       {:else}

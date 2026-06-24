@@ -295,7 +295,7 @@
                       <h4 class="text-sm font-extrabold leading-snug text-heading">{rec.title}</h4>
                       <span class={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${labelTone(rec.confidence_label)}`}>{rec.confidence_label}</span>
                     </div>
-                    <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-semibold text-ink/55">
+                    <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-semibold text-ink/70">
                       {#if rec.destination}<span class="inline-flex items-center gap-1"><MapPin size={11} /> {rec.destination}</span>{/if}
                       {#if rec.duration_days}<span>· {rec.duration_days} days</span>{/if}
                       {#if money(rec)}<span class="text-heading">· from {money(rec)}</span>{/if}
@@ -373,7 +373,7 @@
           <Send size={17} />
         </button>
       </div>
-      <p class="mt-2 px-1 text-[10.5px] leading-4 text-ink/45">
+      <p class="mt-2 px-1 text-[10.5px] leading-4 text-ink/70">
         By chatting you agree we may store your messages and any details you share to help plan your trip. No payment is taken here.
       </p>
       {#if turnstileSiteKey}<div bind:this={turnstileMount} class="hidden"></div>{/if}

@@ -26,7 +26,7 @@
   <input class="rs-input" type="range" {min} {max} {step} value={lo} on:input={onLo} aria-label="Minimum" />
   <input class="rs-input" type="range" {min} {max} {step} value={hi} on:input={onHi} aria-label="Maximum" />
 </div>
-<div class="mt-1 flex justify-between text-xs font-semibold text-ink/55">
+<div class="mt-1 flex justify-between text-xs font-semibold text-ink/70">
   <span>{format(lo)}</span>
   <span>{format(hi)}</span>
 </div>

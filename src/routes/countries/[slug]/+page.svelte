@@ -76,10 +76,10 @@
             {#each country.best_months as m}<span class="rounded-full bg-sand/60 px-2.5 py-1 text-xs font-semibold text-heading">{m}</span>{/each}
           </div>
         {:else}
-          <p class="mt-2 text-sm text-ink/60">Year-round — we'll advise on the best window for your plans.</p>
+          <p class="mt-2 text-sm text-ink/70">Year-round — we'll advise on the best window for your plans.</p>
         {/if}
         {#if country.currency || country.capital}
-          <p class="mt-3 text-xs text-ink/50">{country.capital ? `Capital: ${country.capital}` : ''}{country.capital && country.currency ? ' · ' : ''}{country.currency ? `Currency: ${country.currency}` : ''}</p>
+          <p class="mt-3 text-xs text-ink/70">{country.capital ? `Capital: ${country.capital}` : ''}{country.capital && country.currency ? ' · ' : ''}{country.currency ? `Currency: ${country.currency}` : ''}</p>
         {/if}
       </div>
       <div class="rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">

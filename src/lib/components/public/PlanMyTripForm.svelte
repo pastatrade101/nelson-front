@@ -295,7 +295,7 @@
 
     {#if bookingCode}
       <div class="rounded-xl border border-emerald-200 bg-surface p-4">
-        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">Your request reference</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/70">Your request reference</p>
         <div class="mt-1 flex items-center gap-3">
           <p class="text-2xl font-extrabold tracking-wide text-heading">{bookingCode}</p>
           <button class="inline-flex items-center gap-1.5 rounded-lg border border-ink/15 bg-surface px-2.5 py-1 text-xs font-semibold text-ink/70 transition hover:bg-sand" type="button" on:click={copyCode}>
@@ -307,14 +307,14 @@
 
     <!-- what happens next -->
     <div class="rounded-xl border border-emerald-200 bg-surface p-4">
-      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">What happens next</p>
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/70">What happens next</p>
       <ol class="mt-3 grid gap-3">
         {#each [{ t: 'We review your request', s: 'A specialist reads your details — usually within one business day.' }, { t: 'We craft a tailored itinerary', s: 'Shaped around your dates, budget and travel style.' }, { t: 'You refine it with us', s: 'Adjust pace, lodges and activities until it feels right.' }, { t: 'Confirm when you are ready', s: 'No pressure — you decide if and when to book.' }] as step, i}
           <li class="flex gap-3">
             <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-forest text-[11px] font-bold text-white">{i + 1}</span>
             <span>
               <span class="block text-sm font-semibold text-ink">{step.t}</span>
-              <span class="block text-xs leading-5 text-ink/55">{step.s}</span>
+              <span class="block text-xs leading-5 text-ink/70">{step.s}</span>
             </span>
           </li>
         {/each}
@@ -331,7 +331,7 @@
       {/if}
       <Button type="button" variant="secondary" on:click={resetForm}>Start another request</Button>
     </div>
-    <p class="text-center text-xs text-ink/45">A confirmation email is on its way to the address you provided.</p>
+    <p class="text-center text-xs text-ink/70">A confirmation email is on its way to the address you provided.</p>
   </div>
 {:else}
   <form class="relative rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft md:p-6" on:submit|preventDefault={submit} novalidate>
@@ -395,7 +395,7 @@
         </label>
 
         <div class="grid gap-2 text-sm font-medium text-ink">
-          <span>What would you love to do? <span class="font-normal text-ink/45">(select any)</span></span>
+          <span>What would you love to do? <span class="font-normal text-ink/70">(select any)</span></span>
           <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {#each experienceOptions as exp}
               <label
@@ -527,7 +527,7 @@
 
     <div class="mt-5">
       <Button type="submit" className="w-full">{submitting ? 'Sending your request...' : 'Send My Trip Request'}</Button>
-      <p class="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-ink/50">
+      <p class="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-ink/70">
         <ShieldCheck size={13} class="text-forest" />
         Your details are kept private and used only to plan your trip.
       </p>

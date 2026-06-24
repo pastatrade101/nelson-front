@@ -38,9 +38,9 @@
       </span>
       <span class="font-bold text-ink">{avg.toFixed(1)}/5</span>
       {#if count > 0}
-        <span class="text-ink/55">from {count} traveller review{count === 1 ? '' : 's'}</span>
+        <span class="text-ink/70">from {count} traveller review{count === 1 ? '' : 's'}</span>
       {:else}
-        <span class="text-ink/55">loved by our travellers</span>
+        <span class="text-ink/70">loved by our travellers</span>
       {/if}
     </div>
 

@@ -149,7 +149,7 @@
           </select>
           <ChevronDown class="pointer-events-none shrink-0 text-ink/40" size={18} />
         </label>
-        <button class="flex h-14 shrink-0 items-center justify-center gap-2 rounded-md bg-forest px-4 text-[15px] font-bold text-white transition hover:bg-deep-green sm:px-7" type="submit">
+        <button class="flex h-14 shrink-0 items-center justify-center gap-2 rounded-md bg-forest px-4 text-[15px] font-bold text-white transition hover:bg-deep-green sm:px-7" type="submit" aria-label="Explore tours">
           <Search size={18} strokeWidth={2.6} /> <span class="hidden sm:inline">Explore</span>
         </button>
       </form>

@@ -122,7 +122,7 @@
       {/each}
     </div>
   {:else}
-    <p class="mt-10 rounded-2xl border border-ink/10 bg-sand/40 p-6 text-center text-ink/60">
+    <p class="mt-10 rounded-2xl border border-ink/10 bg-sand/40 p-6 text-center text-ink/70">
       Safety guidance is being prepared. Please <a class="font-semibold text-forest underline" href="/contact">contact us</a> with any questions in the meantime.
     </p>
   {/if}

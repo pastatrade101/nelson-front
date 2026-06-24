@@ -29,7 +29,7 @@
     <div class="min-w-0 flex-1">
       <p class="truncate font-bold text-ink">{testimonial.client_name}</p>
       {#if testimonial.client_country}
-        <p class="truncate text-xs text-ink/55">{testimonial.client_country}</p>
+        <p class="truncate text-xs text-ink/70">{testimonial.client_country}</p>
       {/if}
     </div>
     {#if featured}
@@ -44,7 +44,7 @@
     {#each Array(5) as _, i}
       <Star size={15} class={i < rating ? 'text-goldfinch-gold' : 'text-ink/15'} fill={i < rating ? 'currentColor' : 'none'} />
     {/each}
-    <span class="ml-1 text-xs font-semibold text-ink/45">{rating}/5</span>
+    <span class="ml-1 text-xs font-semibold text-ink/65">{rating}/5</span>
   </div>
 
   <!-- quote -->

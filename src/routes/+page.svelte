@@ -146,7 +146,7 @@
       <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]">
         {cms('featured_tours', 'title', 'Exclusive Safari Deals & Travel Offers')}
       </h2>
-      <p class="mt-3 text-[15px] font-medium leading-7 text-ink/60 md:text-lg">
+      <p class="mt-3 text-[15px] font-medium leading-7 text-ink/70 md:text-lg">
         {cms('featured_tours', 'subtitle', 'Handpicked Tanzania safari, Kilimanjaro and Zanzibar experiences at our best seasonal prices — limited spots, big value.')}
       </p>
     </div>
@@ -205,7 +205,7 @@
       <h2 class="text-3xl font-extrabold tracking-normal text-heading md:text-[40px]">
         {cms('testimonials', 'title', 'What Our Travelers Say')}
       </h2>
-      <p class="mx-auto mt-3 max-w-xl text-[15px] font-medium leading-7 text-ink/60 md:text-lg">
+      <p class="mx-auto mt-3 max-w-xl text-[15px] font-medium leading-7 text-ink/70 md:text-lg">
         {cms('testimonials', 'subtitle', 'Real stories from travelers who planned their East Africa trip with confidence.')}
       </p>
     </div>

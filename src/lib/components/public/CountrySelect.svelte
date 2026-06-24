@@ -132,7 +132,7 @@
       class="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-md border border-ink/12 bg-surface py-1 shadow-lg"
     >
       {#if filtered.length === 0}
-        <li class="px-3 py-2 text-sm text-ink/50">No match. Try another spelling.</li>
+        <li class="px-3 py-2 text-sm text-ink/70">No match. Try another spelling.</li>
       {:else}
         {#each filtered as c, i (c.code)}
           <li role="option" aria-selected={value === c.name}>

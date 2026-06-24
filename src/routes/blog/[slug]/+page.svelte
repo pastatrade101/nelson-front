@@ -66,7 +66,7 @@
   {:else}
     <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Expert Advice', path: '/expert-advice' }, { name: post.title, path: `/blog/${post.slug}` }])} />
     <nav class="mb-6 flex items-center gap-2 text-sm">
-      <a class="font-medium text-ink/55 transition hover:text-forest" href="/blog">Blog</a>
+      <a class="font-medium text-ink/70 transition hover:text-forest" href="/blog">Blog</a>
       <span class="text-ink/30">/</span>
       <span class="max-w-[60vw] truncate font-medium text-ink/80">{post.title}</span>
     </nav>

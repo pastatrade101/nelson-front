@@ -118,7 +118,7 @@
   {:else}
     <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Destinations', path: '/destinations' }, { name: destination.name, path: `/destinations/${destination.slug}` }])} />
     <nav class="mb-6 flex items-center gap-2 text-sm">
-      <a class="font-medium text-ink/55 transition hover:text-forest" href="/destinations">Destinations</a>
+      <a class="font-medium text-ink/70 transition hover:text-forest" href="/destinations">Destinations</a>
       <span class="text-ink/30">/</span>
       <span class="font-medium text-ink/80">{destination.name}</span>
     </nav>

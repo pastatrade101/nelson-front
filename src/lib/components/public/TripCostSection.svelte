@@ -26,7 +26,7 @@
   {#if priceFrom}
     <div class="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
       <span class="text-3xl font-extrabold text-heading">{currency} {fmt(low)}</span>
-      <span class="text-sm font-medium text-ink/55">per person, from</span>
+      <span class="text-sm font-medium text-ink/70">per person, from</span>
     </div>
     <p class="mt-2 text-sm leading-6 text-ink/65">
       Most travellers on a trip like this spend between
@@ -46,7 +46,7 @@
         <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-forest/10 text-forest"><Check size={12} strokeWidth={3} /></span>
         <span>
           <span class="block text-sm font-semibold text-ink">{d.label}</span>
-          <span class="block text-xs leading-5 text-ink/55">{d.note}</span>
+          <span class="block text-xs leading-5 text-ink/70">{d.note}</span>
         </span>
       </div>
     {/each}

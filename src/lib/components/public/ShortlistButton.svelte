@@ -33,7 +33,7 @@
     aria-label={saved ? 'Remove from saved trips' : 'Save this trip'}
     aria-pressed={saved}
     class={`grid h-9 w-9 place-items-center rounded-full shadow-sm backdrop-blur transition ${
-      saved ? 'bg-clay text-white' : 'bg-surface/85 text-ink/55 hover:bg-surface hover:text-clay'
+      saved ? 'bg-clay text-white' : 'bg-surface/85 text-ink/70 hover:bg-surface hover:text-clay'
     }`}
     on:click={toggle}
   >

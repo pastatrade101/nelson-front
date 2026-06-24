@@ -98,10 +98,10 @@
     <div class="container-shell flex flex-col gap-3 py-5 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between">
       <p>© {year} {settingText(s, 'company_name') || brand.companyName}. All rights reserved.</p>
       <nav class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-        <a class="transition hover:text-white" href={privacyUrl}>Privacy Policy</a>
-        <a class="transition hover:text-white" href={termsUrl}>Terms</a>
-        <a class="transition hover:text-white" href={cancellationUrl}>Cancellation Policy</a>
-        <a class="transition hover:text-white" href="/data-retention">Data Retention</a>
+        <a class="inline-flex min-h-[24px] items-center transition hover:text-white" href={privacyUrl}>Privacy Policy</a>
+        <a class="inline-flex min-h-[24px] items-center transition hover:text-white" href={termsUrl}>Terms</a>
+        <a class="inline-flex min-h-[24px] items-center transition hover:text-white" href={cancellationUrl}>Cancellation Policy</a>
+        <a class="inline-flex min-h-[24px] items-center transition hover:text-white" href="/data-retention">Data Retention</a>
       </nav>
     </div>
   </div>

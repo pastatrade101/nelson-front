@@ -178,7 +178,7 @@
         <label class="grid gap-2 text-sm font-medium text-ink">
           <span>Search</span>
           <span class="flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-surface px-3 shadow-sm transition focus-within:border-forest focus-within:ring-2 focus-within:ring-forest/15">
-            <Search size={16} class="text-ink/45" />
+            <Search size={16} class="text-ink/70" />
             <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Search by tour..." on:keydown={(e) => e.key === 'Enter' && load()} />
           </span>
         </label>
@@ -188,11 +188,11 @@
         <SelectInput label="Status" name="status" bind:value={status} options={statusOptions} />
         <div class="flex gap-2">
           <button class="inline-flex h-11 items-center rounded-xl bg-forest px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-deep-green" type="button" on:click={load}>Search</button>
-          <button class="inline-flex h-11 items-center rounded-xl border border-ink/15 bg-surface px-4 text-sm font-semibold text-ink/60 transition hover:bg-sand/60" type="button" on:click={clearFilters}>Clear</button>
+          <button class="inline-flex h-11 items-center rounded-xl border border-ink/15 bg-surface px-4 text-sm font-semibold text-ink/70 transition hover:bg-sand/60" type="button" on:click={clearFilters}>Clear</button>
         </div>
       </div>
       <div class="mt-3 flex items-center justify-end gap-2 border-t border-ink/10 pt-3">
-        <span class="text-xs font-medium text-ink/50">Sort</span>
+        <span class="text-xs font-medium text-ink/70">Sort</span>
         <div class="w-44"><SelectInput label="" name="sort" bind:value={sort} options={sortOptions} /></div>
       </div>
     </div>
@@ -209,7 +209,7 @@
           <Button href="/plan-my-trip">Plan My Trip</Button>
         </div>
       {:else}
-        <p class="mb-5 text-sm font-medium text-ink/55">{grouped.length} tour{grouped.length === 1 ? '' : 's'} · {departures.length} upcoming departure{departures.length === 1 ? '' : 's'}</p>
+        <p class="mb-5 text-sm font-medium text-ink/70">{grouped.length} tour{grouped.length === 1 ? '' : 's'} · {departures.length} upcoming departure{departures.length === 1 ? '' : 's'}</p>
         <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
           {#each grouped as g (g.tour.tour_id)}
             {@const dates = expanded.has(g.tour.tour_id) ? g.dates : g.dates.slice(0, 3)}
@@ -234,11 +234,11 @@
                 <h3 class="text-lg font-extrabold leading-snug tracking-normal text-heading">{g.tour.tour_title}</h3>
                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                   {#if g.tour.destination_name}<span class="inline-flex items-center gap-1.5 font-semibold text-clay"><MapPin size={14} />{g.tour.destination_name}</span>{/if}
-                  {#if g.tour.duration_days}<span class="inline-flex items-center gap-1.5 text-ink/60"><Clock size={14} class="text-forest" />{g.tour.duration_days} day{g.tour.duration_days === 1 ? '' : 's'}</span>{/if}
+                  {#if g.tour.duration_days}<span class="inline-flex items-center gap-1.5 text-ink/70"><Clock size={14} class="text-forest" />{g.tour.duration_days} day{g.tour.duration_days === 1 ? '' : 's'}</span>{/if}
                 </div>
 
                 <div class="mt-3 flex items-baseline gap-1.5">
-                  <span class="text-[11px] font-semibold uppercase tracking-wide text-ink/45">From</span>
+                  <span class="text-[11px] font-semibold uppercase tracking-wide text-ink/70">From</span>
                   <span class="text-xl font-extrabold text-heading">{fmtMoney(g.minPrice, g.currency)}</span>
                 </div>
 
@@ -249,7 +249,7 @@
                       <div class="min-w-0">
                         <p class="text-sm font-semibold text-ink">{fmtDate(dt.start_date)}{#if dt.end_date} <span class="font-normal text-ink/40">→ {fmtDate(dt.end_date)}</span>{/if}</p>
                         <p class="mt-0.5 flex items-center gap-2 text-xs">
-                          {#if dt.available_slots != null}<span class="inline-flex items-center gap-1 text-ink/55"><Users size={11} />{dt.available_slots} left</span>{/if}
+                          {#if dt.available_slots != null}<span class="inline-flex items-center gap-1 text-ink/70"><Users size={11} />{dt.available_slots} left</span>{/if}
                           <span class={`font-semibold ${dt.status === 'limited' ? 'text-amber-600' : 'text-emerald-600'}`}>{dt.status === 'limited' ? 'Limited' : 'Available'}</span>
                         </p>
                       </div>

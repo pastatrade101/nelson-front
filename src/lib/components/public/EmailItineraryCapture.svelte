@@ -52,7 +52,7 @@
     </div>
   {:else}
     <p class="text-sm font-bold text-heading">Want it in your inbox?</p>
-    <p class="mt-0.5 text-xs text-ink/55">We'll email you this itinerary — no obligation.</p>
+    <p class="mt-0.5 text-xs text-ink/70">We'll email you this itinerary — no obligation.</p>
     <form class="mt-3 flex flex-col gap-2 sm:flex-row" on:submit|preventDefault={submit}>
       <div class="relative flex-1">
         <Mail class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/40" size={16} />

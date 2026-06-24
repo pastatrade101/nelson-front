@@ -202,14 +202,14 @@
 
     {#if bookingCode}
       <div class="rounded-xl border border-emerald-200 bg-surface p-4">
-        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">Your request reference</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/70">Your request reference</p>
         <div class="mt-1 flex items-center gap-3">
           <p class="text-2xl font-extrabold tracking-wide text-heading">{bookingCode}</p>
           <button class="inline-flex items-center gap-1.5 rounded-lg border border-ink/15 bg-surface px-2.5 py-1 text-xs font-semibold text-ink/70 transition hover:bg-sand" type="button" on:click={copyCode}>
             <Copy size={13} />{copied ? 'Copied' : 'Copy'}
           </button>
         </div>
-        <p class="mt-2 text-xs leading-5 text-ink/55">Keep this reference for your records. This is a trip planning request — no payment is required yet.</p>
+        <p class="mt-2 text-xs leading-5 text-ink/70">Keep this reference for your records. This is a trip planning request — no payment is required yet.</p>
       </div>
     {/if}
 
@@ -313,7 +313,7 @@
     <fieldset class="grid gap-4 border-t border-ink/10 pt-4">
       <legend class="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">Preferences</legend>
       <div class="grid gap-2 text-sm font-medium text-ink">
-        <span>What are you interested in? <span class="font-normal text-ink/45">(select any)</span></span>
+        <span>What are you interested in? <span class="font-normal text-ink/70">(select any)</span></span>
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {#each INTERESTS as interest}
             <label
@@ -369,7 +369,7 @@
 
       <Button type="submit" className="w-full">{submitting ? 'Sending your request...' : 'Submit Booking Request'}</Button>
 
-      <p class="flex items-center justify-center gap-1.5 text-center text-xs text-ink/50">
+      <p class="flex items-center justify-center gap-1.5 text-center text-xs text-ink/70">
         <ShieldCheck size={13} class="text-forest" />
         Your details are kept private and used only to plan your trip.
       </p>

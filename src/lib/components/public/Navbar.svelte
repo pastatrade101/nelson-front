@@ -178,7 +178,7 @@
       <TicketsPlane class="text-goldfinch-gold" size={30} strokeWidth={2} />
       <div class="leading-none">
         <p class="text-xl font-extrabold tracking-normal text-heading">Goldfinch</p>
-        <p class="mt-1 text-xs font-semibold text-ink/60">Adventures</p>
+        <p class="mt-1 text-xs font-semibold text-ink/70">Adventures</p>
       </div>
     </a>
 
@@ -194,7 +194,7 @@
         <TicketsPlane class="text-goldfinch-gold" size={34} strokeWidth={2.1} />
         <div class="leading-none">
           <p class="text-2xl font-extrabold tracking-normal text-heading">Goldfinch</p>
-          <p class="mt-1.5 text-sm font-semibold text-ink/60">Adventures</p>
+          <p class="mt-1.5 text-sm font-semibold text-ink/70">Adventures</p>
         </div>
       </a>
 
@@ -256,7 +256,7 @@
                   {#if active}<span class="absolute inset-x-2.5 bottom-1 h-0.5 rounded-full bg-goldfinch-gold"></span>{/if}
                 </a>
                 <button
-                  class="grid h-8 w-7 place-items-center rounded text-ink/55 transition hover:text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40"
+                  class="grid h-8 w-7 place-items-center rounded text-ink/70 transition hover:text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40"
                   type="button"
                   aria-haspopup="true"
                   aria-expanded={openDropdown === item.dropdown}
@@ -341,7 +341,7 @@
           <MessageCircle size={18} strokeWidth={2.8} />
         </span>
         <span class="grid leading-tight">
-          <span class="text-xs font-medium text-ink/60">{waButtonText}</span>
+          <span class="text-xs font-medium text-ink/70">{waButtonText}</span>
           <span class="whitespace-nowrap text-base font-bold text-ink">{waNumber}</span>
         </span>
       </a>
@@ -359,7 +359,7 @@
             <TicketsPlane class="text-goldfinch-gold" size={32} strokeWidth={2.1} />
             <div class="leading-none">
               <p class="text-xl font-extrabold tracking-normal text-heading">Goldfinch</p>
-              <p class="mt-1 text-xs font-semibold text-ink/60">Adventures</p>
+              <p class="mt-1 text-xs font-semibold text-ink/70">Adventures</p>
             </div>
           </a>
           <button class="grid h-11 w-11 place-items-center rounded-xl border border-ink/15 bg-surface text-ink" type="button" aria-label="Close menu" on:click={() => (menuOpen = false)}>
@@ -389,7 +389,7 @@
               <div class="rounded-xl">
                 <div class="flex items-center">
                   <a class={`flex-1 rounded-xl px-3 py-3 text-[17px] font-semibold transition ${active ? 'text-forest dark:text-goldfinch-gold' : 'text-ink'}`} href={item.href} on:click={() => (menuOpen = false)}>{item.label}</a>
-                  <button class="grid h-11 w-11 place-items-center rounded-xl text-ink/55 transition hover:bg-sand/50" type="button" aria-expanded={mobileAccordion === item.dropdown} aria-label={`Toggle ${item.label}`} on:click={() => (mobileAccordion = mobileAccordion === item.dropdown ? '' : (item.dropdown ?? ''))}>
+                  <button class="grid h-11 w-11 place-items-center rounded-xl text-ink/70 transition hover:bg-sand/50" type="button" aria-expanded={mobileAccordion === item.dropdown} aria-label={`Toggle ${item.label}`} on:click={() => (mobileAccordion = mobileAccordion === item.dropdown ? '' : (item.dropdown ?? ''))}>
                     <ChevronDown size={18} strokeWidth={2.6} class={`transition-transform ${mobileAccordion === item.dropdown ? 'rotate-180' : ''}`} />
                   </button>
                 </div>
@@ -416,7 +416,7 @@
           <a class="flex items-center gap-3 rounded-2xl bg-[#25D366]/10 px-4 py-3" href={waHref} target="_blank" rel="noopener noreferrer" on:click={() => { trackEvent('whatsapp_click'); menuOpen = false; }}>
             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#25D366] text-white"><MessageCircle size={20} strokeWidth={2.6} /></span>
             <span class="grid leading-tight">
-              <span class="text-xs font-medium text-ink/55">{waButtonText}</span>
+              <span class="text-xs font-medium text-ink/70">{waButtonText}</span>
               <span class="text-[15px] font-bold text-ink">{waNumber}</span>
             </span>
           </a>

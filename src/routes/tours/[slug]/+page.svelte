@@ -153,7 +153,7 @@
     <ErrorState message={error || 'Tour not found.'} />
   {:else}
     <nav class="mb-6 flex items-center gap-2 text-sm">
-      <a class="font-medium text-ink/55 transition hover:text-forest" href="/tours">Tours</a>
+      <a class="font-medium text-ink/70 transition hover:text-forest" href="/tours">Tours</a>
       <span class="text-ink/30">/</span>
       <span class="font-medium text-ink/80">{tour.title}</span>
     </nav>
@@ -168,10 +168,10 @@
         <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1">
           <p class="text-sm font-semibold uppercase tracking-[0.16em] text-clay">{tour.duration_days ?? 1} days</p>
           {#if tour.price_from}
-            <p class="text-sm text-ink/55">
+            <p class="text-sm text-ink/70">
               from
               <span class="text-lg font-extrabold text-heading">{tour.currency ?? 'USD'} {tour.price_from.toLocaleString()}</span>
-              <span class="text-ink/45">/ person</span>
+              <span class="text-ink/70">/ person</span>
             </p>
           {/if}
         </div>
@@ -224,31 +224,31 @@
           <div class="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {#if tour.duration_days}
               <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
-                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><CalendarDays size={13} /> Duration</span>
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/70"><CalendarDays size={13} /> Duration</span>
                 <p class="mt-1 text-sm font-bold text-ink">{tour.duration_days} days{tour.duration_nights ? ` · ${tour.duration_nights} nights` : ''}</p>
               </div>
             {/if}
             {#if tour.start_location || tour.end_location}
               <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
-                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><MapPin size={13} /> Start / End</span>
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/70"><MapPin size={13} /> Start / End</span>
                 <p class="mt-1 text-sm font-bold text-ink">{tour.start_location ?? '—'} → {tour.end_location ?? '—'}</p>
               </div>
             {/if}
             {#if groupSize}
               <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
-                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><Users size={13} /> Group size</span>
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/70"><Users size={13} /> Group size</span>
                 <p class="mt-1 text-sm font-bold text-ink">{groupSize}</p>
               </div>
             {/if}
             {#if tour.difficulty_level}
               <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
-                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><Mountain size={13} /> Difficulty</span>
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/70"><Mountain size={13} /> Difficulty</span>
                 <p class="mt-1 text-sm font-bold text-ink">{tour.difficulty_level}</p>
               </div>
             {/if}
             {#if tour.minimum_age}
               <div class="rounded-[10px] border border-ink/10 bg-sand/30 p-3.5">
-                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/45"><Check size={13} /> Minimum age</span>
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ink/70"><Check size={13} /> Minimum age</span>
                 <p class="mt-1 text-sm font-bold text-ink">{tour.minimum_age}+</p>
               </div>
             {/if}
@@ -274,7 +274,7 @@
         {#if itineraryDays.length}
           <section class="mt-10">
             <h2 class="text-2xl font-bold text-heading">Day-by-day itinerary</h2>
-            <p class="mt-1 text-sm text-ink/55">A sample flow — your specialist can tailor every day to you.</p>
+            <p class="mt-1 text-sm text-ink/70">A sample flow — your specialist can tailor every day to you.</p>
             <ol class="mt-6 space-y-4">
               {#each itineraryDays as day (day.day_number)}
                 <li class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-sm transition hover:border-forest/30">
@@ -285,7 +285,7 @@
                       <h3 class="mt-0.5 text-lg font-bold text-ink">{day.title}</h3>
                       {#if day.description}<p class="mt-1.5 text-sm leading-6 text-ink/70">{day.description}</p>{/if}
                       {#if day.accommodation || day.meals || day.activities}
-                        <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-ink/55">
+                        <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-ink/70">
                           {#if day.activities}<span class="inline-flex items-center gap-1.5"><MapPin size={14} class="text-forest" /> {day.activities}</span>{/if}
                           {#if day.accommodation}<span class="inline-flex items-center gap-1.5"><BedDouble size={14} class="text-forest" /> {day.accommodation}</span>{/if}
                           {#if day.meals}<span class="inline-flex items-center gap-1.5"><Utensils size={14} class="text-forest" /> {day.meals}</span>{/if}
@@ -320,7 +320,7 @@
                 <h3 class="text-base font-bold text-ink">Not included</h3>
                 <ul class="mt-3 space-y-2">
                   {#each exclusions as exc}
-                    <li class="flex gap-2 text-sm leading-6 text-ink/55">
+                    <li class="flex gap-2 text-sm leading-6 text-ink/70">
                       <span class="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-black/5 text-ink/40"><X size={11} strokeWidth={3} /></span>
                       {exc.title}
                     </li>
@@ -377,13 +377,13 @@
                 <ShortlistButton item={shortlistItem} variant="full" />
               {/if}
 
-              <p class="flex items-center justify-center gap-1.5 pt-1 text-center text-xs text-ink/55">
+              <p class="flex items-center justify-center gap-1.5 pt-1 text-center text-xs text-ink/70">
                 <Check size={13} class="text-forest" /> No payment now — a request, not a final booking.
               </p>
 
               <div class="mt-1 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-ink/[0.07] pt-3">
                 {#each ['Local experts', 'Tailor-made', 'No-pressure planning', 'Private & secure'] as point}
-                  <span class="inline-flex items-center gap-1.5 text-xs font-medium text-ink/60">
+                  <span class="inline-flex items-center gap-1.5 text-xs font-medium text-ink/70">
                     <span class="grid h-3.5 w-3.5 shrink-0 place-items-center rounded-full bg-forest/10 text-forest"><Check size={9} strokeWidth={3} /></span>
                     {point}
                   </span>

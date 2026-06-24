@@ -50,15 +50,15 @@
         <div class="relative flex flex-1 flex-col">
           <p class="text-sm font-bold uppercase tracking-[0.14em] text-clay">{row.label}</p>
           <p class="mt-2 text-2xl font-extrabold text-heading">{row.from}</p>
-          {#if row.note}<p class="mt-1.5 text-sm leading-6 text-ink/60">{row.note}</p>{/if}
-          <p class="mt-auto pt-3 text-xs font-medium text-ink/45">per person</p>
+          {#if row.note}<p class="mt-1.5 text-sm leading-6 text-ink/70">{row.note}</p>{/if}
+          <p class="mt-auto pt-3 text-xs font-medium text-ink/65">per person</p>
         </div>
       </div>
     {/each}
   </div>
 
   <div class="mt-7 flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-between">
-    <p class="inline-flex items-center gap-2 text-sm text-ink/60">
+    <p class="inline-flex items-center gap-2 text-sm text-ink/70">
       <ShieldCheck size={18} class="shrink-0 text-forest" />
       Typical starting prices — your exact cost depends on season, lodges and group size. No hidden costs.
     </p>

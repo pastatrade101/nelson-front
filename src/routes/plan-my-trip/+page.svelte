@@ -46,7 +46,7 @@
             Prefer to chat? Ask our AI advisor
             <ArrowRight size={15} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
           </span>
-          <span class="mt-0.5 block text-sm leading-6 text-ink/60">Get instant trip suggestions and start your request in a couple of minutes — a specialist still reviews and confirms.</span>
+          <span class="mt-0.5 block text-sm leading-6 text-ink/70">Get instant trip suggestions and start your request in a couple of minutes — a specialist still reviews and confirms.</span>
         </span>
       </button>
 
@@ -60,7 +60,7 @@
           <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest"><Icon size={19} /></span>
           <div>
             <p class="font-semibold text-ink">{item.title}</p>
-            <p class="mt-0.5 text-sm leading-6 text-ink/60">{item.text}</p>
+            <p class="mt-0.5 text-sm leading-6 text-ink/70">{item.text}</p>
           </div>
         </div>
       {/each}
