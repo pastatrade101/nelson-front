@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Eye, EyeOff, Lock, Mail } from '@lucide/svelte';
+  import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import { api } from '$lib/api/client';
   import { branding } from '$lib/branding';
   import LoginSlider from '$lib/components/admin/LoginSlider.svelte';
@@ -14,6 +16,14 @@
   let error = '';
   let loading = false;
   let slides: Slide[] = [];
+  let checking = browser && !!localStorage.getItem('admin_token'); // verifying an existing session
+  let timedOut = false;
+
+  const clearStoredAuth = () => {
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('admin_permissions');
+  };
 
   const defaultSlides: Slide[] = [
     {
@@ -46,6 +56,20 @@
   };
 
   onMount(async () => {
+    timedOut = $page.url.searchParams.get('reason') === 'timeout';
+
+    // Already signed in? Verify the token and skip the login screen.
+    if (checking) {
+      try {
+        await api.auth.me();
+        await goto('/admin');
+        return;
+      } catch {
+        clearStoredAuth(); // stale/expired token — fall through to the form
+        checking = false;
+      }
+    }
+
     // Slides are managed in Admin → Homepage → "login_slider" (extra_data.slides).
     try {
       const res = await api.homepage.get();
@@ -67,6 +91,11 @@
   });
 </script>
 
+{#if checking}
+  <div class="grid min-h-screen place-items-center bg-sand/40 text-sm font-medium text-ink/50">
+    Checking your session…
+  </div>
+{:else}
 <main class="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
   <!-- left: brand image slider (desktop) -->
   <div class="relative hidden lg:block">
@@ -87,6 +116,12 @@
         </svg>
       </div>
       <p class="mt-1 text-ink/55">Sign in to your account</p>
+
+      {#if timedOut}
+        <p class="mt-5 rounded-lg border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-3 py-2.5 text-sm font-medium text-clay">
+          You were signed out due to inactivity. Please sign in again.
+        </p>
+      {/if}
 
       <form class="mt-8 grid gap-4" on:submit|preventDefault={login}>
         <label class="grid gap-2 text-sm font-medium text-ink">
@@ -147,3 +182,4 @@
     </div>
   </div>
 </main>
+{/if}

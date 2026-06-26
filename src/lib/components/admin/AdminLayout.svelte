@@ -5,6 +5,7 @@
   import { api } from '$lib/api/client';
   import AdminSidebar from './AdminSidebar.svelte';
   import AdminTopbar from './AdminTopbar.svelte';
+  import SessionTimeout from './SessionTimeout.svelte';
 
   export let currentPath = '/admin';
   export let title = 'Dashboard';
@@ -22,7 +23,7 @@
     }
   };
 
-  const logout = async () => {
+  const logout = async (reason?: string) => {
     try {
       await api.auth.logout();
     } catch {
@@ -32,7 +33,7 @@
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
     localStorage.removeItem('admin_permissions');
-    await goto('/admin/login');
+    await goto(reason ? `/admin/login?reason=${reason}` : '/admin/login');
   };
 
   onMount(loadUser);
@@ -67,3 +68,5 @@
     </div>
   </div>
 </div>
+
+<SessionTimeout onTimeout={() => logout('timeout')} />
