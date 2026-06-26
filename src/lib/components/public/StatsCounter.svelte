@@ -74,21 +74,18 @@
 </script>
 
 <section class="container-shell py-12 md:py-16" use:fadeUpOnScroll={{ y: 18 }}>
-  <div bind:this={el} class="relative overflow-hidden rounded-[12px] bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-10 text-white md:px-10 md:py-12">
-    <span class="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-goldfinch-gold/20 blur-3xl" aria-hidden="true"></span>
-    <span class="pointer-events-none absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(circle, #E9D8A6 1px, transparent 1.5px); background-size: 24px 24px;" aria-hidden="true"></span>
-
-    <div class="relative grid grid-cols-2 gap-x-6 gap-y-9 lg:grid-cols-4">
+  <div bind:this={el} class="rounded-[12px] border border-ink/10 bg-surface px-6 py-10 shadow-soft md:px-10 md:py-12">
+    <div class="grid grid-cols-2 gap-x-6 gap-y-9 lg:grid-cols-4">
       {#each stats as stat, i (stat.label)}
         {@const Icon = stat.icon}
         <div class="text-center">
-          <span class="mx-auto grid h-11 w-11 place-items-center rounded-full bg-surface/10 text-goldfinch-gold">
+          <span class="mx-auto grid h-11 w-11 place-items-center rounded-full bg-goldfinch-gold/10 text-goldfinch-gold">
             <Icon size={20} />
           </span>
-          <p class="mt-3 text-4xl font-extrabold leading-none tracking-tight text-goldfinch-gold md:text-5xl">
-            {fmt(displays[i] ?? 0, stat)}<span class="text-2xl md:text-3xl">{stat.suffix}</span>
+          <p class="mt-3 text-4xl font-extrabold leading-none tracking-tight text-heading md:text-5xl">
+            {fmt(displays[i] ?? 0, stat)}<span class="text-2xl text-goldfinch-gold md:text-3xl">{stat.suffix}</span>
           </p>
-          <p class="mt-2 text-sm font-medium leading-5 text-white/75">{stat.label}</p>
+          <p class="mt-2 text-sm font-medium leading-5 text-ink/60">{stat.label}</p>
         </div>
       {/each}
     </div>
