@@ -24,6 +24,16 @@
 
   $: origin = $page.url.origin;
 
+  // Carry the comparison topic into internal planning links (e.g. /plan-my-trip)
+  // so the form can pre-fill it and the lead records where the visitor came from.
+  // Custom/external CTA links are left untouched.
+  const withTopic = (href: string, topic: string) => {
+    if (!href.startsWith('/')) return href;
+    const sep = href.includes('?') ? '&' : '?';
+    return `${href}${sep}topic=${encodeURIComponent(topic)}`;
+  };
+  $: ctaHref = cmp ? withTopic(cmp.cta.href, cmp.title) : '/plan-my-trip';
+
   let cmp: NormCmp | null = null;
   let others: { slug: string; eyebrow: string; title: string }[] = [];
   let loaded = false;
@@ -118,7 +128,7 @@
       <div>
         <p class="text-sm font-bold uppercase tracking-[0.14em] text-clay">Our honest verdict</p>
         <p class="mt-2 text-base leading-7 text-ink/80">{cmp.verdict}</p>
-        <a class="mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-deep-green px-6 font-bold text-white transition hover:bg-forest" href={cmp.cta.href}>
+        <a class="mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-deep-green px-6 font-bold text-white transition hover:bg-forest" href={ctaHref}>
           {cmp.cta.label} <ArrowRight size={16} />
         </a>
       </div>

@@ -63,6 +63,7 @@
   let submitted = false;
   let copied = false;
   let tripContext = ''; // tour name carried in from a tour/departure/persona link
+  let referrerTopic = ''; // free-form topic from a referring page (e.g. a /compare CTA)
   let errors: Record<string, string> = {};
   let bodyEl: HTMLDivElement;
 
@@ -169,6 +170,13 @@
         if (!message.trim()) message = `I'm interested in: ${saved.map((sv) => sv.title).join(', ')}.`;
       }
     }
+
+    // Free-form context from a referring page (e.g. a /compare "X vs Y" CTA).
+    const topic = p.get('topic');
+    if (topic) {
+      referrerTopic = topic;
+      if (!message.trim()) message = `I'd like help deciding: ${topic}.`;
+    }
   });
 
   const validate = (): boolean => {
@@ -231,6 +239,7 @@
     if (trip_duration) lead_context.trip_duration = trip_duration;
     if (accommodation_preference) lead_context.accommodation_preference = accommodation_preference;
     if (tripContext) lead_context.tour_interest = tripContext;
+    if (referrerTopic) lead_context.topic = referrerTopic;
 
     submitting = true;
     try {
