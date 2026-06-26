@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { get } from 'svelte/store';
-  import { AlertCircle, CheckCircle2, Copy, MapPin, ShieldCheck } from '@lucide/svelte';
+  import { AlertCircle, CheckCircle2, Copy, MapPin, Scale, ShieldCheck } from '@lucide/svelte';
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
@@ -358,6 +358,13 @@
       <div class="mt-4 flex items-center gap-2 rounded-xl border border-forest/20 bg-forest/[0.06] px-3.5 py-2.5 text-sm font-semibold text-forest">
         <MapPin size={16} class="shrink-0" />
         Planning: {tripContext}
+      </div>
+    {/if}
+
+    {#if referrerTopic}
+      <div class="mt-4 flex items-center gap-2 rounded-xl border border-goldfinch-gold/30 bg-goldfinch-gold/[0.08] px-3.5 py-2.5 text-sm font-semibold text-clay">
+        <Scale size={16} class="shrink-0" />
+        You're planning around: {referrerTopic}
       </div>
     {/if}
 
