@@ -33,6 +33,11 @@
   let messageSent = false;
   let messageError = '';
 
+  // Self-service "email me a fresh link" (shown when there's no valid session).
+  let requestEmail = '';
+  let requesting = false;
+  let requested = false;
+
   const load = async () => {
     loading = true;
     try {
@@ -89,6 +94,18 @@
     }
     trip = null;
   };
+
+  const requestLink = async () => {
+    if (!requestEmail.trim() || requesting) return;
+    requesting = true;
+    try {
+      await api.trip.requestAccess(requestEmail.trim());
+    } catch {
+      /* response is intentionally generic; ignore errors */
+    }
+    requested = true;
+    requesting = false;
+  };
 </script>
 
 <svelte:head>
@@ -105,11 +122,34 @@
     <!-- No / invalid / expired session -->
     <div class="mx-auto max-w-lg rounded-2xl border border-ink/10 bg-surface p-8 text-center shadow-soft">
       <span class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-goldfinch-gold/10 text-goldfinch-gold"><MapPin size={22} /></span>
-      <h1 class="mt-4 text-xl font-bold text-heading">This trip link isn’t working</h1>
+      <h1 class="mt-4 text-xl font-bold text-heading">Access your trip</h1>
       <p class="mt-2 text-sm leading-6 text-ink/65">
-        Your secure link may have expired or already been replaced. Please use the most recent link we sent you, or get in touch and we’ll send a fresh one.
+        Enter the email on your booking and we’ll send a fresh, secure link to view your trip. (Your previous link may have expired or been replaced.)
       </p>
-      <a href="/contact" class="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-deep-green px-6 font-bold text-white transition hover:bg-forest">Contact us</a>
+
+      {#if requested}
+        <div class="mt-5 flex items-start gap-2 rounded-xl border border-forest/20 bg-forest/[0.06] p-3 text-left text-sm font-medium text-forest">
+          <CheckCircle2 size={16} class="mt-0.5 shrink-0" /> If we found a trip for that email, a secure link is on its way. Please check your inbox.
+        </div>
+      {:else}
+        <div class="mt-5 flex flex-col gap-2 sm:flex-row">
+          <input
+            type="email"
+            bind:value={requestEmail}
+            placeholder="you@example.com"
+            class="h-11 flex-1 rounded-xl border border-ink/15 bg-surface px-3.5 text-sm text-ink outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+          />
+          <button
+            type="button"
+            class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-deep-green px-5 font-bold text-white transition hover:bg-forest disabled:opacity-60"
+            on:click={requestLink}
+            disabled={requesting || !requestEmail.trim()}
+          >
+            <Send size={16} /> {requesting ? 'Sending…' : 'Email me a link'}
+          </button>
+        </div>
+      {/if}
+      <a href="/contact" class="mt-4 inline-block text-sm font-semibold text-forest hover:text-heading">Or contact us →</a>
     </div>
   {:else}
     <!-- Header -->

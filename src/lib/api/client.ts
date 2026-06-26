@@ -321,8 +321,10 @@ export const api = {
     me: () => apiRequest<Record<string, unknown>>('/trip/me'),
     message: (message: string) => apiRequest('/trip/message', { method: 'POST', body: { message } }),
     logout: () => apiRequest('/trip/logout', { method: 'POST' }),
-    // Admin: generate a secure link to share with the traveller.
-    adminCreateLink: (booking_id: string) => apiRequest<{ url: string; expiresAt: string }>('/trip/admin/links', { method: 'POST', body: { booking_id } })
+    requestAccess: (email: string) => apiRequest('/trip/request-access', { method: 'POST', body: { email } }),
+    // Admin: generate a secure link to share. send_email=true also emails it to the traveller.
+    adminCreateLink: (booking_id: string, send_email = false) =>
+      apiRequest<{ url: string; expiresAt: string; emailed?: boolean }>('/trip/admin/links', { method: 'POST', body: { booking_id, send_email } })
   },
   analytics: {
     overview: (params?: Record<string, QueryValue>) => apiRequest<Record<string, unknown>>(`/analytics/overview${queryString(params)}`),

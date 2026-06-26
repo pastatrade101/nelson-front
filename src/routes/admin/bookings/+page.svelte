@@ -87,6 +87,7 @@
   let deleting = false;
   let savingNotes = false;
   let creatingLink = false;
+  let emailingLink = false;
   let error = '';
 
   let search = '';
@@ -377,6 +378,19 @@
     }
   };
 
+  const emailTripLink = async () => {
+    if (!viewing || emailingLink) return;
+    emailingLink = true;
+    try {
+      const res = await api.trip.adminCreateLink(viewing.id, true);
+      showToast(res.data?.emailed ? `Trip link emailed to ${viewing.email}.` : 'Link created, but email is not configured on the server.', res.data?.emailed ? 'success' : 'error');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Unable to email trip link.', 'error');
+    } finally {
+      emailingLink = false;
+    }
+  };
+
   const openDelete = (b: Booking) => { toDelete = b; confirmOpen = true; };
   const confirmDelete = async () => {
     if (!toDelete) return;
@@ -592,6 +606,7 @@
         <button class="inline-flex h-10 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => viewing && openDelete(viewing)}><Trash2 size={14} />Archive</button>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
           <button class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-ink/15 bg-surface px-3 text-xs font-semibold text-ink/75 shadow-sm transition hover:bg-sand disabled:opacity-60" type="button" disabled={creatingLink} on:click={copyTripLink}><LinkIcon size={14} />{creatingLink ? 'Generating…' : 'Copy trip link'}</button>
+          <button class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-ink/15 bg-surface px-3 text-xs font-semibold text-ink/75 shadow-sm transition hover:bg-sand disabled:opacity-60" type="button" disabled={emailingLink} on:click={emailTripLink}><Mail size={14} />{emailingLink ? 'Sending…' : 'Email link'}</button>
           <AdminButton type="button" on:click={() => viewing && openEdit(viewing)}><Edit size={15} />Edit Booking</AdminButton>
         </div>
       </div>
