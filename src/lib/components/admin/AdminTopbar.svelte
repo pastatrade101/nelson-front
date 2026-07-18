@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { scale } from 'svelte/transition';
-  import { Bell, ChevronDown, LogOut, Mail, Menu, Moon, PanelLeftClose, PanelLeftOpen, ShieldCheck, Sun } from '@lucide/svelte';
-  import { theme, toggleTheme } from '$lib/theme';
+  import { Bell, ChevronDown, LogOut, Mail, Menu, PanelLeftClose, PanelLeftOpen, ShieldCheck } from '@lucide/svelte';
 
   type AdminUser = {
     avatar_url?: string;
@@ -22,7 +21,7 @@
   let profileOpen = false;
 
   $: displayName = user?.full_name || user?.name || 'Admin User';
-  $: displayEmail = user?.email || 'Goldfinch Travel Platform';
+  $: displayEmail = user?.email || 'Emnel Adventures Platform';
   $: roleLabel = (user?.role || 'CMS user').replaceAll('_', ' ');
   $: initials =
     displayName
@@ -62,22 +61,12 @@
       </button>
 
       <div class="min-w-0">
-        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Goldfinch CMS</p>
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Emnel CMS</p>
         <h1 class="truncate text-lg font-bold tracking-normal text-ink sm:text-xl">{title}</h1>
       </div>
     </div>
 
     <div class="flex items-center gap-2">
-      <button
-        class="grid h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30"
-        type="button"
-        on:click={toggleTheme}
-        aria-label={$theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        title={$theme === 'dark' ? 'Light mode' : 'Dark mode'}
-      >
-        {#if $theme === 'dark'}<Sun size={18} />{:else}<Moon size={18} />{/if}
-      </button>
-
       <button class="hidden h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 sm:grid" type="button" aria-label="Notifications">
         <Bell size={18} />
       </button>
@@ -103,7 +92,7 @@
 
         {#if profileOpen}
           <div
-            class="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_24px_70px_rgba(15,47,36,0.18)]"
+            class="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_24px_70px_rgba(28,26,22,0.18)]"
             transition:scale={{ duration: 140, start: 0.97 }}
           >
             <div class="bg-gradient-to-br from-deep-green via-forest to-deep-green p-4 text-white">
@@ -117,7 +106,7 @@
                 </div>
                 <div class="min-w-0">
                   <p class="truncate text-sm font-semibold">{displayName}</p>
-                  <p class="mt-0.5 truncate text-xs text-white/65">Goldfinch CMS</p>
+                  <p class="mt-0.5 truncate text-xs text-white/65">Emnel CMS</p>
                 </div>
               </div>
             </div>

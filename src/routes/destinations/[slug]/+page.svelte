@@ -347,7 +347,7 @@
 
   <!-- Plan-your-trip CTA so the page never dead-ends into the footer -->
   <section class="container-shell py-14 md:py-16">
-    <div class="relative overflow-hidden rounded-[10px] bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-12 text-center text-white md:px-12 md:py-16">
+    <div class="relative overflow-hidden rounded-none bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-12 text-center text-white md:px-12 md:py-16">
       <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
       <div class="pointer-events-none absolute -bottom-20 -left-12 h-56 w-56 rounded-full bg-savanna/15 blur-3xl"></div>
       <div class="relative mx-auto max-w-2xl">
@@ -360,7 +360,7 @@
             class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-lg transition hover:brightness-105"
             href="/plan-my-trip"
           >
-            Plan My Trip <ArrowRight size={18} />
+            Plan My Safari <ArrowRight size={18} />
           </a>
           <a
             class="inline-flex h-12 items-center rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10"

@@ -25,7 +25,7 @@
   const colorFields: { hint: string; key: keyof BrandColors; label: string }[] = [
     { key: 'deep_green', label: 'Deep Green', hint: 'Primary dark — sidebar, hero overlays' },
     { key: 'forest', label: 'Forest', hint: 'Primary — buttons, links, accents' },
-    { key: 'goldfinch_gold', label: 'Goldfinch Gold', hint: 'Accent — highlights, CTAs, badges' },
+    { key: 'goldfinch_gold', label: 'Savanna Gold', hint: 'Accent — highlights, CTAs, badges' },
     { key: 'sand', label: 'Sand', hint: 'Surfaces — cards, section backgrounds' },
     { key: 'savanna', label: 'Savanna', hint: 'Soft accent' },
     { key: 'ink', label: 'Ink', hint: 'Body text' },
@@ -88,13 +88,13 @@
 
   const resetColors = () => {
     form = { ...form, colors: { ...defaultColors } };
-    showToast('Colors reset to Goldfinch defaults. Save to keep them.');
+    showToast('Colors reset to Emnel defaults. Save to keep them.');
   };
 
   const save = async () => {
     for (const field of colorFields) {
       if (!isHex(form.colors[field.key])) {
-        showToast(`${field.label} must be a 6-digit hex color (e.g. #1f4d3a).`, 'error');
+        showToast(`${field.label} must be a 6-digit hex color (e.g. #1C1A16).`, 'error');
         return;
       }
     }
@@ -146,7 +146,7 @@
       <!-- forms -->
       <div class="grid gap-6">
         <!-- identity -->
-        <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-surface p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <section class="grid gap-4 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_44px_rgba(28,26,22,0.06)]">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Brand identity</p>
             <h2 class="mt-1 text-lg font-bold text-ink">Name & messaging</h2>
@@ -161,7 +161,7 @@
         </section>
 
         <!-- colors -->
-        <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-surface p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <section class="grid gap-4 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_44px_rgba(28,26,22,0.06)]">
           <div class="flex items-start justify-between gap-4">
             <div>
               <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Color palette</p>
@@ -188,7 +188,7 @@
         </section>
 
         <!-- logo & favicon -->
-        <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-surface p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <section class="grid gap-4 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_44px_rgba(28,26,22,0.06)]">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Logo & favicon</p>
             <h2 class="mt-1 text-lg font-bold text-ink">Brand assets</h2>
@@ -200,7 +200,7 @@
         </section>
 
         <!-- CTAs & contact -->
-        <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-surface p-6 shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <section class="grid gap-4 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_44px_rgba(28,26,22,0.06)]">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Calls to action & contact</p>
             <h2 class="mt-1 text-lg font-bold text-ink">Buttons & support details</h2>
@@ -227,7 +227,7 @@
 
       <!-- live preview -->
       <aside class="xl:sticky xl:top-4">
-        <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_14px_44px_rgba(15,47,36,0.06)]">
+        <div class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_14px_44px_rgba(28,26,22,0.06)]">
           <div class="flex items-center gap-2 border-b border-ink/10 bg-sand/40 px-4 py-2.5">
             <Palette size={14} class="text-forest" />
             <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Live preview</span>
@@ -241,7 +241,7 @@
             <div>
               <h3 class="text-xl font-extrabold">{form.site_name || 'Site name'}</h3>
               <p class="mx-auto mt-2 max-w-xs text-xs text-white/80">{form.tagline || 'Your tagline appears here.'}</p>
-              <span class="mt-4 inline-flex h-9 items-center rounded-xl bg-goldfinch-gold px-4 text-xs font-bold text-heading">{form.primary_cta || 'Plan My Trip'}</span>
+              <span class="mt-4 inline-flex h-9 items-center rounded-xl bg-goldfinch-gold px-4 text-xs font-bold text-heading">{form.primary_cta || 'Plan My Safari'}</span>
             </div>
           </div>
 

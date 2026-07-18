@@ -10,7 +10,7 @@
 
   type Slide = { image_url: string; title?: string; subtitle?: string };
 
-  let email = 'admin@goldfinch.local';
+  let email = 'admin@emneladventures.com';
   let password = '';
   let showPassword = false;
   let error = '';
@@ -28,13 +28,13 @@
   const defaultSlides: Slide[] = [
     {
       image_url: 'https://images.unsplash.com/photo-1516426122078-c23e76319801',
-      title: 'Plan East Africa with confidence',
+      title: 'Plan Tanzania with confidence',
       subtitle: 'Honest safari, Kilimanjaro and beach advice from local experts.'
     }
   ];
 
   $: displaySlides = slides.length ? slides : defaultSlides;
-  $: brandName = $branding.site_name || 'Goldfinch Adventures';
+  $: brandName = $branding.site_name || 'Emnel Adventures';
 
   const login = async () => {
     loading = true;

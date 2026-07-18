@@ -22,9 +22,7 @@ export const SCORE_DIMENSIONS: { key: keyof DestinationScores; label: string }[]
 export const DESTINATION_SCORES: Record<string, DestinationScores> = {
   tanzania: { wildlife: 10, luxury: 9, family: 8, photography: 10, adventure: 9, budgetFromUsd: 1500 },
   kenya: { wildlife: 9, luxury: 8, family: 8, photography: 9, adventure: 8, budgetFromUsd: 1300 },
-  rwanda: { wildlife: 7, luxury: 9, family: 6, photography: 8, adventure: 8, budgetFromUsd: 2400 },
-  uganda: { wildlife: 8, luxury: 6, family: 6, photography: 8, adventure: 9, budgetFromUsd: 1800 },
-  'dar-es-salaam': { wildlife: 3, luxury: 6, family: 6, photography: 5, adventure: 4, budgetFromUsd: 600 }
+  zanzibar: { wildlife: 4, luxury: 9, family: 9, photography: 8, adventure: 6, budgetFromUsd: 900 }
 };
 
 export const getDestinationScores = (slug: string): DestinationScores | undefined => DESTINATION_SCORES[slug];

@@ -3,11 +3,11 @@
 // ready to spread into <ChartCanvas {...cfg} />. Labels/grids use a neutral gray
 // that reads on both light and dark surfaces.
 
-export const CHART_PALETTE = ['#D9A441', '#1F4D3A', '#0F2F24', '#94a3b8', '#b86b45', '#E9D8A6', '#6b8e23', '#f87171'];
-const GOLD = '#D9A441';
-const FOREST = '#1F4D3A';
-const TICK = '#94a3b8';
-const GRID = 'rgba(148,163,184,0.16)';
+export const CHART_PALETTE = ['#C5A265', '#4A3728', '#1C1A16', '#888888', '#E8E0D2', '#FAFAF7'];
+const GOLD = '#C5A265';
+const FOREST = '#4A3728';
+const TICK = '#888888';
+const GRID = 'rgba(136,136,136,0.18)';
 const ANIM = { duration: 850, easing: 'easeOutQuart' as const };
 
 export type Pt = { label: string; value: number };
@@ -63,7 +63,7 @@ export const lineConfig = (labels: string[], values: number[], unit = '') => ({
       borderWidth: 3,
       tension: 0.4,
       fill: true,
-      backgroundColor: vGradient('rgba(217,164,65,0.35)', 'rgba(217,164,65,0.02)'),
+      backgroundColor: vGradient('rgba(197,162,101,0.35)', 'rgba(197,162,101,0.02)'),
       pointRadius: values.length > 31 ? 0 : 3,
       pointHoverRadius: 5,
       pointBackgroundColor: GOLD,

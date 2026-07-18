@@ -16,7 +16,7 @@
       .join('') || '?';
 </script>
 
-<article class="flex h-full flex-col gap-4 rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] transition hover:border-forest/25 hover:shadow-[0_20px_50px_rgba(15,47,36,0.10)]">
+<article class="flex h-full flex-col gap-4 rounded-none border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(28,26,22,0.06)] transition hover:border-forest/25 hover:shadow-[0_20px_50px_rgba(28,26,22,0.10)]">
   <!-- header -->
   <div class="flex items-start gap-3">
     {#if testimonial.client_image_url}

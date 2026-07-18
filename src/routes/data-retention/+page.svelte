@@ -6,8 +6,8 @@
 </script>
 
 <svelte:head>
-  <title>Data Retention | Goldfinch Adventures</title>
-  <meta name="description" content="How long Goldfinch Adventures keeps your information, including AI Travel Advisor conversations, and how to ask us to delete your data." />
+  <title>Data Retention | Emnel Adventures</title>
+  <meta name="description" content="How long Emnel Adventures keeps your information, including AI Safari Advisor conversations, and how to ask us to delete your data." />
 </svelte:head>
 
 <LegalLayout
@@ -23,7 +23,7 @@
 
   <h2>What we keep, and for how long</h2>
   <ul>
-    <li><strong>AI Travel Advisor conversations (anonymous)</strong> — chats that are not linked to an enquiry and contain no contact details are deleted automatically after a short retention window (by default, around 90 days).</li>
+    <li><strong>AI Safari Advisor conversations (anonymous)</strong> — chats that are not linked to an enquiry and contain no contact details are deleted automatically after a short retention window (by default, around 90 days).</li>
     <li><strong>Conversations and enquiries linked to a booking request</strong> — kept while we plan and support your trip, and afterwards for a reasonable period to meet our records, accounting and legal obligations.</li>
     <li><strong>Contact messages</strong> — kept for as long as needed to respond to you and maintain a record of our correspondence.</li>
     <li><strong>Operational and security logs</strong> — kept briefly to keep the service reliable and to prevent abuse, then rotated out.</li>
@@ -36,7 +36,7 @@
   <p>A routine, automated process removes anonymous AI conversations once they pass the retention window, so old data does not linger. This runs on a regular schedule.</p>
 
   <h2>Consent before we collect contact details</h2>
-  <p>The AI Travel Advisor shows a short consent notice before it asks for any contact details, so you always know when information is being collected and why.</p>
+  <p>The AI Safari Advisor shows a short consent notice before it asks for any contact details, so you always know when information is being collected and why.</p>
 
   <h2>Your right to erasure</h2>
   <p>You can ask us to delete your personal information at any time. We will remove it unless we are required to keep certain records for legal or accounting reasons — and if so, we will tell you. To make a request, just <a href="/contact">contact us</a>.</p>

@@ -13,7 +13,7 @@ export type ShortlistItem = {
   currency?: string;
 };
 
-const KEY = 'goldfinch_shortlist';
+const KEY = 'emnel_shortlist';
 
 const load = (): ShortlistItem[] => {
   if (!browser) return [];

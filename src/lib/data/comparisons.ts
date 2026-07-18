@@ -60,22 +60,23 @@ export const COMPARISONS: Comparison[] = [
     cta: { label: 'Plan a migration safari', href: '/plan-my-trip?experience=safari' }
   },
   {
-    slug: 'uganda-vs-rwanda-gorilla-trekking',
-    eyebrow: 'Gorilla trekking comparison',
-    title: 'Uganda vs Rwanda Gorilla Trekking',
+    slug: 'machame-vs-lemosho-kilimanjaro',
+    eyebrow: 'Kilimanjaro route comparison',
+    title: 'Machame vs Lemosho Route',
     intro:
-      'Both offer life-changing time with mountain gorillas. The honest differences come down to permit cost, trek difficulty and how you combine the trip.',
-    a: { name: 'Uganda' },
-    b: { name: 'Rwanda' },
+      'The two routes we recommend most on Kilimanjaro. Both are scenic and non-technical — the honest differences come down to days on the mountain, crowds and summit success.',
+    a: { name: 'Machame (7 days)' },
+    b: { name: 'Lemosho (8 days)' },
     dimensions: [
-      { label: 'Permit cost', a: 'More affordable — better value for the same experience.', b: 'Premium permit price — a more exclusive, polished experience.' },
-      { label: 'Getting there', a: 'Longer drive from Entebbe to Bwindi (or a short flight).', b: 'Quick ~2–3 hr drive from Kigali to Volcanoes NP.' },
-      { label: 'Trek difficulty', a: 'Bwindi can be steep and demanding.', b: 'Often slightly more accessible terrain.' },
-      { label: 'Combine with', a: 'Chimps (Kibale), savanna safari (Queen Elizabeth NP).', b: 'A short, seamless add-on to a Tanzania/Kenya safari.' }
+      { label: 'Duration', a: 'Typically 6–7 days — the most complete climb doable in a week.', b: '7–8 days — an extra day for acclimatisation.' },
+      { label: 'Scenery', a: 'Very scenic and diverse: rainforest, moorland, alpine desert, glacier.', b: 'The most beautiful route, with a quieter, remote western approach.' },
+      { label: 'Crowds', a: 'Popular — busier trails and camps.', b: 'Fewer climbers, especially in the early days.' },
+      { label: 'Acclimatisation & success', a: 'Excellent success rate with a good "walk high, sleep low" profile.', b: 'The highest summit success rates of any route — the extra day matters.' },
+      { label: 'Cost', a: 'A little lower — one fewer day on the mountain.', b: 'Slightly higher for the additional day.' }
     ],
     verdict:
-      'On a budget, or want to pair gorillas with chimps and a savanna safari? Uganda. Short on time and want the quickest, most polished gorilla add-on (often after a safari)? Rwanda. Either way, permits must be secured early.',
-    cta: { label: 'Plan gorilla trekking', href: '/plan-my-trip?experience=gorilla' }
+      'Short on days but want a scenic climb with strong odds? Machame. Have the extra day and want the best possible chance of the summit with fewer crowds? Lemosho — the route our guides recommend without reservation. Either way, your guide has reached the crater rim hundreds of times.',
+    cta: { label: 'Plan my Kilimanjaro climb', href: '/plan-my-trip?experience=kilimanjaro' }
   }
 ];
 

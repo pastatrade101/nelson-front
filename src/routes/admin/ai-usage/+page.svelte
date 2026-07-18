@@ -96,10 +96,10 @@
   };
 </script>
 
-<svelte:head><title>AI Usage | Goldfinch CMS</title></svelte:head>
+<svelte:head><title>AI Usage | Emnel CMS</title></svelte:head>
 
 <section class="grid gap-6">
-  <AdminPageHeader eyebrow="AI System" title="AI Usage & Cost" description="Live Anthropic spend, budget headroom, route mix and abuse signals for the Goldfinch AI Travel Advisor." />
+  <AdminPageHeader eyebrow="AI System" title="AI Usage & Cost" description="Live Anthropic spend, budget headroom, route mix and abuse signals for the Emnel AI Safari Advisor." />
 
   <!-- maintenance actions (also run nightly via the ai:nightly job) -->
   <div class="flex flex-wrap items-center gap-3">
@@ -131,30 +131,30 @@
   </div>
 
   {#if loading}
-    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{#each Array(4) as _}<div class="h-24 animate-pulse rounded-[10px] bg-black/5"></div>{/each}</div>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{#each Array(4) as _}<div class="h-24 animate-pulse rounded-none bg-black/5"></div>{/each}</div>
   {:else if error}
     <p class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>
   {:else if stats}
     <!-- status + budget -->
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-4 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-4 shadow-card">
         <p class="text-xs font-semibold text-ink/50">Assistant status</p>
         <p class="mt-1 text-lg font-bold {stats.aiEnabled ? 'text-forest' : 'text-red-600'}">{stats.aiEnabled ? 'Enabled' : 'Disabled'}</p>
         <p class="mt-0.5 text-xs capitalize text-ink/50">Mode: {stats.tier.replace(/_/g, ' ')}</p>
       </div>
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-4 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-4 shadow-card">
         <div class="flex items-center justify-between"><p class="text-xs font-semibold text-ink/50">Today's spend</p><CircleDollarSign size={16} class="text-goldfinch-gold" /></div>
         <p class="mt-1 text-2xl font-extrabold text-heading">{usd(stats.spendTodayUsd)}</p>
         <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-black/10"><div class="h-full rounded-full bg-forest" style={`width:${pct(stats.spendTodayUsd, stats.dailyBudgetUsd)}%`}></div></div>
         <p class="mt-1 text-[11px] text-ink/45">{usd(stats.dailyRemainingUsd)} left of {usd(stats.dailyBudgetUsd)}/day</p>
       </div>
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-4 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-4 shadow-card">
         <div class="flex items-center justify-between"><p class="text-xs font-semibold text-ink/50">This month</p><CircleDollarSign size={16} class="text-goldfinch-gold" /></div>
         <p class="mt-1 text-2xl font-extrabold text-heading">{usd(stats.spendMonthUsd)}</p>
         <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-black/10"><div class="h-full rounded-full bg-forest" style={`width:${pct(stats.spendMonthUsd, stats.monthlyBudgetUsd)}%`}></div></div>
         <p class="mt-1 text-[11px] text-ink/45">{usd(stats.monthlyRemainingUsd)} left of {usd(stats.monthlyBudgetUsd)}/mo</p>
       </div>
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-4 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-4 shadow-card">
         <div class="flex items-center justify-between"><p class="text-xs font-semibold text-ink/50">Messages today</p><Activity size={16} class="text-forest" /></div>
         <p class="mt-1 text-2xl font-extrabold text-heading">{stats.messagesToday}</p>
         <p class="mt-0.5 text-[11px] text-ink/45">{stats.anthropicCallsToday} Anthropic calls</p>
@@ -164,7 +164,7 @@
     <!-- cost-control signals -->
     <div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {#each [['No-AI skipped', stats.skippedNoAiToday], ['Cache hits', stats.semanticCacheHitsToday], ['Degraded', stats.degradedToday], ['Rate-limited', stats.blockedRateLimitToday], ['Budget-blocked', stats.blockedBudgetToday]] as signal}
-        <div class="rounded-[10px] border border-ink/10 bg-surface p-3.5 shadow-card">
+        <div class="rounded-none border border-ink/10 bg-surface p-3.5 shadow-card">
           <p class="text-[11px] font-semibold text-ink/50">{signal[0]}</p>
           <p class="mt-1 text-xl font-bold text-ink">{signal[1]}</p>
         </div>
@@ -173,7 +173,7 @@
 
     <div class="grid gap-5 lg:grid-cols-2">
       <!-- cost by model -->
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <h2 class="text-sm font-bold uppercase tracking-wide text-ink/55">Cost by model (month)</h2>
         <div class="mt-3 grid gap-2">
           {#each stats.costByModel as m}
@@ -182,7 +182,7 @@
         </div>
       </div>
       <!-- cost by route -->
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <h2 class="text-sm font-bold uppercase tracking-wide text-ink/55">Requests by route (month)</h2>
         <div class="mt-3 grid gap-2">
           {#each stats.costByRoute as r}
@@ -194,7 +194,7 @@
 
     <div class="grid gap-5 lg:grid-cols-2">
       <!-- most expensive conversations -->
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <h2 class="text-sm font-bold uppercase tracking-wide text-ink/55">Most expensive conversations</h2>
         <div class="mt-3 grid gap-2">
           {#each stats.topConversations as c}
@@ -206,7 +206,7 @@
         </div>
       </div>
       <!-- eval summary -->
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <h2 class="text-sm font-bold uppercase tracking-wide text-ink/55">Latest evals</h2>
         {#if evals.length}
           <div class="mt-3 flex items-center gap-4">

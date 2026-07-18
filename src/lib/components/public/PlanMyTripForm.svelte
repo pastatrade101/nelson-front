@@ -15,11 +15,10 @@
   $: bookCallUrl = settingText($publicSettings, 'booking_call_url');
 
   // ── Options ────────────────────────────────────────────────────────────────
-  const destinationOptions = ['Tanzania', 'Kenya', 'Rwanda', 'Uganda', 'Zanzibar', 'Multiple countries', 'Not sure yet'];
+  const destinationOptions = ['Tanzania', 'Kenya', 'Zanzibar', 'Multiple countries', 'Not sure yet'];
   const experienceOptions = [
     'Safari',
     'Kilimanjaro climb',
-    'Gorilla trekking',
     'Beach holiday',
     'Honeymoon',
     'Family trip',
@@ -115,8 +114,6 @@
     const expMap: Record<string, string> = {
       safari: 'Safari',
       kilimanjaro: 'Kilimanjaro climb',
-      gorilla: 'Gorilla trekking',
-      'gorilla-trekking': 'Gorilla trekking',
       beach: 'Beach holiday',
       'beach-holiday': 'Beach holiday',
       cultural: 'Culture',
@@ -229,7 +226,7 @@
       traveller_type,
       source_page_url: $page.url.href,
       submitted_at: new Date().toISOString(),
-      lead_source: 'Website Plan My Trip'
+      lead_source: 'Website Plan My Safari'
     };
     if (wantsExactDates) {
       lead_context.exact_start_date = exact_start_date;
@@ -297,8 +294,8 @@
     <div class="flex items-center gap-3">
       <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-600"><CheckCircle2 size={26} /></span>
       <div>
-        <h3 class="text-xl font-bold text-heading">Thank you! Your trip request has been received.</h3>
-        <p class="mt-1 text-sm text-ink/70">A Goldfinch travel specialist will contact you shortly.</p>
+        <h3 class="text-xl font-bold text-heading">Thank you. Your trip request has been received.</h3>
+        <p class="mt-1 text-sm text-ink/70">A Emnel safari specialist will contact you shortly.</p>
       </div>
     </div>
 
@@ -345,12 +342,12 @@
 {:else}
   <form class="relative rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft md:p-6" on:submit|preventDefault={submit} novalidate>
     <div>
-      <p class="text-sm font-semibold uppercase tracking-[0.14em] text-goldfinch-gold">Plan My Trip</p>
+      <p class="text-sm font-semibold uppercase tracking-[0.14em] text-goldfinch-gold">Plan My Safari</p>
       <h3 class="mt-1 text-2xl font-bold tracking-normal text-heading">Tell us about your dream trip</h3>
       {#if tripContext}
         <p class="mt-1 text-sm leading-6 text-ink/65">We've carried your trip across — adjust anything below and a local specialist will tailor it to you.</p>
       {:else}
-        <p class="mt-1 text-sm leading-6 text-ink/65">Don't know the exact tour yet? Perfect. Share the basics and a local specialist will shape a confident East Africa plan.</p>
+        <p class="mt-1 text-sm leading-6 text-ink/65">Don't know the exact tour yet? Perfect. Share the basics and a local specialist will shape a confident Tanzania safari plan.</p>
       {/if}
     </div>
 

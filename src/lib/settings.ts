@@ -6,13 +6,13 @@ import { api } from '$lib/api/client';
  * Only non-sensitive, public-facing defaults belong here.
  */
 export const PUBLIC_SETTING_FALLBACKS: Record<string, unknown> = {
-  site_name: 'Goldfinch Adventures',
-  company_name: 'Goldfinch Adventures Limited',
-  tagline: "Africa's Most Trusted Travel Planning Brand",
-  brand_statement: 'Travelers do not need more options. They need more confidence.',
-  default_meta_title: 'Goldfinch Adventures | East Africa Travel Planning',
+  site_name: 'Emnel Adventures',
+  company_name: 'Emnel Adventures Limited',
+  tagline: 'Private Tanzania safaris, designed in Arusha',
+  brand_statement: 'Where the wild speaks, we know how to listen.',
+  default_meta_title: 'Emnel Adventures | Private Tanzania Safaris',
   default_meta_description:
-    'Plan safaris, Kilimanjaro climbs, gorilla trekking and beach holidays across East Africa with trusted local experts.',
+    'Plan private Tanzania safaris, Kilimanjaro climbs and Zanzibar extensions with trusted local experts in Arusha.',
   whatsapp_button_text: 'Chat on WhatsApp',
   default_currency: 'USD'
 };

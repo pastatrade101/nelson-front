@@ -43,14 +43,14 @@
     right: 0;
     height: 4px;
     border-radius: 999px;
-    background: #d9ded9;
+    background: #E8E0D2;
   }
   .rs-fill {
     position: absolute;
     top: 11px;
     height: 4px;
     border-radius: 999px;
-    background: #1f4d3a;
+    background: #4A3728;
   }
   .rs-input {
     position: absolute;
@@ -76,18 +76,18 @@
     width: 18px;
     border-radius: 50%;
     background: #fff;
-    border: 2px solid #1f4d3a;
-    box-shadow: 0 1px 4px rgba(15, 47, 36, 0.25);
+    border: 2px solid #4A3728;
+    box-shadow: 0 1px 4px rgba(28,26,22, 0.25);
     cursor: pointer;
   }
   .rs-input::-moz-range-thumb {
     pointer-events: auto;
     height: 18px;
     width: 18px;
-    border: 2px solid #1f4d3a;
+    border: 2px solid #4A3728;
     border-radius: 50%;
     background: #fff;
-    box-shadow: 0 1px 4px rgba(15, 47, 36, 0.25);
+    box-shadow: 0 1px 4px rgba(28,26,22, 0.25);
     cursor: pointer;
   }
   .rs-input::-webkit-slider-runnable-track {

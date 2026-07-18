@@ -156,13 +156,13 @@
     { label: 'Add Blog Post', description: 'Publish travel guidance', href: '/admin/blog', icon: Newspaper },
     { label: 'View Messages', description: 'Respond to customer leads', href: '/admin/messages', icon: Mail },
     { label: 'Review Bookings', description: 'Track booking requests', href: '/admin/bookings', icon: ClipboardList },
-    { label: 'AI Conversations', description: 'Review travel advisor sessions', href: '/admin/ai-conversations', icon: Bot }
+    { label: 'AI Conversations', description: 'Review safari advisor sessions', href: '/admin/ai-conversations', icon: Bot }
   ];
 
   let stats: DashboardStats = emptyStats;
   let loading = true;
   let error = '';
-  let adminName = 'Goldfinch Super Admin';
+  let adminName = 'Emnel Super Admin';
 
   const numberValue = (source: Record<string, unknown>, key: string) => Number(source[key] ?? 0) || 0;
 
@@ -260,7 +260,7 @@
     { label: 'Messages', value: stats.counts.unreadMessages, helper: 'Unread customer messages', trend: stats.counts.unreadMessages ? 'Follow up' : 'Inbox clear', icon: Mail, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
     { label: 'Media Files', value: stats.counts.mediaFiles, helper: 'Reusable CMS assets', trend: 'Image library', icon: Images, accent: 'from-savanna/50 to-savanna/15 text-heading' },
     { label: 'Blog Posts', value: stats.counts.blogPosts, helper: 'Published and draft posts', trend: `${stats.contentHealth.publishedBlogPosts} published`, icon: Newspaper, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'AI Conversations', value: stats.counts.aiConversations, helper: 'Travel advisor sessions', trend: 'Lead intelligence', icon: Bot, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
+    { label: 'AI Conversations', value: stats.counts.aiConversations, helper: 'Safari advisor sessions', trend: 'Lead intelligence', icon: Bot, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
     { label: 'Confirmed Bookings', value: stats.counts.confirmedBookings, helper: 'Ready for operations', trend: 'Operations queue', icon: CalendarCheck, accent: 'from-forest/12 to-forest/5 text-forest' }
   ] satisfies KpiCard[];
 
@@ -374,10 +374,10 @@
 
 {#if loading}
   <div class="mx-auto grid w-full max-w-[1500px] gap-6">
-    <div class="min-h-[260px] animate-pulse rounded-[10px] bg-gradient-to-br from-forest/80 to-deep-green"></div>
+    <div class="min-h-[260px] animate-pulse rounded-none bg-gradient-to-br from-forest/80 to-deep-green"></div>
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {#each Array(12) as _}
-        <div class="h-36 animate-pulse rounded-[8px] border border-ink/10 bg-surface/80"></div>
+        <div class="h-36 animate-pulse rounded-none border border-ink/10 bg-surface/80"></div>
       {/each}
     </div>
   </div>
@@ -385,7 +385,7 @@
   <ErrorState message={error} />
 {:else}
   <div class="mx-auto grid w-full max-w-[1500px] gap-6">
-    <section class="relative overflow-hidden rounded-[10px] border border-white/10 bg-gradient-to-br from-deep-green via-forest to-[#14382d] p-6 text-white shadow-[0_26px_80px_rgba(15,47,36,0.18)] lg:p-8">
+    <section class="relative overflow-hidden rounded-none border border-white/10 bg-gradient-to-br from-deep-green via-forest to-[#14382d] p-6 text-white shadow-[0_26px_80px_rgba(28,26,22,0.18)] lg:p-8">
       <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/25 blur-3xl"></div>
       <div class="pointer-events-none absolute bottom-0 left-1/3 h-44 w-44 rounded-full bg-savanna/10 blur-3xl"></div>
 
@@ -393,7 +393,7 @@
         <div>
           <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/10 px-3 py-1.5 text-xs font-semibold text-savanna backdrop-blur">
             <Sparkles size={14} />
-            Goldfinch Travel Platform
+            Emnel Adventures Platform
           </div>
           <h1 class="mt-5 max-w-4xl text-3xl font-bold tracking-normal text-white sm:text-4xl lg:text-5xl">
             Welcome back, {adminName}
@@ -402,7 +402,7 @@
             Here is what is happening across your travel platform today.
           </p>
           <p class="mt-4 max-w-2xl text-sm font-semibold leading-6 text-white/80">
-            Travelers do not need more options. They need more confidence.
+            Where the wild speaks, we know how to listen.
           </p>
 
           <div class="mt-6 flex flex-wrap gap-3">
@@ -421,7 +421,7 @@
           </div>
         </div>
 
-        <div class="rounded-[10px] border border-white/10 bg-surface/10 p-5 backdrop-blur">
+        <div class="rounded-none border border-white/10 bg-surface/10 p-5 backdrop-blur">
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-savanna/80">Current period</p>
           <p class="mt-2 text-2xl font-bold text-white">{currentPeriod}</p>
           <div class="mt-5 grid grid-cols-2 gap-3">
@@ -449,7 +449,7 @@
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {#each kpiCards as card}
           {@const Icon = card.icon}
-          <article class="group rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.055)] transition hover:-translate-y-0.5 hover:border-goldfinch-gold/35 hover:shadow-[0_24px_70px_rgba(15,47,36,0.1)]">
+          <article class="group rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.055)] transition hover:-translate-y-0.5 hover:border-goldfinch-gold/35 hover:shadow-[0_24px_70px_rgba(28,26,22,0.1)]">
             <div class="flex items-start justify-between gap-4">
               <div class={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${card.accent} ring-1 ring-ink/5 dark:text-goldfinch-gold`}>
                 <Icon size={21} />
@@ -468,7 +468,7 @@
 
     <!-- Analytics charts (Chart.js) -->
     <section class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Booking pipeline</p>
@@ -485,7 +485,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Content overview</p>
@@ -500,7 +500,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Operational snapshot</p>
@@ -526,7 +526,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Quick actions</p>
@@ -553,7 +553,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Booking pipeline</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Request status</h2>
@@ -575,7 +575,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Content health</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Publishing readiness</h2>
@@ -607,7 +607,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-3">
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)] xl:col-span-2">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)] xl:col-span-2">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Recent activity</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Latest movement</h2>
@@ -680,7 +680,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Audit trail</p>
           <h2 class="mt-1 text-xl font-bold text-ink">Admin actions</h2>
@@ -705,7 +705,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-3">
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
         <h2 class="text-xl font-bold text-ink">Featured tours</h2>
         <div class="mt-4 grid gap-3">
           {#if stats.featured.tours.length}
@@ -721,14 +721,14 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
         <h2 class="text-xl font-bold text-ink">Featured destinations</h2>
         <div class="mt-4 grid gap-3">
           {#if stats.featured.destinations.length}
             {#each stats.featured.destinations as destination}
               <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-goldfinch-gold/35 hover:bg-sand/50" href="/admin/destinations">
                 <p class="font-semibold text-ink">{textValue(destination, 'name', 'Untitled destination')}</p>
-                <p class="mt-1 text-xs text-ink/55">{textValue(destination, 'country', 'East Africa')} · {textValue(destination, 'status')}</p>
+                <p class="mt-1 text-xs text-ink/55">{textValue(destination, 'country', 'Tanzania')} · {textValue(destination, 'status')}</p>
               </a>
             {/each}
           {:else}
@@ -737,7 +737,7 @@
         </div>
       </div>
 
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
         <h2 class="text-xl font-bold text-ink">Latest blog posts</h2>
         <div class="mt-4 grid gap-3">
           {#if stats.featured.blogPosts.length}

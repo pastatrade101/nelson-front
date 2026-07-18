@@ -22,10 +22,10 @@
   const topics = [
     'How much does a safari cost?',
     'When is the best time to visit?',
-    'Is East Africa safe?',
+    'Is Tanzania safe?',
     'What should I pack for a safari?',
     'Kilimanjaro routes compared',
-    'How does gorilla trekking work?'
+    'How does a fly-in safari from Zanzibar work?'
   ];
 
   onMount(async () => {
@@ -40,8 +40,8 @@
 </script>
 
 <svelte:head>
-  <title>Expert Advice | Goldfinch Adventures</title>
-  <meta name="description" content="Honest East Africa travel advice — costs, timing, safety, Kilimanjaro routes and gorilla trekking, plus an AI advisor that answers instantly." />
+  <title>Expert Advice | Emnel Adventures</title>
+  <meta name="description" content="Honest Tanzania safari advice — costs, timing, safety, Kilimanjaro routes and Zanzibar beach escapes, plus an AI advisor that answers instantly." />
 </svelte:head>
 
 <!-- Hero -->
@@ -51,7 +51,7 @@
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Expert Advice</p>
     <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-tight md:text-[44px]" use:revealHeading>
-      Honest guides to plan East Africa with confidence
+      Honest guides to plan Tanzania with confidence
     </h1>
     <p class="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">
       Real answers from local experts — costs, timing, safety, and what each trip is actually like. Or ask our AI advisor and get an instant, honest answer.
@@ -63,7 +63,7 @@
         </button>
       {/if}
       <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10">
-        Plan My Trip <ArrowRight size={18} />
+        Plan My Safari <ArrowRight size={18} />
       </a>
     </div>
   </div>
@@ -74,7 +74,7 @@
   <section class="container-shell py-12 md:py-16" use:fadeUpOnScroll={{ y: 16 }}>
     <p class="font-serif text-xl italic text-clay">Ask away</p>
     <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[34px]" use:revealHeading>Popular questions, answered instantly</h2>
-    <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">Tap a question and our AI travel advisor will answer it for you — grounded in real Goldfinch trips, with honest limitations.</p>
+    <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">Tap a question and our AI safari advisor will answer it for you — grounded in real Emnel trips, with honest limitations.</p>
 
     <div class="mt-6 flex flex-wrap gap-2.5">
       {#each topics as topic}
@@ -113,7 +113,7 @@
     </div>
 
     <!-- compare promo -->
-    <div class="group mt-10 flex flex-col items-start justify-between gap-3 rounded-[12px] border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)] sm:flex-row sm:items-center">
+    <div class="group mt-10 flex flex-col items-start justify-between gap-3 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)] sm:flex-row sm:items-center">
       <div class="flex items-start gap-3">
         <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest"><GitCompare size={20} /></span>
         <div>
@@ -134,7 +134,7 @@
     <div>
       <p class="font-serif text-xl italic text-clay">Good to know</p>
       <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-4xl" use:revealHeading>Frequently asked</h2>
-      <p class="mt-3 text-[15px] leading-7 text-ink/70">The questions East Africa travellers ask us most. Need something specific? Our AI advisor or a specialist can help.</p>
+      <p class="mt-3 text-[15px] leading-7 text-ink/70">The questions Tanzania safari travellers ask us most. Need something specific? Our AI advisor or a specialist can help.</p>
       {#if aiOn}
         <button type="button" on:click={() => openAiAdvisor()} class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-forest transition hover:text-heading">
           <Sparkles size={15} /> Ask the AI advisor
@@ -147,7 +147,7 @@
 
 <!-- Closing CTA -->
 <section class="container-shell pb-14 md:pb-20">
-  <div class="relative overflow-hidden rounded-[12px] bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
+  <div class="relative overflow-hidden rounded-none bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
     <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
     <div class="relative mx-auto max-w-2xl">
       <h2 class="text-2xl font-extrabold md:text-3xl">Still have questions?</h2>
@@ -159,7 +159,7 @@
           </button>
         {/if}
         <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-7 font-semibold text-white transition hover:bg-surface/10" href="/plan-my-trip">
-          Plan My Trip <ArrowRight size={18} />
+          Plan My Safari <ArrowRight size={18} />
         </a>
       </div>
     </div>

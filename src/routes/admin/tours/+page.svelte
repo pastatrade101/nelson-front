@@ -207,7 +207,9 @@
     description="Manage tour packages, publishing status, AI matching data, pricing, image assets, and SEO metadata."
     actionLabel="New Tour"
     actionIcon={Plus}
+    secondaryLabel="Import CSV"
     on:action={() => goto('/admin/tours/new')}
+    on:secondary={() => goto('/admin/tours/import')}
   />
 
   <AdminToolbar className="grid gap-3 xl:grid-cols-[1fr_170px_190px_170px_150px_150px_150px_auto] xl:items-end">
@@ -235,12 +237,12 @@
   {:else if rows.length === 0}
     <AdminEmptyState
       title="No tours found"
-      message="Create your first Goldfinch tour package with CMS publishing controls, images, AI matching fields, and SEO metadata."
+      message="Create your first Emnel tour package with CMS publishing controls, images, AI matching fields, and SEO metadata."
       actionLabel="Create tour"
       on:action={() => goto('/admin/tours/new')}
     />
   {:else}
-    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[1180px] text-start text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -303,7 +305,7 @@
   {/if}
 
   {#if pagination && pagination.totalPages > 1}
-    <div class="flex flex-col gap-3 rounded-[8px] border border-ink/10 bg-surface/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-3 rounded-none border border-ink/10 bg-surface/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(28,26,22,0.05)] sm:flex-row sm:items-center sm:justify-between">
       <p>Page {pagination.page} of {pagination.totalPages} · {pagination.total} tours</p>
       <div class="flex gap-2">
         <AdminButton variant="secondary" size="sm" disabled={page <= 1} on:click={() => goToPage(page - 1)}>Previous</AdminButton>
@@ -325,7 +327,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(28,26,22,0.18)]">
     Deleting tour...
   </div>
 {/if}

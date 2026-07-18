@@ -47,7 +47,7 @@
     b: { name: c.b_name, image: c.b_image_url ?? undefined },
     dimensions: c.dimensions ?? [],
     verdict: c.verdict ?? '',
-    cta: { label: c.cta_label ?? 'Plan My Trip', href: c.cta_href ?? '/plan-my-trip' },
+    cta: { label: c.cta_label ?? 'Plan My Safari', href: c.cta_href ?? '/plan-my-trip' },
     faqs: c.faqs ?? []
   });
 
@@ -103,7 +103,7 @@
 
   <section class="container-shell py-12 md:py-16">
     <!-- comparison table -->
-    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-soft">
+    <div class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-soft">
       <div class="hidden grid-cols-[200px_1fr_1fr] border-b border-ink/10 bg-sand/40 sm:grid">
         <div class="p-4"></div>
         <div class="p-4 text-center text-lg font-extrabold text-heading">{cmp.a.name}</div>

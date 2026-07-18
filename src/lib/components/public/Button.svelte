@@ -5,18 +5,18 @@
   export let className = '';
 
   const variants = {
-    primary: 'bg-forest text-white hover:bg-black',
-    secondary: 'bg-surface text-ink ring-1 ring-ink/10 hover:bg-skywash',
-    ghost: 'text-forest hover:bg-skywash'
+    primary: 'bg-deep-green text-white hover:bg-forest',
+    secondary: 'border border-deep-green bg-transparent text-deep-green hover:bg-deep-green hover:text-white',
+    ghost: 'border border-goldfinch-gold bg-transparent text-goldfinch-gold hover:bg-goldfinch-gold hover:text-deep-green'
   };
 </script>
 
 {#if href}
-  <a class={`inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold transition ${variants[variant]} ${className}`} {href}>
+  <a class={`inline-flex items-center justify-center rounded-md px-7 py-3 text-[13px] font-semibold transition ${variants[variant]} ${className}`} {href}>
     <slot />
   </a>
 {:else}
-  <button class={`inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold transition ${variants[variant]} ${className}`} {type}>
+  <button class={`inline-flex items-center justify-center rounded-md px-7 py-3 text-[13px] font-semibold transition ${variants[variant]} ${className}`} {type}>
     <slot />
   </button>
 {/if}

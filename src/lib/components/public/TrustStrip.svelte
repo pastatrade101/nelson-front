@@ -10,7 +10,7 @@
   let count = 0;
 
   const points = [
-    { icon: MapPin, label: 'Local East Africa specialists' },
+    { icon: MapPin, label: 'Local Tanzania specialists' },
     { icon: ShieldCheck, label: 'Free, no-obligation planning' },
     { icon: BadgeCheck, label: '24/7 in-country support' }
   ];

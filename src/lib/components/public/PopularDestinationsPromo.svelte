@@ -82,7 +82,7 @@
 {#if destinations.length}
   <section class="py-14 md:py-20" use:fadeUpOnScroll={{ y: 18 }}>
     <div class="container-shell">
-      <div class="grid overflow-hidden rounded-[12px] border border-ink/10 shadow-[0_18px_50px_rgba(15,47,36,0.10)] lg:grid-cols-[0.82fr_1.18fr]">
+      <div class="grid overflow-hidden rounded-none border border-ink/10 shadow-[0_18px_50px_rgba(28,26,22,0.10)] lg:grid-cols-[0.82fr_1.18fr]">
       <!-- ── left promo ─────────────────────────────────────────── -->
       <div class="relative flex flex-col justify-center overflow-hidden px-6 py-14 text-white md:px-10 md:py-20">
         <img class="absolute inset-0 h-full w-full object-cover" src={promoImage} alt="" aria-hidden="true" loading="lazy" />
@@ -119,7 +119,7 @@
 
       <!-- ── right: explore destinations ────────────────────────── -->
       <div class="relative bg-sand/30 px-6 py-14 md:px-10 md:py-20">
-        <span class="pointer-events-none absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #0F2F24 1px, transparent 1.5px); background-size: 24px 24px;" aria-hidden="true"></span>
+        <span class="pointer-events-none absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #1C1A16 1px, transparent 1.5px); background-size: 24px 24px;" aria-hidden="true"></span>
         <div class="relative">
           <p class="font-serif text-xl italic text-clay">Top Destinations</p>
           <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>Explore Popular Destinations</h2>
@@ -132,7 +132,7 @@
             <div class="dest-track">
               {#each destinations as d, i (d.slug)}
                 {@const rating = ratingOf(d)}
-                <a class="dest-card group relative block aspect-[3/4] overflow-hidden rounded-[12px] shadow-soft" href={`/destinations/${d.slug}`} use:registerCard={i} use:tilt={{ max: 6 }}>
+                <a class="dest-card group relative block aspect-[3/4] overflow-hidden rounded-none shadow-soft" href={`/destinations/${d.slug}`} use:registerCard={i} use:tilt={{ max: 6 }}>
                   <img class="h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105" src={imgOf(d)} alt={d.name} loading="lazy" />
 
                   {#if rating}

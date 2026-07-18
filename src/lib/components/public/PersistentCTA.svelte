@@ -2,7 +2,7 @@
   import { Sparkles } from '@lucide/svelte';
   import { page } from '$app/stores';
 
-  // Mobile bottom CTA: a single, primary action (Plan My Trip). WhatsApp is NOT
+  // Mobile bottom CTA: a single, primary action (Plan My Safari). WhatsApp is NOT
   // duplicated here — it's permanently in the navbar and inside the AI advisor —
   // and the AI advisor owns the bottom-right launcher, so the bottom area stays
   // uncluttered. Hidden on admin routes (layout) and on the plan page itself.
@@ -20,7 +20,7 @@
         class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-4 text-[15px] font-bold text-heading shadow-sm transition active:brightness-95"
       >
         <Sparkles size={18} strokeWidth={2.4} />
-        Plan My Trip
+        Plan My Safari
       </a>
     </div>
   </div>

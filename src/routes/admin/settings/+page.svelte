@@ -36,15 +36,15 @@
 
   const GROUPS: Group[] = [
     { key: 'brand', label: 'Brand', icon: Palette, fields: [
-      { key: 'site_name', label: 'Site name', type: 'text', public: true, default: 'Goldfinch Adventures' },
-      { key: 'company_name', label: 'Company name', type: 'text', public: true, default: 'Goldfinch Adventures Limited' },
-      { key: 'tagline', label: 'Tagline', type: 'text', public: true, default: "Africa's Most Trusted Travel Planning Brand" },
-      { key: 'brand_statement', label: 'Brand statement', type: 'textarea', public: true, default: 'Travelers do not need more options. They need more confidence.' },
+      { key: 'site_name', label: 'Site name', type: 'text', public: true, default: 'Emnel Adventures' },
+      { key: 'company_name', label: 'Company name', type: 'text', public: true, default: 'Emnel Adventures Limited' },
+      { key: 'tagline', label: 'Tagline', type: 'text', public: true, default: 'Private Tanzania safaris, designed in Arusha' },
+      { key: 'brand_statement', label: 'Brand statement', type: 'textarea', public: true, default: 'Where the wild speaks, we know how to listen.' },
       { key: 'logo_url', label: 'Logo', type: 'image', public: true, helper: 'Public logo image.' },
       { key: 'favicon_url', label: 'Favicon', type: 'image', public: true },
-      { key: 'primary_color', label: 'Primary color', type: 'color', public: true, default: '#1f4d3a' },
-      { key: 'secondary_color', label: 'Secondary color', type: 'color', public: true, default: '#0F2F24' },
-      { key: 'accent_color', label: 'Accent color', type: 'color', public: true, default: '#D9A441' }
+      { key: 'primary_color', label: 'Primary color', type: 'color', public: true, default: '#1C1A16' },
+      { key: 'secondary_color', label: 'Secondary color', type: 'color', public: true, default: '#4A3728' },
+      { key: 'accent_color', label: 'Accent color', type: 'color', public: true, default: '#C5A265' }
     ] },
     { key: 'contact', label: 'Contact', icon: MapPin, fields: [
       { key: 'contact_email', label: 'Contact email', type: 'email', public: true },
@@ -77,7 +77,7 @@
       { key: 'default_currency', label: 'Default currency', type: 'select', public: true, options: ['USD', 'EUR', 'GBP', 'TZS', 'KES'], default: 'USD' },
       { key: 'default_response_time_message', label: 'Response time message', type: 'text', public: true },
       { key: 'require_phone_number', label: 'Require phone number', type: 'boolean', public: true },
-      { key: 'allow_general_plan_my_trip', label: 'Allow general Plan My Trip', type: 'boolean', public: true, default: true }
+      { key: 'allow_general_plan_my_trip', label: 'Allow general Plan My Safari', type: 'boolean', public: true, default: true }
     ] },
     { key: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, fields: [
       { key: 'whatsapp_enabled', label: 'WhatsApp CTA enabled', type: 'boolean', public: true, default: true },
@@ -88,7 +88,7 @@
     { key: 'ai', label: 'AI Advisor', icon: Bot, note: 'The Anthropic API key is managed securely in backend environment variables — never here.', fields: [
       { key: 'ai_enabled', label: 'AI advisor enabled', type: 'boolean', public: true, default: true },
       { key: 'ai_widget_enabled', label: 'Show AI chat widget', type: 'boolean', public: true, default: true },
-      { key: 'ai_display_name', label: 'AI display name', type: 'text', public: true, default: 'Goldfinch AI Travel Advisor' },
+      { key: 'ai_display_name', label: 'AI display name', type: 'text', public: true, default: 'Emnel AI Safari Advisor' },
       { key: 'ai_intro_message', label: 'AI intro message', type: 'textarea', public: true },
       { key: 'ai_handoff_message', label: 'AI handoff message', type: 'textarea', public: true },
       { key: 'ai_status_label', label: 'AI status label', type: 'text', public: true, default: 'Online' }
@@ -277,7 +277,7 @@
       </nav>
 
       <!-- form area -->
-      <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-6">
+      <section class="grid gap-4 rounded-none border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(28,26,22,0.06)] sm:p-6">
         <div class="flex items-center gap-3 border-b border-ink/10 pb-4">
           <svelte:component this={group.icon} size={20} class="text-forest" />
           <h2 class="text-lg font-bold text-ink">{group.label} settings</h2>
@@ -345,7 +345,7 @@
 <!-- sticky save bar -->
 {#if !loading && !error}
   <div class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center p-4">
-    <div class="pointer-events-auto flex w-full max-w-[1500px] items-center justify-between gap-4 rounded-2xl border border-ink/10 bg-surface/95 px-5 py-3 shadow-[0_-6px_30px_rgba(15,47,36,0.12)] backdrop-blur">
+    <div class="pointer-events-auto flex w-full max-w-[1500px] items-center justify-between gap-4 rounded-2xl border border-ink/10 bg-surface/95 px-5 py-3 shadow-[0_-6px_30px_rgba(28,26,22,0.12)] backdrop-blur">
       <p class="text-sm font-medium text-ink/60">
         {#if hasChanges}<span class="font-bold text-goldfinch-gold">{dirtyKeys.length}</span> unsaved change{dirtyKeys.length === 1 ? '' : 's'}{:else}All changes saved{/if}
       </p>
@@ -360,7 +360,7 @@
 <!-- media picker modal -->
 {#if mediaPickerFor}
   <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_24px_80px_rgba(28,26,22,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-center justify-between border-b border-ink/10 bg-sand/30 p-4">
         <h3 class="text-base font-bold text-ink">Choose an image</h3>
         <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={() => (mediaPickerFor = null)}><X size={16} /></button>

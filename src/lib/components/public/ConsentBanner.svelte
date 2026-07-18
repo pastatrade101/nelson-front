@@ -6,7 +6,7 @@
 
 {#if $consent === null}
   <div
-    class="fixed inset-x-3 bottom-3 z-[55] mx-auto max-w-3xl rounded-2xl border border-ink/10 bg-surface p-4 shadow-[0_18px_50px_rgba(15,47,36,0.22)] sm:inset-x-auto sm:left-4 sm:right-4 md:left-6 md:right-6"
+    class="fixed inset-x-3 bottom-3 z-[55] mx-auto max-w-3xl rounded-2xl border border-ink/10 bg-surface p-4 shadow-[0_18px_50px_rgba(28,26,22,0.22)] sm:inset-x-auto sm:left-4 sm:right-4 md:left-6 md:right-6"
     role="dialog"
     aria-label="Cookie consent"
     transition:fly={{ y: 24, duration: 300 }}

@@ -103,12 +103,12 @@
     { label: 'Bottom right', value: 'right bottom' }
   ];
   const BG_KEYS = ['background_video', 'overlay_color', 'overlay_opacity', 'overlay_gradient', 'media_position'];
-  const emptyBg = () => ({ video: '', overlay_color: '#0F2F24', overlay_opacity: '60', overlay_gradient: true, media_position: 'center' });
+  const emptyBg = () => ({ video: '', overlay_color: '#1C1A16', overlay_opacity: '60', overlay_gradient: true, media_position: 'center' });
   let bg = emptyBg();
 
   const hexToRgba = (hex: string, alpha: number) => {
     const match = /^#?([0-9a-fA-F]{6})$/.exec(hex);
-    if (!match) return `rgba(15,47,36,${alpha})`;
+    if (!match) return `rgba(28,26,22,${alpha})`;
     const n = parseInt(match[1], 16);
     return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
   };
@@ -121,7 +121,7 @@
 
   const extraToBg = (ed: Record<string, unknown>) => ({
     video: typeof ed.background_video === 'string' ? ed.background_video : '',
-    overlay_color: typeof ed.overlay_color === 'string' ? ed.overlay_color : '#0F2F24',
+    overlay_color: typeof ed.overlay_color === 'string' ? ed.overlay_color : '#1C1A16',
     overlay_opacity: ed.overlay_opacity != null ? String(Math.round(Number(ed.overlay_opacity) * 100)) : '60',
     overlay_gradient: ed.overlay_gradient !== false,
     media_position: typeof ed.media_position === 'string' ? ed.media_position : 'center'
@@ -129,7 +129,7 @@
 
   const bgToExtra = (): Record<string, unknown> => ({
     ...(bg.video.trim() ? { background_video: bg.video.trim() } : {}),
-    overlay_color: bg.overlay_color || '#0F2F24',
+    overlay_color: bg.overlay_color || '#1C1A16',
     overlay_opacity: overlayAlpha,
     overlay_gradient: bg.overlay_gradient,
     media_position: bg.media_position || 'center'
@@ -453,7 +453,7 @@
   {:else}
     <div class="grid gap-4">
       {#each sorted as section, index (section.id)}
-        <article class={`grid gap-4 rounded-[8px] border bg-surface p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)] lg:grid-cols-[auto_140px_1fr_auto] lg:items-center ${section.is_active ? 'border-ink/10' : 'border-dashed border-ink/20 opacity-75'}`} transition:fade={{ duration: 120 }}>
+        <article class={`grid gap-4 rounded-none border bg-surface p-5 shadow-[0_14px_44px_rgba(28,26,22,0.06)] lg:grid-cols-[auto_140px_1fr_auto] lg:items-center ${section.is_active ? 'border-ink/10' : 'border-dashed border-ink/20 opacity-75'}`} transition:fade={{ duration: 120 }}>
           <!-- reorder -->
           <div class="flex flex-row gap-1 lg:flex-col">
             <button class="grid h-8 w-8 place-items-center rounded-lg border border-ink/10 bg-surface text-ink/55 transition hover:bg-sand/70 disabled:opacity-30" type="button" aria-label="Move up" disabled={index === 0 || reordering} on:click={() => move(section, 'up')}>
@@ -513,7 +513,7 @@
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-none border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(28,26,22,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >
@@ -547,12 +547,12 @@
         <AdminTextArea label="Content" name="content" bind:value={form.content} rows={3} placeholder="Optional body text for this section." />
 
         <!-- image -->
-        <div class="rounded-[8px] border border-ink/10 bg-sand/25 p-4">
+        <div class="rounded-none border border-ink/10 bg-sand/25 p-4">
           <MediaPicker label="Section image" media={mediaItems} uploadFolder="homepage" bind:value={form.image_url} />
         </div>
 
         <!-- background video + overlay -->
-        <div class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
+        <div class="grid gap-4 rounded-none border border-ink/10 bg-sand/25 p-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Background &amp; overlay</p>
             <p class="mt-1 text-xs text-ink/50">Used by full-width sections (e.g. final CTA, hero). A video takes priority over the image. The overlay keeps text readable.</p>
@@ -580,7 +580,7 @@
 
         <!-- partner logos repeater -->
         {#if form.section_key.trim() === 'partners'}
-          <div class="grid gap-3 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
+          <div class="grid gap-3 rounded-none border border-ink/10 bg-sand/25 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Partner logos</p>
@@ -620,7 +620,7 @@
 
         <!-- login page slider repeater -->
         {#if form.section_key.trim() === 'login_slider'}
-          <div class="grid gap-3 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
+          <div class="grid gap-3 rounded-none border border-ink/10 bg-sand/25 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Login page slides</p>
@@ -649,7 +649,7 @@
                     <input class="h-9 min-w-0 flex-1 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Image URL" bind:value={slide.image_url} />
                     <button type="button" class="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-surface px-2.5 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" on:click={() => openMediaPicker('slides', i)}><ImageIcon size={13} />Media</button>
                   </div>
-                  <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Heading (e.g. Plan East Africa with confidence)" bind:value={slide.title} />
+                  <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Heading (e.g. Plan Tanzania with confidence)" bind:value={slide.title} />
                   <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Short line (optional)" bind:value={slide.subtitle} />
                 </div>
                 <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove slide" on:click={() => removeSlide(i)}><Trash2 size={15} /></button>
@@ -660,7 +660,7 @@
 
         <!-- typical cost ranges repeater -->
         {#if form.section_key.trim() === 'cost_ranges'}
-          <div class="grid gap-3 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
+          <div class="grid gap-3 rounded-none border border-ink/10 bg-sand/25 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Typical cost ranges</p>
@@ -687,13 +687,13 @@
         {/if}
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <AdminFormInput label="Button text" name="button_text" bind:value={form.button_text} placeholder="e.g. Plan My Trip" />
+          <AdminFormInput label="Button text" name="button_text" bind:value={form.button_text} placeholder="e.g. Plan My Safari" />
           <AdminFormInput label="Button URL" name="button_url" bind:value={form.button_url} placeholder="e.g. /plan-my-trip" />
         </div>
 
         <label class="grid gap-2 text-sm font-medium text-ink">
           <span>Extra data (JSON)</span>
-          <textarea class="min-h-[120px] rounded-2xl border border-ink/10 bg-surface px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" bind:value={extraDataText} spellcheck="false" placeholder={'{\n  "secondary_cta_text": "Talk to a Travel Advisor"\n}'}></textarea>
+          <textarea class="min-h-[120px] rounded-2xl border border-ink/10 bg-surface px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" bind:value={extraDataText} spellcheck="false" placeholder={'{\n  "secondary_cta_text": "Talk to a Safari Advisor"\n}'}></textarea>
           <span class="text-xs text-ink/45">Advanced configuration stored as JSON (e.g. secondary CTA, feature lists).</span>
         </label>
 
@@ -706,7 +706,7 @@
         </div>
 
         <!-- live preview -->
-        <div class="overflow-hidden rounded-[8px] border border-ink/10">
+        <div class="overflow-hidden rounded-none border border-ink/10">
           <div class="border-b border-ink/10 bg-sand/40 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Live preview</div>
           <div class="relative grid min-h-[180px] place-items-center overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green p-6 text-center text-white">
             {#if bg.video}
@@ -749,7 +749,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(28,26,22,0.18)]">
     Deleting section...
   </div>
 {/if}
@@ -760,7 +760,7 @@
     transition:fade={{ duration: 140 }}
   >
     <div
-      class="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_24px_80px_rgba(28,26,22,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
     >
       <div class="flex items-center justify-between border-b border-ink/10 bg-sand/30 p-4">

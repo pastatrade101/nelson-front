@@ -7,7 +7,7 @@
   let message = '';
   let loading = false;
   let conversationId = '';
-  let reply = 'I am an AI advisor. Tell me where you want to travel, your timing, duration, and budget, and I can suggest matching Goldfinch tours.';
+  let reply = 'I am an AI safari advisor. Tell me when you want to travel, who is coming, how long you have, and your budget, and I can suggest the right Emnel safari.';
   let error = '';
 
   const submit = async () => {
@@ -52,7 +52,7 @@
   {/if}
 
   <form class="mt-4 flex gap-2" on:submit|preventDefault={submit}>
-    <input class="min-w-0 flex-1 rounded-md border border-ink/10 bg-surface px-3 py-3 text-sm outline-none focus:border-forest" bind:value={message} placeholder="Ask about Tanzania, Kenya, Rwanda, budget, timing..." />
+    <input class="min-w-0 flex-1 rounded-md border border-ink/10 bg-surface px-3 py-3 text-sm outline-none focus:border-forest" bind:value={message} placeholder="Ask about the Serengeti, Kilimanjaro, Zanzibar, budget, timing..." />
     <button class="grid h-11 w-11 place-items-center rounded-md bg-forest text-white disabled:opacity-60" type="submit" disabled={loading} aria-label="Send message">
       <Send size={18} />
     </button>

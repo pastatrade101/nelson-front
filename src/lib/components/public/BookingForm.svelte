@@ -195,7 +195,7 @@
         <CheckCircle2 size={26} />
       </span>
       <div>
-        <h3 class="text-xl font-bold text-heading">Thank you! Your request has been received.</h3>
+        <h3 class="text-xl font-bold text-heading">Thank you. Your request has been received.</h3>
         <p class="mt-1 text-sm text-ink/70">A local travel specialist will contact you shortly.</p>
       </div>
     </div>

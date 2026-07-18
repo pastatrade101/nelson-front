@@ -54,7 +54,7 @@
   };
 </script>
 
-<div class="min-w-0 rounded-[8px] border border-dashed border-forest/20 bg-surface/70 p-4 shadow-sm">
+<div class="min-w-0 rounded-none border border-dashed border-forest/20 bg-surface/70 p-4 shadow-sm">
   <div class="grid min-w-0 gap-3">
     <div class="min-w-0">
       <p class="text-sm font-semibold text-ink">{label}</p>

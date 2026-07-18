@@ -162,10 +162,10 @@
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Scheduled Departures</p>
     <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-normal md:text-[44px]" use:revealHeading>
-      Confirmed East Africa Departure Dates
+      Confirmed Tanzania Safari Departure Dates
     </h1>
     <p class="mx-auto mt-4 max-w-2xl text-[15px] font-medium leading-7 text-white/75 md:text-lg">
-      Browse our scheduled safari, Kilimanjaro, gorilla trekking and beach departures with confirmed dates, availability and pricing. Reserve a place or let a local expert tailor your own.
+      Browse our scheduled safari, Kilimanjaro and Zanzibar beach departures with confirmed dates, availability and pricing. Reserve a place or let a local expert tailor your own.
     </p>
   </div>
 </section>
@@ -173,7 +173,7 @@
 <section class="bg-sand/40 py-12 md:py-16">
   <div class="container-shell">
     <!-- ── filter bar ──────────────────────────────────────────────────── -->
-    <div class="rounded-[8px] border border-ink/10 bg-surface p-4 shadow-[0_14px_44px_rgba(15,47,36,0.06)] sm:p-5">
+    <div class="rounded-none border border-ink/10 bg-surface p-4 shadow-[0_14px_44px_rgba(28,26,22,0.06)] sm:p-5">
       <div class="grid gap-3 lg:grid-cols-[1.4fr_repeat(4,1fr)_auto] lg:items-end">
         <label class="grid gap-2 text-sm font-medium text-ink">
           <span>Search</span>
@@ -206,14 +206,14 @@
       {:else if departures.length === 0}
         <EmptyState title="No departures match your filters" message="Try a different month or destination — or plan a custom trip and we'll schedule dates around you." />
         <div class="mt-5 flex justify-center">
-          <Button href="/plan-my-trip">Plan My Trip</Button>
+          <Button href="/plan-my-trip">Plan My Safari</Button>
         </div>
       {:else}
         <p class="mb-5 text-sm font-medium text-ink/70">{grouped.length} tour{grouped.length === 1 ? '' : 's'} · {departures.length} upcoming departure{departures.length === 1 ? '' : 's'}</p>
         <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
           {#each grouped as g (g.tour.tour_id)}
             {@const dates = expanded.has(g.tour.tour_id) ? g.dates : g.dates.slice(0, 3)}
-            <article class="group flex flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]" use:tilt={{ max: 5 }}>
+            <article class="group flex flex-col overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]" use:tilt={{ max: 5 }}>
               <div class="relative aspect-[16/10] overflow-hidden bg-skywash">
                 {#if g.tour.main_image_url}
                   <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={g.tour.main_image_url} alt={g.tour.tour_title} loading="lazy" />

@@ -25,7 +25,7 @@
         { key: 'ga4', icon: BarChart3, name: 'Google Analytics 4', status: data.ga4, env: ['GA4_PROPERTY_ID', 'GOOGLE_CLIENT_EMAIL', 'GOOGLE_PRIVATE_KEY'], hint: 'Service-account credentials (backend only). Powers the traffic section of the analytics dashboard.' },
         { key: 'hubspot', icon: Users, name: 'HubSpot CRM', status: data.hubspot, env: ['HUBSPOT_ACCESS_TOKEN', 'HUBSPOT_PORTAL_ID'], hint: 'Private-app token. Leads sync to HubSpot contacts/deals when connected.' },
         { key: 'whatsappCloudApi', icon: MessageCircle, name: 'WhatsApp Cloud API', status: data.whatsappCloudApi, env: ['WHATSAPP_ACCESS_TOKEN', 'WHATSAPP_PHONE_NUMBER_ID'], hint: 'Optional two-way messaging. The wa.me CTA + click tracking work without this.' },
-        { key: 'aiAdvisor', icon: Bot, name: 'AI Travel Advisor', status: data.aiAdvisor, env: ['ANTHROPIC_API_KEY'], hint: 'Anthropic key for the public AI advisor.' },
+        { key: 'aiAdvisor', icon: Bot, name: 'AI Safari Advisor', status: data.aiAdvisor, env: ['ANTHROPIC_API_KEY'], hint: 'Anthropic key for the public AI advisor.' },
         { key: 'turnstile', icon: ShieldCheck, name: 'Cloudflare Turnstile', status: data.turnstile, env: ['TURNSTILE_SECRET_KEY'], hint: 'Optional bot protection for the AI advisor.' }
       ]
     : [];
@@ -39,14 +39,14 @@
   </div>
 
   {#if loading}
-    <div class="grid gap-4">{#each Array(5) as _}<div class="h-24 animate-pulse rounded-[10px] border border-ink/10 bg-surface/70"></div>{/each}</div>
+    <div class="grid gap-4">{#each Array(5) as _}<div class="h-24 animate-pulse rounded-none border border-ink/10 bg-surface/70"></div>{/each}</div>
   {:else if !data}
     <p class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">Unable to load integration status.</p>
   {:else}
     <div class="grid gap-4">
       {#each rows as row}
         {@const Icon = row.icon}
-        <article class="flex flex-col gap-4 rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card sm:flex-row sm:items-center sm:justify-between">
+        <article class="flex flex-col gap-4 rounded-none border border-ink/10 bg-surface p-5 shadow-card sm:flex-row sm:items-center sm:justify-between">
           <div class="flex items-start gap-3">
             <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-forest/10 text-forest ring-1 ring-ink/5 dark:text-goldfinch-gold"><Icon size={19} /></span>
             <div class="min-w-0">

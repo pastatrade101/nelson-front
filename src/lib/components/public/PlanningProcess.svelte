@@ -14,7 +14,7 @@
     { title: 'You confirm when ready', text: 'No pressure, no payment to start — you decide if and when.' }
   ];
 
-  // Callers can pass a tailored set (e.g. the Plan My Trip sidebar); defaults
+  // Callers can pass a tailored set (e.g. the Plan My Safari sidebar); defaults
   // keep every existing usage unchanged.
   export let steps: Step[] = defaultSteps;
 </script>

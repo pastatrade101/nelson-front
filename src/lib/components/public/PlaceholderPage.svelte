@@ -4,7 +4,7 @@
   import LeadCaptureForm from './LeadCaptureForm.svelte';
   import SectionHeader from './SectionHeader.svelte';
 
-  export let description = 'This route is prepared for Goldfinch content, SEO, CMS data, and future visual design.';
+  export let description = 'This route is prepared for Emnel content, SEO, CMS data, and future visual design.';
   export let showAdvisor = false;
   export let showLeadForm = false;
   export let title = brand.name;

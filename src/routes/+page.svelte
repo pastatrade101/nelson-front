@@ -2,24 +2,22 @@
   import { onMount } from 'svelte';
   import { ArrowRight, Check, MessageCircle } from '@lucide/svelte';
   import { api } from '$lib/api/client';
-  import BlogCard from '$lib/components/public/BlogCard.svelte';
   import DestinationCard from '$lib/components/public/DestinationCard.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import { faqLd } from '$lib/seo';
-  import FeaturedTripsShowcase from '$lib/components/public/FeaturedTripsShowcase.svelte';
-  import PopularDestinationsPromo from '$lib/components/public/PopularDestinationsPromo.svelte';
   import StatsCounter from '$lib/components/public/StatsCounter.svelte';
+  import FounderStorySection from '$lib/components/public/FounderStorySection.svelte';
+  import GuestReviewsSection from '$lib/components/public/GuestReviewsSection.svelte';
   import HeroSection from '$lib/components/public/HeroSection.svelte';
+  import JournalFeatureSection from '$lib/components/public/JournalFeatureSection.svelte';
   import PartnerStrip from '$lib/components/public/PartnerStrip.svelte';
-  import TrustStrip from '$lib/components/public/TrustStrip.svelte';
-  import PlanningProcess from '$lib/components/public/PlanningProcess.svelte';
-  import PopularActivitiesSlider from '$lib/components/public/PopularActivitiesSlider.svelte';
+  import SafariParksIntroSection from '$lib/components/public/SafariParksIntroSection.svelte';
+  import SafariProcessSection from '$lib/components/public/SafariProcessSection.svelte';
+  import SafariShowcaseGrid from '$lib/components/public/SafariShowcaseGrid.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
-  import TestimonialCard from '$lib/components/public/TestimonialCard.svelte';
   import PriceRangeBlock from '$lib/components/public/PriceRangeBlock.svelte';
   import DealCard from '$lib/components/public/DealCard.svelte';
-  import TripFinderBand from '$lib/components/public/TripFinderBand.svelte';
   import { fadeUpOnScroll, sectionReveal, staggeredCardReveal } from '$lib/animations';
   import { placeholderDestinations, placeholderFaqs, placeholderPosts, placeholderTestimonials, placeholderTours } from '$lib/data/placeholders';
   import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
@@ -44,16 +42,39 @@
   let sections: Record<string, HomeSection> = {};
 
   // CMS lookup with a safe fallback so the existing design never breaks.
-  const cms = (key: string, field: keyof HomeSection, fallback: string) => {
+  // Reactive ($:) so it re-reads `sections` after onMount loads them — otherwise
+  // every cms('…') in the markup would be computed once (with empty sections)
+  // and never update, so admin homepage edits (e.g. the hero image) never show.
+  $: cms = (key: string, field: keyof HomeSection, fallback: string): string => {
     const value = sections[key]?.[field];
     return typeof value === 'string' && value.trim() ? value : fallback;
   };
 
+  const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
+  const DEFAULT_PARKS_CONTENT =
+    'From the endless Serengeti plains to the crater floor of Ngorongoro, the elephant woodlands of Tarangire, and the Indian Ocean coast of Zanzibar - Tanzania holds more extraordinary wildlife experiences within a single country than anywhere else on Earth.';
+  const DEFAULT_PARKS_QUOTE =
+    '"One country. Endless safari worlds - each one shaped around your season, pace, and reason for travel."';
+  const DEFAULT_PARKS_CLOSING =
+    'We design private routes across northern Tanzania, southern Tanzania, and the coast so every park has a reason to be in your itinerary.';
+  const DEFAULT_FOUNDER_CONTENT =
+    "Emnel Adventures started in Arusha in 2016 with a name, a story, and $200. The name carries weight: Emily, Nelson's daughter, and Nelson Kambo himself - two people, one vision, and one extraordinary country to share.\n\nNelson started Emnel with a belief that there was a better way to show Tanzania than through a reseller or fixed-package operator. He wanted guests to experience the country the way he knows it - from the inside, with someone who grew up in its shadow, reads its seasons, and understands that a great safari is built on specific knowledge, not generic itineraries.\n\nToday, Nelson and our team of certified Tanzanian guides handle every safari personally - from the first message through the last day in the field. That has not changed. It will not.";
+  const DEFAULT_FOUNDER_QUOTE =
+    '"We are a living tribute to what is possible when you refuse to accept the limitations others place on you. Every safari we run honours that."';
+  const DEFAULT_FOUNDER_CAPTION =
+    'Nelson Kambo - founder and head guide, Emnel Adventures, Arusha.';
+  const DEFAULT_PROCESS_QUOTE = '"One conversation. One contact. One safari that is genuinely yours."';
+  const DEFAULT_REVIEWS_QUOTE = '"From first enquiry to last game drive - consistently extraordinary."';
   $: heroExtra = (sections.hero?.extra_data ?? {}) as Record<string, unknown>;
+  $: parksExtra = (sections.safari_parks_intro?.extra_data ?? {}) as Record<string, unknown>;
+  $: founderExtra = (sections.founder_story?.extra_data ?? {}) as Record<string, unknown>;
+  $: processExtra = (sections.how_it_works?.extra_data ?? {}) as Record<string, unknown>;
+  $: blogExtra = (sections.blog_preview?.extra_data ?? {}) as Record<string, unknown>;
+  $: testimonialExtra = (sections.testimonials?.extra_data ?? {}) as Record<string, unknown>;
 
   const hexToRgba = (hex: string, alpha: number) => {
     const match = /^#?([0-9a-fA-F]{6})$/.exec(hex);
-    if (!match) return `rgba(15,47,36,${alpha})`;
+    if (!match) return `rgba(28,26,22,${alpha})`;
     const n = parseInt(match[1], 16);
     return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
   };
@@ -69,7 +90,7 @@
   const DEFAULT_CTA_IMAGE =
     'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1600&q=70';
   $: ctaImageResolved = ctaImage || DEFAULT_CTA_IMAGE;
-  $: ctaOverlayColor = typeof ctaExtra.overlay_color === 'string' ? ctaExtra.overlay_color : '#0F2F24';
+  $: ctaOverlayColor = typeof ctaExtra.overlay_color === 'string' ? ctaExtra.overlay_color : '#1C1A16';
   $: ctaOverlayOpacity = typeof ctaExtra.overlay_opacity === 'number' ? ctaExtra.overlay_opacity : 0.7;
   $: ctaOverlayStyle =
     ctaExtra.overlay_gradient !== false
@@ -92,63 +113,120 @@
   })();
 
   onMount(async () => {
-    try {
-      const [tourResponse, destinationResponse, postResponse, testimonialResponse, faqResponse, homepageResponse] = await Promise.all([
-        api.tours.list({ limit: 3 }),
-        api.destinations.list({ limit: 3 }),
-        api.blog.list({ limit: 3 }),
-        api.testimonials.list({ limit: 6 }),
-        api.faqs.list({ limit: 5 }),
-        api.homepage.get()
-      ]);
+    // Each request is independent: a failure (or emptiness) in one collection
+    // must never blank the others — in particular, a hiccup in tours/blog/faqs
+    // should not wipe the CMS homepage sections and drop the hero to its default.
+    const [tourRes, destRes, postRes, testRes, faqRes, homeRes] = await Promise.allSettled([
+      api.tours.list({ limit: 6 }),
+      api.destinations.list({ limit: 3 }),
+      api.blog.list({ limit: 3 }),
+      api.testimonials.list({ limit: 6 }),
+      api.faqs.list({ limit: 5 }),
+      api.homepage.get()
+    ]);
 
-      tours = tourResponse.data.items.length ? tourResponse.data.items : placeholderTours;
-      destinations = destinationResponse.data.items.length ? destinationResponse.data.items : placeholderDestinations;
-      posts = postResponse.data.items.length ? postResponse.data.items : placeholderPosts;
-      testimonials = testimonialResponse.data.items.length ? testimonialResponse.data.items : placeholderTestimonials;
-      faqs = faqResponse.data.items.length ? faqResponse.data.items : placeholderFaqs;
+    if (tourRes.status === 'fulfilled' && tourRes.value.data.items.length) tours = tourRes.value.data.items;
+    if (destRes.status === 'fulfilled' && destRes.value.data.items.length) destinations = destRes.value.data.items;
+    if (postRes.status === 'fulfilled' && postRes.value.data.items.length) posts = postRes.value.data.items;
+    if (testRes.status === 'fulfilled' && testRes.value.data.items.length) testimonials = testRes.value.data.items;
+    if (faqRes.status === 'fulfilled' && faqRes.value.data.items.length) faqs = faqRes.value.data.items;
 
-      const sectionList = (homepageResponse.data ?? []) as unknown as HomeSection[];
+    if (homeRes.status === 'fulfilled') {
+      const sectionList = (homeRes.value.data ?? []) as unknown as HomeSection[];
       sections = Object.fromEntries(sectionList.map((section) => [section.section_key, section]));
-    } catch {
-      tours = placeholderTours;
-      destinations = placeholderDestinations;
-      posts = placeholderPosts;
-      testimonials = placeholderTestimonials;
-      faqs = placeholderFaqs;
-      sections = {};
     }
   });
 </script>
 
 <HeroSection
-  title={cms('hero', 'title', 'Plan East Africa With Confidence')}
-  description={cms('hero', 'subtitle', 'Honest safari, Kilimanjaro, gorilla trekking and beach advice from local experts.')}
-  imageUrl={cms('hero', 'image_url', '/images/surf-hero.jpg')}
-  primaryCta={cms('hero', 'button_text', 'Plan My Trip')}
-  secondaryCta={typeof heroExtra.secondary_cta_text === 'string' ? heroExtra.secondary_cta_text : 'Talk to a Travel Advisor'}
+  title={cms('hero', 'title', 'Where the wild speaks, we know how to listen.')}
+  description={cms('hero', 'subtitle', 'Private Tanzania safaris, Kilimanjaro climbs and Zanzibar extensions planned by local experts in Arusha.')}
+  eyebrow={typeof heroExtra.eyebrow === 'string' ? heroExtra.eyebrow : 'Private Tanzania Safaris · Authentic Experience · Local Experts'}
+  imageUrl={cms('hero', 'image_url', DEFAULT_HERO_IMAGE)}
+  imagePosition={typeof heroExtra.media_position === 'string' ? heroExtra.media_position : 'center'}
+  primaryCta={cms('hero', 'button_text', 'Plan My Safari')}
+  primaryCtaUrl={cms('hero', 'button_url', '/plan-my-trip')}
+  secondaryCta={typeof heroExtra.secondary_cta_text === 'string' ? heroExtra.secondary_cta_text : 'Talk to a Safari Advisor'}
   secondaryCtaUrl={typeof heroExtra.secondary_cta_url === 'string' ? heroExtra.secondary_cta_url : '/contact'}
+  trustLine={typeof heroExtra.trust_line === 'string' ? heroExtra.trust_line : 'TripAdvisor · TLTO Certified · Private vehicles only · Tanzania-born team · Dedicated safari specialist'}
 />
 
-<TrustStrip />
+<SafariParksIntroSection
+  eyebrow={typeof parksExtra.eyebrow === 'string' ? parksExtra.eyebrow : "Tanzania's Greatest Safari Parks"}
+  title={cms('safari_parks_intro', 'title', 'The Best Safari Destinations')}
+  accentTitle={typeof parksExtra.accent_title === 'string' ? parksExtra.accent_title : 'in Tanzania'}
+  content={cms('safari_parks_intro', 'content', DEFAULT_PARKS_CONTENT)}
+  quote={typeof parksExtra.quote === 'string' ? parksExtra.quote : DEFAULT_PARKS_QUOTE}
+  closing={typeof parksExtra.closing === 'string' ? parksExtra.closing : DEFAULT_PARKS_CLOSING}
+  ctaLabel="Explore Destinations"
+  ctaHref="/destinations"
+  stats={Array.isArray(parksExtra.stats) ? parksExtra.stats : undefined}
+  parks={Array.isArray(parksExtra.parks) ? parksExtra.parks : undefined}
+/>
 
-<!-- Trip Finder entry (spec §4.1 B) -->
-<TripFinderBand />
+<SafariShowcaseGrid
+  eyebrow="Private Safari Itineraries"
+  title="Six Routes"
+  accentTitle="to Start From"
+  content="Use these safari and climb ideas as starting points. Every route can be adjusted around your dates, pace, lodges, and the season you travel."
+  ctaLabel={cms('safari_parks_intro', 'button_text', 'View Safari Itineraries')}
+  ctaHref={cms('safari_parks_intro', 'button_url', '/tours')}
+  {tours}
+/>
 
-<PopularActivitiesSlider />
+<FounderStorySection
+  eyebrow={typeof founderExtra.eyebrow === 'string' ? founderExtra.eyebrow : "The Founder's Story"}
+  title={cms('founder_story', 'title', 'Built in Tanzania.')}
+  accentTitle={typeof founderExtra.accent_title === 'string' ? founderExtra.accent_title : 'For Those Who Want Africa Properly.'}
+  content={cms('founder_story', 'content', DEFAULT_FOUNDER_CONTENT)}
+  quote={typeof founderExtra.quote === 'string' ? founderExtra.quote : DEFAULT_FOUNDER_QUOTE}
+  imageUrl={cms('founder_story', 'image_url', 'https://images.unsplash.com/photo-1523805009345-7448845a9e53')}
+  imageCaption={typeof founderExtra.image_caption === 'string' ? founderExtra.image_caption : DEFAULT_FOUNDER_CAPTION}
+  primaryCta={cms('founder_story', 'button_text', 'Read the Full Story')}
+  primaryHref={cms('founder_story', 'button_url', '/about')}
+  secondaryCta={typeof founderExtra.secondary_cta_text === 'string' ? founderExtra.secondary_cta_text : 'Speak to Nelson'}
+  secondaryHref={typeof founderExtra.secondary_cta_url === 'string' ? founderExtra.secondary_cta_url : '/contact'}
+/>
 
-<FeaturedTripsShowcase />
+<SafariProcessSection
+  eyebrow={typeof processExtra.eyebrow === 'string' ? processExtra.eyebrow : 'Simple From the Start'}
+  title={cms('how_it_works', 'title', 'How a Private Tanzania Safari')}
+  accentTitle={typeof processExtra.accent_title === 'string' ? processExtra.accent_title : 'With Emnel Works'}
+  subtitle={cms('how_it_works', 'subtitle', "Custom safari booking can feel complicated. It is not - not when you work directly with the people who run the safaris. Here is how it works from first message to first game drive.")}
+  quote={typeof processExtra.quote === 'string' ? processExtra.quote : DEFAULT_PROCESS_QUOTE}
+  ctaLabel={cms('how_it_works', 'button_text', 'Begin Your Journey')}
+  ctaHref={cms('how_it_works', 'button_url', '/plan-my-trip')}
+  steps={Array.isArray(processExtra.steps) ? processExtra.steps : undefined}
+/>
 
-<PopularDestinationsPromo />
+<JournalFeatureSection
+  eyebrow={typeof blogExtra.eyebrow === 'string' ? blogExtra.eyebrow : 'The Emnel Journal'}
+  title={cms('blog_preview', 'title', 'Field Notes From')}
+  accentTitle={typeof blogExtra.accent_title === 'string' ? blogExtra.accent_title : 'Tanzania'}
+  ctaLabel={cms('blog_preview', 'button_text', 'View All Articles')}
+  ctaHref={cms('blog_preview', 'button_url', '/blog')}
+  {posts}
+/>
+
+<GuestReviewsSection
+  eyebrow={typeof testimonialExtra.eyebrow === 'string' ? testimonialExtra.eyebrow : 'Guest Experiences'}
+  title={cms('testimonials', 'title', 'What Guests Say About')}
+  accentTitle={typeof testimonialExtra.accent_title === 'string' ? testimonialExtra.accent_title : 'Their Tanzania Safari'}
+  subtitle={cms('testimonials', 'subtitle', 'Every review is from a guest who travelled with Emnel Adventures on a private, tailor-made safari.')}
+  quote={typeof testimonialExtra.quote === 'string' ? testimonialExtra.quote : DEFAULT_REVIEWS_QUOTE}
+  ctaLabel={cms('testimonials', 'button_text', 'Plan Your Safari')}
+  ctaHref={cms('testimonials', 'button_url', '/plan-my-trip')}
+  {testimonials}
+/>
 
 <StatsCounter />
 
-<section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-surface to-surface py-14 md:py-20" use:sectionReveal>
+<section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-surface to-surface py-16 md:py-24" use:sectionReveal>
   <span class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl" aria-hidden="true"></span>
   <div class="container-shell relative">
     <div class="mx-auto max-w-2xl text-center" use:fadeUpOnScroll={{ y: 14 }}>
-      <p class="font-serif text-xl italic text-clay">Limited Time Offers</p>
-      <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]">
+      <p class="brand-eyebrow">Limited Time Offers</p>
+      <h2 class="mt-4 text-3xl font-normal tracking-normal text-heading md:text-[40px]">
         {cms('featured_tours', 'title', 'Exclusive Safari Deals & Travel Offers')}
       </h2>
       <p class="mt-3 text-[15px] font-medium leading-7 text-ink/70 md:text-lg">
@@ -156,7 +234,7 @@
       </p>
     </div>
     <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal>
-      {#each tours as tour, i}
+      {#each tours.slice(0, 3) as tour, i}
         <DealCard {tour} index={i} />
       {/each}
     </div>
@@ -164,7 +242,7 @@
 </section>
 
 <!-- typical cost band (spec §4.1 F / §6) -->
-<section class="bg-sand/40 py-14 md:py-20" use:sectionReveal>
+<section class="bg-canvas py-16 md:py-24" use:sectionReveal>
   <div class="container-shell">
     <PriceRangeBlock
       title={cms('cost_ranges', 'title', 'What trips typically cost')}
@@ -174,7 +252,7 @@
   </div>
 </section>
 
-<section class="bg-surface py-14" use:sectionReveal>
+<section class="bg-sand/40 py-16 md:py-24" use:sectionReveal>
   <div class="container-shell">
     <div class="flex flex-wrap items-end justify-between gap-4">
       <SectionHeader eyebrow="Places" title={cms('featured_destinations', 'title', 'Destinations')} description={cms('featured_destinations', 'subtitle', 'Destination content can be managed from the CMS.')} />
@@ -182,41 +260,9 @@
         See all Destinations <ArrowRight size={16} />
       </a>
     </div>
-    <div class="mt-8 grid gap-6 md:grid-cols-3" use:staggeredCardReveal>
+    <div class="mt-10 grid gap-6 md:grid-cols-3" use:staggeredCardReveal>
       {#each destinations as destination}
         <DestinationCard {destination} />
-      {/each}
-    </div>
-  </div>
-</section>
-
-<section class="container-shell py-14" use:sectionReveal>
-  <div class="flex flex-wrap items-end justify-between gap-4">
-    <SectionHeader eyebrow="Stories" title={cms('blog_preview', 'title', 'Latest Blog Posts')} description={cms('blog_preview', 'subtitle', 'Blog posts are pulled from the backend when available.')} />
-    <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href="/blog">
-      View all <ArrowRight size={16} />
-    </a>
-  </div>
-  <div class="mt-8 grid gap-6 md:grid-cols-3" use:staggeredCardReveal>
-    {#each posts as post}
-      <BlogCard {post} />
-    {/each}
-  </div>
-</section>
-
-<section class="bg-surface py-14 md:py-20" use:sectionReveal>
-  <div class="container-shell">
-    <div class="mx-auto max-w-2xl text-center" use:fadeUpOnScroll={{ y: 14 }}>
-      <h2 class="text-3xl font-extrabold tracking-normal text-heading md:text-[40px]">
-        {cms('testimonials', 'title', 'What Our Travelers Say')}
-      </h2>
-      <p class="mx-auto mt-3 max-w-xl text-[15px] font-medium leading-7 text-ink/70 md:text-lg">
-        {cms('testimonials', 'subtitle', 'Real stories from travelers who planned their East Africa trip with confidence.')}
-      </p>
-    </div>
-    <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
-      {#each testimonials as testimonial}
-        <TestimonialCard {testimonial} />
       {/each}
     </div>
   </div>
@@ -225,27 +271,10 @@
 {#if faqs.length}
   <JsonLd data={faqLd(faqs.map((f) => ({ q: f.question, a: f.answer })))} />
 {/if}
-<section class="bg-sand/40 py-14 md:py-16" use:sectionReveal>
-  <div class="container-shell grid gap-8 md:grid-cols-[0.7fr_1.3fr]">
-    <SectionHeader eyebrow="Good to Know" title="Frequently Asked Questions" description="Honest answers to the questions East Africa travelers ask most." />
+<section class="bg-canvas py-16 md:py-24" use:sectionReveal>
+  <div class="container-shell grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-12">
+    <SectionHeader eyebrow="Good to Know" title="Frequently Asked Questions" description="Honest answers to the questions Tanzania safari travellers ask most." />
     <FAQAccordion {faqs} />
-  </div>
-</section>
-
-<section class="bg-surface py-14 md:py-20" use:sectionReveal>
-  <div class="container-shell">
-    <PlanningProcess
-      title={cms('how_it_works', 'title', 'How planning works')}
-      subtitle={cms('how_it_works', 'subtitle', 'A calm, transparent process — no pressure, and no payment to start.')}
-    />
-    <div class="mt-10 flex justify-center">
-      <a
-        class="inline-flex h-12 items-center gap-2 rounded-xl bg-deep-green px-7 font-bold text-white shadow-sm transition hover:bg-forest"
-        href="/plan-my-trip"
-      >
-        Start planning <ArrowRight size={18} />
-      </a>
-    </div>
   </div>
 </section>
 
@@ -272,22 +301,22 @@
 
     <div class="container-shell relative py-16 text-center md:py-24" use:fadeUpOnScroll={{ y: 18 }}>
       <div class="mx-auto max-w-3xl">
-        <p class="font-serif text-xl italic text-savanna">Start Your Journey</p>
+        <p class="brand-eyebrow">Start Your Journey</p>
 
-        <h2 class="mt-5 text-3xl font-extrabold leading-[1.1] tracking-normal md:text-[44px]">
-          {cms('final_cta', 'title', 'Ready to Plan Your East Africa Adventure?')}
+        <h2 class="mt-5 text-3xl font-normal leading-[1.12] tracking-normal md:text-[44px]">
+          {cms('final_cta', 'title', 'Ready to plan your private Tanzania safari?')}
         </h2>
 
         <p class="mx-auto mt-4 max-w-xl text-[15px] font-medium leading-7 text-white/75 md:text-lg">
-          {cms('final_cta', 'subtitle', 'Talk to a local expert and travel with confidence — no payment needed to start planning.')}
+          {cms('final_cta', 'subtitle', 'Talk to a local expert in Arusha and travel with confidence — no payment needed to start planning.')}
         </p>
 
         <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a
-            class="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-7 text-sm font-bold text-heading shadow-lg shadow-goldfinch-gold/20 transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-deep-green sm:w-auto md:h-[52px] md:text-base"
+            class="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-goldfinch-gold px-7 text-sm font-semibold text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-deep-green sm:w-auto md:h-[52px] md:text-base"
             href={cms('final_cta', 'button_url', '/plan-my-trip')}
           >
-            {cms('final_cta', 'button_text', 'Plan My Trip')}
+            {cms('final_cta', 'button_text', 'Plan My Safari')}
             <ArrowRight size={18} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
           </a>
           <a
@@ -295,7 +324,7 @@
             href="/contact"
           >
             <MessageCircle size={17} strokeWidth={2.4} />
-            Talk to a Travel Advisor
+            Talk to a Safari Advisor
           </a>
         </div>
 

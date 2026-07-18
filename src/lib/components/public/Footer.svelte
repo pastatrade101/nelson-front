@@ -68,18 +68,16 @@
     </div>
 
     <div>
-      <p class="text-sm font-semibold">Explore</p>
+      <p class="text-sm font-semibold">Safaris</p>
       <div class="mt-3 grid gap-2 text-sm text-white/70">
-        <a class="w-fit transition hover:text-white" href="/tours">Tours</a>
+        <a class="w-fit transition hover:text-white" href="/tours">All Safaris</a>
+        <a class="w-fit transition hover:text-white" href="/tours?category=great-migration">Great Migration</a>
+        <a class="w-fit transition hover:text-white" href="/tours?category=family-safari">Family Safari</a>
+        <a class="w-fit transition hover:text-white" href="/tours?category=honeymoon-safari">Honeymoon Safari</a>
+        <a class="w-fit transition hover:text-white" href="/tours?category=photography-safari">Photography Safari</a>
+        <a class="w-fit transition hover:text-white" href="/kilimanjaro">Kilimanjaro</a>
         <a class="w-fit transition hover:text-white" href="/destinations">Destinations</a>
-        <a class="w-fit transition hover:text-white" href="/countries">Countries</a>
-        <a class="w-fit transition hover:text-white" href="/destination-scores">Destination Scores</a>
-        <a class="w-fit transition hover:text-white" href="/experiences">Experiences</a>
-        <a class="w-fit transition hover:text-white" href="/travel-styles">Travel Styles</a>
-        <a class="w-fit transition hover:text-white" href="/expert-advice">Expert Advice</a>
-        <a class="w-fit transition hover:text-white" href="/compare">Compare</a>
-        <a class="w-fit transition hover:text-white" href="/gallery">Gallery</a>
-        <a class="w-fit transition hover:text-white" href="/plan-my-trip">{brand.primaryCta}</a>
+        <a class="w-fit transition hover:text-white" href="/plan-my-trip">Tailor-Made</a>
       </div>
     </div>
 
@@ -87,6 +85,9 @@
       <p class="text-sm font-semibold">Company</p>
       <div class="mt-3 grid gap-2 text-sm text-white/70">
         <a class="w-fit transition hover:text-white" href="/about">About</a>
+        <a class="w-fit transition hover:text-white" href="/blog">Journal</a>
+        <a class="w-fit transition hover:text-white" href="/experiences">Experiences</a>
+        <a class="w-fit transition hover:text-white" href="/gallery">Gallery</a>
         <a class="w-fit transition hover:text-white" href="/safety">Health &amp; Safety</a>
         <a class="w-fit transition hover:text-white" href="/contact">Contact</a>
         <a class="w-fit transition hover:text-white" href="/admin">{brand.adminName}</a>

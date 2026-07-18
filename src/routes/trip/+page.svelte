@@ -109,7 +109,7 @@
 </script>
 
 <svelte:head>
-  <title>Your trip · Goldfinch Adventures</title>
+  <title>Your trip · Emnel Adventures</title>
   <meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
@@ -156,7 +156,7 @@
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <p class="text-xs font-bold uppercase tracking-[0.16em] text-goldfinch-gold">Your trip</p>
-        <h1 class="mt-1 text-2xl font-extrabold tracking-tight text-heading md:text-3xl">{trip.tour?.title ?? 'Your East Africa trip'}</h1>
+        <h1 class="mt-1 text-2xl font-extrabold tracking-tight text-heading md:text-3xl">{trip.tour?.title ?? 'Your Tanzania safari'}</h1>
         <p class="mt-1 text-sm text-ink/60">Booking reference <span class="font-mono font-bold text-ink/80">{trip.booking_code}</span></p>
       </div>
       <div class="flex items-center gap-2">

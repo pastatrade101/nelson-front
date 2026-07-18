@@ -11,7 +11,7 @@
     { label: 'Safari', from: 'from $1,500', note: 'Guiding, park fees & lodges', image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801' },
     { label: 'Kilimanjaro', from: 'from $1,900', note: 'Guides, crew, meals & route support', image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b' },
     { label: 'Zanzibar beach', from: 'from $850', note: 'Beach stays & transfers', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e' },
-    { label: 'Gorilla trekking', from: 'from $2,400', note: 'Includes the gorilla permit', image: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e' }
+    { label: 'Tanzania + Kenya combined', from: 'from $3,200', note: 'Serengeti & Masai Mara in one trip', image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801' }
   ];
 
   // Keyword → image fallback so CMS-provided rows still get a fitting backdrop.
@@ -21,7 +21,6 @@
     const s = row.label.toLowerCase();
     if (/kilimanjaro|trek|climb|mountain/.test(s)) return 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b';
     if (/beach|zanzibar|coast|island/.test(s)) return 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e';
-    if (/gorilla|primate|chimp/.test(s)) return 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e';
     if (/migration|safari|wildlife|game/.test(s)) return 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
     return FALLBACK_IMG;
   };
@@ -35,7 +34,7 @@
 
   <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     {#each rows as row}
-      <div class="group relative flex min-h-[200px] flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_20px_44px_rgba(15,47,36,0.14)]">
+      <div class="group relative flex min-h-[200px] flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_20px_44px_rgba(28,26,22,0.14)]">
         <!-- very faint photo texture -->
         <img
           class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.08] transition duration-700 group-hover:scale-105 group-hover:opacity-[0.14]"

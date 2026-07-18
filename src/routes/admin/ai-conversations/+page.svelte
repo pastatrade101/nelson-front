@@ -53,16 +53,16 @@
   const money = (v?: number | null) => `$${Number(v ?? 0).toFixed(4)}`;
 </script>
 
-<svelte:head><title>AI Conversations | Goldfinch CMS</title></svelte:head>
+<svelte:head><title>AI Conversations | Emnel CMS</title></svelte:head>
 
 <section class="grid gap-6">
   <AdminPageHeader
     eyebrow="AI System"
     title="AI Conversations"
-    description="Goldfinch AI Travel Advisor leads — transcripts, lead score, recommendations, handoff and booking status."
+    description="Emnel AI Safari Advisor leads — transcripts, lead score, recommendations, handoff and booking status."
   />
 
-  <div class="rounded-[10px] border border-ink/10 bg-surface p-4 shadow-card">
+  <div class="rounded-none border border-ink/10 bg-surface p-4 shadow-card">
     <div class="grid gap-3 md:grid-cols-[1fr_180px_180px]">
       <label class="grid gap-1.5 text-xs font-semibold text-ink/60">
         Search
@@ -101,13 +101,13 @@
   {:else if error}
     <p class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>
   {:else if !filtered.length}
-    <div class="grid place-items-center gap-2 rounded-[10px] border border-dashed border-ink/15 bg-surface py-16 text-center">
+    <div class="grid place-items-center gap-2 rounded-none border border-dashed border-ink/15 bg-surface py-16 text-center">
       <span class="grid h-12 w-12 place-items-center rounded-full bg-forest/10 text-forest"><Bot size={22} /></span>
       <p class="text-sm font-semibold text-ink">No AI conversations yet</p>
       <p class="max-w-sm text-sm text-ink/55">Leads from the public AI advisor widget will appear here.</p>
     </div>
   {:else}
-    <div class="overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-card">
+    <div class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-card">
       <table class="w-full text-left text-sm">
         <thead class="border-b border-ink/10 bg-black/[0.02] text-[11px] uppercase tracking-wide text-ink/50">
           <tr>

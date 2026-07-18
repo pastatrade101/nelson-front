@@ -12,7 +12,7 @@ export const SPECIALISTS: Specialist[] = [
   {
     name: 'Amani Mushi',
     role: 'Safari & Kilimanjaro Specialist',
-    blurb: 'Born and raised in Arusha, with 12+ years planning East Africa trips. Honest advice, no pressure.'
+    blurb: 'Born and raised in Arusha, with 12+ years planning private Tanzania safaris. Honest advice, no pressure.'
   },
   {
     name: 'Neema Laizer',

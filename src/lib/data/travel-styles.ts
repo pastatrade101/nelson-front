@@ -1,6 +1,6 @@
 // Travel styles (SRS v2.0 type 6) — persona-led landing pages, shipped as static
 // config (no schema/backend change). `persona` links results to the tailored
-// /tours?persona= view where it maps; otherwise the CTA goes to Plan My Trip.
+// /tours?persona= view where it maps; otherwise the CTA goes to Plan My Safari.
 export type TravelStyle = {
   slug: string;
   name: string;

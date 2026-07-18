@@ -36,6 +36,7 @@
     Settings,
     ShieldCheck,
     Tags,
+    Upload,
     Users
   } from '@lucide/svelte';
   import { brand } from '$lib/brand';
@@ -74,7 +75,8 @@
         { href: '/admin/itineraries', label: 'Itineraries', icon: Route },
         { href: '/admin/available-dates', label: 'Available Dates', icon: CalendarDays },
         { href: '/admin/pricing-options', label: 'Pricing Options', icon: CircleDollarSign },
-        { href: '/admin/tour-details', label: 'Tour Details', icon: ListCheck }
+        { href: '/admin/tour-details', label: 'Tour Details', icon: ListCheck },
+        { href: '/admin/import', label: 'Import Content (CSV)', icon: Upload }
       ]
     },
     {
@@ -221,7 +223,7 @@
     </a>
     <div class={`min-w-0 transition duration-200 ${collapsed ? 'lg:hidden lg:opacity-0' : 'opacity-100'}`}>
       <a class="block truncate text-base font-bold tracking-normal text-white" href="/admin" on:click={handleNavigate}>{brand.adminName}</a>
-      <p class="truncate text-xs font-medium text-savanna/75">Goldfinch Travel Platform</p>
+      <p class="truncate text-xs font-medium text-savanna/75">Emnel Adventures Platform</p>
     </div>
     <button class={`ml-auto hidden h-9 w-9 place-items-center rounded-lg border border-white/10 text-savanna transition hover:bg-surface/10 hover:text-white lg:grid ${collapsed ? 'lg:hidden' : ''}`} type="button" aria-label="Collapse sidebar" on:click={onToggleDesktop}>
       <ChevronLeft size={17} />
@@ -293,6 +295,6 @@
   <!-- Copyright (hidden when the sidebar is collapsed). Profile + Logout live in
        the top-bar account menu. -->
   <div class={`border-t border-white/10 px-4 py-3 ${collapsed ? 'lg:hidden' : ''}`}>
-    <p class="text-[11px] leading-5 text-savanna/45">© {year} Goldfinch Adventures.<br />All rights reserved.</p>
+    <p class="text-[11px] leading-5 text-savanna/45">© {year} Emnel Adventures.<br />All rights reserved.</p>
   </div>
 </aside>

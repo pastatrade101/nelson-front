@@ -20,7 +20,7 @@
   $: planHref = `/plan-my-trip${tourSlug ? `?tour=${tourSlug}` : ''}`;
 </script>
 
-<section class="rounded-[8px] border border-ink/10 bg-surface p-6 shadow-soft md:p-7">
+<section class="rounded-none border border-ink/10 bg-surface p-6 shadow-soft md:p-7">
   <h2 class="text-xl font-bold tracking-normal text-heading md:text-2xl">What this trip costs</h2>
 
   {#if priceFrom}

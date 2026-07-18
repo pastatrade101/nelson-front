@@ -375,12 +375,12 @@
 {:else if rows.length === 0}
   <AdminEmptyState
     title="No destinations found"
-    message="Create your first Goldfinch destination to start building public destination pages and tour filters."
+    message="Create your first Emnel destination to start building public destination pages and tour filters."
     actionLabel="Create destination"
     on:action={openCreateModal}
   />
 {:else}
-  <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+  <div class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
     <div class="overflow-x-auto">
       <table class="w-full min-w-[980px] text-start text-sm">
         <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -435,7 +435,7 @@
 
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-none border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(28,26,22,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editingDestination ? 'Edit destination' : 'New destination'}</p>
@@ -511,7 +511,7 @@
         </div>
 
         <div class="grid gap-4 lg:grid-cols-3">
-          <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
+          <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
             <div>
               <h3 class="text-base font-semibold text-ink">Main image</h3>
               <p class="mt-1 text-sm text-ink/55">Used for destination cards and list views.</p>
@@ -519,7 +519,7 @@
             <MediaPicker label="Main image" media={mediaItems} uploadFolder="destinations" bind:value={form.main_image_url} />
           </section>
 
-          <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
+          <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
             <div>
               <h3 class="text-base font-semibold text-ink">Banner image</h3>
               <p class="mt-1 text-sm text-ink/55">Used for public destination page headers.</p>
@@ -527,7 +527,7 @@
             <MediaPicker label="Banner image" media={mediaItems} uploadFolder="destinations" bind:value={form.banner_image_url} />
           </section>
 
-          <section class="grid gap-4 rounded-[8px] border border-ink/10 bg-sand/20 p-4">
+          <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
             <div>
               <h3 class="text-base font-semibold text-ink">Open Graph image</h3>
               <p class="mt-1 text-sm text-ink/55">Used when the destination is shared online.</p>
@@ -564,7 +564,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(28,26,22,0.18)]">
     Deleting destination...
   </div>
 {/if}

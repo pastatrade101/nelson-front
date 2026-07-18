@@ -28,13 +28,13 @@ export type Branding = {
 };
 
 export const defaultColors: BrandColors = {
-  clay: '#b86b45',
-  deep_green: '#0F2F24',
-  forest: '#1f4d3a',
-  goldfinch_gold: '#D9A441',
-  ink: '#18211f',
-  sand: '#F7F1E3',
-  savanna: '#E9D8A6'
+  clay: '#4A3728',
+  deep_green: '#1C1A16',
+  forest: '#4A3728',
+  goldfinch_gold: '#C5A265',
+  ink: '#1C1A16',
+  sand: '#FAFAF7',
+  savanna: '#E8E0D2'
 };
 
 export const defaultBranding: Branding = {
@@ -66,7 +66,7 @@ const cssVarMap: Record<keyof BrandColors, string> = {
   savanna: '--c-savanna'
 };
 
-/** Convert "#1f4d3a" → "31 77 58" (the space-separated RGB Tailwind needs). */
+/** Convert "#4A3728" → "74 55 40" (the space-separated RGB Tailwind needs). */
 export const hexToRgbTriple = (hex: string): string | null => {
   const match = /^#?([0-9a-fA-F]{6})$/.exec((hex ?? '').trim());
   if (!match) return null;

@@ -75,7 +75,7 @@
     ? [
         { label: 'Visitors', value: overview.visitors, helper: 'Unique sessions (first-party)', icon: Users, trend: `${overview.interactions} interactions` },
         { label: 'Total leads', value: overview.totalLeads, helper: 'Requests in range', icon: ClipboardList, trend: `${overview.leadConversionRate}% of visitors` },
-        { label: 'Plan My Trip', value: overview.planMyTripSubmissions, helper: 'General planning leads', icon: MapPin, trend: 'Submissions' },
+        { label: 'Plan My Safari', value: overview.planMyTripSubmissions, helper: 'General planning leads', icon: MapPin, trend: 'Submissions' },
         { label: 'Request This Trip', value: overview.requestTripSubmissions, helper: 'Tour-specific leads', icon: Send, trend: 'Submissions' },
         { label: 'AI advisor leads', value: overview.aiLeads, helper: `${overview.aiAdvisorOpened} advisor opens`, icon: Bot, trend: 'From chat' },
         { label: 'WhatsApp clicks', value: overview.whatsappClicks, helper: `${overview.phoneClicks} phone · ${overview.emailClicks} email`, icon: MessageCircle, trend: 'Contact intent' },
@@ -147,14 +147,14 @@
 
   {#if loading}
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {#each Array(8) as _}<div class="h-28 animate-pulse rounded-[10px] border border-ink/10 bg-surface/70"></div>{/each}
+      {#each Array(8) as _}<div class="h-28 animate-pulse rounded-none border border-ink/10 bg-surface/70"></div>{/each}
     </div>
   {:else}
     <!-- overview cards -->
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {#each cards as c}
         {@const Icon = c.icon}
-        <article class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+        <article class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
           <div class="flex items-start justify-between">
             <span class="grid h-11 w-11 place-items-center rounded-2xl bg-forest/10 text-forest ring-1 ring-ink/5 dark:text-goldfinch-gold"><Icon size={19} /></span>
             <span class="rounded-full bg-sand/70 px-2.5 py-1 text-[10px] font-bold text-ink/55 ring-1 ring-ink/5">{c.trend}</span>
@@ -168,7 +168,7 @@
 
     <!-- GA4 traffic (Phase 2) -->
     {#if ga4}
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <div class="mb-4 flex items-center justify-between">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Website traffic · GA4</p>
@@ -230,7 +230,7 @@
 
     <!-- funnel -->
     {#if funnel}
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <div class="mb-4">
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Conversion funnel</p>
           <h3 class="mt-1 text-xl font-bold text-ink">Visitor → Booked</h3>
@@ -249,14 +249,14 @@
 
     <!-- charts row -->
     <div class="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Leads over time</p>
         <h3 class="mt-1 text-xl font-bold text-ink">Leads by day</h3>
         <div class="mt-3">
           {#if (leads?.leadsByDay ?? []).length}<ChartCanvas {...leadsLineCfg} height={280} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No leads in this range yet.</p>{/if}
         </div>
       </div>
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Where leads come from</p>
         <h3 class="mt-1 text-xl font-bold text-ink">Lead source</h3>
         <div class="mt-3">
@@ -266,14 +266,14 @@
     </div>
 
     <div class="grid gap-6 xl:grid-cols-2">
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Demand</p>
         <h3 class="mt-1 text-xl font-bold text-ink">Most requested destinations</h3>
         <div class="mt-3">
           {#if (leads?.byDestination ?? []).some((x) => x.label !== 'Not specified' && x.value > 0)}<ChartCanvas {...destBarCfg} height={280} />{:else}<p class="grid h-[280px] place-items-center text-sm text-ink/45">No destination data yet.</p>{/if}
         </div>
       </div>
-      <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Budget</p>
         <h3 class="mt-1 text-xl font-bold text-ink">Budget range mix</h3>
         <div class="mt-3">
@@ -285,7 +285,7 @@
     <!-- ranked breakdowns -->
     <div class="grid gap-6 lg:grid-cols-3">
       {#each breakdownBlocks as block}
-        <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+        <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
           <h3 class="text-sm font-bold text-ink">{block.t}</h3>
           {#if block.rows.length}
             <div class="mt-3 grid gap-2.5">
@@ -311,7 +311,7 @@
     <!-- first-party traffic (until GA4 in Phase 2) -->
     {#if traffic}
       <div class="grid gap-6 lg:grid-cols-[0.55fr_0.45fr]">
-        <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+        <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
           <h3 class="text-sm font-bold text-ink">Top tracked events</h3>
           {#if topEventRows.rows.length}
             <div class="mt-3 grid gap-2.5">
@@ -331,7 +331,7 @@
             <p class="mt-3 text-sm text-ink/45">No events captured yet — they'll appear as visitors interact.</p>
           {/if}
         </div>
-        <div class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card">
+        <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
           <h3 class="text-sm font-bold text-ink">Devices</h3>
           <div class="mt-3">
             {#if traffic.byDevice.some((x) => x.value > 0)}<ChartCanvas {...deviceDonutCfg} height={200} />{:else}<p class="grid h-[200px] place-items-center text-sm text-ink/45">No device data yet.</p>{/if}

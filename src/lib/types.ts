@@ -36,6 +36,7 @@ export type Tour = {
   currency?: string;
   main_image_url?: string;
   banner_image_url?: string;
+  sample_itinerary?: unknown;
   highlights?: string[];
   difficulty_level?: string | null;
   group_size?: string;
@@ -286,7 +287,7 @@ export type AiChatResponse = {
   tourMatches: Array<Record<string, unknown>>;
 };
 
-// Goldfinch AI Travel Advisor — streamed chat (v2).
+// Emnel AI Safari Advisor — streamed chat (v2).
 export type AdvisorRecommendation = {
   tour_id: string;
   title: string;

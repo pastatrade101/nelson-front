@@ -6,7 +6,7 @@
   import '../app.css';
   import Navbar from '$lib/components/public/Navbar.svelte';
   import Footer from '$lib/components/public/Footer.svelte';
-  import GoldfinchAIAdvisor from '$lib/components/public/GoldfinchAIAdvisor.svelte';
+  import EmnelAIAdvisor from '$lib/components/public/EmnelAIAdvisor.svelte';
   import ConsentBanner from '$lib/components/public/ConsentBanner.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import PersistentCTA from '$lib/components/public/PersistentCTA.svelte';
@@ -49,6 +49,21 @@
       // Defaults already live in app.css :root — nothing to do on failure.
     }
   };
+
+  // Makutano AI widget (public site only). The URL is env-configurable so local
+  // dev can point at the local widget server (http://localhost:5173/widget.js)
+  // while production uses the hosted one. Injected dynamically so it reliably runs.
+  const loadMakutanoWidget = () => {
+    const url = publicEnv.PUBLIC_MAKUTANO_WIDGET_URL || 'https://app.makutano.digital/widget.js';
+    if (!url || document.getElementById('makutano-widget')) return;
+    const script = document.createElement('script');
+    script.id = 'makutano-widget';
+    script.src = url;
+    script.async = true;
+    script.setAttribute('data-client', publicEnv.PUBLIC_MAKUTANO_CLIENT || 'emnel-adventures');
+    document.body.appendChild(script);
+  };
+  $: if (browser && !isAdmin) loadMakutanoWidget();
 
   // Load GA4 (gtag) on the public site — gated by consent ('granted') above and a
   // configured PUBLIC_GA4_MEASUREMENT_ID. This activates trackEvent's GA4 path.
@@ -107,7 +122,7 @@
   <ShortlistFab />
   <PersistentCTA />
   {#if showAdvisor}
-    <GoldfinchAIAdvisor />
+    <EmnelAIAdvisor />
   {/if}
   <ConsentBanner />
 {/if}

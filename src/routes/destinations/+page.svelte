@@ -102,12 +102,16 @@
   <section class="sticky top-0 z-20 border-b border-ink/10 bg-surface/95 backdrop-blur">
     <div class="container-shell py-4">
       {#if countries.length > 2}
-        <div class="hide-scroll mb-3 flex gap-2 overflow-x-auto">
+        <div class="hide-scroll -mb-px mb-3 flex gap-7 overflow-x-auto border-b border-ink/10" role="tablist">
           {#each countries as country}
             <button
               type="button"
-              class={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
-                activeCountry === country ? 'border-forest bg-forest text-white' : 'border-ink/15 bg-surface text-ink/70 hover:border-forest/40'
+              role="tab"
+              aria-selected={activeCountry === country}
+              class={`shrink-0 border-b-2 px-0.5 pb-3 text-[15px] font-semibold tracking-tight transition ${
+                activeCountry === country
+                  ? 'border-goldfinch-gold text-heading'
+                  : 'border-transparent text-ink/55 hover:border-ink/20 hover:text-heading'
               }`}
               on:click={() => selectCountry(country)}
             >
@@ -147,7 +151,7 @@
             Explore {selected.name} in full <ArrowRight size={16} />
           </a>
           <a class="inline-flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-surface px-5 font-semibold text-ink transition hover:bg-sand/60" href={`/plan-my-trip?destination=${selected.slug}`}>
-            Plan My Trip
+            Plan My Safari
           </a>
         </div>
       </div>

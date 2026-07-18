@@ -40,14 +40,14 @@
       href: '/destinations'
     },
     {
-      badge: 'Limited permits',
+      badge: 'Iconic',
       badgeTone: 'red',
       duration: 'Half to full day',
-      image: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=900&q=85',
-      location: 'Volcanoes NP, Rwanda',
-      price: 1500,
+      image: 'https://images.unsplash.com/photo-1534177616072-ef7dc120449d?auto=format&fit=crop&w=900&q=85',
+      location: 'Serengeti, Tanzania',
+      price: 250,
       priceLabel: 'Per person',
-      title: 'Mountain Gorilla Trek',
+      title: 'Great Migration Game Drive',
       href: '/destinations'
     },
     {
@@ -114,7 +114,7 @@
       <p class="font-serif text-xl italic text-clay">Things to do</p>
       <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>Popular Activities</h2>
       <p class="mx-auto mt-3 max-w-[620px] text-[15px] leading-7 text-ink/70 md:text-base">
-        A curated list of the most-loved experiences across our East-Africa destinations.
+        A curated list of the most-loved experiences across our Tanzania, Kenya & Zanzibar destinations.
       </p>
     </div>
 
@@ -124,7 +124,7 @@
     >
       {#each activities as activity}
         <article
-          class="activity-card group relative flex h-full flex-col overflow-hidden rounded-[12px] border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]"
+          class="activity-card group relative flex h-full flex-col overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]"
           use:tilt={{ max: 5 }}
         >
           <a href={activity.href} class="relative block aspect-[16/10] overflow-hidden bg-skywash">
@@ -167,7 +167,7 @@
             <div class="mt-auto flex items-center justify-between gap-3 border-t border-ink/[0.08] pt-4">
               <a
                 href={activity.href}
-                class="inline-flex items-center gap-1.5 rounded-[8px] bg-forest px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-deep-green"
+                class="inline-flex items-center gap-1.5 rounded-none bg-forest px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-deep-green"
               >
                 Explore
                 <ArrowUpRight size={16} strokeWidth={2.6} class="transition-transform duration-300 group-hover:translate-x-0.5" />

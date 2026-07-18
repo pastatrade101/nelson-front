@@ -289,7 +289,7 @@
   {:else}
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {#each rows as t (t.id)}
-        <article class="flex flex-col gap-4 rounded-[8px] border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(15,47,36,0.06)]" transition:fade={{ duration: 120 }}>
+        <article class="flex flex-col gap-4 rounded-none border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(28,26,22,0.06)]" transition:fade={{ duration: 120 }}>
           <div class="flex items-start gap-3">
             {#if t.client_image_url}
               <img class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-ink/10" src={t.client_image_url} alt={t.client_name} />
@@ -351,7 +351,7 @@
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-none border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(28,26,22,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >
@@ -387,7 +387,7 @@
         </div>
 
         <!-- client image -->
-        <div class="rounded-[8px] border border-ink/10 bg-sand/25 p-4">
+        <div class="rounded-none border border-ink/10 bg-sand/25 p-4">
           <MediaPicker label="Client image" media={mediaItems} uploadFolder="testimonials" aspect="aspect-square" bind:value={form.client_image_url} />
         </div>
 
@@ -424,7 +424,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(28,26,22,0.18)]">
     Deleting testimonial...
   </div>
 {/if}

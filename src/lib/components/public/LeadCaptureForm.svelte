@@ -4,10 +4,10 @@
   import SelectInput from './SelectInput.svelte';
   import TextArea from './TextArea.svelte';
 
-  export let title = 'Plan your East Africa trip';
+  export let title = 'Plan your Tanzania safari';
   export let compact = false;
 
-  const travelInterests = ['Safari', 'Kilimanjaro', 'Gorilla Trekking', 'Beach Holiday', 'Multi-country'].map((value) => ({
+  const travelInterests = ['Safari', 'Kilimanjaro', 'Safari + Zanzibar', 'Beach Holiday', 'Multi-country'].map((value) => ({
     label: value,
     value
   }));
@@ -20,9 +20,9 @@
 
 <form class={`grid gap-4 rounded-lg border border-ink/10 bg-surface p-5 shadow-soft ${compact ? '' : 'md:p-6'}`}>
   <div>
-    <p class="text-sm font-semibold uppercase tracking-[0.14em] text-goldfinch-gold">Goldfinch Lead Engine</p>
+    <p class="text-sm font-semibold uppercase tracking-[0.14em] text-goldfinch-gold">Emnel Lead Engine</p>
     <h3 class="mt-2 text-2xl font-bold tracking-normal text-heading">{title}</h3>
-    <p class="mt-2 text-sm leading-6 text-ink/70">Tell us the basics and a local advisor can shape a confident safari, Kilimanjaro, gorilla trekking, or beach plan.</p>
+    <p class="mt-2 text-sm leading-6 text-ink/70">Tell us the basics and a local advisor can shape a confident safari, Kilimanjaro, or Zanzibar beach plan.</p>
   </div>
 
   <div class="grid gap-4 md:grid-cols-2">
@@ -35,7 +35,7 @@
   <TextArea label="Trip notes" name="message" placeholder="Dates, travelers, countries, must-see places..." />
 
   <div class="flex flex-wrap gap-3">
-    <Button href="/plan-my-trip">Plan My Trip</Button>
-    <Button href="/contact" variant="secondary">Talk to a Travel Advisor</Button>
+    <Button href="/plan-my-trip">Plan My Safari</Button>
+    <Button href="/contact" variant="secondary">Talk to a Safari Advisor</Button>
   </div>
 </form>

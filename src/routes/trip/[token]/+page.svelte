@@ -18,7 +18,7 @@
 </script>
 
 <svelte:head>
-  <title>Opening your trip · Goldfinch Adventures</title>
+  <title>Opening your trip · Emnel Adventures</title>
   <meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 

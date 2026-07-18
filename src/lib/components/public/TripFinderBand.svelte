@@ -41,13 +41,13 @@
 </script>
 
 <section class="container-shell py-14 md:py-20">
-  <div class="group relative grid overflow-hidden rounded-[14px] shadow-[0_18px_50px_rgba(15,47,36,0.12)] transition-shadow duration-500 hover:shadow-[0_30px_70px_rgba(15,47,36,0.20)] lg:grid-cols-[1.05fr_0.95fr]">
+  <div class="group relative grid overflow-hidden rounded-none shadow-[0_18px_50px_rgba(28,26,22,0.12)] transition-shadow duration-500 hover:shadow-[0_30px_70px_rgba(28,26,22,0.20)] lg:grid-cols-[1.05fr_0.95fr]">
     <!-- ── content panel ─────────────────────────────────────────── -->
     <div class="relative flex flex-col justify-center gap-6 bg-deep-green p-8 sm:p-10 md:p-12">
       <!-- map-dot texture -->
       <span
         class="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style="background-image: radial-gradient(circle, #E9D8A6 1px, transparent 1.5px); background-size: 22px 22px;"
+        style="background-image: radial-gradient(circle, #E8E0D2 1px, transparent 1.5px); background-size: 22px 22px;"
         aria-hidden="true"
       ></span>
       <!-- warm gold glow -->
@@ -75,7 +75,7 @@
         <div class="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
           <a
             href="/trip-finder"
-            class="inline-flex h-14 items-center gap-2.5 rounded-[10px] bg-goldfinch-gold px-7 text-[15px] font-bold text-heading shadow-[0_10px_28px_rgba(217,164,65,0.45)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            class="inline-flex h-14 items-center gap-2.5 rounded-none bg-goldfinch-gold px-7 text-[15px] font-bold text-heading shadow-[0_10px_28px_rgba(217,164,65,0.45)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             Start Trip Finder
             <ArrowRight size={18} strokeWidth={2.6} class="transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -105,8 +105,8 @@
       <!-- floating destination previews (hidden on the smallest screens) -->
       <div class="absolute bottom-4 right-4 hidden w-36 flex-col gap-3 sm:flex">
         {#each previews as p (p.label)}
-          <div class="overflow-hidden rounded-[10px] border border-white/50 bg-surface/90 p-1.5 shadow-[0_10px_26px_rgba(15,47,36,0.28)] backdrop-blur transition-transform duration-300 hover:-translate-y-0.5">
-            <div class="relative h-20 overflow-hidden rounded-[7px]">
+          <div class="overflow-hidden rounded-none border border-white/50 bg-surface/90 p-1.5 shadow-[0_10px_26px_rgba(28,26,22,0.28)] backdrop-blur transition-transform duration-300 hover:-translate-y-0.5">
+            <div class="relative h-20 overflow-hidden rounded-none">
               <img class="h-full w-full object-cover" src={p.src} alt={p.label} loading="lazy" />
               <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep-green/80 to-transparent px-2 py-1 text-[11px] font-bold text-white">
                 {p.label}

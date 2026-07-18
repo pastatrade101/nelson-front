@@ -13,8 +13,6 @@ const routes = [
   '/countries',
   '/countries/tanzania',
   '/countries/kenya',
-  '/countries/rwanda',
-  '/countries/uganda',
   '/gallery',
   '/blog',
   '/expert-advice',

@@ -28,7 +28,6 @@
         { value: 'safari', label: 'Safari' },
         { value: 'kilimanjaro', label: 'Kilimanjaro' },
         { value: 'beach', label: 'Beach / Zanzibar' },
-        { value: 'gorilla', label: 'Gorilla trekking' },
         { value: 'cultural', label: 'Cultural' },
         { value: '', label: 'Not sure yet' }
       ]
@@ -117,7 +116,6 @@
     safari: ['safari'],
     kilimanjaro: ['kilimanjaro', 'climb'],
     beach: ['beach', 'zanzibar', 'coast'],
-    gorilla: ['gorilla'],
     cultural: ['cultur']
   };
   const expMatches = (cat: string, exp: string) =>
@@ -147,7 +145,7 @@
     if (lengthMatches(t.duration_days ?? 0, answers.length)) r.push(`${t.duration_days} days`);
     const cap = Number(answers.budget || 0);
     if (cap && t.price_from && t.price_from <= cap) r.push('within your budget');
-    return r.length ? `Matches ${r.join(' · ')}.` : 'A trusted East Africa starting point.';
+    return r.length ? `Matches ${r.join(' · ')}.` : 'A trusted Tanzania starting point.';
   };
 
   $: recommendations = (() => {
@@ -213,7 +211,7 @@
         </div>
 
         <!-- question -->
-        <div class="mt-8 rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_18px_50px_rgba(15,47,36,0.07)] md:p-8">
+        <div class="mt-8 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_18px_50px_rgba(28,26,22,0.07)] md:p-8">
           <h2 class="text-xl font-bold text-heading md:text-2xl">{current.title}</h2>
           {#if current.subtitle}<p class="mt-1 text-sm text-ink/70">{current.subtitle}</p>{/if}
 
@@ -251,7 +249,7 @@
         <div class="mt-8 grid gap-4">
           {#if recommendations.length}
             {#each recommendations as rec (rec.tour.id)}
-              <article class="flex flex-col overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(15,47,36,0.07)] sm:flex-row">
+              <article class="flex flex-col overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] sm:flex-row">
                 <div class="aspect-[16/10] w-full shrink-0 overflow-hidden bg-skywash sm:aspect-auto sm:w-44">
                   {#if rec.tour.main_image_url}
                     <img class="h-full w-full object-cover" src={rec.tour.main_image_url} alt={rec.tour.title} loading="lazy" />
@@ -279,7 +277,7 @@
               </article>
             {/each}
           {:else}
-            <div class="rounded-[8px] border border-dashed border-ink/15 bg-surface p-8 text-center">
+            <div class="rounded-none border border-dashed border-ink/15 bg-surface p-8 text-center">
               <p class="font-semibold text-heading">We couldn't auto-match a trip — but we can still help.</p>
               <p class="mt-1 text-sm text-ink/70">Tell a specialist what you have in mind and we'll plan it around you.</p>
             </div>

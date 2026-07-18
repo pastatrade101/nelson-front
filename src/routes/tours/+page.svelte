@@ -67,7 +67,7 @@
       const items = res.data.items ?? [];
       allTours = items.length ? items : placeholderTours;
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Unable to load tours.';
+      error = err instanceof Error ? err.message : 'Unable to load itineraries.';
       allTours = placeholderTours;
     } finally {
       loading = false;
@@ -189,13 +189,13 @@
 </script>
 
 <svelte:head>
-  <title>Safari &amp; Tour Packages | Goldfinch Adventures</title>
-  <meta name="description" content="Browse and filter East Africa safari and tour packages — by destination, experience, length, price and comfort level." />
+  <title>Safari Itineraries | Emnel Adventures</title>
+  <meta name="description" content="Browse and filter private Tanzania safari itineraries by destination, experience, length, price and comfort level." />
 </svelte:head>
 
 <section class="container-shell py-10 md:py-14">
   {#if personaCfg}
-    <div class="overflow-hidden rounded-[10px] border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
+    <div class="overflow-hidden rounded-none border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
       <p class="font-serif text-xl italic text-clay">For {personaCfg.label}</p>
       {#key personaCfg.headline}
         <h1 class="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight text-heading md:text-4xl" use:revealHeading>{personaCfg.headline}</h1>
@@ -211,11 +211,11 @@
       </div>
     </div>
   {:else}
-    <p class="font-serif text-xl italic text-clay">Safari &amp; Tours</p>
-    <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>African Safari Tours &amp; Holidays</h1>
+    <p class="font-serif text-xl italic text-clay">Safari Itineraries</p>
+    <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>Private Tanzania Safari Itineraries</h1>
     <p class="mt-3 max-w-3xl text-base leading-7 text-ink/70">
-      Explore our trusted East Africa tours — safaris, Kilimanjaro climbs, gorilla trekking and beach escapes.
-      Use the filters to find the trip that fits your dates, budget and style.
+      Explore route ideas for private safaris, Kilimanjaro climbs and Zanzibar beach escapes.
+      Use the filters to find the itinerary that fits your dates, budget and style.
     </p>
   {/if}
 
@@ -257,7 +257,7 @@
               Keyword
               <span class="flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-surface px-3 transition focus-within:border-forest focus-within:ring-2 focus-within:ring-forest/15">
                 <Search size={16} class="text-ink/40" />
-                <input name="q" value={searchTerm} placeholder="e.g. migration, gorilla" class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" />
+                <input name="q" value={searchTerm} placeholder="e.g. migration, Kilimanjaro" class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" />
               </span>
             </label>
             <button type="submit" class="h-11 rounded-xl bg-deep-green text-sm font-bold text-white transition hover:bg-forest">Search</button>
@@ -267,7 +267,7 @@
         <!-- tour length -->
         {#if rangesReady}
           <div class="rounded-2xl border border-ink/10 bg-surface p-5">
-            <p class="text-sm font-bold text-ink">Tour Length</p>
+            <p class="text-sm font-bold text-ink">Itinerary Length</p>
             <div class="mt-4">
               <RangeSlider min={lenMin} max={lenMax} bind:lo={lengthLo} bind:hi={lengthHi} format={days} />
             </div>
@@ -340,7 +340,7 @@
           >
             <SlidersHorizontal size={15} /> Filters{#if activeCount}<span class="rounded-full bg-forest px-1.5 text-xs text-white">{activeCount}</span>{/if}
           </button>
-          <p class="text-sm text-ink/70">{#if !loading}<span class="font-bold text-ink">{sorted.length}</span> tour{sorted.length === 1 ? '' : 's'}{/if}</p>
+          <p class="text-sm text-ink/70">{#if !loading}<span class="font-bold text-ink">{sorted.length}</span> itinerar{sorted.length === 1 ? 'y' : 'ies'}{/if}</p>
         </div>
         <label class="flex items-center gap-2 text-sm text-ink/70">
           Sort
@@ -384,13 +384,13 @@
 
       <div class="mt-6">
         {#if loading}
-          <LoadingState message="Loading tours..." />
+          <LoadingState message="Loading itineraries..." />
         {:else if error && allTours.length === 0}
           <ErrorState message={error} />
         {:else if sorted.length === 0}
           <EmptyState
-            title="No tours match your filters"
-            message="Try widening your dates, budget or destination — or plan a custom trip and we'll tailor it to you."
+            title="No itineraries match your filters"
+            message="Try widening your dates, budget or destination — or plan a custom safari and we'll tailor it to you."
           />
         {:else}
           <div class="grid gap-6 sm:grid-cols-2" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
@@ -410,16 +410,16 @@
     align-items: center;
     gap: 0.375rem;
     border-radius: 999px;
-    border: 1px solid rgba(31, 77, 58, 0.2);
-    background: rgba(31, 77, 58, 0.06);
+    border: 1px solid rgba(74,55,40, 0.2);
+    background: rgba(74,55,40, 0.06);
     padding: 0.25rem 0.75rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #1f4d3a;
+    color: #4A3728;
     transition: background 0.15s;
   }
   :global(.chip:hover) {
-    background: rgba(31, 77, 58, 0.12);
+    background: rgba(74,55,40, 0.12);
   }
 
   /* self-scrolling filter rail: scroll by gesture (wheel/trackpad/touch),

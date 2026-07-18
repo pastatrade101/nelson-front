@@ -66,6 +66,8 @@
   let uploadFileName = '';
   let uploadAltText = '';
   let uploadCaption = '';
+  let uploadProgress = '';
+  $: uploadCount = uploadFiles?.length ?? 0;
   let editAltText = '';
   let editCaption = '';
   let toasts: Toast[] = [];
@@ -122,7 +124,8 @@
 
   const handleUploadFileChange = (event: Event) => {
     uploadFiles = (event.currentTarget as HTMLInputElement).files;
-    uploadFileName = uploadFiles?.[0]?.name ?? '';
+    const n = uploadFiles?.length ?? 0;
+    uploadFileName = n > 1 ? `${n} files selected` : (uploadFiles?.[0]?.name ?? '');
   };
 
   const resetUpload = () => {
@@ -130,6 +133,7 @@
     uploadFileName = '';
     uploadAltText = '';
     uploadCaption = '';
+    uploadProgress = '';
   };
 
   const openUploadModal = () => {
@@ -143,32 +147,54 @@
   };
 
   const uploadMedia = async () => {
-    const file = uploadFiles?.[0];
-    if (!file) {
-      showToast('Choose an image file first.', 'error');
+    const files = uploadFiles ? Array.from(uploadFiles) : [];
+    if (!files.length) {
+      showToast('Choose at least one image file first.', 'error');
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Image must be 5MB or smaller.', 'error');
+    const valid = files.filter((f) => f.size <= 5 * 1024 * 1024);
+    const skipped = files.length - valid.length;
+    if (!valid.length) {
+      showToast('Each image must be 5MB or smaller.', 'error');
       return;
     }
 
+    // Alt text is per-image, so only apply it for a single upload; a caption can
+    // reasonably be shared across a batch. Edit each image afterwards to refine.
+    const single = valid.length === 1;
     uploading = true;
+    let done = 0;
+    const failed: string[] = [];
 
     try {
-      await api.upload.image(file, 'media', {
-        alt_text: uploadAltText,
-        caption: uploadCaption
-      });
-      showToast('Media uploaded successfully.');
-      closeUploadModal();
-      page = 1;
-      await loadMedia();
-    } catch (requestError) {
-      showToast(requestError instanceof Error ? requestError.message : 'Unable to upload media.', 'error');
+      for (const file of valid) {
+        uploadProgress = `Uploading ${done + 1} of ${valid.length}…`;
+        try {
+          await api.upload.image(file, 'media', {
+            alt_text: single ? uploadAltText : '',
+            caption: uploadCaption
+          });
+          done++;
+        } catch (err) {
+          failed.push(`${file.name}: ${err instanceof Error ? err.message : 'failed'}`);
+        }
+      }
+
+      const parts: string[] = [];
+      if (done) parts.push(`${done} uploaded`);
+      if (failed.length) parts.push(`${failed.length} failed`);
+      if (skipped) parts.push(`${skipped} skipped (over 5MB)`);
+      showToast(parts.join(' · ') || 'Nothing uploaded.', failed.length || skipped ? 'error' : 'success');
+
+      if (done) {
+        closeUploadModal();
+        page = 1;
+        await loadMedia();
+      }
     } finally {
       uploading = false;
+      uploadProgress = '';
     }
   };
 
@@ -296,7 +322,7 @@
 {:else if viewMode === 'grid'}
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
     {#each rows as media}
-      <article class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(15,47,36,0.1)]">
+      <article class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(28,26,22,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(28,26,22,0.1)]">
         <div class="aspect-[4/3] bg-sand/60">
           {#if media.file_type === 'image'}
             <img class="h-full w-full object-cover" src={media.file_url} alt={media.alt_text || media.file_name} />
@@ -338,7 +364,7 @@
     {/each}
   </div>
 {:else}
-  <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+  <div class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
     <div class="overflow-x-auto">
       <table class="w-full min-w-[980px] text-start text-sm">
         <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -397,7 +423,7 @@
 {/if}
 
 {#if pagination && pagination.totalPages > 1}
-  <div class="flex flex-col gap-3 rounded-[8px] border border-ink/10 bg-surface/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(15,47,36,0.05)] sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex flex-col gap-3 rounded-none border border-ink/10 bg-surface/90 p-4 text-sm text-ink/65 shadow-[0_14px_40px_rgba(28,26,22,0.05)] sm:flex-row sm:items-center sm:justify-between">
     <p>Page {pagination.page} of {pagination.totalPages} · {pagination.total} files</p>
     <div class="flex gap-2">
       <AdminButton variant="secondary" size="sm" disabled={page <= 1} on:click={() => goToPage(page - 1)}>Previous</AdminButton>
@@ -409,11 +435,11 @@
 
 {#if uploadModalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="w-full max-w-xl rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="w-full max-w-xl rounded-none border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(28,26,22,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Upload media</p>
-          <h2 class="mt-2 text-2xl font-bold tracking-normal text-ink">Add Image</h2>
+          <h2 class="mt-2 text-2xl font-bold tracking-normal text-ink">{uploadCount > 1 ? `Add ${uploadCount} Images` : 'Add Images'}</h2>
         </div>
         <button class="grid h-10 w-10 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close modal" on:click={closeUploadModal}>
           <X size={18} />
@@ -422,19 +448,25 @@
 
       <form class="mt-6 grid gap-4" on:submit|preventDefault={uploadMedia}>
         <label class="grid gap-2 text-sm font-medium text-ink">
-          <span>Image file</span>
-          <input class="rounded-2xl border border-dashed border-forest/25 bg-sand/25 px-4 py-4 text-sm text-ink file:mr-3 file:rounded-xl file:border-0 file:bg-forest file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:border-goldfinch-gold/45" type="file" accept="image/jpeg,image/png,image/webp" on:change={handleUploadFileChange} />
-          <span class="text-xs text-ink/55">{uploadFileName || 'JPG, PNG, or WebP. Maximum 5MB.'}</span>
+          <span>Image file{uploadCount > 1 ? 's' : ''}</span>
+          <input class="rounded-2xl border border-dashed border-forest/25 bg-sand/25 px-4 py-4 text-sm text-ink file:mr-3 file:rounded-xl file:border-0 file:bg-forest file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:border-goldfinch-gold/45" type="file" accept="image/jpeg,image/png,image/webp" multiple on:change={handleUploadFileChange} />
+          <span class="text-xs text-ink/55">{uploadFileName || 'JPG, PNG, or WebP. Up to 5MB each. Select multiple to upload at once.'}</span>
         </label>
 
-        <AdminFormInput label="Alt text" name="upload_alt_text" bind:value={uploadAltText} placeholder="Describe the image for accessibility" />
+        {#if uploadCount > 1}
+          <p class="rounded-xl bg-sand/60 px-3 py-2 text-xs text-ink/65">
+            Uploading {uploadCount} images. Alt text is set per image — add it to each afterwards from the library. The caption below applies to all.
+          </p>
+        {:else}
+          <AdminFormInput label="Alt text" name="upload_alt_text" bind:value={uploadAltText} placeholder="Describe the image for accessibility" />
+        {/if}
         <AdminTextArea label="Caption" name="upload_caption" bind:value={uploadCaption} rows={3} placeholder="Optional CMS caption." />
 
         <div class="flex justify-end gap-3 pt-2">
           <AdminButton variant="secondary" type="button" on:click={closeUploadModal}>Cancel</AdminButton>
           <AdminButton type="submit" disabled={uploading}>
             <Upload size={15} />
-            {uploading ? 'Uploading...' : 'Upload Image'}
+            {uploading ? uploadProgress || 'Uploading…' : uploadCount > 1 ? `Upload ${uploadCount} Images` : 'Upload Image'}
           </AdminButton>
         </div>
       </form>
@@ -444,7 +476,7 @@
 
 {#if editModalOpen && mediaToEdit}
   <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="w-full max-w-xl rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="w-full max-w-xl rounded-none border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(28,26,22,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Edit metadata</p>
@@ -482,7 +514,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(28,26,22,0.18)]">
     Deleting media...
   </div>
 {/if}

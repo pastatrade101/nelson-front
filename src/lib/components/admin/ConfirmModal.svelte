@@ -11,7 +11,7 @@
 
 {#if open}
   <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="w-full max-w-md rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
+    <div class="w-full max-w-md rounded-none border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(28,26,22,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
       <h2 class="text-xl font-bold text-ink">{title}</h2>
       <p class="mt-2 text-sm leading-6 text-ink/70">{message}</p>
       <div class="mt-6 flex justify-end gap-3">

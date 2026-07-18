@@ -8,7 +8,7 @@ import { build, files, version } from '$service-worker';
 //  • /admin and /api: never cached — always fresh
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
-const CACHE = `goldfinch-cache-${version}`;
+const CACHE = `emnel-cache-${version}`;
 const ASSETS = [...build, ...files];
 
 sw.addEventListener('install', (event) => {

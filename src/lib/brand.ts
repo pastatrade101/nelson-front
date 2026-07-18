@@ -1,13 +1,13 @@
 export const brand = {
-  adminName: 'Goldfinch CMS',
-  aiAdvisorName: 'Goldfinch AI Travel Advisor',
-  companyName: 'Goldfinch Adventures Limited',
-  name: 'Goldfinch Adventures',
-  platformName: 'Goldfinch Travel Platform',
-  positioning: 'Travelers do not need more options. They need more confidence.',
-  primaryCta: 'Plan My Trip',
-  productName: 'East Africa Travel Platform',
-  secondaryCta: 'Talk to a Travel Advisor',
-  tagline: "Africa's Most Trusted Travel Planning Brand",
+  adminName: 'Emnel CMS',
+  aiAdvisorName: 'Emnel AI Safari Advisor',
+  companyName: 'Emnel Adventures Limited',
+  name: 'Emnel Adventures',
+  platformName: 'Emnel Adventures Platform',
+  positioning: 'Where the wild speaks, we know how to listen.',
+  primaryCta: 'Plan My Safari',
+  productName: 'Private Tanzania Safari Platform',
+  secondaryCta: 'Talk to a Safari Advisor',
+  tagline: 'Private Tanzania safaris, designed in Arusha',
   whatsappCta: 'Chat on WhatsApp'
 };

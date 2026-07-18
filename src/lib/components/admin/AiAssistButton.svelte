@@ -59,7 +59,7 @@
   </button>
 
   {#if open}
-    <div class="absolute right-0 z-50 mt-1.5 w-80 rounded-[10px] border border-ink/15 bg-surface p-3 text-left shadow-[0_18px_50px_rgba(15,47,36,0.18)]" transition:fade={{ duration: 100 }}>
+    <div class="absolute right-0 z-50 mt-1.5 w-80 rounded-none border border-ink/15 bg-surface p-3 text-left shadow-[0_18px_50px_rgba(28,26,22,0.18)]" transition:fade={{ duration: 100 }}>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold uppercase tracking-[0.14em] text-forest/70">AI draft · review before inserting</span>
         <button type="button" class="text-ink/50 hover:text-ink" on:click={close} aria-label="Close"><X size={14} /></button>

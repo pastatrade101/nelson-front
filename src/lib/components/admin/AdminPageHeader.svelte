@@ -13,7 +13,7 @@
   const dispatch = createEventDispatcher<{ action: void; secondary: void }>();
 </script>
 
-<section class="rounded-[10px] border border-ink/10 bg-surface p-5 shadow-card sm:p-6">
+<section class="rounded-none border border-ink/10 bg-surface p-5 shadow-card sm:p-6">
   <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
     <div class="max-w-3xl">
       <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{eyebrow}</p>

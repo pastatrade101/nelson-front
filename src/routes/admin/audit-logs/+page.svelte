@@ -136,7 +136,7 @@
   <p class="text-sm text-ink/60">Track who changed what across content, users, settings, media and bookings — with full before/after detail.</p>
 
   <!-- filters -->
-  <div class="rounded-[10px] border border-ink/10 bg-surface p-4 shadow-card">
+  <div class="rounded-none border border-ink/10 bg-surface p-4 shadow-card">
     <div class="flex flex-wrap items-end gap-3">
       <form class="flex min-w-[220px] flex-1 items-center gap-2 rounded-lg border border-ink/12 bg-sand/20 px-3" on:submit|preventDefault={applyFilters}>
         <Search size={16} class="text-ink/40" />
@@ -169,12 +169,12 @@
   {:else if error}
     <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
   {:else if !rows.length}
-    <div class="grid place-items-center gap-2 rounded-[10px] border border-dashed border-ink/15 bg-surface py-16 text-center">
+    <div class="grid place-items-center gap-2 rounded-none border border-dashed border-ink/15 bg-surface py-16 text-center">
       <ShieldAlert size={26} class="text-ink/30" />
       <p class="text-sm font-semibold text-ink/70">No audit entries match these filters.</p>
     </div>
   {:else}
-    <div class="overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-card">
+    <div class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-card">
       <table class="w-full text-left text-sm">
         <thead class="border-b border-ink/10 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/45">
           <tr>

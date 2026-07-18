@@ -8,8 +8,8 @@
 
   // Sensible defaults; trip/destination counts are filled from the API.
   let stats: Stat[] = [
-    { value: 12, suffix: '+', label: 'Years of local expertise', icon: Award },
-    { value: 20, suffix: '+', label: 'Tailor-made trips designed', icon: Compass },
+    { value: 9, suffix: '+', label: 'Years in Tanzania', icon: Award },
+    { value: 20, suffix: '+', label: 'Tailor-made safaris designed', icon: Compass },
     { value: 5, suffix: '', label: 'Destinations covered', icon: MapPin },
     { value: 4.9, decimals: 1, suffix: '★', label: 'Average traveller rating', icon: Star }
   ];
@@ -73,8 +73,8 @@
   });
 </script>
 
-<section class="container-shell py-12 md:py-16" use:fadeUpOnScroll={{ y: 18 }}>
-  <div bind:this={el} class="rounded-[12px] border border-ink/10 bg-surface px-6 py-10 shadow-soft md:px-10 md:py-12">
+<section class="container-shell py-14 md:py-20" use:fadeUpOnScroll={{ y: 18 }}>
+  <div bind:this={el} class="rounded-none border border-ink/10 bg-surface px-6 py-10 shadow-soft md:px-10 md:py-12">
     <div class="grid grid-cols-2 gap-x-6 gap-y-9 lg:grid-cols-4">
       {#each stats as stat, i (stat.label)}
         {@const Icon = stat.icon}

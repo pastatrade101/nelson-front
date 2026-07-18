@@ -3,28 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script>
-      // Apply the saved/system theme before first paint (no flash of light).
-      (function () {
-        try {
-          var t = localStorage.getItem('theme');
-          var dark = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (dark) document.documentElement.classList.add('dark');
-        } catch (e) {}
-      })();
-    </script>
     <link rel="icon" type="image/png" href="%sveltekit.assets%/favicon1.png" />
     <link rel="apple-touch-icon" href="%sveltekit.assets%/icons/icon-192.png" />
     <!-- PWA -->
     <link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
-    <meta name="theme-color" content="#0f2f24" />
+    <meta name="theme-color" content="#1C1A16" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Goldfinch" />
+    <meta name="apple-mobile-web-app-title" content="Emnel" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

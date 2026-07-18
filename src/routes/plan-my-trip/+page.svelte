@@ -9,7 +9,7 @@
   $: aiOn = aiAdvisorEnabled($publicSettings);
 
   const assurances = [
-    { icon: ShieldCheck, title: 'Honest, local expertise', text: 'Advice from people who live and travel East Africa every day.' },
+    { icon: ShieldCheck, title: 'Honest, local expertise', text: 'Advice from people who live and guide in Tanzania every day.' },
     { icon: Compass, title: 'Tailored to you', text: 'A plan shaped around your dates, budget, and travel style.' },
     { icon: HeartHandshake, title: 'No pressure, no payment yet', text: 'This is a planning request — you decide if and when to book.' },
     { icon: UserCheck, title: 'Human review', text: 'Every request is reviewed by a local specialist before confirmation.' }
@@ -25,10 +25,10 @@
 
 <section class="container-shell grid items-start gap-10 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:py-16">
   <aside class="lg:sticky lg:top-24">
-    <p class="font-serif text-xl italic text-clay">Plan My Trip</p>
-    <h1 class="mt-2 text-3xl font-bold leading-tight tracking-normal text-heading md:text-4xl" use:revealHeading>Plan East Africa with confidence</h1>
+    <p class="font-serif text-xl italic text-clay">Plan My Safari</p>
+    <h1 class="mt-2 text-3xl font-bold leading-tight tracking-normal text-heading md:text-4xl" use:revealHeading>Plan your Tanzania safari with confidence</h1>
     <p class="mt-3 text-base leading-7 text-ink/70">
-      Tell us what you have in mind and a Goldfinch travel specialist will craft a confident, honest plan — whether it's a safari, Kilimanjaro climb, gorilla trek, or a beach escape in Zanzibar.
+      Tell us what you have in mind and an Emnel safari specialist will craft a confident, honest plan — whether it's a private safari, a Kilimanjaro climb, or a bush-and-beach escape in Zanzibar.
     </p>
 
     <!-- Natural bridge to the AI advisor (same pipeline — it can start the very

@@ -75,7 +75,7 @@
     </div>
 
     <p class="mt-4 text-xs leading-5 text-ink/70">
-      Submitting a request does not charge you. A Goldfinch specialist confirms availability, finalises your itinerary, and shares secure payment options separately.
+      Submitting a request does not charge you. A Emnel specialist confirms availability, finalises your itinerary, and shares secure payment options separately.
     </p>
   </aside>
 

@@ -24,12 +24,12 @@
 </section>
 
 <section class="container-shell py-12 md:py-16">
-  <div class="legal-prose mx-auto max-w-3xl rounded-[12px] border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(15,47,36,0.06)] md:p-10">
+  <div class="legal-prose mx-auto max-w-3xl rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(28,26,22,0.06)] md:p-10">
     <slot />
   </div>
 
-  <div class="mx-auto mt-8 flex max-w-3xl flex-col items-start justify-between gap-3 rounded-[12px] border border-forest/15 bg-forest/[0.04] p-5 sm:flex-row sm:items-center">
-    <p class="text-sm leading-6 text-ink/70">Questions about this policy? A Goldfinch specialist is happy to help.</p>
+  <div class="mx-auto mt-8 flex max-w-3xl flex-col items-start justify-between gap-3 rounded-none border border-forest/15 bg-forest/[0.04] p-5 sm:flex-row sm:items-center">
+    <p class="text-sm leading-6 text-ink/70">Questions about this policy? A Emnel specialist is happy to help.</p>
     <a class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg bg-forest px-5 text-sm font-bold text-white transition hover:bg-deep-green" href="/contact">
       Contact us <ArrowRight size={16} />
     </a>

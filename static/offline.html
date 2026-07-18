@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Offline · Goldfinch Adventures</title>
+    <title>Offline · Emnel Adventures</title>
     <style>
       :root { color-scheme: dark; }
       * { box-sizing: border-box; }
@@ -13,25 +13,25 @@
         display: grid;
         place-items: center;
         padding: 24px;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-        background: #0e1311;
-        color: #e0e6e2;
+        font-family: "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #1C1A16;
+        color: #E8E0D2;
         text-align: center;
       }
       .card { max-width: 420px; }
       img { width: 72px; height: 72px; margin-bottom: 18px; }
-      h1 { margin: 0 0 8px; font-size: 22px; color: #fff; }
-      p { margin: 0 0 22px; line-height: 1.6; color: #aeb8b3; font-size: 15px; }
+      h1 { margin: 0 0 8px; font-family: "Cormorant Garamond", Georgia, serif; font-size: 28px; font-weight: 400; color: #fff; }
+      p { margin: 0 0 22px; line-height: 1.8; color: #E8E0D2; font-size: 15px; }
       button {
-        font: inherit; font-weight: 700; cursor: pointer;
-        background: #d9a441; color: #0f2f24; border: 0;
-        padding: 12px 22px; border-radius: 10px;
+        font: inherit; font-weight: 600; cursor: pointer;
+        background: transparent; color: #C5A265; border: 1px solid #C5A265;
+        padding: 12px 22px; border-radius: 0;
       }
     </style>
   </head>
   <body>
     <div class="card">
-      <img src="/icons/icon-192.png" alt="Goldfinch Adventures" />
+      <img src="/icons/icon-192.png" alt="Emnel Adventures" />
       <h1>You're offline</h1>
       <p>It looks like you've lost your connection. Check your network and try again — your trip planning will be right here.</p>
       <button onclick="location.reload()">Try again</button>

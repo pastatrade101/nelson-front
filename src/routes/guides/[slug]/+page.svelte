@@ -4,7 +4,7 @@
 </script>
 
 <PlaceholderPage
-  title="Goldfinch Travel Guide"
+  title="Emnel Travel Guide"
   description={`Prepared guide page for ${$page.params.slug}.`}
   showAdvisor
 />

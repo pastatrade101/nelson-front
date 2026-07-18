@@ -318,7 +318,7 @@
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {#each sorted as item (item.id)}
         {@const meta = mediaTypeMeta(item.media_type)}
-        <article class="group overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_12px_36px_rgba(15,47,36,0.06)]" transition:fade={{ duration: 120 }}>
+        <article class="group overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_12px_36px_rgba(28,26,22,0.06)]" transition:fade={{ duration: 120 }}>
           <div class="relative aspect-[4/3] overflow-hidden bg-sand/40">
             <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={item.image_url} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
             <span class={`absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ${meta.classes}`}>
@@ -351,7 +351,7 @@
       {/each}
     </div>
   {:else}
-    <div class="overflow-hidden rounded-[8px] border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(15,47,36,0.06)]">
+    <div class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[900px] text-sm">
           <thead class="bg-sand/70 text-xs uppercase tracking-[0.08em] text-ink/60">
@@ -405,7 +405,7 @@
 {#if modalOpen}
   <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form
-      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[10px] border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(15,47,36,0.18)]"
+      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-none border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(28,26,22,0.18)]"
       transition:scale={{ duration: 160, start: 0.98 }}
       on:submit|preventDefault={save}
     >
@@ -421,7 +421,7 @@
 
       <div class="mt-6 grid gap-4 lg:grid-cols-[300px_1fr]">
         <!-- image picker + preview -->
-        <div class="grid content-start gap-3 rounded-[8px] border border-ink/10 bg-sand/25 p-4">
+        <div class="grid content-start gap-3 rounded-none border border-ink/10 bg-sand/25 p-4">
           <MediaPicker label="Image" media={mediaItems} uploadFolder="gallery" aspect="aspect-[4/3]" bind:value={form.image_url} />
         </div>
 
@@ -464,7 +464,7 @@
 />
 
 {#if deleting}
-  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(15,47,36,0.18)]">
+  <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(28,26,22,0.18)]">
     Deleting gallery item...
   </div>
 {/if}

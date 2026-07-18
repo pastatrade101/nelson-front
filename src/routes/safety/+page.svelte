@@ -61,10 +61,10 @@
 </script>
 
 <svelte:head>
-  <title>Health &amp; Safety Guide | Goldfinch Adventures</title>
+  <title>Health &amp; Safety Guide | Emnel Adventures</title>
   <meta
     name="description"
-    content="Honest health and safety guidance for safaris in Tanzania, Kenya and Rwanda — vaccinations, wildlife, insurance and our 24/7 support."
+    content="Honest health and safety guidance for safaris in Tanzania, Kenya and Zanzibar — vaccinations, wildlife, insurance and our 24/7 support."
   />
 </svelte:head>
 
@@ -157,7 +157,7 @@
 
 <!-- CTA -->
 <section class="container-shell py-14 md:py-16">
-  <div class="relative overflow-hidden rounded-[10px] bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-12 text-center text-white md:px-12 md:py-16">
+  <div class="relative overflow-hidden rounded-none bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-12 text-center text-white md:px-12 md:py-16">
     <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
     <div class="relative mx-auto max-w-2xl">
       <h2 class="text-2xl font-extrabold md:text-3xl">Still have a safety question?</h2>
@@ -167,7 +167,7 @@
       </p>
       <div class="mt-7 flex flex-wrap justify-center gap-3">
         <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-lg transition hover:brightness-105" href="/plan-my-trip">
-          Plan My Trip <ArrowRight size={18} />
+          Plan My Safari <ArrowRight size={18} />
         </a>
         <a class="inline-flex h-12 items-center rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10" href="/contact">
           Talk to an Advisor

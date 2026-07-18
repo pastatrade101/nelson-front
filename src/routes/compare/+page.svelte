@@ -27,7 +27,7 @@
     <p class="font-serif text-xl italic text-savanna">Compare</p>
     <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-tight md:text-[44px]" use:revealHeading>Honest side-by-side comparisons</h1>
     <p class="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">
-      The big East Africa decisions, weighed honestly — with a clear Goldfinch verdict for each.
+      The big Tanzania safari decisions, weighed honestly — with a clear Emnel verdict for each.
     </p>
   </div>
 </section>
@@ -36,7 +36,7 @@
   <div class="grid gap-6 md:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.06 }}>
     {#each items as c (c.slug)}
       <a
-        class="group flex flex-col rounded-[12px] border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(15,47,36,0.07)] transition-shadow duration-300 hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(15,47,36,0.16)]"
+        class="group flex flex-col rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]"
         href={`/compare/${c.slug}`}
         use:tilt={{ max: 5 }}
       >
