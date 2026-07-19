@@ -51,7 +51,7 @@
   // dev can point at the local widget server (http://localhost:5173/widget.js)
   // while production uses the hosted one. Injected dynamically so it reliably runs.
   const loadMakutanoWidget = () => {
-    const url = publicEnv.PUBLIC_MAKUTANO_WIDGET_URL || 'https://app.makutano.digital/widget.js';
+    const url = publicEnv.PUBLIC_MAKUTANO_WIDGET_URL || 'https://ai.makutano.co.tz/widget.js';
     if (!url || document.getElementById('makutano-widget')) return;
     const script = document.createElement('script');
     script.id = 'makutano-widget';
