@@ -3,8 +3,7 @@
   import { page } from '$app/stores';
 
   // Mobile bottom CTA: a single, primary action (Plan My Safari). WhatsApp is NOT
-  // duplicated here — it's permanently in the navbar and inside the AI advisor —
-  // and the AI advisor owns the bottom-right launcher, so the bottom area stays
+  // duplicated here — it's permanently in the navbar — so the bottom area stays
   // uncluttered. Hidden on admin routes (layout) and on the plan page itself.
   $: onPlanPage = $page.url.pathname.startsWith('/plan-my-trip');
 </script>

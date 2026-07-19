@@ -6,7 +6,6 @@
   import '../app.css';
   import Navbar from '$lib/components/public/Navbar.svelte';
   import Footer from '$lib/components/public/Footer.svelte';
-  import EmnelAIAdvisor from '$lib/components/public/EmnelAIAdvisor.svelte';
   import ConsentBanner from '$lib/components/public/ConsentBanner.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import PersistentCTA from '$lib/components/public/PersistentCTA.svelte';
@@ -17,11 +16,9 @@
   import { api } from '$lib/api/client';
   import { applyBranding, branding } from '$lib/branding';
   import { SITE_URL } from '$lib/config/env';
-  import { aiAdvisorEnabled, loadPublicSettings, publicSettings } from '$lib/settings';
+  import { loadPublicSettings } from '$lib/settings';
 
   $: isAdmin = $page.url.pathname.startsWith('/admin');
-  // Admins can hide the whole AI advisor from Settings → AI.
-  $: showAdvisor = aiAdvisorEnabled($publicSettings);
 
   // Site origin from PUBLIC_SITE_URL (.env), falling back to the live request origin.
   $: siteOrigin = SITE_URL || $page.url.origin;
@@ -121,8 +118,5 @@
   <div class="h-16 lg:hidden" aria-hidden="true"></div>
   <ShortlistFab />
   <PersistentCTA />
-  {#if showAdvisor}
-    <EmnelAIAdvisor />
-  {/if}
   <ConsentBanner />
 {/if}

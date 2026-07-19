@@ -6,5 +6,5 @@
 <PlaceholderPage
   title="Emnel Travel Guide"
   description={`Prepared guide page for ${$page.params.slug}.`}
-  showAdvisor
+  showLeadForm
 />

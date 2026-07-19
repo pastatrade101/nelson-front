@@ -41,7 +41,7 @@
 
 <svelte:head>
   <title>Expert Advice | Emnel Adventures</title>
-  <meta name="description" content="Honest Tanzania safari advice — costs, timing, safety, Kilimanjaro routes and Zanzibar beach escapes, plus an AI advisor that answers instantly." />
+  <meta name="description" content="Honest Tanzania safari advice — costs, timing, safety, Kilimanjaro routes and Zanzibar beach escapes, from local experts who plan these trips every day." />
 </svelte:head>
 
 <!-- Hero -->
@@ -54,7 +54,7 @@
       Honest guides to plan Tanzania with confidence
     </h1>
     <p class="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">
-      Real answers from local experts — costs, timing, safety, and what each trip is actually like. Or ask our AI advisor and get an instant, honest answer.
+      Real answers from local experts — costs, timing, safety, and what each trip is actually like, from the team who plans these trips every day.
     </p>
     <div class="mt-7 flex flex-wrap justify-center gap-3">
       {#if aiOn}
@@ -102,7 +102,7 @@
       {#if loading}
         <LoadingState message="Loading guides..." />
       {:else if posts.length === 0}
-        <EmptyState title="Guides coming soon" message="We're writing honest planning guides — in the meantime, ask our AI advisor anything." />
+        <EmptyState title="Guides coming soon" message="We're writing honest planning guides — in the meantime, tell us what you're planning and a specialist will help." />
       {:else}
         <div class="grid gap-6 md:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.06 }}>
           {#each posts as post (post.slug)}
@@ -134,7 +134,7 @@
     <div>
       <p class="font-serif text-xl italic text-clay">Good to know</p>
       <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-4xl" use:revealHeading>Frequently asked</h2>
-      <p class="mt-3 text-[15px] leading-7 text-ink/70">The questions Tanzania safari travellers ask us most. Need something specific? Our AI advisor or a specialist can help.</p>
+      <p class="mt-3 text-[15px] leading-7 text-ink/70">The questions Tanzania safari travellers ask us most. Need something specific? A local specialist can help.</p>
       {#if aiOn}
         <button type="button" on:click={() => openAiAdvisor()} class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-forest transition hover:text-heading">
           <Sparkles size={15} /> Ask the AI advisor
@@ -151,7 +151,7 @@
     <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
     <div class="relative mx-auto max-w-2xl">
       <h2 class="text-2xl font-extrabold md:text-3xl">Still have questions?</h2>
-      <p class="mx-auto mt-3 text-white/75">Get an instant answer from our AI advisor, or tell us what you're planning and a local expert will follow up — honest advice, no pressure.</p>
+      <p class="mx-auto mt-3 text-white/75">Tell us what you're planning and a local expert will follow up — honest advice, no pressure.</p>
       <div class="mt-7 flex flex-wrap justify-center gap-3">
         {#if aiOn}
           <button type="button" on:click={() => openAiAdvisor()} class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-heading transition hover:brightness-105">

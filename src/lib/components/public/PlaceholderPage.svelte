@@ -1,11 +1,9 @@
 <script lang="ts">
   import { brand } from '$lib/brand';
-  import AIChatWidget from './AIChatWidget.svelte';
   import LeadCaptureForm from './LeadCaptureForm.svelte';
   import SectionHeader from './SectionHeader.svelte';
 
   export let description = 'This route is prepared for Emnel content, SEO, CMS data, and future visual design.';
-  export let showAdvisor = false;
   export let showLeadForm = false;
   export let title = brand.name;
 </script>
@@ -25,9 +23,7 @@
       </div>
     </div>
 
-    {#if showAdvisor}
-      <AIChatWidget />
-    {:else if showLeadForm}
+    {#if showLeadForm}
       <LeadCaptureForm compact />
     {/if}
   </div>

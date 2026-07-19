@@ -57,6 +57,12 @@ export const settingBool = (settings: Record<string, unknown>, key: string, fall
   return fallback;
 };
 
-/** Whether the public AI advisor (widget + entry points) should be shown. */
-export const aiAdvisorEnabled = (settings: Record<string, unknown>): boolean =>
-  settingBool(settings, 'ai_enabled', true) && settingBool(settings, 'ai_widget_enabled', true);
+/**
+ * Whether the built-in public AI advisor (floating widget + "Ask our AI advisor"
+ * entry points) should be shown. Hard-disabled: the site uses the external
+ * Makutano AI widget instead, so the built-in advisor stays hidden site-wide
+ * regardless of admin settings (and survives data resets). To restore it, return
+ * the settings-based check:
+ *   settingBool(settings, 'ai_enabled', true) && settingBool(settings, 'ai_widget_enabled', true)
+ */
+export const aiAdvisorEnabled = (_settings: Record<string, unknown>): boolean => false;
