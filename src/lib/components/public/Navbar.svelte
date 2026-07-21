@@ -35,7 +35,7 @@
     }
   };
   const featureImage = (key: 'destinations' | 'tours') =>
-    dropdownLinks(key).find((l) => l.image)?.image || FALLBACK_FEATURE_IMG;
+    navLinks[key].find((l) => l.image)?.image || FALLBACK_FEATURE_IMG;
 
   // Emnel primary nav: Home · Safaris (dropdown) · Kilimanjaro · About · Journal · Begin Your Journey (CTA).
   const NAV: NavItem[] = [
@@ -47,24 +47,15 @@
     { href: '/blog', label: 'Journal' }
   ];
 
-  const FALLBACK_DESTINATIONS: NavLink[] = [
-    { href: '/destinations/tanzania', label: 'Tanzania' },
-    { href: '/destinations/kenya', label: 'Kenya' },
-    { href: '/destinations/zanzibar', label: 'Zanzibar' }
-  ];
+  // Dropdown links come ONLY from published CMS content (destinations / categories).
+  // No hardcoded fallbacks — when there is none, the dropdown just shows its
+  // "All Safaris" / "All Destinations" link with no sub-items.
+  let destinations: NavLink[] = [];
+  let categories: NavLink[] = [];
 
-  // Safari types (Safaris dropdown). Overridden at runtime by published categories.
-  const FALLBACK_CATEGORIES: NavLink[] = [
-    { href: '/tours?category=classic-northern-circuit', label: 'Classic Northern Circuit' },
-    { href: '/tours?category=great-migration', label: 'Great Migration' },
-    { href: '/tours?category=family-safari', label: 'Family Safari' },
-    { href: '/tours?category=honeymoon-safari', label: 'Honeymoon Safari' },
-    { href: '/tours?category=photography-safari', label: 'Photography Safari' },
-    { href: '/plan-my-trip', label: 'Tailor-Made' }
-  ];
-
-  let destinations: NavLink[] = FALLBACK_DESTINATIONS;
-  let categories: NavLink[] = FALLBACK_CATEGORIES;
+  // Reactive map so the dropdowns re-render when the API data loads (a plain
+  // function would hide the dependency on categories/destinations from Svelte).
+  $: navLinks = { destinations, tours: categories } as Record<'destinations' | 'tours', NavLink[]>;
 
   let menuOpen = false;
   let openDropdown: '' | 'destinations' | 'tours' = '';
@@ -105,8 +96,6 @@
   $: waButtonText = settingText(s, 'whatsapp_button_text') || brand.whatsappCta;
   $: supportEmail = settingText(s, 'contact_email') || 'hello@emneladventures.com';
   $: supportPhone = settingText(s, 'contact_phone') || waNumber;
-
-  const dropdownLinks = (key: 'destinations' | 'tours') => (key === 'destinations' ? destinations : categories);
 
   const toggleDropdown = (key: 'destinations' | 'tours') => {
     openDropdown = openDropdown === key ? '' : key;
@@ -300,12 +289,14 @@
                       All {item.label}
                       <ArrowRight size={14} strokeWidth={2.6} />
                     </a>
-                    <div class="my-1.5 h-px bg-black/5"></div>
-                    <div class="grid grid-cols-2 gap-0.5">
-                      {#each dropdownLinks(item.dropdown) as link (link.href)}
-                        <a class="truncate rounded-xl px-3 py-2.5 text-sm font-medium text-ink/75 transition hover:bg-sand/60 hover:text-forest" href={link.href} role="menuitem">{link.label}</a>
-                      {/each}
-                    </div>
+                    {#if navLinks[item.dropdown].length}
+                      <div class="my-1.5 h-px bg-black/5"></div>
+                      <div class="grid grid-cols-2 gap-0.5">
+                        {#each navLinks[item.dropdown] as link (link.href)}
+                          <a class="truncate rounded-xl px-3 py-2.5 text-sm font-medium text-ink/75 transition hover:bg-sand/60 hover:text-forest" href={link.href} role="menuitem">{link.label}</a>
+                        {/each}
+                      </div>
+                    {/if}
                   </div>
 
                   <!-- featured image panel -->
@@ -412,13 +403,15 @@
               <div class="rounded-xl">
                 <div class="flex items-center">
                   <a class={`flex-1 rounded-xl px-3 py-3 text-[17px] font-semibold transition ${active ? 'text-forest dark:text-goldfinch-gold' : 'text-ink'}`} href={item.href} on:click={() => (menuOpen = false)}>{item.label}</a>
-                  <button class="grid h-11 w-11 place-items-center rounded-xl text-ink/70 transition hover:bg-sand/50" type="button" aria-expanded={mobileAccordion === item.dropdown} aria-label={`Toggle ${item.label}`} on:click={() => (mobileAccordion = mobileAccordion === item.dropdown ? '' : (item.dropdown ?? ''))}>
-                    <ChevronDown size={18} strokeWidth={2.6} class={`transition-transform ${mobileAccordion === item.dropdown ? 'rotate-180' : ''}`} />
-                  </button>
+                  {#if navLinks[item.dropdown].length}
+                    <button class="grid h-11 w-11 place-items-center rounded-xl text-ink/70 transition hover:bg-sand/50" type="button" aria-expanded={mobileAccordion === item.dropdown} aria-label={`Toggle ${item.label}`} on:click={() => (mobileAccordion = mobileAccordion === item.dropdown ? '' : (item.dropdown ?? ''))}>
+                      <ChevronDown size={18} strokeWidth={2.6} class={`transition-transform ${mobileAccordion === item.dropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                  {/if}
                 </div>
-                {#if mobileAccordion === item.dropdown}
+                {#if mobileAccordion === item.dropdown && navLinks[item.dropdown].length}
                   <div class="grid gap-0.5 pb-2 pl-3" transition:fly={{ y: -4, duration: 150 }}>
-                    {#each dropdownLinks(item.dropdown) as link (link.href)}
+                    {#each navLinks[item.dropdown] as link (link.href)}
                       <a class="rounded-lg px-3 py-2 text-[15px] font-medium text-ink/65 transition hover:bg-sand/50 hover:text-forest" href={link.href} on:click={() => (menuOpen = false)}>{link.label}</a>
                     {/each}
                   </div>
