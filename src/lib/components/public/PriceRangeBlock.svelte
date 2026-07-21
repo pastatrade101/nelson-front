@@ -1,18 +1,12 @@
 <script lang="ts">
   import { ArrowRight, ShieldCheck } from '@lucide/svelte';
 
-  // Honest "typical cost" band (spec §4.1 F / §6). Rows can be overridden from the
-  // CMS (cost_ranges section → extra_data.ranges); otherwise sensible defaults show.
+  // Honest "typical cost" band (spec §4.1 F / §6). Rows come ONLY from the CMS
+  // (cost_ranges section → extra_data.ranges); the block renders nothing when empty
+  // — no fabricated prices.
   export let title = '';
   export let subtitle = '';
   export let ranges: Array<{ label: string; from: string; note?: string; image?: string }> = [];
-
-  const defaults = [
-    { label: 'Safari', from: 'from $1,500', note: 'Guiding, park fees & lodges', image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801' },
-    { label: 'Kilimanjaro', from: 'from $1,900', note: 'Guides, crew, meals & route support', image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b' },
-    { label: 'Zanzibar beach', from: 'from $850', note: 'Beach stays & transfers', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e' },
-    { label: 'Tanzania + Kenya combined', from: 'from $3,200', note: 'Serengeti & Masai Mara in one trip', image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801' }
-  ];
 
   // Keyword → image fallback so CMS-provided rows still get a fitting backdrop.
   const FALLBACK_IMG = 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
@@ -25,9 +19,10 @@
     return FALLBACK_IMG;
   };
 
-  $: rows = ranges.length ? ranges : defaults;
+  $: rows = ranges;
 </script>
 
+{#if rows.length}
 <div>
   {#if title}<h2 class="text-center text-3xl font-bold tracking-normal text-ink md:text-4xl">{title}</h2>{/if}
   {#if subtitle}<p class="mx-auto mt-3 max-w-2xl text-center text-base leading-7 text-ink/65">{subtitle}</p>{/if}
@@ -66,3 +61,4 @@
     </a>
   </div>
 </div>
+{/if}

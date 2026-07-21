@@ -271,16 +271,18 @@
   </section>
 {/if}
 
-<!-- typical cost band (spec §4.1 F / §6) -->
-<section class="bg-canvas py-16 md:py-24" use:sectionReveal>
-  <div class="container-shell">
-    <PriceRangeBlock
-      title={cms('cost_ranges', 'title', 'What trips typically cost')}
-      subtitle={cms('cost_ranges', 'subtitle', 'A confident brand is upfront about price — here are honest starting points by trip type.')}
-      ranges={costRanges}
-    />
-  </div>
-</section>
+<!-- typical cost band (spec §4.1 F / §6) — only shown when real ranges are set in the CMS -->
+{#if costRanges.length}
+  <section class="bg-canvas py-16 md:py-24" use:sectionReveal>
+    <div class="container-shell">
+      <PriceRangeBlock
+        title={cms('cost_ranges', 'title', 'What trips typically cost')}
+        subtitle={cms('cost_ranges', 'subtitle', 'A confident brand is upfront about price — here are honest starting points by trip type.')}
+        ranges={costRanges}
+      />
+    </div>
+  </section>
+{/if}
 
 {#if destinations.length}
   <section class="bg-sand/40 py-16 md:py-24" use:sectionReveal>
