@@ -13,7 +13,6 @@
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import RangeSlider from '$lib/components/public/RangeSlider.svelte';
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
-  import { placeholderTours } from '$lib/data/placeholders';
   import type { Tour } from '$lib/types';
 
   // ---- canonical comfort tiers ----
@@ -64,11 +63,10 @@
     error = '';
     try {
       const res = await api.tours.list({ status: 'published', limit: 100 });
-      const items = res.data.items ?? [];
-      allTours = items.length ? items : placeholderTours;
+      allTours = res.data.items ?? [];
     } catch (err) {
       error = err instanceof Error ? err.message : 'Unable to load itineraries.';
-      allTours = placeholderTours;
+      allTours = [];
     } finally {
       loading = false;
     }

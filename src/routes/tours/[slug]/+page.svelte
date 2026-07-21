@@ -33,7 +33,6 @@
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
-  import { placeholderFaqs, placeholderTours } from '$lib/data/placeholders';
   import type { BlogPost, FAQ, ItineraryDay, Tour } from '$lib/types';
 
   type DisplayDay = ItineraryDay;
@@ -185,10 +184,9 @@
       recentPosts = postRes.value.data.items ?? [];
     }
     if (faqRes.status === 'fulfilled') {
-      const items = faqRes.value.data.items ?? [];
-      faqs = items.length ? items : placeholderFaqs;
+      faqs = faqRes.value.data.items ?? [];
     } else {
-      faqs = placeholderFaqs;
+      faqs = [];
     }
   };
 
@@ -204,7 +202,7 @@
       tour = response.data;
     } catch (requestError) {
       error = requestError instanceof Error ? requestError.message : 'Unable to load tour.';
-      tour = placeholderTours.find((item) => item.slug === slug) ?? placeholderTours[0];
+      tour = null;
     } finally {
       loading = false;
     }

@@ -6,9 +6,9 @@
   import { fadeUpOnScroll, revealHeading, staggeredCardReveal } from '$lib/animations';
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
+  import ErrorState from '$lib/components/public/ErrorState.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
-  import { placeholderFaqs, placeholderPosts } from '$lib/data/placeholders';
   import { aiAdvisorEnabled, publicSettings } from '$lib/settings';
   import type { BlogPost, FAQ } from '$lib/types';
 
@@ -17,6 +17,7 @@
   let posts: BlogPost[] = [];
   let faqs: FAQ[] = [];
   let loading = true;
+  let postsFailed = false;
 
   // The questions confident travellers ask — tapping one asks our AI advisor.
   const topics = [
@@ -33,8 +34,13 @@
       api.blog.list({ status: 'published', limit: 24 }),
       api.faqs.list({ limit: 8 })
     ]);
-    posts = postRes.status === 'fulfilled' && postRes.value.data.items.length ? postRes.value.data.items : placeholderPosts;
-    faqs = faqRes.status === 'fulfilled' && faqRes.value.data.items.length ? faqRes.value.data.items : placeholderFaqs;
+    if (postRes.status === 'fulfilled') {
+      posts = postRes.value.data.items;
+    } else {
+      posts = [];
+      postsFailed = true;
+    }
+    faqs = faqRes.status === 'fulfilled' ? faqRes.value.data.items : [];
     loading = false;
   });
 </script>
@@ -101,6 +107,8 @@
     <div class="mt-8">
       {#if loading}
         <LoadingState message="Loading guides..." />
+      {:else if postsFailed}
+        <ErrorState message="We couldn't load the guides right now. Please refresh in a moment." />
       {:else if posts.length === 0}
         <EmptyState title="Guides coming soon" message="We're writing honest planning guides — in the meantime, tell us what you're planning and a specialist will help." />
       {:else}

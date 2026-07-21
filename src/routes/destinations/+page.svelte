@@ -9,13 +9,15 @@
   import { prefersReducedMotion } from '$lib/animations/motion';
   import { getDestinationScores } from '$lib/data/destination-scores';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import ErrorState from '$lib/components/public/ErrorState.svelte';
+  import EmptyState from '$lib/components/public/EmptyState.svelte';
   import ScoreBars from '$lib/components/public/ScoreBars.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
-  import { placeholderDestinations } from '$lib/data/placeholders';
   import type { Destination, Tour } from '$lib/types';
 
-  let destinations: Destination[] = placeholderDestinations;
+  let destinations: Destination[] = [];
   let loading = true;
+  let loadFailed = false;
   let activeCountry = 'All';
   let relatedTours: Tour[] = [];
 
@@ -25,9 +27,10 @@
   onMount(async () => {
     try {
       const res = await api.destinations.list({ status: 'published', limit: 100 });
-      if (res.data.items.length) destinations = res.data.items;
+      destinations = res.data.items;
     } catch {
-      // keep placeholders
+      loadFailed = true;
+      destinations = [];
     } finally {
       loading = false;
     }
@@ -66,6 +69,10 @@
 
 {#if loading}
   <section class="container-shell py-20"><LoadingState message="Loading destinations..." /></section>
+{:else if loadFailed}
+  <section class="container-shell py-20">
+    <ErrorState message="We couldn't load destinations right now. Please refresh in a moment." />
+  </section>
 {:else if selected}
   <!-- hero -->
   <section class="relative h-[380px] w-full overflow-hidden bg-deep-green md:h-[460px]">
@@ -195,7 +202,9 @@
    {/key}
   </section>
 {:else}
-  <section class="container-shell py-20 text-center text-ink/70">No destinations yet.</section>
+  <section class="container-shell py-20">
+    <EmptyState title="No destinations yet" message="Our destinations are being prepared. Please check back again soon." />
+  </section>
 {/if}
 
 <style>

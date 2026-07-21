@@ -14,7 +14,6 @@
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
   import DestinationGuide from '$lib/components/public/guide/DestinationGuide.svelte';
-  import { placeholderDestinations } from '$lib/data/placeholders';
   import { breadcrumbLd } from '$lib/seo';
   import { FileCheck, HeartPulse, Phone, Plane, Shield, ShieldCheck } from '@lucide/svelte';
   import type { Activity, BlogPost, Destination, Lodge, Tour, TripPoint } from '$lib/types';
@@ -25,12 +24,10 @@
   $: origin = $page.url.origin;
   $: slug = $page.params.slug ?? '';
 
-  // Destination comes from the SSR load for a fast first paint; fall back to a
-  // bundled placeholder only if the API failed, so the page never hard-fails.
-  $: destination =
-    (data.destination as Destination | null) ??
-    placeholderDestinations.find((item) => item.slug === slug) ??
-    null;
+  // Destination comes from the SSR load (fast first paint). Null when the API
+  // failed or the slug does not exist — the page shows an honest error state,
+  // never fabricated content.
+  $: destination = (data.destination as Destination | null) ?? null;
 
   // Relevant content for onward navigation (loaded best-effort after the destination).
   let relatedTours: Tour[] = [];
@@ -105,7 +102,7 @@
 
 <section class="container-shell py-14">
   {#if !destination}
-    <ErrorState message="Destination not found." />
+    <ErrorState message="We couldn't load this destination. Please refresh in a moment, or browse our other destinations." />
   {:else}
     <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Destinations', path: '/destinations' }, { name: destination.name, path: `/destinations/${destination.slug}` }])} />
     <nav class="mb-6 flex items-center gap-2 text-sm">

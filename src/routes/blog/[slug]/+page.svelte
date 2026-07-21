@@ -6,16 +6,16 @@
   import { staggeredCardReveal } from '$lib/animations/motion';
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import DestinationCard from '$lib/components/public/DestinationCard.svelte';
+  import ErrorState from '$lib/components/public/ErrorState.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
-  import { placeholderPosts } from '$lib/data/placeholders';
   import { breadcrumbLd } from '$lib/seo';
   import type { BlogPost, Destination } from '$lib/types';
 
   $: origin = $page.url.origin;
 
-  let post: BlogPost = placeholderPosts[0];
+  let post: BlogPost | null = null;
   let loading = true;
 
   // Relevant content for onward navigation (loaded best-effort after the article).
@@ -40,13 +40,14 @@
 
   const load = async (slug: string) => {
     loading = true;
+    post = null;
     morePosts = [];
     exploreDestinations = [];
     try {
       const response = await api.blog.get(slug);
       post = response.data;
     } catch {
-      post = placeholderPosts.find((item) => item.slug === slug) ?? placeholderPosts[0];
+      post = null;
     } finally {
       loading = false;
     }
@@ -63,6 +64,8 @@
 <article class="container-shell py-14">
   {#if loading}
     <LoadingState message="Loading article..." />
+  {:else if !post}
+    <ErrorState message="This article is not available. Please refresh in a moment or browse our other stories." />
   {:else}
     <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Expert Advice', path: '/expert-advice' }, { name: post.title, path: `/blog/${post.slug}` }])} />
     <nav class="mb-6 flex items-center gap-2 text-sm">
@@ -85,7 +88,7 @@
   {/if}
 </article>
 
-{#if !loading}
+{#if !loading && post}
   <!-- guide → primary action (SRS v2.0 §4.8: every guide ends with Plan My Safari) -->
   <section class="container-shell pb-4 pt-2 md:pb-8">
     <div class="flex flex-col items-start justify-between gap-4 rounded-2xl border border-goldfinch-gold/30 bg-savanna/20 p-5 sm:flex-row sm:items-center md:p-6">

@@ -5,11 +5,13 @@
   import { api } from '$lib/api/client';
   import { revealHeading } from '$lib/animations';
   import BookingForm from '$lib/components/public/BookingForm.svelte';
-  import { placeholderTours } from '$lib/data/placeholders';
+  import ErrorState from '$lib/components/public/ErrorState.svelte';
+  import LoadingState from '$lib/components/public/LoadingState.svelte';
   import type { Tour } from '$lib/types';
 
-  let tour: Tour = placeholderTours[0];
+  let tour: Tour | null = null;
   let loading = true;
+  let error = '';
 
   const rel = (value: unknown, key: string) => {
     if (Array.isArray(value)) return String((value[0] as Record<string, unknown> | undefined)?.[key] ?? '');
@@ -17,23 +19,33 @@
     return '';
   };
 
-  $: destination = rel((tour as Record<string, unknown>).destinations, 'name');
-  $: heroImage = tour.main_image_url || tour.banner_image_url || '';
-  $: durationLabel = tour.duration_days ? `${tour.duration_days} days${tour.duration_nights ? ` / ${tour.duration_nights} nights` : ''}` : '';
+  $: destination = tour ? rel((tour as Record<string, unknown>).destinations, 'name') : '';
+  $: heroImage = tour ? tour.main_image_url || tour.banner_image_url || '' : '';
+  $: durationLabel = tour?.duration_days ? `${tour.duration_days} days${tour.duration_nights ? ` / ${tour.duration_nights} nights` : ''}` : '';
 
   onMount(async () => {
     const slug = $page.params.slug ?? '';
     try {
       const response = await api.tours.get(slug);
-      tour = response.data;
-    } catch {
-      tour = placeholderTours.find((item) => item.slug === slug) ?? placeholderTours[0];
+      tour = response.data ?? null;
+    } catch (requestError) {
+      error = requestError instanceof Error ? requestError.message : 'Unable to load this trip.';
+      tour = null;
     } finally {
       loading = false;
     }
   });
 </script>
 
+{#if loading}
+  <section class="container-shell py-20">
+    <LoadingState message="Loading this trip..." />
+  </section>
+{:else if !tour}
+  <section class="container-shell py-20">
+    <ErrorState message="We could not load this trip. Please try again in a moment." />
+  </section>
+{:else}
 <section class="container-shell grid items-start gap-10 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:py-16">
   <!-- tour summary -->
   <aside class="lg:sticky lg:top-24">
@@ -84,3 +96,4 @@
     <BookingForm {tour} />
   </div>
 </section>
+{/if}

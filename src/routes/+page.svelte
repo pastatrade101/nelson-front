@@ -19,7 +19,6 @@
   import PriceRangeBlock from '$lib/components/public/PriceRangeBlock.svelte';
   import DealCard from '$lib/components/public/DealCard.svelte';
   import { fadeUpOnScroll, sectionReveal, staggeredCardReveal } from '$lib/animations';
-  import { placeholderDestinations, placeholderFaqs, placeholderPosts, placeholderTestimonials, placeholderTours } from '$lib/data/placeholders';
   import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
 
   type HomeSection = {
@@ -34,11 +33,11 @@
     title?: string | null;
   };
 
-  let tours: Tour[] = placeholderTours;
-  let destinations: Destination[] = placeholderDestinations;
-  let posts: BlogPost[] = placeholderPosts;
-  let testimonials: Testimonial[] = placeholderTestimonials;
-  let faqs: FAQ[] = placeholderFaqs;
+  let tours: Tour[] = [];
+  let destinations: Destination[] = [];
+  let posts: BlogPost[] = [];
+  let testimonials: Testimonial[] = [];
+  let faqs: FAQ[] = [];
   let sections: Record<string, HomeSection> = {};
 
   // CMS lookup with a safe fallback so the existing design never breaks.
@@ -164,15 +163,17 @@
   parks={Array.isArray(parksExtra.parks) ? parksExtra.parks : undefined}
 />
 
-<SafariShowcaseGrid
-  eyebrow="Private Safari Itineraries"
-  title="Six Routes"
-  accentTitle="to Start From"
-  content="Use these safari and climb ideas as starting points. Every route can be adjusted around your dates, pace, lodges, and the season you travel."
-  ctaLabel={cms('safari_parks_intro', 'button_text', 'View Safari Itineraries')}
-  ctaHref={cms('safari_parks_intro', 'button_url', '/tours')}
-  {tours}
-/>
+{#if tours.length}
+  <SafariShowcaseGrid
+    eyebrow="Private Safari Itineraries"
+    title="Six Routes"
+    accentTitle="to Start From"
+    content="Use these safari and climb ideas as starting points. Every route can be adjusted around your dates, pace, lodges, and the season you travel."
+    ctaLabel={cms('safari_parks_intro', 'button_text', 'View Safari Itineraries')}
+    ctaHref={cms('safari_parks_intro', 'button_url', '/tours')}
+    {tours}
+  />
+{/if}
 
 <FounderStorySection
   eyebrow={typeof founderExtra.eyebrow === 'string' ? founderExtra.eyebrow : "The Founder's Story"}
@@ -199,47 +200,53 @@
   steps={Array.isArray(processExtra.steps) ? processExtra.steps : undefined}
 />
 
-<JournalFeatureSection
-  eyebrow={typeof blogExtra.eyebrow === 'string' ? blogExtra.eyebrow : 'The Emnel Journal'}
-  title={cms('blog_preview', 'title', 'Field Notes From')}
-  accentTitle={typeof blogExtra.accent_title === 'string' ? blogExtra.accent_title : 'Tanzania'}
-  ctaLabel={cms('blog_preview', 'button_text', 'View All Articles')}
-  ctaHref={cms('blog_preview', 'button_url', '/blog')}
-  {posts}
-/>
+{#if posts.length}
+  <JournalFeatureSection
+    eyebrow={typeof blogExtra.eyebrow === 'string' ? blogExtra.eyebrow : 'The Emnel Journal'}
+    title={cms('blog_preview', 'title', 'Field Notes From')}
+    accentTitle={typeof blogExtra.accent_title === 'string' ? blogExtra.accent_title : 'Tanzania'}
+    ctaLabel={cms('blog_preview', 'button_text', 'View All Articles')}
+    ctaHref={cms('blog_preview', 'button_url', '/blog')}
+    {posts}
+  />
+{/if}
 
-<GuestReviewsSection
-  eyebrow={typeof testimonialExtra.eyebrow === 'string' ? testimonialExtra.eyebrow : 'Guest Experiences'}
-  title={cms('testimonials', 'title', 'What Guests Say About')}
-  accentTitle={typeof testimonialExtra.accent_title === 'string' ? testimonialExtra.accent_title : 'Their Tanzania Safari'}
-  subtitle={cms('testimonials', 'subtitle', 'Every review is from a guest who travelled with Emnel Adventures on a private, tailor-made safari.')}
-  quote={typeof testimonialExtra.quote === 'string' ? testimonialExtra.quote : DEFAULT_REVIEWS_QUOTE}
-  ctaLabel={cms('testimonials', 'button_text', 'Plan Your Safari')}
-  ctaHref={cms('testimonials', 'button_url', '/plan-my-trip')}
-  {testimonials}
-/>
+{#if testimonials.length}
+  <GuestReviewsSection
+    eyebrow={typeof testimonialExtra.eyebrow === 'string' ? testimonialExtra.eyebrow : 'Guest Experiences'}
+    title={cms('testimonials', 'title', 'What Guests Say About')}
+    accentTitle={typeof testimonialExtra.accent_title === 'string' ? testimonialExtra.accent_title : 'Their Tanzania Safari'}
+    subtitle={cms('testimonials', 'subtitle', 'Every review is from a guest who travelled with Emnel Adventures on a private, tailor-made safari.')}
+    quote={typeof testimonialExtra.quote === 'string' ? testimonialExtra.quote : DEFAULT_REVIEWS_QUOTE}
+    ctaLabel={cms('testimonials', 'button_text', 'Plan Your Safari')}
+    ctaHref={cms('testimonials', 'button_url', '/plan-my-trip')}
+    {testimonials}
+  />
+{/if}
 
 <StatsCounter />
 
-<section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-surface to-surface py-16 md:py-24" use:sectionReveal>
-  <span class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl" aria-hidden="true"></span>
-  <div class="container-shell relative">
-    <div class="mx-auto max-w-2xl text-center" use:fadeUpOnScroll={{ y: 14 }}>
-      <p class="brand-eyebrow">Limited Time Offers</p>
-      <h2 class="mt-4 text-3xl font-normal tracking-normal text-heading md:text-[40px]">
-        {cms('featured_tours', 'title', 'Exclusive Safari Deals & Travel Offers')}
-      </h2>
-      <p class="mt-3 text-[15px] font-medium leading-7 text-ink/70 md:text-lg">
-        {cms('featured_tours', 'subtitle', 'Handpicked Tanzania safari, Kilimanjaro and Zanzibar experiences at our best seasonal prices — limited spots, big value.')}
-      </p>
+{#if tours.length}
+  <section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-surface to-surface py-16 md:py-24" use:sectionReveal>
+    <span class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl" aria-hidden="true"></span>
+    <div class="container-shell relative">
+      <div class="mx-auto max-w-2xl text-center" use:fadeUpOnScroll={{ y: 14 }}>
+        <p class="brand-eyebrow">Limited Time Offers</p>
+        <h2 class="mt-4 text-3xl font-normal tracking-normal text-heading md:text-[40px]">
+          {cms('featured_tours', 'title', 'Exclusive Safari Deals & Travel Offers')}
+        </h2>
+        <p class="mt-3 text-[15px] font-medium leading-7 text-ink/70 md:text-lg">
+          {cms('featured_tours', 'subtitle', 'Handpicked Tanzania safari, Kilimanjaro and Zanzibar experiences at our best seasonal prices — limited spots, big value.')}
+        </p>
+      </div>
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal>
+        {#each tours.slice(0, 3) as tour, i}
+          <DealCard {tour} index={i} />
+        {/each}
+      </div>
     </div>
-    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal>
-      {#each tours.slice(0, 3) as tour, i}
-        <DealCard {tour} index={i} />
-      {/each}
-    </div>
-  </div>
-</section>
+  </section>
+{/if}
 
 <!-- typical cost band (spec §4.1 F / §6) -->
 <section class="bg-canvas py-16 md:py-24" use:sectionReveal>
@@ -252,31 +259,33 @@
   </div>
 </section>
 
-<section class="bg-sand/40 py-16 md:py-24" use:sectionReveal>
-  <div class="container-shell">
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <SectionHeader eyebrow="Places" title={cms('featured_destinations', 'title', 'Destinations')} description={cms('featured_destinations', 'subtitle', 'Destination content can be managed from the CMS.')} />
-      <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href="/destinations">
-        See all Destinations <ArrowRight size={16} />
-      </a>
+{#if destinations.length}
+  <section class="bg-sand/40 py-16 md:py-24" use:sectionReveal>
+    <div class="container-shell">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <SectionHeader eyebrow="Places" title={cms('featured_destinations', 'title', 'Destinations')} description={cms('featured_destinations', 'subtitle', 'Destination content can be managed from the CMS.')} />
+        <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href="/destinations">
+          See all Destinations <ArrowRight size={16} />
+        </a>
+      </div>
+      <div class="mt-10 grid gap-6 md:grid-cols-3" use:staggeredCardReveal>
+        {#each destinations as destination}
+          <DestinationCard {destination} />
+        {/each}
+      </div>
     </div>
-    <div class="mt-10 grid gap-6 md:grid-cols-3" use:staggeredCardReveal>
-      {#each destinations as destination}
-        <DestinationCard {destination} />
-      {/each}
-    </div>
-  </div>
-</section>
+  </section>
+{/if}
 
 {#if faqs.length}
   <JsonLd data={faqLd(faqs.map((f) => ({ q: f.question, a: f.answer })))} />
+  <section class="bg-canvas py-16 md:py-24" use:sectionReveal>
+    <div class="container-shell grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-12">
+      <SectionHeader eyebrow="Good to Know" title="Frequently Asked Questions" description="Honest answers to the questions Tanzania safari travellers ask most." />
+      <FAQAccordion {faqs} />
+    </div>
+  </section>
 {/if}
-<section class="bg-canvas py-16 md:py-24" use:sectionReveal>
-  <div class="container-shell grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-12">
-    <SectionHeader eyebrow="Good to Know" title="Frequently Asked Questions" description="Honest answers to the questions Tanzania safari travellers ask most." />
-    <FAQAccordion {faqs} />
-  </div>
-</section>
 
 {#if sections.final_cta?.is_active !== false && (sections.final_cta?.title || sections.final_cta?.button_text)}
   <section class="relative w-full overflow-hidden text-white" use:sectionReveal>
