@@ -4,8 +4,9 @@
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
   import { revealHeading } from '$lib/animations';
-  import { COMPARISONS, getComparison } from '$lib/data/comparisons';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
+  import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import ErrorState from '$lib/components/public/ErrorState.svelte';
   import { breadcrumbLd, faqLd } from '$lib/seo';
   import type { Comparison } from '$lib/types';
 
@@ -36,7 +37,8 @@
 
   let cmp: NormCmp | null = null;
   let others: { slug: string; eyebrow: string; title: string }[] = [];
-  let loaded = false;
+  let loading = true;
+  let loadFailed = false;
 
   const fromApi = (c: Comparison): NormCmp => ({
     slug: c.slug,
@@ -52,33 +54,41 @@
   });
 
   const loadCmp = async (slug: string) => {
-    loaded = false;
+    loading = true;
+    loadFailed = false;
+    cmp = null;
+    others = [];
     try {
       const res = await api.comparisons.get(slug);
       cmp = fromApi(res.data);
     } catch {
-      const cfg = getComparison(slug);
-      cmp = cfg
-        ? { slug: cfg.slug, eyebrow: cfg.eyebrow, title: cfg.title, intro: cfg.intro, a: cfg.a, b: cfg.b, dimensions: cfg.dimensions, verdict: cfg.verdict, cta: cfg.cta, faqs: cfg.faqs }
-        : null;
+      loadFailed = true;
+      cmp = null;
+    } finally {
+      loading = false;
     }
-    try {
-      const list = await api.comparisons.list({ status: 'published', limit: 100 });
-      const rows = list.data.items as Comparison[];
-      others = (rows.length ? rows.map((c) => ({ slug: c.slug, eyebrow: c.eyebrow ?? '', title: c.title })) : COMPARISONS.map((c) => ({ slug: c.slug, eyebrow: c.eyebrow, title: c.title })))
-        .filter((c) => c.slug !== slug)
-        .slice(0, 2);
-    } catch {
-      others = COMPARISONS.filter((c) => c.slug !== slug).slice(0, 2).map((c) => ({ slug: c.slug, eyebrow: c.eyebrow, title: c.title }));
+
+    if (cmp) {
+      try {
+        const list = await api.comparisons.list({ status: 'published', limit: 100 });
+        const rows = list.data.items as Comparison[];
+        others = rows
+          .map((c) => ({ slug: c.slug, eyebrow: c.eyebrow ?? '', title: c.title }))
+          .filter((c) => c.slug !== slug)
+          .slice(0, 2);
+      } catch {
+        others = [];
+      }
     }
-    loaded = true;
   };
 
   $: slug = $page.params.slug ?? '';
   $: if (browser && slug) void loadCmp(slug);
 </script>
 
-{#if cmp}
+{#if loading}
+  <section class="container-shell py-20"><LoadingState message="Loading comparison..." /></section>
+{:else if cmp}
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Compare', path: '/compare' }, { name: cmp.title, path: `/compare/${cmp.slug}` }])} />
   {#if cmp.faqs?.length}<JsonLd data={faqLd(cmp.faqs)} />{/if}
   <!-- hero -->
@@ -167,9 +177,9 @@
       </div>
     {/if}
   </section>
-{:else if loaded}
-  <section class="container-shell py-20 text-center">
-    <h1 class="text-2xl font-bold text-heading">Comparison not found</h1>
-    <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-heading" href="/compare">See all comparisons <ArrowRight size={16} /></a>
+{:else}
+  <section class="container-shell py-20">
+    <ErrorState message={loadFailed ? "We couldn't load this comparison right now. Please refresh in a moment." : 'Comparison not found.'} />
+    <a class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-heading" href="/compare">See all comparisons <ArrowRight size={16} /></a>
   </section>
 {/if}

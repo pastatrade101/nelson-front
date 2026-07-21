@@ -3,7 +3,6 @@
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
-  import { getExperienceInfo } from '$lib/data/experiences';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
@@ -36,19 +35,18 @@
 
   $: slug = $page.params.slug ?? '';
   $: if (browser && slug) void load(slug);
-  // Prefer CMS-managed enrichment on the category; fall back to static config.
+  // Enrichment (who it's for / fitness / highlights) comes only from the CMS
+  // category — the block hides when the category has not been given that copy.
   $: info = (() => {
     const w = exp?.who_its_for;
     const f = exp?.fitness;
     const h = exp?.highlights;
-    if (w || (Array.isArray(h) && h.length)) {
-      return {
-        whoItsFor: w ? String(w) : '',
-        fitness: f ? String(f) : undefined,
-        highlights: Array.isArray(h) ? h.map(String) : []
-      };
-    }
-    return getExperienceInfo(slug);
+    if (!w && !(Array.isArray(h) && h.length)) return null;
+    return {
+      whoItsFor: w ? String(w) : '',
+      fitness: f ? String(f) : undefined,
+      highlights: Array.isArray(h) ? h.map(String) : []
+    };
   })();
   $: name = exp ? String(exp.name ?? slug) : slug;
   $: image = exp ? String(exp.image_url ?? '') : '';

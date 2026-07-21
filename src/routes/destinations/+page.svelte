@@ -7,7 +7,7 @@
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
   import { prefersReducedMotion } from '$lib/animations/motion';
-  import { getDestinationScores } from '$lib/data/destination-scores';
+  import type { DestinationScores } from '$lib/data/destination-scores';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
@@ -44,7 +44,21 @@
   $: selected = destinations.find((d) => d.slug === requested) ?? filtered[0] ?? destinations[0];
 
   $: heroImage = selected ? selected.banner_image_url || selected.main_image_url || selected.image_url || '' : '';
-  $: selectedScores = selected ? getDestinationScores(selected.slug) : undefined;
+
+  // Build the ScoreBars shape from the destination's real score_* fields (0..10 or null).
+  // Hide the panel entirely when the destination has no scores curated yet.
+  const buildScores = (d: Destination): DestinationScores | undefined => {
+    const raw = [d.score_wildlife, d.score_luxury, d.score_family, d.score_photography, d.score_adventure];
+    if (raw.every((v) => v === null || v === undefined)) return undefined;
+    return {
+      wildlife: d.score_wildlife ?? 0,
+      luxury: d.score_luxury ?? 0,
+      family: d.score_family ?? 0,
+      photography: d.score_photography ?? 0,
+      adventure: d.score_adventure ?? 0
+    };
+  };
+  $: selectedScores = selected ? buildScores(selected) : undefined;
 
   const selectDestination = (slug: string) =>
     goto(`/destinations?d=${slug}`, { replaceState: true, noScroll: true, keepFocus: true });

@@ -4,8 +4,9 @@
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
-  import { getTravelStyle, TRAVEL_STYLES } from '$lib/data/travel-styles';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
+  import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import ErrorState from '$lib/components/public/ErrorState.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
   import { breadcrumbLd } from '$lib/seo';
   import type { TravelStyle, Tour } from '$lib/types';
@@ -25,7 +26,8 @@
   let style: NormStyle | null = null;
   let others: { slug: string; name: string }[] = [];
   let featured: Tour[] = [];
-  let loaded = false;
+  let loading = true;
+  let loadFailed = false;
 
   const fromApi = (s: TravelStyle): NormStyle => ({
     slug: s.slug,
@@ -41,27 +43,28 @@
   $: planHref = `/plan-my-trip${style?.persona ? `?persona=${style.persona}` : ''}`;
 
   const loadStyle = async (slug: string) => {
-    loaded = false;
+    loading = true;
+    loadFailed = false;
+    style = null;
     try {
       const res = await api.travelStyles.get(slug);
       style = fromApi(res.data);
     } catch {
-      // fall back to static config
-      const cfg = getTravelStyle(slug);
-      style = cfg
-        ? { slug: cfg.slug, name: cfg.name, emotionalPromise: cfg.emotionalPromise, description: cfg.description, desires: cfg.desires, concerns: cfg.concerns, persona: cfg.persona }
-        : null;
+      // Unknown slug or fetch failure — show an honest error, never fabricate.
+      loadFailed = true;
+      style = null;
     }
     try {
       const list = await api.travelStyles.list({ status: 'published', limit: 100 });
       const items = list.data.items as TravelStyle[];
-      others = (items.length ? items.map((s) => ({ slug: s.slug, name: s.name })) : TRAVEL_STYLES.map((s) => ({ slug: s.slug, name: s.name })))
+      others = items
+        .map((s) => ({ slug: s.slug, name: s.name }))
         .filter((s) => s.slug !== slug)
         .slice(0, 3);
     } catch {
-      others = TRAVEL_STYLES.filter((s) => s.slug !== slug).slice(0, 3).map((s) => ({ slug: s.slug, name: s.name }));
+      others = [];
     }
-    loaded = true;
+    loading = false;
   };
 
   $: slug = $page.params.slug ?? '';
@@ -77,7 +80,13 @@
   });
 </script>
 
-{#if style}
+{#if loading}
+  <section class="container-shell py-20"><LoadingState message="Loading travel style..." /></section>
+{:else if loadFailed || !style}
+  <section class="container-shell py-20">
+    <ErrorState message="We couldn't load this travel style right now. It may have moved, or please refresh in a moment." />
+  </section>
+{:else}
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Travel Styles', path: '/travel-styles' }, { name: style.name, path: `/travel-styles/${style.slug}` }])} />
   <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
     <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
@@ -148,10 +157,5 @@
         {/each}
       </div>
     </div>
-  </section>
-{:else if loaded}
-  <section class="container-shell py-20 text-center">
-    <h1 class="text-2xl font-bold text-heading">Travel style not found</h1>
-    <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-heading" href="/travel-styles">All travel styles <ArrowRight size={16} /></a>
   </section>
 {/if}
