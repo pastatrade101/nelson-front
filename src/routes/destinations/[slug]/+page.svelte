@@ -10,7 +10,6 @@
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import ActivityCard from '$lib/components/public/ActivityCard.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
-  import LoadingState from '$lib/components/public/LoadingState.svelte';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
@@ -19,12 +18,19 @@
   import { breadcrumbLd } from '$lib/seo';
   import { FileCheck, HeartPulse, Phone, Plane, Shield, ShieldCheck } from '@lucide/svelte';
   import type { Activity, BlogPost, Destination, Lodge, Tour, TripPoint } from '$lib/types';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   $: origin = $page.url.origin;
+  $: slug = $page.params.slug ?? '';
 
-  let destination: Destination | null = null;
-  let loading = true;
-  let error = '';
+  // Destination comes from the SSR load for a fast first paint; fall back to a
+  // bundled placeholder only if the API failed, so the page never hard-fails.
+  $: destination =
+    (data.destination as Destination | null) ??
+    placeholderDestinations.find((item) => item.slug === slug) ??
+    null;
 
   // Relevant content for onward navigation (loaded best-effort after the destination).
   let relatedTours: Tour[] = [];
@@ -82,40 +88,24 @@
     }
   };
 
-  const load = async (slug: string) => {
-    loading = true;
-    error = '';
-    relatedTours = [];
-    otherDestinations = [];
-    recentPosts = [];
-    lodges = [];
-    activities = [];
-    tripPoints = [];
-    try {
-      const response = await api.destinations.get(slug);
-      destination = response.data;
-      trackEvent('destination_page_view', { destination: destination?.name });
-    } catch (requestError) {
-      error = requestError instanceof Error ? requestError.message : 'Unable to load destination.';
-      destination = placeholderDestinations.find((item) => item.slug === slug) ?? placeholderDestinations[0];
-    } finally {
-      loading = false;
-    }
+  // Related content (below the fold) loads on the client, once per destination.
+  let relatedFor = '';
+  $: if (browser && destination?.id && destination.id !== relatedFor) {
+    relatedFor = destination.id;
+    void loadRelated(destination);
+  }
 
-    if (destination) void loadRelated(destination);
-  };
-
-  // The component is reused across /destinations/[slug] navigations, so a one-shot
-  // onMount would leave the page stale. Re-load whenever the slug changes.
-  $: slug = $page.params.slug ?? '';
-  $: if (browser && slug) void load(slug);
+  // Track a page view once per destination.
+  let trackedSlug = '';
+  $: if (browser && destination && slug && slug !== trackedSlug) {
+    trackedSlug = slug;
+    trackEvent('destination_page_view', { destination: destination.name });
+  }
 </script>
 
 <section class="container-shell py-14">
-  {#if loading}
-    <LoadingState message="Loading destination..." />
-  {:else if !destination}
-    <ErrorState message={error || 'Destination not found.'} />
+  {#if !destination}
+    <ErrorState message="Destination not found." />
   {:else}
     <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Destinations', path: '/destinations' }, { name: destination.name, path: `/destinations/${destination.slug}` }])} />
     <nav class="mb-6 flex items-center gap-2 text-sm">
@@ -141,7 +131,7 @@
   {/if}
 </section>
 
-{#if destination && !loading}
+{#if destination}
   <!-- Long-form destination guide (the editorial "destination template") -->
   {#if destination.guide?.length}
     <DestinationGuide blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} />
