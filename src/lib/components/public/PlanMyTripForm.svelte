@@ -5,7 +5,7 @@
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
-  import { defaultSpecialist } from '$lib/data/specialists';
+  import type { Specialist } from '$lib/types';
   import { publicSettings, settingText } from '$lib/settings';
   import { shortlist } from '$lib/shortlist';
   import Button from './Button.svelte';
@@ -65,6 +65,7 @@
   let referrerTopic = ''; // free-form topic from a referring page (e.g. a /compare CTA)
   let errors: Record<string, string> = {};
   let bodyEl: HTMLDivElement;
+  let specialist: Specialist | null = null; // loaded from the API; card hidden until/unless present
 
   const todayStr = new Date().toISOString().slice(0, 10);
   const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -94,6 +95,18 @@
   //    brings that intent into the form (defaults otherwise stay empty). ───────
   const matchOption = (options: string[], value: unknown) =>
     options.find((o) => o.toLowerCase() === String(value).toLowerCase());
+
+  // Load the trip specialist shown on the success screen. If none is published
+  // (or the request fails) the card stays hidden — no static fallback.
+  onMount(async () => {
+    try {
+      const res = await api.specialists.list({ status: 'published', limit: 50 });
+      const items = (res.data.items ?? []) as Specialist[];
+      specialist = items.find((s) => s.is_featured) ?? items[0] ?? null;
+    } catch {
+      specialist = null;
+    }
+  });
 
   onMount(async () => {
     trackEvent('plan_my_trip_opened');
@@ -327,7 +340,9 @@
       </ol>
     </div>
 
-    <SpecialistCard specialist={defaultSpecialist} heading="Who will be in touch" />
+    {#if specialist}
+      <SpecialistCard {specialist} heading="Who will be in touch" />
+    {/if}
 
     <div class="flex flex-col gap-3 sm:flex-row">
       {#if bookCallUrl}

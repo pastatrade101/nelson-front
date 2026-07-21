@@ -1,12 +1,13 @@
 <script lang="ts">
   import { MessageCircle } from '@lucide/svelte';
   import { publicSettings, settingText } from '$lib/settings';
-  import type { Specialist } from '$lib/data/specialists';
+  import type { Specialist } from '$lib/types';
 
   export let specialist: Specialist;
   export let heading = 'Your trip specialist';
 
-  $: waDigits = (settingText($publicSettings, 'whatsapp_number') || '+255 700 000 000').replace(/\D/g, '');
+  // Prefer the specialist's own WhatsApp number; fall back to the site number from settings.
+  $: waDigits = (specialist.whatsapp_number || settingText($publicSettings, 'whatsapp_number') || '+255 700 000 000').replace(/\D/g, '');
   $: waHref = `https://wa.me/${waDigits}?text=${encodeURIComponent(`Hi ${specialist.name}, I'd like help planning a trip.`)}`;
   $: initials =
     specialist.name
@@ -21,8 +22,8 @@
 <div class="rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
   {#if heading}<p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{heading}</p>{/if}
   <div class="mt-3 flex items-center gap-3">
-    {#if specialist.photo}
-      <img class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm" src={specialist.photo} alt={specialist.name} />
+    {#if specialist.photo_url || specialist.photo}
+      <img class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm" src={specialist.photo_url || specialist.photo} alt={specialist.name} />
     {:else}
       <span class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-forest/10 text-base font-bold text-forest">{initials}</span>
     {/if}

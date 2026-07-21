@@ -37,7 +37,8 @@
     ShieldCheck,
     Tags,
     Upload,
-    Users
+    Users,
+    UsersRound
   } from '@lucide/svelte';
   import { brand } from '$lib/brand';
 
@@ -95,6 +96,7 @@
         { href: '/admin/gallery', label: 'Gallery', icon: Images },
         { href: '/admin/media', label: 'Media Library', icon: Image },
         { href: '/admin/testimonials', label: 'Testimonials', icon: MessageCircleHeart },
+        { href: '/admin/specialists', label: 'Specialists', icon: UsersRound },
         { href: '/admin/faqs', label: 'FAQs', icon: CircleHelp },
         { href: '/admin/safety', label: 'Safety Guide', icon: ShieldCheck },
         { href: '/admin/travel-styles', label: 'Travel Styles', icon: Heart },

@@ -296,6 +296,22 @@ export type Testimonial = {
   sort_order?: number;
 };
 
+// Named travel specialists (SRS v2.0 §5 trust / type 25) — the human face of the
+// brand on tour pages and after enquiry. Loaded from the `specialists` API entity.
+export type Specialist = {
+  id?: string;
+  name: string;
+  role: string;
+  photo_url?: string | null;
+  blurb?: string | null;
+  whatsapp_number?: string | null;
+  status?: string;
+  is_featured?: boolean;
+  sort_order?: number;
+  /** Legacy static field — kept so templates reading `photo` still type-check. */
+  photo?: string;
+};
+
 export type FAQ = {
   id: string;
   question: string;

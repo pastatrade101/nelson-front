@@ -21,6 +21,7 @@
     '/admin/gallery': 'Gallery',
     '/admin/media': 'Media Library',
     '/admin/testimonials': 'Testimonials',
+    '/admin/specialists': 'Specialists',
     '/admin/faqs': 'FAQs',
     '/admin/homepage': 'Homepage',
     '/admin/messages': 'Messages',

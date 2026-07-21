@@ -18,8 +18,7 @@
   import { fadeUpOnScroll, revealHeading } from '$lib/animations';
   import { brand } from '$lib/brand';
   import { imgUrl, thumbUrl } from '$lib/img';
-  import { defaultSpecialist } from '$lib/data/specialists';
-  import type { Tour } from '$lib/types';
+  import type { Specialist, Tour } from '$lib/types';
 
   type Tab = { slug: string; name: string; tour: Tour };
   type Tile = { url: string; caption: string };
@@ -28,6 +27,7 @@
   let activeSlug = '';
   let loading = true;
   let tiles: Tile[] = [];
+  let specialist: Specialist | null = null; // loaded from the API; "Designed by" hidden until/unless present
   const galleryCache: Record<string, Tile[]> = {};
 
   $: active = tabs.find((t) => t.slug === activeSlug) ?? tabs[0];
@@ -56,7 +56,7 @@
       ].filter(Boolean)
     : [];
   $: chips = (active?.tour.highlights ?? []).slice(0, 6);
-  $: initials = defaultSpecialist.name.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
+  $: initials = specialist ? specialist.name.split(' ').map((p) => p[0] ?? '').join('').slice(0, 2).toUpperCase() : '';
 
   const buildTiles = async (tab: Tab) => {
     const tour = tab.tour;
@@ -96,6 +96,15 @@
   };
 
   onMount(async () => {
+    // "Designed by" specialist — published, featured-first. Hidden if none/fails.
+    try {
+      const res = await api.specialists.list({ status: 'published', limit: 50 });
+      const items = (res.data.items ?? []) as Specialist[];
+      specialist = items.find((s) => s.is_featured) ?? items[0] ?? null;
+    } catch {
+      specialist = null;
+    }
+
     try {
       const res = await api.tours.list({ status: 'published', limit: 60 });
       const tours = (res.data.items ?? []) as Tour[];
@@ -164,17 +173,19 @@
               </div>
             {/if}
 
-            <div class="mt-auto flex items-center gap-3 pt-8">
-              <span class="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-forest/10 text-sm font-bold text-forest">
-                {#if defaultSpecialist.photo}
-                  <img class="h-full w-full object-cover" src={defaultSpecialist.photo} alt={defaultSpecialist.name} />
-                {:else}{initials}{/if}
-              </span>
-              <div class="leading-tight">
-                <p class="text-xs font-medium text-ink/70">Designed by</p>
-                <p class="text-sm font-bold text-ink">{defaultSpecialist.name}</p>
+            {#if specialist}
+              <div class="mt-auto flex items-center gap-3 pt-8">
+                <span class="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-forest/10 text-sm font-bold text-forest">
+                  {#if specialist.photo_url || specialist.photo}
+                    <img class="h-full w-full object-cover" src={specialist.photo_url || specialist.photo} alt={specialist.name} />
+                  {:else}{initials}{/if}
+                </span>
+                <div class="leading-tight">
+                  <p class="text-xs font-medium text-ink/70">Designed by</p>
+                  <p class="text-sm font-bold text-ink">{specialist.name}</p>
+                </div>
               </div>
-            </div>
+            {/if}
           </div>
 
           <!-- image mosaic -->

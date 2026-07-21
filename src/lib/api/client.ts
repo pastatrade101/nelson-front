@@ -414,6 +414,13 @@ export const api = {
     update: (id: string, body: Record<string, unknown>) => apiRequest(`/testimonials/${id}`, { method: 'PUT', body }),
     remove: (id: string) => apiRequest(`/testimonials/${id}`, { method: 'DELETE' })
   },
+  specialists: {
+    list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Record<string, unknown>>>(`/specialists${queryString(params)}`),
+    get: (id: string) => apiRequest<Record<string, unknown>>(`/specialists/${id}`),
+    create: (body: Record<string, unknown>) => apiRequest('/specialists', { method: 'POST', body }),
+    update: (id: string, body: Record<string, unknown>) => apiRequest(`/specialists/${id}`, { method: 'PUT', body }),
+    remove: (id: string) => apiRequest(`/specialists/${id}`, { method: 'DELETE' })
+  },
   faqs: {
     list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<FAQ>>(`/faqs${queryString(params)}`),
     get: (id: string) => apiRequest<Record<string, unknown>>(`/faqs/${id}`),

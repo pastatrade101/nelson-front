@@ -64,7 +64,30 @@
     'Nelson Kambo - founder and head guide, Emnel Adventures, Arusha.';
   const DEFAULT_PROCESS_QUOTE = '"One conversation. One contact. One safari that is genuinely yours."';
   const DEFAULT_REVIEWS_QUOTE = '"From first enquiry to last game drive - consistently extraordinary."';
+  // Stats band values/labels are CMS-overridable via the `stats` section's
+  // extra_data. Accept either a bare array or { items: [...] } (the shape the
+  // admin raw-JSON editor round-trips cleanly), else fall back to the defaults.
+  type StatItem = { value: number; decimals?: number; suffix?: string; label: string };
+  const DEFAULT_STATS: StatItem[] = [
+    { value: 9, suffix: '+', label: 'Years in Tanzania' },
+    { value: 20, suffix: '+', label: 'Tailor-made safaris designed' },
+    { value: 5, suffix: '', label: 'Destinations covered' },
+    { value: 4.9, decimals: 1, suffix: '★', label: 'Average traveller rating' }
+  ];
+  $: statsExtra = (sections.stats?.extra_data ?? null) as unknown;
+  $: homeStats = ((): StatItem[] => {
+    if (Array.isArray(statsExtra) && statsExtra.length) return statsExtra as StatItem[];
+    const items = (statsExtra as { items?: unknown } | null)?.items;
+    if (Array.isArray(items) && items.length) return items as StatItem[];
+    return DEFAULT_STATS;
+  })();
+
+  const DEFAULT_SHOWCASE_CONTENT =
+    'Use these safari and climb ideas as starting points. Every route can be adjusted around your dates, pace, lodges, and the season you travel.';
+
   $: heroExtra = (sections.hero?.extra_data ?? {}) as Record<string, unknown>;
+  $: showcaseExtra = (sections.safari_showcase?.extra_data ?? {}) as Record<string, unknown>;
+  $: faqExtra = (sections.faq?.extra_data ?? {}) as Record<string, unknown>;
   $: parksExtra = (sections.safari_parks_intro?.extra_data ?? {}) as Record<string, unknown>;
   $: founderExtra = (sections.founder_story?.extra_data ?? {}) as Record<string, unknown>;
   $: processExtra = (sections.how_it_works?.extra_data ?? {}) as Record<string, unknown>;
@@ -165,10 +188,10 @@
 
 {#if tours.length}
   <SafariShowcaseGrid
-    eyebrow="Private Safari Itineraries"
-    title="Six Routes"
-    accentTitle="to Start From"
-    content="Use these safari and climb ideas as starting points. Every route can be adjusted around your dates, pace, lodges, and the season you travel."
+    eyebrow={typeof showcaseExtra.eyebrow === 'string' ? showcaseExtra.eyebrow : 'Private Safari Itineraries'}
+    title={cms('safari_showcase', 'title', 'Six Routes')}
+    accentTitle={typeof showcaseExtra.accent_title === 'string' ? showcaseExtra.accent_title : 'to Start From'}
+    content={cms('safari_showcase', 'content', DEFAULT_SHOWCASE_CONTENT)}
     ctaLabel={cms('safari_parks_intro', 'button_text', 'View Safari Itineraries')}
     ctaHref={cms('safari_parks_intro', 'button_url', '/tours')}
     {tours}
@@ -224,7 +247,7 @@
   />
 {/if}
 
-<StatsCounter />
+<StatsCounter stats={homeStats} />
 
 {#if tours.length}
   <section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-surface to-surface py-16 md:py-24" use:sectionReveal>
@@ -281,7 +304,11 @@
   <JsonLd data={faqLd(faqs.map((f) => ({ q: f.question, a: f.answer })))} />
   <section class="bg-canvas py-16 md:py-24" use:sectionReveal>
     <div class="container-shell grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-12">
-      <SectionHeader eyebrow="Good to Know" title="Frequently Asked Questions" description="Honest answers to the questions Tanzania safari travellers ask most." />
+      <SectionHeader
+        eyebrow={typeof faqExtra.eyebrow === 'string' ? faqExtra.eyebrow : 'Good to Know'}
+        title={cms('faq', 'title', 'Frequently Asked Questions')}
+        description={cms('faq', 'subtitle', 'Honest answers to the questions Tanzania safari travellers ask most.')}
+      />
       <FAQAccordion {faqs} />
     </div>
   </section>
