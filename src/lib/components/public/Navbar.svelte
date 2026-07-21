@@ -42,7 +42,7 @@
     { href: '/', label: 'Home' },
     { href: '/tours', label: 'Safaris', dropdown: 'tours' },
     { href: '/destinations', label: 'Destinations' },
-    { href: '/kilimanjaro', label: 'Kilimanjaro' },
+    { href: '/destinations/kilimanjaro', label: 'Kilimanjaro' },
     { href: '/about', label: 'About' },
     { href: '/blog', label: 'Journal' }
   ];
