@@ -49,6 +49,8 @@
     meta_title?: string | null;
     meta_description?: string | null;
     og_image_url?: string | null;
+    guide?: unknown[];
+    guide_reviewed_at?: string | null;
     created_at?: string;
     updated_at?: string;
     deleted_at?: string | null;
@@ -82,6 +84,8 @@
     slug: string;
     status: PublishStatus;
     travel_insurance_note: string;
+    guide: string;
+    guide_reviewed_at: string;
   };
 
   type Toast = {
@@ -117,7 +121,9 @@
     short_description: '',
     slug: '',
     status: 'draft',
-    travel_insurance_note: ''
+    travel_insurance_note: '',
+    guide: '',
+    guide_reviewed_at: ''
   });
 
   const statusOptions = [
@@ -235,7 +241,9 @@
       short_description: destination.short_description ?? '',
       slug: destination.slug,
       status: destination.status ?? 'draft',
-      travel_insurance_note: destination.travel_insurance_note ?? ''
+      travel_insurance_note: destination.travel_insurance_note ?? '',
+      guide: destination.guide?.length ? JSON.stringify(destination.guide, null, 2) : '',
+      guide_reviewed_at: destination.guide_reviewed_at ?? ''
     };
     void loadMedia();
     slugManuallyEdited = true;
@@ -252,6 +260,22 @@
   const numberOrNull = (value: unknown) => {
     const text = String(value ?? '').trim();
     return text === '' ? null : Number(text);
+  };
+
+  // The long-form guide is edited as JSON in the admin form. Parse + validate it
+  // (must be an array of blocks) so a malformed paste surfaces a clear error
+  // instead of silently corrupting the field. An empty textarea => empty guide.
+  const parseGuide = (): unknown[] => {
+    const raw = form.guide.trim();
+    if (!raw) return [];
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (parseError) {
+      throw new Error(`Guide JSON is invalid: ${parseError instanceof Error ? parseError.message : 'parse error'}`);
+    }
+    if (!Array.isArray(parsed)) throw new Error('Guide JSON must be an array of blocks (starting with "[").');
+    return parsed;
   };
 
   const payload = () => {
@@ -287,7 +311,9 @@
       short_description: form.short_description || null,
       slug: form.slug.trim(),
       status: form.status,
-      travel_insurance_note: form.travel_insurance_note || null
+      travel_insurance_note: form.travel_insurance_note || null,
+      guide: parseGuide(),
+      guide_reviewed_at: form.guide_reviewed_at || null
     };
   };
 
@@ -540,6 +566,21 @@
           <AdminFormInput label="SEO title" name="meta_title" bind:value={form.meta_title} />
           <AdminTextArea label="SEO description" name="meta_description" bind:value={form.meta_description} rows={3} />
         </div>
+
+        <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
+          <div>
+            <h3 class="text-base font-semibold text-ink">Destination guide (structured)</h3>
+            <p class="mt-1 text-sm text-ink/55">
+              The long-form guide, as a JSON array of content blocks (part / richtext / field_notes /
+              callout / did_you_know / table / photo / facts / faq). Leave blank if this destination has no
+              guide. A visual block editor is planned — for now paste or edit the JSON directly.
+            </p>
+          </div>
+          <div class="grid gap-4 md:grid-cols-[1fr_200px]">
+            <AdminTextArea label="Guide blocks (JSON)" name="guide" bind:value={form.guide} rows={10} placeholder={'[\n  { "type": "part", "part": 1, "title": "Welcome" },\n  { "type": "richtext", "body": "..." }\n]'} />
+            <AdminFormInput label="Guide last reviewed" name="guide_reviewed_at" type="date" bind:value={form.guide_reviewed_at} />
+          </div>
+        </section>
 
         <div class="flex justify-end gap-3 pt-2">
           <AdminButton variant="secondary" type="button" on:click={closeModal}>Cancel</AdminButton>

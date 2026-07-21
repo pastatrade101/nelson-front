@@ -63,6 +63,25 @@ export type ItineraryDay = {
   image_url?: string | null;
 };
 
+export type GuideCalloutVariant = 'guide_tip' | 'local_insight' | 'safari_wisdom';
+
+/**
+ * A block in a destination's long-form guide (stored in the `guide` jsonb column).
+ * The block types mirror the editorial "content system": prose, the three insight-box
+ * styles, comparison tables, fact lists, photo slots and grouped FAQs. Rendered by
+ * DestinationGuide.svelte. Kept loose so the editorial schema can grow without a migration.
+ */
+export type GuideBlock =
+  | { type: 'part'; part?: number; title: string; subtitle?: string }
+  | { type: 'richtext'; heading?: string; body: string }
+  | { type: 'field_notes'; title?: string; body: string }
+  | { type: 'callout'; variant: GuideCalloutVariant; body: string }
+  | { type: 'did_you_know'; body: string }
+  | { type: 'table'; title?: string; columns: string[]; rows: string[][] }
+  | { type: 'photo'; caption: string; url?: string; alt?: string }
+  | { type: 'facts'; title?: string; items: { label: string; value: string }[] }
+  | { type: 'faq'; title?: string; items: { q: string; a: string }[] };
+
 export type Destination = {
   id: string;
   name: string;
@@ -93,6 +112,8 @@ export type Destination = {
   meta_title?: string;
   meta_description?: string;
   og_image_url?: string;
+  guide?: GuideBlock[];
+  guide_reviewed_at?: string | null;
 };
 
 export type Country = {

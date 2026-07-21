@@ -14,6 +14,7 @@
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
+  import DestinationGuide from '$lib/components/public/guide/DestinationGuide.svelte';
   import { placeholderDestinations } from '$lib/data/placeholders';
   import { breadcrumbLd } from '$lib/seo';
   import { FileCheck, HeartPulse, Phone, Plane, Shield, ShieldCheck } from '@lucide/svelte';
@@ -141,6 +142,11 @@
 </section>
 
 {#if destination && !loading}
+  <!-- Long-form destination guide (the editorial "destination template") -->
+  {#if destination.guide?.length}
+    <DestinationGuide blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} />
+  {/if}
+
   <!-- Tours in this destination -->
   {#if relatedTours.length}
     <section class="border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
