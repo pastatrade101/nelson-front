@@ -6,6 +6,7 @@
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
+  import DestinationGuideEditor from '$lib/components/admin/DestinationGuideEditor.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
   import AdminPageHeader from '$lib/components/admin/AdminPageHeader.svelte';
   import AdminSelect from '$lib/components/admin/AdminSelect.svelte';
@@ -84,7 +85,7 @@
     slug: string;
     status: PublishStatus;
     travel_insurance_note: string;
-    guide: string;
+    guide: any[];
     guide_reviewed_at: string;
   };
 
@@ -122,7 +123,7 @@
     slug: '',
     status: 'draft',
     travel_insurance_note: '',
-    guide: '',
+    guide: [],
     guide_reviewed_at: ''
   });
 
@@ -242,7 +243,7 @@
       slug: destination.slug,
       status: destination.status ?? 'draft',
       travel_insurance_note: destination.travel_insurance_note ?? '',
-      guide: destination.guide?.length ? JSON.stringify(destination.guide, null, 2) : '',
+      guide: Array.isArray(destination.guide) ? JSON.parse(JSON.stringify(destination.guide)) : [],
       guide_reviewed_at: destination.guide_reviewed_at ?? ''
     };
     void loadMedia();
@@ -260,22 +261,6 @@
   const numberOrNull = (value: unknown) => {
     const text = String(value ?? '').trim();
     return text === '' ? null : Number(text);
-  };
-
-  // The long-form guide is edited as JSON in the admin form. Parse + validate it
-  // (must be an array of blocks) so a malformed paste surfaces a clear error
-  // instead of silently corrupting the field. An empty textarea => empty guide.
-  const parseGuide = (): unknown[] => {
-    const raw = form.guide.trim();
-    if (!raw) return [];
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch (parseError) {
-      throw new Error(`Guide JSON is invalid: ${parseError instanceof Error ? parseError.message : 'parse error'}`);
-    }
-    if (!Array.isArray(parsed)) throw new Error('Guide JSON must be an array of blocks (starting with "[").');
-    return parsed;
   };
 
   const payload = () => {
@@ -312,7 +297,7 @@
       slug: form.slug.trim(),
       status: form.status,
       travel_insurance_note: form.travel_insurance_note || null,
-      guide: parseGuide(),
+      guide: form.guide,
       guide_reviewed_at: form.guide_reviewed_at || null
     };
   };
@@ -568,18 +553,19 @@
         </div>
 
         <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
-          <div>
-            <h3 class="text-base font-semibold text-ink">Destination guide (structured)</h3>
-            <p class="mt-1 text-sm text-ink/55">
-              The long-form guide, as a JSON array of content blocks (part / richtext / field_notes /
-              callout / did_you_know / table / photo / facts / faq). Leave blank if this destination has no
-              guide. A visual block editor is planned — for now paste or edit the JSON directly.
-            </p>
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 class="text-base font-semibold text-ink">Destination guide</h3>
+              <p class="mt-1 text-sm text-ink/55">
+                The long-form guide, built from content blocks. Add, reorder and edit blocks below —
+                Photo blocks have an image picker. Leave empty if this destination has no guide.
+              </p>
+            </div>
+            <div class="w-full sm:w-48">
+              <AdminFormInput label="Guide last reviewed" name="guide_reviewed_at" type="date" bind:value={form.guide_reviewed_at} />
+            </div>
           </div>
-          <div class="grid gap-4 md:grid-cols-[1fr_200px]">
-            <AdminTextArea label="Guide blocks (JSON)" name="guide" bind:value={form.guide} rows={10} placeholder={'[\n  { "type": "part", "part": 1, "title": "Welcome" },\n  { "type": "richtext", "body": "..." }\n]'} />
-            <AdminFormInput label="Guide last reviewed" name="guide_reviewed_at" type="date" bind:value={form.guide_reviewed_at} />
-          </div>
+          <DestinationGuideEditor bind:blocks={form.guide} media={mediaItems} />
         </section>
 
         <div class="flex justify-end gap-3 pt-2">
