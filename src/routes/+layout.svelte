@@ -16,7 +16,7 @@
   import { api } from '$lib/api/client';
   import { applyBranding, branding } from '$lib/branding';
   import { SITE_URL } from '$lib/config/env';
-  import { loadPublicSettings } from '$lib/settings';
+  import { loadPublicSettings, publicSettings, settingBool } from '$lib/settings';
 
   $: isAdmin = $page.url.pathname.startsWith('/admin');
 
@@ -60,7 +60,7 @@
     script.setAttribute('data-client', publicEnv.PUBLIC_MAKUTANO_CLIENT || 'emnel-adventures');
     document.body.appendChild(script);
   };
-  $: if (browser && !isAdmin) loadMakutanoWidget();
+  $: if (browser && !isAdmin && settingBool($publicSettings, 'ai_widget_enabled', true)) loadMakutanoWidget();
 
   // Load GA4 (gtag) on the public site — gated by consent ('granted') above and a
   // configured PUBLIC_GA4_MEASUREMENT_ID. This activates trackEvent's GA4 path.

@@ -94,7 +94,10 @@
   <!-- hero -->
   <section class="relative overflow-hidden bg-deep-green text-white">
     {#if cmp.a.image}
-      <img class="absolute inset-0 h-full w-full object-cover opacity-40" src={cmp.a.image} alt="" />
+      <img class="absolute inset-y-0 left-0 h-full w-1/2 object-cover opacity-40" src={cmp.a.image} alt="" />
+    {/if}
+    {#if cmp.b.image}
+      <img class="absolute inset-y-0 right-0 h-full w-1/2 object-cover opacity-40" src={cmp.b.image} alt="" />
     {/if}
     <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/80 to-deep-green/40"></div>
     <div class="container-shell relative py-14 md:py-20">

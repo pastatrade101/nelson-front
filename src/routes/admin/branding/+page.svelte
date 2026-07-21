@@ -157,7 +157,6 @@
           </div>
           <AdminFormInput label="Tagline" name="tagline" bind:value={form.tagline} />
           <AdminTextArea label="Positioning statement" name="positioning" bind:value={form.positioning} rows={2} />
-          <AdminFormInput label="AI advisor name" name="ai_advisor_name" bind:value={form.ai_advisor_name} />
         </section>
 
         <!-- colors -->
@@ -199,23 +198,6 @@
           </div>
         </section>
 
-        <!-- CTAs & contact -->
-        <section class="grid gap-4 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_44px_rgba(28,26,22,0.06)]">
-          <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Calls to action & contact</p>
-            <h2 class="mt-1 text-lg font-bold text-ink">Buttons & support details</h2>
-          </div>
-          <div class="grid gap-4 sm:grid-cols-3">
-            <AdminFormInput label="Primary CTA" name="primary_cta" bind:value={form.primary_cta} />
-            <AdminFormInput label="Secondary CTA" name="secondary_cta" bind:value={form.secondary_cta} />
-            <AdminFormInput label="WhatsApp CTA" name="whatsapp_cta" bind:value={form.whatsapp_cta} />
-          </div>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <AdminFormInput label="Support email" name="support_email" type="email" bind:value={form.support_email} placeholder="hello@goldfinch.com" />
-            <AdminFormInput label="Support phone" name="support_phone" bind:value={form.support_phone} placeholder="+255 700 000 000" />
-          </div>
-        </section>
-
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <AdminButton variant="secondary" type="button" on:click={load}>Discard changes</AdminButton>
           <AdminButton type="button" disabled={saving} on:click={save}>
@@ -241,7 +223,7 @@
             <div>
               <h3 class="text-xl font-extrabold">{form.site_name || 'Site name'}</h3>
               <p class="mx-auto mt-2 max-w-xs text-xs text-white/80">{form.tagline || 'Your tagline appears here.'}</p>
-              <span class="mt-4 inline-flex h-9 items-center rounded-xl bg-goldfinch-gold px-4 text-xs font-bold text-heading">{form.primary_cta || 'Plan My Safari'}</span>
+              <span class="mt-4 inline-flex h-9 items-center rounded-xl bg-goldfinch-gold px-4 text-xs font-bold text-heading">Plan My Safari</span>
             </div>
           </div>
 

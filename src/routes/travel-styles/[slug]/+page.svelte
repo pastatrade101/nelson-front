@@ -19,6 +19,7 @@
     desires: string[];
     concerns: string[];
     persona?: string;
+    heroImage?: string;
   };
 
   $: origin = $page.url.origin;
@@ -36,7 +37,8 @@
     description: s.description ?? '',
     desires: s.desires ?? [],
     concerns: s.concerns ?? [],
-    persona: s.persona ?? undefined
+    persona: s.persona ?? undefined,
+    heroImage: s.hero_image_url ?? undefined
   });
 
   $: toursHref = style?.persona ? `/tours?persona=${style.persona}` : '/tours';
@@ -89,6 +91,10 @@
 {:else}
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Travel Styles', path: '/travel-styles' }, { name: style.name, path: `/travel-styles/${style.slug}` }])} />
   <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
+    {#if style.heroImage}
+      <img class="absolute inset-0 h-full w-full object-cover opacity-40" src={style.heroImage} alt="" />
+      <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/80 to-deep-green/40"></div>
+    {/if}
     <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
     <div class="container-shell relative py-14 md:py-20">
       <nav class="mb-5 flex items-center gap-2 text-sm text-white/70">

@@ -48,6 +48,8 @@ export type Tour = {
   itinerary_days?: ItineraryDay[];
   tour_inclusions?: { title: string; sort_order?: number }[];
   tour_exclusions?: { title: string; sort_order?: number }[];
+  tour_price_options?: TourPriceOption[];
+  tour_images?: TourImage[];
   status?: string;
   is_featured?: boolean;
   is_popular?: boolean;
@@ -61,6 +63,28 @@ export type ItineraryDay = {
   meals?: string | null;
   activities?: string | null;
   image_url?: string | null;
+};
+
+export type TourPriceOption = {
+  id: string;
+  tour_id?: string;
+  title: string;
+  label?: string | null;
+  price: number;
+  currency?: string | null;
+  price_type?: string | null;
+  description?: string | null;
+  sort_order?: number | null;
+};
+
+export type TourImage = {
+  id: string;
+  tour_id?: string;
+  image_url: string;
+  alt_text?: string | null;
+  caption?: string | null;
+  sort_order?: number | null;
+  is_featured?: boolean;
 };
 
 export type GuideCalloutVariant = 'guide_tip' | 'local_insight' | 'safari_wisdom';

@@ -46,18 +46,19 @@
 
   const recommendedKeys = [
     'hero',
-    'featured_tours',
-    'featured_destinations',
-    'why_choose_us',
-    'testimonials',
-    'gallery_preview',
-    'faq_preview',
+    'safari_parks_intro',
+    'safari_showcase',
+    'founder_story',
+    'how_it_works',
     'blog_preview',
-    'ai_advisor_cta',
+    'testimonials',
+    'cost_ranges',
+    'featured_destinations',
+    'featured_tours',
+    'faq',
     'final_cta',
     'partners',
-    'login_slider',
-    'cost_ranges'
+    'stats'
   ];
 
   const emptyForm = () => ({

@@ -2,6 +2,7 @@
   import { Mail, Phone } from '@lucide/svelte';
   import { trackEvent } from '$lib/analytics';
   import { brand } from '$lib/brand';
+  import { branding } from '$lib/branding';
   import { publicSettings, settingText } from '$lib/settings';
 
   const SOCIAL = [
@@ -32,7 +33,13 @@
 <footer class="border-t border-ink/10 bg-deep-green text-white">
   <div class="container-shell grid gap-8 py-10 md:grid-cols-[1.2fr_1fr_1fr]">
     <div>
-      <p class="text-lg font-bold">{siteName}</p>
+      {#if $branding.logo_url}
+        <a href="/" class="inline-block" aria-label={siteName}>
+          <img src={$branding.logo_url} alt={siteName} class="h-11 w-auto object-contain" />
+        </a>
+      {:else}
+        <p class="text-lg font-bold">{siteName}</p>
+      {/if}
       <p class="mt-3 max-w-sm text-sm leading-6 text-white/70">{tagline}. {statement}</p>
 
       {#if contactEmail || contactPhone}

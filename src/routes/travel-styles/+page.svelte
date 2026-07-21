@@ -3,12 +3,13 @@
   import { ArrowRight } from '@lucide/svelte';
   import { revealHeading, staggeredCardReveal, tilt } from '$lib/animations';
   import { api } from '$lib/api/client';
+  import { imgUrl } from '$lib/img';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import type { TravelStyle } from '$lib/types';
 
-  type Card = { slug: string; name: string; emotionalPromise: string; description: string };
+  type Card = { slug: string; name: string; emotionalPromise: string; description: string; heroImage?: string };
 
   let styles: Card[] = [];
   let loading = true;
@@ -22,7 +23,8 @@
         slug: s.slug,
         name: s.name,
         emotionalPromise: s.emotional_promise ?? '',
-        description: s.description ?? ''
+        description: s.description ?? '',
+        heroImage: s.hero_image_url ?? undefined
       }));
     } catch {
       loadFailed = true;
@@ -55,6 +57,11 @@
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
       {#each styles as style (style.slug)}
         <a class="group flex flex-col rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]" href={`/travel-styles/${style.slug}`} use:tilt={{ max: 5 }}>
+          {#if style.heroImage}
+            <div class="-mx-6 -mt-6 mb-5 aspect-[16/9] overflow-hidden bg-skywash">
+              <img class="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105" src={imgUrl(style.heroImage, 700)} alt={style.name} loading="lazy" decoding="async" />
+            </div>
+          {/if}
           <h2 class="text-xl font-extrabold text-heading">{style.name}</h2>
           <p class="mt-1 text-sm font-semibold text-clay">{style.emotionalPromise}</p>
           <p class="mt-2 flex-1 text-sm leading-6 text-ink/65">{style.description}</p>

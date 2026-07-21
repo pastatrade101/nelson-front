@@ -41,10 +41,7 @@
       { key: 'tagline', label: 'Tagline', type: 'text', public: true, default: 'Private Tanzania safaris, designed in Arusha' },
       { key: 'brand_statement', label: 'Brand statement', type: 'textarea', public: true, default: 'Where the wild speaks, we know how to listen.' },
       { key: 'logo_url', label: 'Logo', type: 'image', public: true, helper: 'Public logo image.' },
-      { key: 'favicon_url', label: 'Favicon', type: 'image', public: true },
-      { key: 'primary_color', label: 'Primary color', type: 'color', public: true, default: '#1C1A16' },
-      { key: 'secondary_color', label: 'Secondary color', type: 'color', public: true, default: '#4A3728' },
-      { key: 'accent_color', label: 'Accent color', type: 'color', public: true, default: '#C5A265' }
+      { key: 'favicon_url', label: 'Favicon', type: 'image', public: true }
     ] },
     { key: 'contact', label: 'Contact', icon: MapPin, fields: [
       { key: 'contact_email', label: 'Contact email', type: 'email', public: true },

@@ -12,19 +12,13 @@ export type BrandColors = {
 };
 
 export type Branding = {
-  ai_advisor_name: string;
   colors: BrandColors;
   company_name: string;
   favicon_url: string;
   logo_url: string;
   positioning: string;
-  primary_cta: string;
-  secondary_cta: string;
   site_name: string;
-  support_email: string;
-  support_phone: string;
   tagline: string;
-  whatsapp_cta: string;
 };
 
 export const defaultColors: BrandColors = {
@@ -38,19 +32,13 @@ export const defaultColors: BrandColors = {
 };
 
 export const defaultBranding: Branding = {
-  ai_advisor_name: brand.aiAdvisorName,
   colors: { ...defaultColors },
   company_name: brand.companyName,
   favicon_url: '',
   logo_url: '',
   positioning: brand.positioning,
-  primary_cta: brand.primaryCta,
-  secondary_cta: brand.secondaryCta,
   site_name: brand.name,
-  support_email: '',
-  support_phone: '',
-  tagline: brand.tagline,
-  whatsapp_cta: brand.whatsappCta
+  tagline: brand.tagline
 };
 
 export const branding = writable<Branding>(defaultBranding);

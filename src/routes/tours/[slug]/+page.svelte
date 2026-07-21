@@ -139,10 +139,25 @@
       }
     : null;
 
+  // Human-readable labels for the tour_price_options.price_type enum.
+  const priceTypeLabels: Record<string, string> = {
+    per_person: 'Per person',
+    per_group: 'Per group',
+    per_child: 'Per child',
+    single_supplement: 'Single supplement',
+    upgrade: 'Upgrade',
+    discount: 'Discount'
+  };
+  const priceTypeLabel = (value?: string | null) => (value ? priceTypeLabels[value] ?? value : 'Per person');
+  const formatPrice = (amount: number, currency?: string | null) => `${currency ?? 'USD'} ${Number(amount).toLocaleString()}`;
+
   // Day-by-day itinerary + what's included (embedded in the tour detail response).
   $: itineraryDays = [...(tour?.itinerary_days ?? [])].sort((a, b) => (a.day_number ?? 0) - (b.day_number ?? 0));
   $: inclusions = [...(tour?.tour_inclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: exclusions = [...(tour?.tour_exclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  // Pricing options + gallery images (embedded in the tour detail response).
+  $: priceOptions = [...(tour?.tour_price_options ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  $: galleryImages = [...(tour?.tour_images ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: highlights = tour?.highlights ?? [];
   $: groupSize = tour
     ? tour.group_size_min && tour.group_size_max
@@ -249,7 +264,9 @@
     { href: '#overview', label: 'Overview', show: true },
     { href: '#highlights', label: 'Highlights', show: highlights.length > 0 || fitTags.length > 0 },
     { href: '#itinerary', label: 'Itinerary', show: displayDays.length > 0 },
+    { href: '#gallery', label: 'Gallery', show: galleryImages.length > 0 },
     { href: '#included', label: 'Included', show: inclusions.length > 0 || exclusions.length > 0 },
+    { href: '#pricing', label: 'Pricing', show: priceOptions.length > 0 },
     { href: '#related', label: 'More Trips', show: relatedTours.length > 0 },
     { href: '#planning', label: 'Planning', show: planningCards.length > 0 },
     { href: '#faqs', label: 'FAQs', show: faqs.length > 0 }
@@ -529,6 +546,31 @@
     </section>
   {/if}
 
+  {#if galleryImages.length}
+    <section id="gallery" class="scroll-mt-28 bg-linen py-16 text-ink md:py-24">
+      <div class="container-shell">
+        <div class="max-w-[760px]">
+          <p class="brand-eyebrow">From the field</p>
+          <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-heading sm:text-[56px]">
+            A closer look at this safari.
+          </h2>
+        </div>
+        <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ selector: '.tour-gallery-card', y: 16, stagger: 0.05 }}>
+          {#each galleryImages as image (image.id)}
+            <figure class="tour-gallery-card group overflow-hidden border border-ink/10 bg-surface">
+              <div class="aspect-[4/3] overflow-hidden bg-deep-green">
+                <img class="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={imgUrl(image.image_url, 800, 76)} alt={image.alt_text ?? tour.title} loading="lazy" />
+              </div>
+              {#if image.caption}
+                <figcaption class="px-5 py-4 text-[13px] font-medium leading-6 text-ink/64">{image.caption}</figcaption>
+              {/if}
+            </figure>
+          {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
+
   {#if inclusions.length || exclusions.length}
     <section id="included" class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
       <div class="container-shell">
@@ -565,6 +607,43 @@
               </ul>
             </div>
           {/if}
+        </div>
+      </div>
+    </section>
+  {/if}
+
+  {#if priceOptions.length}
+    <section id="pricing" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+      <div class="container-shell">
+        <div class="max-w-[760px]">
+          <p class="brand-eyebrow text-goldfinch-gold">Pricing</p>
+          <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-white sm:text-[56px]">
+            Ways this safari is priced.
+          </h2>
+          <p class="mt-5 text-[15px] font-medium leading-8 text-white/62">
+            Indicative rates from the live CMS record. Final pricing is confirmed by the Emnel team around your dates, group size, and chosen lodges.
+          </p>
+        </div>
+        <div class="mt-12 grid gap-4 md:grid-cols-2">
+          {#each priceOptions as option (option.id)}
+            <div class="flex flex-col gap-4 border border-white/[0.1] bg-white/[0.04] p-7">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <h3 class="font-serif text-[26px] font-light leading-tight text-white">{option.title}</h3>
+                  {#if option.label && option.label !== option.title}
+                    <p class="mt-1 text-sm font-medium text-white/58">{option.label}</p>
+                  {/if}
+                </div>
+                <span class="shrink-0 rounded-full border border-goldfinch-gold/30 bg-goldfinch-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">
+                  {priceTypeLabel(option.price_type)}
+                </span>
+              </div>
+              <p class="font-serif text-[34px] leading-none text-goldfinch-gold">{formatPrice(option.price, option.currency)}</p>
+              {#if option.description}
+                <p class="text-[14px] font-medium leading-7 text-white/62">{option.description}</p>
+              {/if}
+            </div>
+          {/each}
         </div>
       </div>
     </section>

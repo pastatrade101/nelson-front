@@ -62,6 +62,20 @@
       {/if}
     </div>
 
+    {#if activity.highlights?.length}
+      <ul class="mt-3 flex flex-wrap gap-1.5">
+        {#each activity.highlights as highlight}
+          <li class="rounded-full bg-sand px-2.5 py-1 text-[11px] font-semibold text-forest">{highlight}</li>
+        {/each}
+      </ul>
+    {/if}
+
+    {#if activity.best_season?.length}
+      <p class="mt-2 text-[13px] text-ink/70">
+        <span class="font-semibold text-ink">Best season:</span> {activity.best_season.join(', ')}
+      </p>
+    {/if}
+
     {#if priceLabel}
       <div class="mt-auto pt-4">
         <p class="text-sm text-ink/70">

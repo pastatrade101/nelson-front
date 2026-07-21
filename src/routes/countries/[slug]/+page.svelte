@@ -36,6 +36,13 @@
   $: origin = $page.url.origin;
 </script>
 
+<svelte:head>
+  {#if country}
+    <title>{country.seo_title || country.meta_title || country.name}</title>
+    {#if country.meta_description}<meta name="description" content={country.meta_description} />{/if}
+  {/if}
+</svelte:head>
+
 {#if loading}
   <section class="container-shell py-20"><LoadingState message="Loading country..." /></section>
 {:else if country}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Sparkles, Star } from '@lucide/svelte';
+  import { ExternalLink, Sparkles, Star } from '@lucide/svelte';
   import { tilt } from '$lib/animations';
   import { imgUrl, thumbUrl } from '$lib/img';
   import type { Lodge } from '$lib/types';
@@ -55,6 +55,12 @@
           <span class="rounded-full bg-sand px-2.5 py-1 text-[11px] font-semibold text-forest">{tag}</span>
         {/each}
       </div>
+    {/if}
+
+    {#if lodge.website_url}
+      <a class="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-forest transition-colors hover:text-forest/70" href={lodge.website_url} target="_blank" rel="noopener">
+        <ExternalLink size={14} /> Visit website
+      </a>
     {/if}
 
     <div class="mt-auto flex items-center justify-between pt-4">
