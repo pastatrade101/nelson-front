@@ -240,7 +240,7 @@
           <div>
             <h2 class="text-base font-bold text-red-800">Start fresh — reset all content</h2>
             <p class="mt-1 max-w-xl text-sm text-red-700/80">
-              Permanently deletes all tours &amp; itineraries, categories, destinations, lodges, countries, journal
+              Permanently deletes all tours &amp; itineraries, categories, destinations, lodges, journal
               posts &amp; categories, FAQs and testimonials — so you can import your own data on a clean slate. Your
               admin users, roles, branding, settings and homepage are kept. This cannot be undone.
             </p>
