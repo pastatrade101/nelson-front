@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ExternalLink, Sparkles, Star } from '@lucide/svelte';
+  import { ExternalLink, Sparkles, Star, Tent } from '@lucide/svelte';
   import { tilt } from '$lib/animations';
   import { imgUrl, thumbUrl } from '$lib/img';
   import type { Lodge } from '$lib/types';
@@ -31,6 +31,12 @@
   <div class="relative aspect-[4/3] overflow-hidden bg-skywash">
     {#if imageUrl}
       <img class="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110" src={imgUrl(imageUrl, 700)} alt={lodge.name} loading="lazy" decoding="async" />
+    {:else}
+      <!-- branded placeholder until a real photo is added in the Media Library -->
+      <div class="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-[linear-gradient(135deg,rgba(28,26,22,0.96),rgba(74,55,40,0.9))] text-white/80">
+        <Tent size={30} strokeWidth={1.4} />
+        <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/65">{typeLabels[lodge.lodge_type] ?? 'Lodge'}</span>
+      </div>
     {/if}
     {#if lodge.is_featured}
       <span class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-goldfinch-gold px-2.5 py-1 text-[11px] font-bold text-heading shadow">
