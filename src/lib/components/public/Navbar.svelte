@@ -72,6 +72,10 @@
 
   // ── active route ──────────────────────────────────────────────────────────
   $: path = $page.url.pathname;
+  $: isHome = path === '/';
+  // On the homepage the header overlays the full-height hero: transparent at the
+  // very top, solid once scrolled. On every other page it stays a solid sticky bar.
+  $: transparentHeader = isHome && !scrolled;
   const isActive = (currentPath: string, href: string) => {
     if (href === '/') return currentPath === '/';
     return currentPath === href || currentPath.startsWith(`${href}/`);
@@ -158,7 +162,11 @@
   });
 </script>
 
-<header class={`sticky top-0 z-40 border-b bg-deep-green text-white transition-[box-shadow,border-color] duration-[400ms] ease-out ${scrolled ? 'border-transparent shadow-[0_8px_28px_rgba(28,26,22,0.20)]' : 'border-white/10'}`} use:navbarEntrance>
+<header class={`${isHome ? 'fixed' : 'sticky'} inset-x-0 top-0 z-40 border-b text-white transition-[background-color,box-shadow,border-color] duration-[400ms] ease-out ${
+  transparentHeader
+    ? 'border-transparent bg-transparent'
+    : `bg-deep-green ${scrolled ? 'border-transparent shadow-[0_8px_28px_rgba(28,26,22,0.20)]' : 'border-white/10'}`
+}`} use:navbarEntrance>
   <!-- ── mobile top bar ─────────────────────────────────────────────────── -->
   <div class="flex h-[70px] items-center justify-between gap-3 px-4 sm:px-5 lg:hidden">
     <button class="grid h-11 w-11 place-items-center rounded-xl border border-white/15 bg-white/5 text-white" type="button" aria-label="Toggle menu" aria-expanded={menuOpen} on:click={() => (menuOpen = !menuOpen)}>

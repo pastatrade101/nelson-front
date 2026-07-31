@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
-  import { ArrowRight, Star } from '@lucide/svelte';
+  import { ArrowRight, ChevronDown, Star } from '@lucide/svelte';
   import { revealHeading } from '$lib/animations';
   import { brand } from '$lib/brand';
   import { imgUrl } from '$lib/img';
@@ -31,9 +31,14 @@
     imageUrl && /^(https?:\/\/|\/\/|\/|data:)/i.test(imageUrl.trim()) ? imageUrl.trim() : DEFAULT_HERO_IMAGE;
   $: resolvedVideo =
     videoUrl && /^(https?:\/\/|\/\/|\/)/i.test(videoUrl.trim()) ? videoUrl.trim() : '';
+
+  // Scroll roughly one viewport down when the "scroll" cue is tapped.
+  const scrollDown = () => {
+    if (typeof window !== 'undefined') window.scrollTo({ top: window.innerHeight - 64, behavior: 'smooth' });
+  };
 </script>
 
-<section class="relative min-h-[calc(100svh-70px)] overflow-hidden bg-deep-green text-white md:min-h-[760px]">
+<section class="relative min-h-[100svh] overflow-hidden bg-deep-green text-white">
   {#if resolvedVideo}
     <!-- svelte-ignore a11y-media-has-caption -->
     <video
@@ -60,7 +65,7 @@
   <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.90)_0%,rgba(28,26,22,0.78)_32%,rgba(28,26,22,0.42)_58%,rgba(28,26,22,0.16)_100%)]"></div>
   <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.60)_0%,rgba(28,26,22,0.12)_28%,rgba(28,26,22,0.66)_100%)]"></div>
 
-  <div class="relative z-10 mx-auto flex min-h-[calc(100svh-70px)] w-full max-w-[1500px] items-center px-5 pb-20 pt-20 md:min-h-[760px] md:px-8 md:pb-24 md:pt-28">
+  <div class="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1500px] items-center px-5 pb-24 pt-28 md:px-8 md:pb-28 md:pt-36">
     <div class="max-w-[760px]">
       <p class="brand-eyebrow" in:fly={{ y: 12, duration: 420 }}>{eyebrow}</p>
       {#key title}
@@ -87,4 +92,15 @@
       </div>
     </div>
   </div>
+
+  <!-- scroll-down cue -->
+  <button
+    type="button"
+    on:click={scrollDown}
+    class="absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1 text-white/70 transition hover:text-white"
+    aria-label="Scroll down"
+  >
+    <span class="text-[10px] font-semibold uppercase tracking-[0.2em]">Scroll</span>
+    <ChevronDown size={22} strokeWidth={2.2} class="animate-bounce" />
+  </button>
 </section>
