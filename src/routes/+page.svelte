@@ -86,6 +86,7 @@
     'Use these safari and climb ideas as starting points. Every route can be adjusted around your dates, pace, lodges, and the season you travel.';
 
   $: heroExtra = (sections.hero?.extra_data ?? {}) as Record<string, unknown>;
+  $: heroVideo = typeof heroExtra.background_video === 'string' ? heroExtra.background_video : '';
   $: showcaseExtra = (sections.safari_showcase?.extra_data ?? {}) as Record<string, unknown>;
   $: faqExtra = (sections.faq?.extra_data ?? {}) as Record<string, unknown>;
   $: parksExtra = (sections.safari_parks_intro?.extra_data ?? {}) as Record<string, unknown>;
@@ -165,6 +166,7 @@
   description={cms('hero', 'subtitle', 'Private Tanzania safaris, Kilimanjaro climbs and Zanzibar extensions planned by local experts in Arusha.')}
   eyebrow={typeof heroExtra.eyebrow === 'string' ? heroExtra.eyebrow : 'Private Tanzania Safaris · Authentic Experience · Local Experts'}
   imageUrl={cms('hero', 'image_url', DEFAULT_HERO_IMAGE)}
+  videoUrl={heroVideo}
   imagePosition={typeof heroExtra.media_position === 'string' ? heroExtra.media_position : 'center'}
   primaryCta={cms('hero', 'button_text', 'Plan My Safari')}
   primaryCtaUrl={cms('hero', 'button_url', '/plan-my-trip')}
