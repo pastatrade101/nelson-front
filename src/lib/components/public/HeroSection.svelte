@@ -8,9 +8,10 @@
   export let title = 'Where the wild speaks, we know how to listen.';
   export let description = 'Private Tanzania safaris, Kilimanjaro climbs and Zanzibar extensions planned by local experts in Arusha.';
   export let eyebrow = 'Private Tanzania Safaris · Authentic Experience · Local Experts';
-  const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
 
-  export let imageUrl = DEFAULT_HERO_IMAGE;
+  // No stock/placeholder fallback. When the CMS provides no image (and no video),
+  // the hero shows the dark brand background — never a random stock photo.
+  export let imageUrl = '';
   // Optional background video (mp4/webm URL). When set it plays behind the hero
   // with the image as poster/fallback. Sourced from the hero section's
   // extra_data.background_video (Admin → Homepage → Background video URL).
@@ -25,14 +26,13 @@
   export let imagePosition = 'center';
 
   // Accept any real image reference the CMS/admin can produce — full URLs,
-  // protocol- or root-relative paths, and data URIs — not just http(s). Only an
-  // empty/blank value falls back to the default hero.
-  // The client's provided image (empty if none). The still-image hero falls back
-  // to the brand default; the video POSTER never does — so a stock image can't
-  // flash before a client's video plays.
+  // protocol- or root-relative paths, and data URIs — not just http(s). An
+  // empty/blank value means "no image": the hero renders on the dark brand
+  // background rather than any stock/placeholder photo. The video POSTER also
+  // only ever uses this real image, so a stock image can't flash before a
+  // client's video plays.
   $: providedImage =
     imageUrl && /^(https?:\/\/|\/\/|\/|data:)/i.test(imageUrl.trim()) ? imageUrl.trim() : '';
-  $: resolvedImage = providedImage || DEFAULT_HERO_IMAGE;
   $: resolvedVideo =
     videoUrl && /^(https?:\/\/|\/\/|\/)/i.test(videoUrl.trim()) ? videoUrl.trim() : '';
   $: posterImage = providedImage ? imgUrl(providedImage, 1800) : '';
@@ -56,11 +56,11 @@
       loop
       playsinline
     ></video>
-  {:else}
+  {:else if providedImage}
     <img
       class="absolute inset-0 h-full w-full object-cover"
       style={`object-position:${imagePosition}`}
-      src={imgUrl(resolvedImage, 1800)}
+      src={imgUrl(providedImage, 1800)}
       alt="Private Tanzania safari"
       loading="eager"
       decoding="async"

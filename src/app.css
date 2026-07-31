@@ -149,3 +149,115 @@ select {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Rich text (blog body) ────────────────────────────────────────────────
+   Shared by the admin TipTap editor (.pm-editor) and the published article so
+   the writer sees exactly what readers get. Must be global (not component
+   scoped) so it also styles {@html} output on the public page. */
+.rich-content {
+  color: rgb(var(--c-ink));
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  word-break: break-word;
+}
+.rich-content > :first-child { margin-top: 0; }
+.rich-content > :last-child { margin-bottom: 0; }
+.rich-content p { margin: 0 0 1.1em; }
+.rich-content h1,
+.rich-content h2,
+.rich-content h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  color: rgb(var(--c-heading));
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 1.6em 0 0.5em;
+}
+.rich-content h1 { font-size: 2.1rem; }
+.rich-content h2 { font-size: 1.65rem; }
+.rich-content h3 { font-size: 1.32rem; }
+.rich-content a {
+  color: rgb(var(--c-forest));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rich-content a:hover { color: rgb(var(--c-goldfinch-gold)); }
+.rich-content ul,
+.rich-content ol { margin: 0 0 1.1em; padding-left: 1.4em; }
+.rich-content ul { list-style: disc; }
+.rich-content ol { list-style: decimal; }
+.rich-content li { margin: 0.35em 0; }
+.rich-content li > p { margin: 0; }
+.rich-content blockquote {
+  margin: 1.4em 0;
+  padding: 0.35em 1.1em;
+  border-left: 3px solid rgb(var(--c-goldfinch-gold));
+  color: rgb(var(--c-ink) / 0.75);
+  font-style: italic;
+}
+.rich-content hr { border: 0; border-top: 1px solid rgb(var(--c-ink) / 0.15); margin: 2em 0; }
+.rich-content code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+  background: rgb(var(--c-ink) / 0.06);
+  padding: 0.15em 0.4em;
+}
+.rich-content pre {
+  background: rgb(var(--c-deep-green));
+  color: #f5f2ea;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  margin: 1.4em 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+.rich-content pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.rich-content img,
+.rich-content .rich-img { max-width: 100%; height: auto; margin: 1.4em 0; display: block; }
+.rich-content strong { font-weight: 700; }
+.rich-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.4em 0;
+  font-size: 0.95rem;
+  table-layout: fixed;
+}
+.rich-content th,
+.rich-content td {
+  border: 1px solid rgb(var(--c-ink) / 0.15);
+  padding: 0.5em 0.7em;
+  text-align: left;
+  vertical-align: top;
+}
+.rich-content th { background: rgb(var(--c-savanna)); font-weight: 700; }
+
+/* Editor-only chrome (TipTap / ProseMirror) */
+.pm-editor { padding: 1rem 1.15rem; min-height: inherit; }
+.pm-editor:focus,
+.pm-editor:focus-visible { outline: none; }
+.pm-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: rgb(var(--c-ink) / 0.38);
+}
+.pm-editor td,
+.pm-editor th { position: relative; }
+.pm-editor .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(var(--c-goldfinch-gold) / 0.18);
+  pointer-events: none;
+}
+.pm-editor .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  background: rgb(var(--c-goldfinch-gold));
+  pointer-events: none;
+}
+.pm-editor.resize-cursor { cursor: col-resize; }
+.pm-editor img.ProseMirror-selectednode { outline: 3px solid rgb(var(--c-goldfinch-gold)); }

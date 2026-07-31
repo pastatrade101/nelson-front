@@ -9,6 +9,7 @@
   import AdminSelect from './AdminSelect.svelte';
   import MediaPicker from './MediaPicker.svelte';
   import AdminTextArea from './AdminTextArea.svelte';
+  import RichTextEditor from './RichTextEditor.svelte';
   import ToastStack from './ToastStack.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
@@ -55,6 +56,16 @@
   // ─── helpers ──────────────────────────────────────────────────────────────
 
   const slugify = (v: string) => v.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+  // The rich-text editor emits HTML; an "empty" document is `<p></p>`. Treat a
+  // body with no visible text and no media as empty so it saves as null.
+  const bodyHtml = (html: string): string | null => {
+    const trimmed = html.trim();
+    if (!trimmed) return null;
+    const hasMedia = /<(img|hr|table|iframe|figure)\b/i.test(trimmed);
+    const hasText = trimmed.replace(/<[^>]*>/g, '').replace(/&nbsp;|\s/g, '').length > 0;
+    return hasMedia || hasText ? trimmed : null;
+  };
 
   $: if (!slugManuallyEdited) form.slug = slugify(form.title);
 
@@ -131,7 +142,7 @@
     const payload: Record<string, unknown> = {
       author_name: form.author_name.trim() || null,
       category_id: form.category_id || null,
-      content: form.content.trim() || null,
+      content: bodyHtml(form.content),
       excerpt: form.excerpt.trim() || null,
       featured_image_url: form.featured_image_url.trim() || null,
       meta_description: form.meta_description.trim() || null,
@@ -205,7 +216,7 @@
 
           <AdminTextArea label="Excerpt" name="excerpt" bind:value={form.excerpt} rows={3} placeholder="Short summary shown on blog listing pages and in search results (150–200 chars recommended)." />
 
-          <AdminTextArea label="Content" name="content" bind:value={form.content} rows={16} placeholder="Write your full article here. Markdown or plain text." />
+          <RichTextEditor label="Content" bind:value={form.content} media={mediaItems} uploadFolder="blog" placeholder="Write your full article here — use the toolbar to add headings, lists, links, images and tables." />
         </div>
       </div>
 

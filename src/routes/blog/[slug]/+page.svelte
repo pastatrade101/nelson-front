@@ -15,6 +15,11 @@
 
   $: origin = $page.url.origin;
 
+  // New posts are stored as rich HTML (admin editor); legacy posts are plain
+  // text. Detect block-level markup to decide how to render each safely.
+  const isHtml = (content?: string | null) =>
+    !!content && /<(p|h[1-6]|ul|ol|li|blockquote|pre|table|img|figure|hr|strong|em|a|br|div)\b/i.test(content);
+
   let post: BlogPost | null = null;
   let loading = true;
 
@@ -82,8 +87,16 @@
     {#if post.featured_image_url}
       <img class="mt-8 aspect-[16/8] w-full rounded-lg object-cover shadow-soft" src={post.featured_image_url} alt={post.title} />
     {/if}
-    <div class="mt-8 max-w-3xl text-base leading-8 text-ink/75">
-      <p>{post.content}</p>
+    <div class="rich-content mt-8 max-w-3xl">
+      {#if isHtml(post.content)}
+        <!-- Body is authored via the admin rich-text editor (trusted CMS input),
+             whose TipTap schema constrains output to safe formatting nodes. -->
+        {@html post.content}
+      {:else}
+        {#each String(post.content ?? '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean) as para}
+          <p style="white-space: pre-line;">{para}</p>
+        {/each}
+      {/if}
     </div>
   {/if}
 </article>
