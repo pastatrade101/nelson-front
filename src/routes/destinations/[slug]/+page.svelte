@@ -7,6 +7,7 @@
   import { staggeredCardReveal } from '$lib/animations/motion';
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import DestinationCard from '$lib/components/public/DestinationCard.svelte';
+  import DestinationHero from '$lib/components/public/DestinationHero.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import ActivityCard from '$lib/components/public/ActivityCard.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
@@ -48,10 +49,6 @@
         destination.travel_insurance_note ||
         destination.emergency_contacts)
   );
-
-  $: heroImage = destination
-    ? destination.banner_image_url || destination.main_image_url || destination.image_url || ''
-    : '';
 
   const loadRelated = async (dest: Destination) => {
     const [tourRes, destRes, postRes, lodgeRes, activityRes, tripPointRes] = await Promise.allSettled([
@@ -100,33 +97,14 @@
   }
 </script>
 
-<section class="container-shell py-14">
-  {#if !destination}
+{#if !destination}
+  <section class="container-shell py-20">
     <ErrorState message="We couldn't load this destination. Please refresh in a moment, or browse our other destinations." />
-  {:else}
-    <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Destinations', path: '/destinations' }, { name: destination.name, path: `/destinations/${destination.slug}` }])} />
-    <nav class="mb-6 flex items-center gap-2 text-sm">
-      <a class="font-medium text-ink/70 transition hover:text-forest" href="/destinations">Destinations</a>
-      <span class="text-ink/30">/</span>
-      <span class="font-medium text-ink/80">{destination.name}</span>
-    </nav>
-
-    <div class="grid gap-10 lg:grid-cols-[1fr_0.8fr]">
-      <div>
-        {#if destination.country}
-          <p class="font-serif text-xl italic text-clay">{destination.country}</p>
-        {/if}
-        <h1 class="mt-3 text-4xl font-bold tracking-normal text-ink">{destination.name}</h1>
-        <p class="mt-4 text-base leading-7 text-ink/70">{destination.description}</p>
-      </div>
-      <div class="aspect-[4/3] overflow-hidden rounded-lg bg-skywash shadow-soft">
-        {#if heroImage}
-          <img class="h-full w-full object-cover" src={heroImage} alt={destination.name} />
-        {/if}
-      </div>
-    </div>
-  {/if}
-</section>
+  </section>
+{:else}
+  <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Destinations', path: '/destinations' }, { name: destination.name, path: `/destinations/${destination.slug}` }])} />
+  <DestinationHero {destination} />
+{/if}
 
 {#if destination}
   <!-- Long-form destination guide (the editorial "destination template") -->
