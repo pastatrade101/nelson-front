@@ -18,6 +18,8 @@ export type AnalyticsEventName =
   | 'tour_filter_used'
   | 'plan_my_trip_opened'
   | 'plan_my_trip_submitted'
+  | 'begin_journey_opened'
+  | 'begin_journey_submitted'
   | 'request_trip_opened'
   | 'request_trip_submitted'
   | 'ai_advisor_opened'

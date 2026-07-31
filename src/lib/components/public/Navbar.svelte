@@ -6,6 +6,7 @@
   import { fade, fly } from 'svelte/transition';
   import { api } from '$lib/api/client';
   import { openAiAdvisor } from '$lib/aiAdvisor';
+  import { openEnquiry } from '$lib/enquiry';
   import { trackEvent } from '$lib/analytics';
   import { navbarEntrance } from '$lib/animations';
   import { brand } from '$lib/brand';
@@ -336,15 +337,15 @@
           {/if}
         {/each}
 
-        <!-- Begin Your Journey CTA -->
-        <a
-          class={`ml-2 inline-flex items-center gap-1.5 border border-goldfinch-gold px-5 py-2.5 text-[15px] font-semibold shadow-sm transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50 ${isActive(path, '/contact') ? 'bg-goldfinch-gold text-deep-green' : 'text-goldfinch-gold'}`}
-          href="/contact"
-          aria-current={isActive(path, '/contact') ? 'page' : undefined}
+        <!-- Begin Your Journey CTA — opens the enquiry modal -->
+        <button
+          type="button"
+          class="ml-2 inline-flex items-center gap-1.5 border border-goldfinch-gold px-5 py-2.5 text-[15px] font-semibold text-goldfinch-gold shadow-sm transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50"
+          on:click={openEnquiry}
         >
           Begin Your Journey
           <ArrowRight size={15} strokeWidth={2.6} />
-        </a>
+        </button>
       </nav>
 
       <!-- WhatsApp block -->
@@ -431,9 +432,9 @@
             {/if}
           {/each}
 
-          <a class="mt-2 inline-flex w-full items-center justify-center gap-1.5 border border-goldfinch-gold px-4 py-3 text-sm font-semibold text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green" href="/contact" on:click={() => (menuOpen = false)}>
+          <button type="button" class="mt-2 inline-flex w-full items-center justify-center gap-1.5 border border-goldfinch-gold px-4 py-3 text-sm font-semibold text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green" on:click={() => { menuOpen = false; openEnquiry(); }}>
             Begin Your Journey <ArrowRight size={15} strokeWidth={2.6} />
-          </a>
+          </button>
         </nav>
 
         <div class="mt-6 grid gap-2.5 border-t border-ink/10 pt-5">

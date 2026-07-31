@@ -10,6 +10,7 @@
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import PersistentCTA from '$lib/components/public/PersistentCTA.svelte';
   import ShortlistFab from '$lib/components/public/ShortlistFab.svelte';
+  import EnquiryModal from '$lib/components/public/EnquiryModal.svelte';
   import { consent } from '$lib/consent';
   import { setupPwaInstall } from '$lib/pwa';
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
@@ -119,4 +120,5 @@
   <ShortlistFab />
   <PersistentCTA />
   <ConsentBanner />
+  <EnquiryModal />
 {/if}
