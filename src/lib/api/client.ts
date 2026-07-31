@@ -446,6 +446,14 @@ export const api = {
       if (metadata.caption !== undefined) formData.set('caption', metadata.caption);
       return apiRequest<{ url: string; path: string }>('/upload/image', { method: 'POST', body: formData });
     },
+    video: (file: File, folder = 'uploads', metadata: { alt_text?: string; caption?: string } = {}) => {
+      const formData = new FormData();
+      formData.set('video', file);
+      formData.set('folder', folder);
+      if (metadata.alt_text !== undefined) formData.set('alt_text', metadata.alt_text);
+      if (metadata.caption !== undefined) formData.set('caption', metadata.caption);
+      return apiRequest<{ url: string; path: string }>('/upload/video', { method: 'POST', body: formData });
+    },
     lottie: (file: File, folder = 'lottie') => {
       const formData = new FormData();
       formData.set('lottie', file);

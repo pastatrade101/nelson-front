@@ -146,22 +146,26 @@
     resetUpload();
   };
 
+  const isVideoFile = (f: File) => f.type.startsWith('video/');
+  const IMAGE_MAX = 5 * 1024 * 1024;
+  const VIDEO_MAX = 50 * 1024 * 1024;
+
   const uploadMedia = async () => {
     const files = uploadFiles ? Array.from(uploadFiles) : [];
     if (!files.length) {
-      showToast('Choose at least one image file first.', 'error');
+      showToast('Choose at least one file first.', 'error');
       return;
     }
 
-    const valid = files.filter((f) => f.size <= 5 * 1024 * 1024);
+    const valid = files.filter((f) => (isVideoFile(f) ? f.size <= VIDEO_MAX : f.size <= IMAGE_MAX));
     const skipped = files.length - valid.length;
     if (!valid.length) {
-      showToast('Each image must be 5MB or smaller.', 'error');
+      showToast('Images must be 5MB or smaller and videos 50MB or smaller.', 'error');
       return;
     }
 
-    // Alt text is per-image, so only apply it for a single upload; a caption can
-    // reasonably be shared across a batch. Edit each image afterwards to refine.
+    // Alt text is per-file, so only apply it for a single upload; a caption can
+    // reasonably be shared across a batch. Edit each item afterwards to refine.
     const single = valid.length === 1;
     uploading = true;
     let done = 0;
@@ -171,10 +175,12 @@
       for (const file of valid) {
         uploadProgress = `Uploading ${done + 1} of ${valid.length}…`;
         try {
-          await api.upload.image(file, 'media', {
-            alt_text: single ? uploadAltText : '',
-            caption: uploadCaption
-          });
+          const meta = { alt_text: single ? uploadAltText : '', caption: uploadCaption };
+          if (isVideoFile(file)) {
+            await api.upload.video(file, 'media', meta);
+          } else {
+            await api.upload.image(file, 'media', meta);
+          }
           done++;
         } catch (err) {
           failed.push(`${file.name}: ${err instanceof Error ? err.message : 'failed'}`);
@@ -184,7 +190,7 @@
       const parts: string[] = [];
       if (done) parts.push(`${done} uploaded`);
       if (failed.length) parts.push(`${failed.length} failed`);
-      if (skipped) parts.push(`${skipped} skipped (over 5MB)`);
+      if (skipped) parts.push(`${skipped} skipped (too large)`);
       showToast(parts.join(' · ') || 'Nothing uploaded.', failed.length || skipped ? 'error' : 'success');
 
       if (done) {
@@ -234,9 +240,9 @@
   const copyUrl = async (media: MediaItem) => {
     try {
       await navigator.clipboard.writeText(media.file_url);
-      showToast('Image URL copied.');
+      showToast('URL copied.');
     } catch {
-      showToast('Unable to copy image URL.', 'error');
+      showToast('Unable to copy URL.', 'error');
     }
   };
 
@@ -326,6 +332,9 @@
         <div class="aspect-[4/3] bg-sand/60">
           {#if media.file_type === 'image'}
             <img class="h-full w-full object-cover" src={media.file_url} alt={media.alt_text || media.file_name} />
+          {:else if media.file_type === 'video'}
+            <!-- svelte-ignore a11y-media-has-caption -->
+            <video class="h-full w-full object-cover" src={media.file_url} muted playsinline preload="metadata"></video>
           {:else}
             <div class="grid h-full place-items-center text-ink/40">
               <ImageIcon size={34} />
@@ -385,6 +394,9 @@
                 <div class="h-12 w-16 overflow-hidden rounded-md bg-sand/60">
                   {#if media.file_type === 'image'}
                     <img class="h-full w-full object-cover" src={media.file_url} alt={media.alt_text || media.file_name} />
+                  {:else if media.file_type === 'video'}
+                    <!-- svelte-ignore a11y-media-has-caption -->
+                    <video class="h-full w-full object-cover" src={media.file_url} muted playsinline preload="metadata"></video>
                   {:else}
                     <div class="grid h-full place-items-center text-ink/35"><ImageIcon size={18} /></div>
                   {/if}
@@ -439,7 +451,7 @@
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Upload media</p>
-          <h2 class="mt-2 text-2xl font-bold tracking-normal text-ink">{uploadCount > 1 ? `Add ${uploadCount} Images` : 'Add Images'}</h2>
+          <h2 class="mt-2 text-2xl font-bold tracking-normal text-ink">{uploadCount > 1 ? `Add ${uploadCount} Files` : 'Add Media'}</h2>
         </div>
         <button class="grid h-10 w-10 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close modal" on:click={closeUploadModal}>
           <X size={18} />
@@ -448,14 +460,14 @@
 
       <form class="mt-6 grid gap-4" on:submit|preventDefault={uploadMedia}>
         <label class="grid gap-2 text-sm font-medium text-ink">
-          <span>Image file{uploadCount > 1 ? 's' : ''}</span>
-          <input class="rounded-2xl border border-dashed border-forest/25 bg-sand/25 px-4 py-4 text-sm text-ink file:mr-3 file:rounded-xl file:border-0 file:bg-forest file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:border-goldfinch-gold/45" type="file" accept="image/jpeg,image/png,image/webp" multiple on:change={handleUploadFileChange} />
-          <span class="text-xs text-ink/55">{uploadFileName || 'JPG, PNG, or WebP. Up to 5MB each. Select multiple to upload at once.'}</span>
+          <span>Image or video file{uploadCount > 1 ? 's' : ''}</span>
+          <input class="rounded-2xl border border-dashed border-forest/25 bg-sand/25 px-4 py-4 text-sm text-ink file:mr-3 file:rounded-xl file:border-0 file:bg-forest file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:border-goldfinch-gold/45" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple on:change={handleUploadFileChange} />
+          <span class="text-xs text-ink/55">{uploadFileName || 'Images (JPG/PNG/WebP, ≤5MB) or video (MP4/WebM/MOV, ≤50MB). Select multiple to upload at once.'}</span>
         </label>
 
         {#if uploadCount > 1}
           <p class="rounded-xl bg-sand/60 px-3 py-2 text-xs text-ink/65">
-            Uploading {uploadCount} images. Alt text is set per image — add it to each afterwards from the library. The caption below applies to all.
+            Uploading {uploadCount} files. Alt text is set per file — add it to each afterwards from the library. The caption below applies to all.
           </p>
         {:else}
           <AdminFormInput label="Alt text" name="upload_alt_text" bind:value={uploadAltText} placeholder="Describe the image for accessibility" />
@@ -466,7 +478,7 @@
           <AdminButton variant="secondary" type="button" on:click={closeUploadModal}>Cancel</AdminButton>
           <AdminButton type="submit" disabled={uploading}>
             <Upload size={15} />
-            {uploading ? uploadProgress || 'Uploading…' : uploadCount > 1 ? `Upload ${uploadCount} Images` : 'Upload Image'}
+            {uploading ? uploadProgress || 'Uploading…' : uploadCount > 1 ? `Upload ${uploadCount} Files` : 'Upload'}
           </AdminButton>
         </div>
       </form>
