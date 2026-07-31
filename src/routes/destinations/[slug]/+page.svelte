@@ -15,9 +15,10 @@
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
   import DestinationGuide from '$lib/components/public/guide/DestinationGuide.svelte';
+  import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import { breadcrumbLd } from '$lib/seo';
   import { FileCheck, HeartPulse, Phone, Plane, Shield, ShieldCheck } from '@lucide/svelte';
-  import type { Activity, BlogPost, Destination, Lodge, Tour, TripPoint } from '$lib/types';
+  import type { Activity, BlogPost, Destination, FAQ, Lodge, Tour, TripPoint } from '$lib/types';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -37,6 +38,22 @@
   let lodges: Lodge[] = [];
   let activities: Activity[] = [];
   let tripPoints: TripPoint[] = [];
+  let faqs: FAQ[] = [];
+
+  // This destination's FAQs, grouped by their (optional) category for display.
+  $: faqGroups = (() => {
+    const groups: { category: string; items: FAQ[] }[] = [];
+    for (const f of faqs) {
+      const cat = (f.category || 'General').trim();
+      let g = groups.find((x) => x.category === cat);
+      if (!g) {
+        g = { category: cat, items: [] };
+        groups.push(g);
+      }
+      g.items.push(f);
+    }
+    return groups;
+  })();
 
   const roleLabel = (role: TripPoint['role']) =>
     role === 'start' ? 'Trips start here' : role === 'end' ? 'Trips end here' : 'Start & end point';
@@ -51,13 +68,14 @@
   );
 
   const loadRelated = async (dest: Destination) => {
-    const [tourRes, destRes, postRes, lodgeRes, activityRes, tripPointRes] = await Promise.allSettled([
+    const [tourRes, destRes, postRes, lodgeRes, activityRes, tripPointRes, faqRes] = await Promise.allSettled([
       api.tours.list({ destination_id: dest.id, limit: 3 }),
       api.destinations.list({ limit: 7 }),
       api.blog.list({ limit: 3 }),
       api.lodges.list({ destination_id: dest.id, limit: 3 }),
       api.activities.list({ destination_id: dest.id, limit: 3 }),
-      api.tripPoints.list({ destination_id: dest.id, limit: 4 })
+      api.tripPoints.list({ destination_id: dest.id, limit: 4 }),
+      api.faqs.list({ destination_id: dest.id, status: 'published', limit: 60 })
     ]);
 
     if (tourRes.status === 'fulfilled') {
@@ -79,6 +97,9 @@
     }
     if (tripPointRes.status === 'fulfilled') {
       tripPoints = tripPointRes.value.data.items ?? [];
+    }
+    if (faqRes.status === 'fulfilled') {
+      faqs = faqRes.value.data.items ?? [];
     }
   };
 
@@ -257,6 +278,29 @@
                   <p class="mt-2 text-sm leading-6 text-ink/70">{point.description}</p>
                 {/if}
               </div>
+            </div>
+          {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
+
+  <!-- FAQs attached to this destination (dynamic, imported per-destination) -->
+  {#if faqs.length}
+    <section class="border-t border-ink/[0.06] py-14 md:py-20">
+      <div class="container-shell">
+        <SectionHeader
+          eyebrow="Good to know"
+          title={`${destination.name} — your questions, answered`}
+          description="Honest, specific answers to the questions we're asked most about this destination."
+        />
+        <div class="mt-9 grid gap-8">
+          {#each faqGroups as group (group.category)}
+            <div>
+              {#if faqGroups.length > 1}
+                <p class="mb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{group.category}</p>
+              {/if}
+              <FAQAccordion faqs={group.items} />
             </div>
           {/each}
         </div>

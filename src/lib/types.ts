@@ -340,6 +340,11 @@ export type FAQ = {
   id: string;
   question: string;
   answer: string;
+  category?: string | null;
+  destination_id?: string | null;
+  destinations?: { name: string; slug: string } | null;
+  status?: string;
+  sort_order?: number;
 };
 
 export type AiChatResponse = {

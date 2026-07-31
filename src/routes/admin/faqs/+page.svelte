@@ -20,6 +20,8 @@
     answer: string;
     category?: string | null;
     created_at?: string;
+    destination_id?: string | null;
+    destinations?: { name: string; slug: string } | null;
     id: string;
     question: string;
     sort_order: number;
@@ -57,10 +59,26 @@
   const emptyForm = () => ({
     answer: '',
     category: '',
+    destination_id: '',
     question: '',
     sort_order: '0',
     status: 'draft' as Faq['status']
   });
+
+  // Destinations to attach a FAQ to (blank = a general/site-wide FAQ).
+  let destinationOptions: Option[] = [{ label: 'General (no destination)', value: '' }];
+  let destinationFilter = 'all';
+  const loadDestinations = async () => {
+    try {
+      const res = await api.destinations.list({ status: 'all', limit: 200 });
+      destinationOptions = [
+        { label: 'General (no destination)', value: '' },
+        ...res.data.items.map((d) => ({ label: String(d.name ?? d.slug), value: String(d.id) }))
+      ];
+    } catch {
+      /* keep the default single option */
+    }
+  };
 
   let rows: Faq[] = [];
   let loading = true;
@@ -119,6 +137,7 @@
         search,
         status: statusFilter,
         category: categoryFilter === 'all' ? undefined : categoryFilter,
+        destination_id: destinationFilter === 'all' ? undefined : destinationFilter,
         limit: 200
       });
       rows = res.data.items as unknown as Faq[];
@@ -144,6 +163,7 @@
     form = {
       answer: faq.answer,
       category: faq.category ?? '',
+      destination_id: faq.destination_id ?? '',
       question: faq.question,
       sort_order: String(faq.sort_order ?? 0),
       status: faq.status
@@ -160,6 +180,7 @@
     const payload = {
       answer: form.answer.trim(),
       category: form.category.trim() || null,
+      destination_id: form.destination_id || null,
       question: form.question.trim(),
       sort_order: Number(form.sort_order || 0),
       status: form.status
@@ -199,7 +220,15 @@
     }
   };
 
-  onMount(load);
+  $: destinationFilterOptions = [
+    { label: 'All destinations', value: 'all' },
+    ...destinationOptions.filter((o) => o.value)
+  ];
+
+  onMount(() => {
+    void load();
+    void loadDestinations();
+  });
 </script>
 
 <ToastStack {toasts} on:dismiss={dismissToast} />
@@ -214,7 +243,7 @@
     on:action={openCreate}
   />
 
-  <AdminToolbar className="grid gap-3 md:grid-cols-[1fr_200px_190px_auto] md:items-end">
+  <AdminToolbar className="grid gap-3 md:grid-cols-[1fr_170px_160px_150px_auto] md:items-end">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search</span>
       <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
@@ -222,6 +251,7 @@
         <input class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35" bind:value={search} placeholder="Search question, answer, or category..." on:keydown={(e) => e.key === 'Enter' && load()} />
       </span>
     </label>
+    <AdminSelect label="Destination" name="destination_filter" bind:value={destinationFilter} options={destinationFilterOptions} />
     <AdminSelect label="Category" name="category_filter" bind:value={categoryFilter} options={categoryFilterOptions} />
     <AdminSelect label="Status" name="status_filter" bind:value={statusFilter} options={[{ label: 'All statuses', value: 'all' }, ...statusOptions]} />
     <AdminButton variant="secondary" on:click={load}>Apply</AdminButton>
@@ -270,6 +300,9 @@
                         <p class="font-semibold text-ink">{faq.question}</p>
                       </button>
                       <div class="flex shrink-0 items-center gap-2">
+                        {#if faq.destinations?.name}
+                          <span class="rounded-full bg-forest/10 px-2 py-0.5 text-[11px] font-semibold text-forest">{faq.destinations.name}</span>
+                        {/if}
                         <span class="rounded-full bg-sand/70 px-2 py-0.5 text-[11px] font-semibold text-ink/55">Sort {faq.sort_order}</span>
                         <StatusBadge status={faq.status} />
                       </div>
@@ -321,6 +354,7 @@
         <AdminFormInput label="Question" name="question" bind:value={form.question} placeholder="e.g. What is the best time for a Serengeti safari?" required />
         <AdminTextArea label="Answer" name="answer" bind:value={form.answer} rows={6} placeholder="Write a clear, helpful answer that builds trust and handles objections." />
 
+        <AdminSelect label="Attach to destination" name="destination_id" bind:value={form.destination_id} options={destinationOptions} />
         <div class="grid gap-4 sm:grid-cols-3">
           <AdminSelect label="Category" name="category" bind:value={form.category} options={categoryFormOptions} />
           <AdminSelect label="Status" name="status" bind:value={form.status} options={statusOptions} />
