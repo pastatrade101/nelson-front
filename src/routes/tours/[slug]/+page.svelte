@@ -179,7 +179,7 @@
     const [tourRes, postRes, faqRes] = await Promise.allSettled([
       api.tours.list(destId ? { destination_id: destId, limit: 7 } : { limit: 7 }),
       api.blog.list({ limit: 6 }),
-      api.faqs.list({ limit: 10 })
+      api.faqs.list({ destination_id: 'null', limit: 10 })
     ]);
 
     if (tourRes.status === 'fulfilled') {

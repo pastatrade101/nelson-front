@@ -32,7 +32,7 @@
   onMount(async () => {
     const [postRes, faqRes] = await Promise.allSettled([
       api.blog.list({ status: 'published', limit: 24 }),
-      api.faqs.list({ limit: 8 })
+      api.faqs.list({ destination_id: 'null', limit: 8 })
     ]);
     if (postRes.status === 'fulfilled') {
       posts = postRes.value.data.items;

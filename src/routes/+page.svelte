@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { ArrowRight, Check, MessageCircle } from '@lucide/svelte';
   import { api } from '$lib/api/client';
-  import DestinationCard from '$lib/components/public/DestinationCard.svelte';
+  import DestinationFeatureCard from '$lib/components/public/DestinationFeatureCard.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import { faqLd } from '$lib/seo';
@@ -140,10 +140,10 @@
     // should not wipe the CMS homepage sections and drop the hero to its default.
     const [tourRes, destRes, postRes, testRes, faqRes, homeRes] = await Promise.allSettled([
       api.tours.list({ limit: 6 }),
-      api.destinations.list({ limit: 3 }),
+      api.destinations.list({ status: 'published', limit: 6 }),
       api.blog.list({ limit: 3 }),
       api.testimonials.list({ limit: 6 }),
-      api.faqs.list({ limit: 5 }),
+      api.faqs.list({ destination_id: 'null', limit: 5 }),
       api.homepage.get()
     ]);
 
@@ -294,9 +294,9 @@
           See all Destinations <ArrowRight size={16} />
         </a>
       </div>
-      <div class="mt-10 grid gap-6 md:grid-cols-3" use:staggeredCardReveal>
-        {#each destinations as destination}
-          <DestinationCard {destination} />
+      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal>
+        {#each destinations.slice(0, 6) as destination (destination.slug)}
+          <DestinationFeatureCard {destination} />
         {/each}
       </div>
     </div>

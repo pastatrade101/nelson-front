@@ -22,7 +22,7 @@
   let destinations: Destination[] = [];
   let posts: BlogPost[] = [];
   let testimonials: Testimonial[] = [];
-  let faqs: FAQ[] = [];
+  let allFaqs: FAQ[] = [];
   let founderImage = '';
   let loading = true;
   let loadFailed = false;
@@ -41,12 +41,12 @@
     const [p, t, f, h] = await Promise.allSettled([
       api.blog.list({ status: 'published', limit: 8 }),
       api.testimonials.list({ status: 'published', limit: 6 }),
-      api.faqs.list({ limit: 14 }),
+      api.faqs.list({ status: 'published', limit: 200 }),
       api.homepage.get()
     ]);
     if (p.status === 'fulfilled') posts = p.value.data.items ?? [];
     if (t.status === 'fulfilled') testimonials = t.value.data.items ?? [];
-    if (f.status === 'fulfilled') faqs = f.value.data.items ?? [];
+    if (f.status === 'fulfilled') allFaqs = f.value.data.items ?? [];
     if (h.status === 'fulfilled') {
       const founder = (h.value.data ?? []).find(
         (s) => (s as Record<string, unknown>).section_key === 'founder_story'
@@ -62,6 +62,12 @@
   $: selectedSlug = $page.url.searchParams.get('d') ?? '';
   $: spotlight =
     selectedSlug && selectedSlug !== 'all' ? destinations.find((d) => d.slug === selectedSlug) : undefined;
+
+  // FAQ section is context-aware: a spotlighted destination shows its own FAQs;
+  // otherwise only general (unattached) FAQs — never a mix of other destinations.
+  $: faqs = spotlight
+    ? allFaqs.filter((x) => x.destination_id === spotlight.id)
+    : allFaqs.filter((x) => !x.destination_id);
 
   const selectTab = (slug: string) =>
     goto(slug === 'all' ? '/destinations' : `/destinations?d=${slug}`, {
@@ -199,9 +205,11 @@
     <section class="bg-sand/30 py-14 md:py-20">
       <div class="container-shell">
         <SectionHeader
-          eyebrow="Tanzania safari FAQs"
-          title="Questions we hear most often"
-          description="Planning a first safari raises a lot of questions. Here are the ones we're asked most — answered the way we'd answer them in person."
+          eyebrow={spotlight ? `${spotlight.name} FAQs` : 'Tanzania safari FAQs'}
+          title={spotlight ? `Questions about ${spotlight.name}` : 'Questions we hear most often'}
+          description={spotlight
+            ? `The questions travellers ask us most about ${spotlight.name} — answered the way we'd answer them in person.`
+            : "Planning a first safari raises a lot of questions. Here are the ones we're asked most — answered the way we'd answer them in person."}
         />
         <div class="mt-9 grid gap-8 lg:grid-cols-[1fr_0.4fr]">
           <FAQAccordion faqs={faqs} />
