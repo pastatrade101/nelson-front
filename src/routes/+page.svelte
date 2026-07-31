@@ -49,7 +49,6 @@
     return typeof value === 'string' && value.trim() ? value : fallback;
   };
 
-  const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
   const DEFAULT_PARKS_CONTENT =
     'From the endless Serengeti plains to the crater floor of Ngorongoro, the elephant woodlands of Tarangire, and the Indian Ocean coast of Zanzibar - Tanzania holds more extraordinary wildlife experiences within a single country than anywhere else on Earth.';
   const DEFAULT_PARKS_QUOTE =
@@ -165,7 +164,7 @@
   title={cms('hero', 'title', 'Where the wild speaks, we know how to listen.')}
   description={cms('hero', 'subtitle', 'Private Tanzania safaris, Kilimanjaro climbs and Zanzibar extensions planned by local experts in Arusha.')}
   eyebrow={typeof heroExtra.eyebrow === 'string' ? heroExtra.eyebrow : 'Private Tanzania Safaris · Authentic Experience · Local Experts'}
-  imageUrl={cms('hero', 'image_url', DEFAULT_HERO_IMAGE)}
+  imageUrl={cms('hero', 'image_url', '')}
   videoUrl={heroVideo}
   imagePosition={typeof heroExtra.media_position === 'string' ? heroExtra.media_position : 'center'}
   primaryCta={cms('hero', 'button_text', 'Plan My Safari')}

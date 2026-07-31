@@ -27,10 +27,15 @@
   // Accept any real image reference the CMS/admin can produce — full URLs,
   // protocol- or root-relative paths, and data URIs — not just http(s). Only an
   // empty/blank value falls back to the default hero.
-  $: resolvedImage =
-    imageUrl && /^(https?:\/\/|\/\/|\/|data:)/i.test(imageUrl.trim()) ? imageUrl.trim() : DEFAULT_HERO_IMAGE;
+  // The client's provided image (empty if none). The still-image hero falls back
+  // to the brand default; the video POSTER never does — so a stock image can't
+  // flash before a client's video plays.
+  $: providedImage =
+    imageUrl && /^(https?:\/\/|\/\/|\/|data:)/i.test(imageUrl.trim()) ? imageUrl.trim() : '';
+  $: resolvedImage = providedImage || DEFAULT_HERO_IMAGE;
   $: resolvedVideo =
     videoUrl && /^(https?:\/\/|\/\/|\/)/i.test(videoUrl.trim()) ? videoUrl.trim() : '';
+  $: posterImage = providedImage ? imgUrl(providedImage, 1800) : '';
 
   // Scroll roughly one viewport down when the "scroll" cue is tapped.
   const scrollDown = () => {
@@ -45,7 +50,7 @@
       class="absolute inset-0 h-full w-full object-cover"
       style={`object-position:${imagePosition}`}
       src={resolvedVideo}
-      poster={imgUrl(resolvedImage, 1800)}
+      poster={posterImage || undefined}
       autoplay
       muted
       loop
