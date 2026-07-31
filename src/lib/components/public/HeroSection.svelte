@@ -65,7 +65,7 @@
   <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.90)_0%,rgba(28,26,22,0.78)_32%,rgba(28,26,22,0.42)_58%,rgba(28,26,22,0.16)_100%)]"></div>
   <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.60)_0%,rgba(28,26,22,0.12)_28%,rgba(28,26,22,0.66)_100%)]"></div>
 
-  <div class="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1500px] items-center px-5 pb-24 pt-28 md:px-8 md:pb-28 md:pt-36">
+  <div class="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1500px] items-end px-5 pb-20 pt-28 md:px-8 md:pb-24 md:pt-36">
     <div class="max-w-[760px]">
       <p class="brand-eyebrow" in:fly={{ y: 12, duration: 420 }}>{eyebrow}</p>
       {#key title}
@@ -97,7 +97,7 @@
   <button
     type="button"
     on:click={scrollDown}
-    class="absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1 text-white/70 transition hover:text-white"
+    class="absolute bottom-6 right-5 z-10 flex flex-col items-center gap-1 text-white/70 transition hover:text-white md:right-8"
     aria-label="Scroll down"
   >
     <span class="text-[10px] font-semibold uppercase tracking-[0.2em]">Scroll</span>
