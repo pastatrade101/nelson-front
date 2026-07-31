@@ -142,8 +142,35 @@
       if (e && !experience_interests.includes(e)) experience_interests = [...experience_interests, e];
     }
     if (destination) {
-      const d = matchOption(destinationOptions, destination);
-      if (d) destination_interest = d;
+      const direct = matchOption(destinationOptions, destination);
+      if (direct) {
+        // Already a country-level value (e.g. "Tanzania", "Zanzibar").
+        destination_interest = direct;
+      } else {
+        // A specific park/destination slug (e.g. "serengeti", "ruaha"). Resolve it
+        // to the right country option and carry the park name into the brief so the
+        // specialist sees exactly what the traveller clicked.
+        try {
+          const res = await api.destinations.get(destination);
+          const dd = res.data as Record<string, unknown>;
+          const name = String(dd.name ?? '').trim();
+          const region = String(dd.region ?? '');
+          destination_interest =
+            matchOption(destinationOptions, String(dd.country ?? '')) ||
+            (/island|coast|zanzibar|pemba|mafia/i.test(`${region} ${name}`) ? 'Zanzibar' : 'Tanzania');
+          if (name) {
+            tripContext = tripContext || name;
+            if (!message.trim()) message = `I'm interested in a trip to ${name}.`;
+          }
+        } catch {
+          // Destination lookup failed — still select a sensible country and keep
+          // the slug (prettified) as context so nothing is lost.
+          destination_interest = destination_interest || 'Tanzania';
+          const pretty = destination.replace(/-/g, ' ');
+          tripContext = tripContext || pretty;
+          if (!message.trim()) message = `I'm interested in a trip to ${pretty}.`;
+        }
+      }
     }
     if (monthParam) {
       let m = monthParam;

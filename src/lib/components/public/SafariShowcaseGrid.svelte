@@ -138,8 +138,9 @@
   const isCompact = (index: number) => index === 2 || index === 3;
 </script>
 
-<section class="bg-canvas text-ink" use:fadeUpOnScroll={{ y: 12 }}>
-  <div class="container-shell py-16 md:py-24">
+<section class="bg-canvas text-ink pb-16 md:pb-24" use:fadeUpOnScroll={{ y: 12 }}>
+  <!-- header stays within the readable container; the mosaic below goes full-bleed -->
+  <div class="container-shell pt-16 md:pt-24">
     <div class="mb-10 flex flex-col gap-8 md:mb-12 md:flex-row md:items-end md:justify-between md:gap-12">
       <div class="max-w-[720px]">
         <p class="brand-eyebrow">{eyebrow}</p>
@@ -153,11 +154,12 @@
         <ArrowRight size={15} strokeWidth={2.5} />
       </a>
     </div>
+  </div>
 
-    <div
-      class="grid gap-px overflow-hidden border border-ink/10 bg-ink/10 md:grid-cols-2 lg:auto-rows-[320px] lg:grid-cols-4 xl:auto-rows-[340px]"
-      use:staggeredCardReveal={{ selector: '.showcase-card', y: 18, stagger: 0.05 }}
-    >
+  <div
+    class="grid gap-px overflow-hidden border-y border-ink/10 bg-ink/10 md:grid-cols-2 lg:auto-rows-[340px] lg:grid-cols-4 xl:auto-rows-[380px]"
+    use:staggeredCardReveal={{ selector: '.showcase-card', y: 18, stagger: 0.05 }}
+  >
       {#each cards as card, i}
         <a
           class={`showcase-card group relative isolate min-h-[360px] overflow-hidden bg-midnight md:min-h-[320px] lg:min-h-0 ${layout[i] ?? ''}`}
@@ -166,7 +168,7 @@
         >
           <img
             class="absolute inset-0 h-full w-full object-cover transition duration-[900ms] ease-out group-hover:scale-105"
-            src={imgUrl(card.image, i === 0 ? 1500 : 900, 78)}
+            src={imgUrl(card.image, i === 0 ? 2000 : 1100, 78)}
             alt={card.title}
             loading={i < 2 ? 'eager' : 'lazy'}
           />
@@ -218,6 +220,5 @@
           </div>
         </a>
       {/each}
-    </div>
   </div>
 </section>
