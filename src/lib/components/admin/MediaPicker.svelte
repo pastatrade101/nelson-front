@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { Image as ImageIcon, Link as LinkIcon, Search, Trash2, Upload, X } from '@lucide/svelte';
+  import { Film, Image as ImageIcon, Link as LinkIcon, Search, Trash2, Upload, X } from '@lucide/svelte';
   import { imgUrl } from '$lib/img';
   import { api } from '$lib/api/client';
 
@@ -12,18 +12,42 @@
   export let aspect = 'aspect-[16/9]';
   export let uploadFolder = 'uploads';
   export let fit = 'object-cover'; // use 'object-contain' for logos/favicons
+  export let kind: 'image' | 'video' = 'image';
 
   const dispatch = createEventDispatcher<{ change: string }>();
+  $: isVideo = kind === 'video';
+  $: noun = isVideo ? 'video' : 'image';
 
   let open = false; // library modal
   let urlMode = false; // paste-url input
   let search = '';
-  let uploaded: MediaItem[] = []; // images uploaded in this session
+  let uploaded: MediaItem[] = []; // files uploaded in this session
   let uploading = false;
   let uploadError = '';
   let fileInput: HTMLInputElement;
 
-  $: allMedia = [...uploaded, ...media];
+  // Videos aren't passed via the `media` prop, so the picker fetches them itself
+  // (filtered by kind) the first time the library modal is opened.
+  let library: MediaItem[] = [];
+  let loadingLibrary = false;
+  const loadLibrary = async () => {
+    if (loadingLibrary) return;
+    loadingLibrary = true;
+    try {
+      const res = await api.media.list({ file_type: kind, limit: 200 });
+      library = (res.data.items as unknown as MediaItem[]).filter((m) => m.file_url);
+    } catch {
+      /* keep whatever we already have */
+    } finally {
+      loadingLibrary = false;
+    }
+  };
+  const openLibrary = () => {
+    open = true;
+    if (isVideo && !library.length) void loadLibrary();
+  };
+
+  $: allMedia = [...uploaded, ...(isVideo ? library : media)];
   $: filtered = search.trim()
     ? allMedia.filter((m) => m.file_name.toLowerCase().includes(search.trim().toLowerCase()))
     : allMedia;
@@ -37,7 +61,7 @@
     uploading = true;
     uploadError = '';
     try {
-      const res = await api.upload.image(file, uploadFolder);
+      const res = isVideo ? await api.upload.video(file, uploadFolder) : await api.upload.image(file, uploadFolder);
       const data = res.data as { url: string; media?: { id?: string; thumbnail_url?: string | null } };
       const item: MediaItem = {
         id: data.media?.id ?? data.url,
@@ -68,20 +92,25 @@
 
   {#if value}
     <div class="relative overflow-hidden rounded-xl border border-ink/10 bg-surface">
-      <img class={`w-full ${fit} ${aspect}`} src={imgUrl(value, 800)} alt={label} loading="lazy" decoding="async" />
-      <button type="button" class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-ink/60 text-white backdrop-blur transition hover:bg-ink/80" on:click={clear} aria-label="Remove image">
+      {#if isVideo}
+        <!-- svelte-ignore a11y-media-has-caption -->
+        <video class={`w-full ${fit} ${aspect}`} src={value} muted playsinline preload="metadata"></video>
+      {:else}
+        <img class={`w-full ${fit} ${aspect}`} src={imgUrl(value, 800)} alt={label} loading="lazy" decoding="async" />
+      {/if}
+      <button type="button" class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-ink/60 text-white backdrop-blur transition hover:bg-ink/80" on:click={clear} aria-label={`Remove ${noun}`}>
         <Trash2 size={15} />
       </button>
     </div>
   {:else}
     <div class={`grid place-items-center rounded-xl border border-dashed border-ink/20 bg-sand/20 text-ink/35 ${aspect}`}>
-      <ImageIcon size={26} />
+      {#if isVideo}<Film size={26} />{:else}<ImageIcon size={26} />{/if}
     </div>
   {/if}
 
   <div class="flex flex-wrap gap-2">
-    <button type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-forest px-3 py-1.5 text-xs font-bold text-white transition hover:bg-deep-green" on:click={() => (open = true)}>
-      <ImageIcon size={14} /> {value ? 'Change' : 'Choose from library'}
+    <button type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-forest px-3 py-1.5 text-xs font-bold text-white transition hover:bg-deep-green" on:click={openLibrary}>
+      {#if isVideo}<Film size={14} />{:else}<ImageIcon size={14} />{/if} {value ? 'Change' : 'Choose from library'}
     </button>
     <button type="button" class="inline-flex items-center gap-1.5 rounded-lg border border-ink/15 px-3 py-1.5 text-xs font-semibold text-ink/70 transition hover:bg-sand" on:click={() => (urlMode = !urlMode)}>
       <LinkIcon size={14} /> Paste URL
@@ -107,7 +136,7 @@
         <p class="hidden text-sm font-bold text-ink sm:block">Media Library</p>
         <div class="flex flex-1 items-center gap-2 rounded-lg border border-ink/12 bg-sand/20 px-3">
           <Search size={16} class="text-ink/40" />
-          <input class="h-9 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/40" placeholder="Search images…" bind:value={search} />
+          <input class="h-9 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/40" placeholder={`Search ${noun}s…`} bind:value={search} />
         </div>
         <button
           type="button"
@@ -123,8 +152,10 @@
         <p class="border-b border-ink/10 bg-red-50 px-4 py-2 text-xs font-medium text-red-600">{uploadError}</p>
       {/if}
       <div class="grid grid-cols-2 gap-3 overflow-y-auto p-4 sm:grid-cols-3 md:grid-cols-4" data-lenis-prevent>
-        {#if !filtered.length}
-          <p class="col-span-full py-12 text-center text-sm text-ink/45">No images found. Use <b>Upload</b> to add one.</p>
+        {#if loadingLibrary}
+          <p class="col-span-full py-12 text-center text-sm text-ink/45">Loading {noun}s…</p>
+        {:else if !filtered.length}
+          <p class="col-span-full py-12 text-center text-sm text-ink/45">No {noun}s found. Use <b>Upload</b> to add one.</p>
         {:else}
           {#each filtered as m (m.id)}
             <button
@@ -132,16 +163,21 @@
               class={`group overflow-hidden rounded-xl border text-left transition hover:-translate-y-0.5 ${value === m.file_url ? 'border-goldfinch-gold ring-2 ring-goldfinch-gold/40' : 'border-ink/10 hover:border-forest/40'}`}
               on:click={() => select(m.file_url)}
             >
-              <img
-                class="aspect-square w-full bg-sand/30 object-cover opacity-0 transition-opacity duration-300"
-                src={imgUrl(m.thumbnail_url || m.file_url, 300)}
-                alt={m.file_name}
-                width="300"
-                height="300"
-                loading="lazy"
-                decoding="async"
-                on:load={(e) => ((e.currentTarget as HTMLImageElement).style.opacity = '1')}
-              />
+              {#if isVideo}
+                <!-- svelte-ignore a11y-media-has-caption -->
+                <video class="aspect-square w-full bg-sand/30 object-cover" src={m.file_url} muted playsinline preload="metadata"></video>
+              {:else}
+                <img
+                  class="aspect-square w-full bg-sand/30 object-cover opacity-0 transition-opacity duration-300"
+                  src={imgUrl(m.thumbnail_url || m.file_url, 300)}
+                  alt={m.file_name}
+                  width="300"
+                  height="300"
+                  loading="lazy"
+                  decoding="async"
+                  on:load={(e) => ((e.currentTarget as HTMLImageElement).style.opacity = '1')}
+                />
+              {/if}
               <span class="block truncate px-2 py-1.5 text-[11px] text-ink/60">{m.file_name}</span>
             </button>
           {/each}
@@ -151,4 +187,4 @@
   </div>
 {/if}
 
-<input class="hidden" type="file" accept="image/png,image/jpeg,image/webp" bind:this={fileInput} on:change={onFileChange} />
+<input class="hidden" type="file" accept={isVideo ? 'video/mp4,video/webm,video/quicktime' : 'image/png,image/jpeg,image/webp'} bind:this={fileInput} on:change={onFileChange} />

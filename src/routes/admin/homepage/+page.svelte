@@ -558,7 +558,7 @@
             <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Background &amp; overlay</p>
             <p class="mt-1 text-xs text-ink/50">Used by full-width sections (e.g. final CTA, hero). A video takes priority over the image. The overlay keeps text readable.</p>
           </div>
-          <AdminFormInput label="Background video URL (optional · mp4/webm)" name="bg_video" bind:value={bg.video} placeholder="https://...mp4" />
+          <MediaPicker label="Background video (optional · mp4/webm/mov)" kind="video" uploadFolder="homepage" bind:value={bg.video} />
           <div class="grid gap-4 sm:grid-cols-3">
             <label class="grid gap-2 text-sm font-medium text-ink">
               <span>Overlay color</span>
