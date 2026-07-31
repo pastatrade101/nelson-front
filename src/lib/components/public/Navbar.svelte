@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { ArrowDownToLine, ArrowRight, ChevronDown, CircleHelp, Menu, MessageCircle, Search, User, X } from '@lucide/svelte';
+  import { ArrowDownToLine, ArrowRight, ChevronDown, CircleHelp, Menu, MessageCircle, Search, X } from '@lucide/svelte';
   import { fade, fly } from 'svelte/transition';
   import { api } from '$lib/api/client';
   import { openAiAdvisor } from '$lib/aiAdvisor';
@@ -187,59 +187,13 @@
     </a>
   </div>
 
-  <!-- ── desktop top row (collapses smoothly on scroll) ──────────────────── -->
-  <div class={`hidden overflow-hidden transition-[max-height,opacity] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:block ${scrolled ? 'max-h-0 opacity-0' : 'max-h-[96px] opacity-100'}`}>
-    <div class="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-7 px-4 lg:h-[80px]">
-      <a href="/" class="flex min-w-[150px] items-center gap-2.5" aria-label="Emnel Adventures home">
-        <img src={logoSrc} alt={$branding.site_name} class="h-16 w-auto object-contain" />
-      </a>
-
-      <form class="flex h-[50px] w-full max-w-[640px] items-center rounded-full bg-sand px-3 transition focus-within:ring-2 focus-within:ring-goldfinch-gold/40" on:submit|preventDefault={submitSearch} role="search">
-        <button class="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink transition hover:text-forest" type="submit" aria-label="Search itineraries">
-          <Search size={19} strokeWidth={2.4} />
-        </button>
-        <input class="min-w-0 flex-1 bg-transparent px-2 text-sm font-medium text-ink outline-none placeholder:text-stone" aria-label="Search itineraries" placeholder="Search safaris, Kilimanjaro, Zanzibar..." bind:value={searchQuery} />
-      </form>
-
-      <div class="flex items-center gap-4 text-[13px] font-semibold">
-        {#if aiOn}
-          <button type="button" class="inline-flex items-center gap-1 text-savanna transition hover:text-white" on:click={() => openAiAdvisor()}>
-            <CircleHelp size={15} strokeWidth={2.6} />
-            Need help?
-          </button>
-        {:else}
-          <a class="inline-flex items-center gap-1 text-savanna transition hover:text-white" href="/contact">
-            <CircleHelp size={15} strokeWidth={2.6} />
-            Need help?
-          </a>
-        {/if}
-        {#if $canInstall}
-          <button type="button" class="inline-flex items-center gap-1.5 rounded-full border border-goldfinch-gold px-3 py-1.5 text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green" on:click={() => promptInstall()}>
-            <ArrowDownToLine size={14} strokeWidth={2.6} /> Install app
-          </button>
-        {/if}
-      </div>
-
-      <a href="/admin/login" class="inline-flex h-12 items-center gap-2.5 rounded-xl border border-goldfinch-gold px-6 text-sm font-semibold text-goldfinch-gold shadow-sm transition hover:bg-goldfinch-gold hover:text-deep-green">
-        <User size={16} strokeWidth={2.6} />
-        Login
-      </a>
-    </div>
-  </div>
-
-  <!-- ── desktop nav row ────────────────────────────────────────────────── -->
-  <div class="hidden border-t border-white/10 lg:block">
+  <!-- ── desktop nav row (single bar: logo + nav + CTA + WhatsApp) ───────── -->
+  <div class="hidden lg:block">
     <div class="mx-auto flex w-full max-w-[1500px] items-stretch justify-between px-4">
-      <nav class="flex items-center gap-1" aria-label="Primary">
-        {#if scrolled}
-          <a href="/" class="mr-1 flex shrink-0 items-center gap-2" aria-label="Emnel Adventures home" transition:fly={{ x: -14, duration: 320 }}>
-            <img src={logoSrc} alt={$branding.site_name} class="h-10 w-auto object-contain" />
-          </a>
-          <form class="mr-2 hidden h-9 items-center rounded-full bg-sand pl-1 pr-2 transition focus-within:ring-2 focus-within:ring-goldfinch-gold/40 xl:flex" on:submit|preventDefault={submitSearch} role="search" transition:fly={{ x: -14, duration: 320 }}>
-            <button class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-ink" type="submit" aria-label="Search itineraries"><Search size={15} strokeWidth={2.6} /></button>
-            <input class="w-32 min-w-0 bg-transparent text-xs font-medium text-ink outline-none placeholder:text-stone" aria-label="Search itineraries" placeholder="Search itineraries..." bind:value={searchQuery} />
-          </form>
-        {/if}
+      <nav class="flex items-center gap-2" aria-label="Primary">
+        <a href="/" class="mr-5 flex shrink-0 items-center" aria-label="Emnel Adventures home">
+          <img src={logoSrc} alt={$branding.site_name} class="h-16 w-auto object-contain" />
+        </a>
         {#each NAV as item}
           {@const active = isActive(path, item.href)}
           {#if item.dropdown}
@@ -247,12 +201,12 @@
             <div class="nav-dropdown relative" on:mouseenter={() => (openDropdown = item.dropdown ?? '')} on:mouseleave={() => (openDropdown = '')}>
               <div class="flex items-center">
                 <a
-                  class={`relative inline-flex items-center gap-1 rounded px-2.5 py-6 text-[15px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40 ${active ? 'text-goldfinch-gold' : 'text-white/70'}`}
+                  class={`relative inline-flex items-center gap-1 rounded px-4 py-8 text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40 ${active ? 'text-goldfinch-gold' : 'text-white/70'}`}
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
                 >
                   {item.label}
-                  {#if active}<span class="absolute inset-x-2.5 bottom-1 h-0.5 rounded-full bg-goldfinch-gold"></span>{/if}
+                  {#if active}<span class="absolute inset-x-4 bottom-1 h-0.5 rounded-full bg-goldfinch-gold"></span>{/if}
                 </a>
                 <button
                   class="grid h-8 w-7 place-items-center rounded text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40"
@@ -309,44 +263,26 @@
             </div>
           {:else}
             <a
-              class={`relative inline-flex items-center rounded px-2.5 py-6 text-[15px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40 ${active ? 'text-goldfinch-gold' : 'text-white/70'}`}
+              class={`relative inline-flex items-center rounded px-4 py-8 text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40 ${active ? 'text-goldfinch-gold' : 'text-white/70'}`}
               href={item.href}
               aria-current={active ? 'page' : undefined}
             >
               {item.label}
-              {#if active}<span class="absolute inset-x-2.5 bottom-1 h-0.5 rounded-full bg-goldfinch-gold"></span>{/if}
+              {#if active}<span class="absolute inset-x-4 bottom-1 h-0.5 rounded-full bg-goldfinch-gold"></span>{/if}
             </a>
           {/if}
         {/each}
-
-        <!-- Begin Your Journey CTA — opens the enquiry modal -->
-        <button
-          type="button"
-          class="ml-2 inline-flex items-center gap-1.5 border border-goldfinch-gold px-5 py-2.5 text-[15px] font-semibold text-goldfinch-gold shadow-sm transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50"
-          on:click={openEnquiry}
-        >
-          Begin Your Journey
-          <ArrowRight size={15} strokeWidth={2.6} />
-        </button>
       </nav>
 
-      <!-- WhatsApp block -->
-      <a
-        class="flex min-h-[54px] items-center gap-3 border-l border-white/10 px-5 transition hover:bg-white/5 lg:w-[300px] lg:px-6"
-        href={waHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        on:click={() => trackEvent('whatsapp_click')}
-        aria-label={`${waButtonText} ${waNumber}`}
+      <!-- Begin Your Journey CTA — pinned to the right corner; opens the enquiry modal -->
+      <button
+        type="button"
+        class="my-auto inline-flex items-center gap-1.5 border border-goldfinch-gold px-6 py-2.5 text-[15px] font-semibold text-goldfinch-gold shadow-sm transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50"
+        on:click={openEnquiry}
       >
-        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#25D366] text-white ring-4 ring-[#25D366]/15">
-          <MessageCircle size={18} strokeWidth={2.8} />
-        </span>
-        <span class="grid leading-tight">
-          <span class="text-xs font-medium text-white/55">{waButtonText}</span>
-          <span class="whitespace-nowrap text-base font-semibold text-white">{waNumber}</span>
-        </span>
-      </a>
+        Begin Your Journey
+        <ArrowRight size={15} strokeWidth={2.6} />
+      </button>
     </div>
   </div>
 
@@ -427,7 +363,6 @@
               <span class="text-[15px] font-bold text-ink">{waNumber}</span>
             </span>
           </a>
-          <a class="mt-1 text-center text-xs font-medium text-ink/40 transition hover:text-forest" href="/admin/login" on:click={() => (menuOpen = false)}>Staff login</a>
         </div>
       </aside>
     </div>
