@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { ArrowDownToLine, ArrowRight, ChevronDown, CircleHelp, Menu, MessageCircle, Search, TicketsPlane, User, X } from '@lucide/svelte';
+  import { ArrowDownToLine, ArrowRight, ChevronDown, CircleHelp, Menu, MessageCircle, Search, User, X } from '@lucide/svelte';
   import { fade, fly } from 'svelte/transition';
   import { api } from '$lib/api/client';
   import { openAiAdvisor } from '$lib/aiAdvisor';
@@ -92,6 +92,9 @@
     mobileAccordion = '';
   }
 
+  // Navbar logo: the Emnel wordmark, overridable by an admin-set logo.
+  $: logoSrc = $branding.logo_url || '/emnel.avif';
+
   // ── WhatsApp CTA (from public settings, with safe fallback) ─────────────────
   $: s = $publicSettings;
   $: aiOn = aiAdvisorEnabled(s);
@@ -176,15 +179,7 @@
     </button>
 
     <a href="/" class="flex shrink-0 items-center gap-2" aria-label="Emnel Adventures home">
-      {#if $branding.logo_url}
-        <img src={$branding.logo_url} alt={$branding.site_name} class="h-10 w-auto object-contain" />
-      {:else}
-        <TicketsPlane class="text-goldfinch-gold" size={30} strokeWidth={2} />
-        <div class="leading-none">
-          <p class="text-xl font-semibold tracking-normal text-white">Emnel</p>
-          <p class="mt-1 text-xs font-medium text-savanna">Adventures</p>
-        </div>
-      {/if}
+      <img src={logoSrc} alt={$branding.site_name} class="h-12 w-auto object-contain" />
     </a>
 
     <a class="grid h-11 w-11 place-items-center rounded-full bg-[#25D366] text-white shadow-sm" href={waHref} target="_blank" rel="noopener noreferrer" aria-label={waButtonText} on:click={() => trackEvent('whatsapp_click')}>
@@ -196,15 +191,7 @@
   <div class={`hidden overflow-hidden transition-[max-height,opacity] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:block ${scrolled ? 'max-h-0 opacity-0' : 'max-h-[96px] opacity-100'}`}>
     <div class="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-7 px-4 lg:h-[80px]">
       <a href="/" class="flex min-w-[150px] items-center gap-2.5" aria-label="Emnel Adventures home">
-        {#if $branding.logo_url}
-          <img src={$branding.logo_url} alt={$branding.site_name} class="h-12 w-auto object-contain" />
-        {:else}
-          <TicketsPlane class="text-goldfinch-gold" size={34} strokeWidth={2.1} />
-          <div class="leading-none">
-            <p class="text-2xl font-semibold tracking-normal text-white">Emnel</p>
-            <p class="mt-1.5 text-sm font-medium text-savanna">Adventures</p>
-          </div>
-        {/if}
+        <img src={logoSrc} alt={$branding.site_name} class="h-16 w-auto object-contain" />
       </a>
 
       <form class="flex h-[50px] w-full max-w-[640px] items-center rounded-full bg-sand px-3 transition focus-within:ring-2 focus-within:ring-goldfinch-gold/40" on:submit|preventDefault={submitSearch} role="search">
@@ -246,12 +233,7 @@
       <nav class="flex items-center gap-1" aria-label="Primary">
         {#if scrolled}
           <a href="/" class="mr-1 flex shrink-0 items-center gap-2" aria-label="Emnel Adventures home" transition:fly={{ x: -14, duration: 320 }}>
-            {#if $branding.logo_url}
-              <img src={$branding.logo_url} alt={$branding.site_name} class="h-8 w-auto object-contain" />
-            {:else}
-              <TicketsPlane class="text-goldfinch-gold" size={26} strokeWidth={2.2} />
-              <span class="text-lg font-semibold tracking-normal text-white">Emnel</span>
-            {/if}
+            <img src={logoSrc} alt={$branding.site_name} class="h-10 w-auto object-contain" />
           </a>
           <form class="mr-2 hidden h-9 items-center rounded-full bg-sand pl-1 pr-2 transition focus-within:ring-2 focus-within:ring-goldfinch-gold/40 xl:flex" on:submit|preventDefault={submitSearch} role="search" transition:fly={{ x: -14, duration: 320 }}>
             <button class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-ink" type="submit" aria-label="Search itineraries"><Search size={15} strokeWidth={2.6} /></button>
@@ -375,16 +357,11 @@
 
       <aside class="absolute right-0 top-0 flex min-h-dvh w-[86vw] min-w-[300px] max-w-[380px] flex-col overflow-y-auto border-l border-ink/10 bg-surface px-5 py-5 shadow-[-20px_0_55px_rgba(0,0,0,0.12)]" transition:fly={{ x: 60, duration: 200 }}>
         <div class="flex items-center justify-between gap-4">
-          <a href="/" class="flex shrink-0 items-center gap-2.5" on:click={() => (menuOpen = false)}>
-            {#if $branding.logo_url}
-              <img src={$branding.logo_url} alt={$branding.site_name} class="h-10 w-auto object-contain" />
-            {:else}
-              <TicketsPlane class="text-goldfinch-gold" size={32} strokeWidth={2.1} />
-              <div class="leading-none">
-                <p class="text-xl font-semibold tracking-normal text-heading">Emnel</p>
-                <p class="mt-1 text-xs font-semibold text-ink/70">Adventures</p>
-              </div>
-            {/if}
+          <!-- Logo sits on a deep-green chip so the gold wordmark stays legible on the light drawer. -->
+          <a href="/" class="flex shrink-0 items-center" on:click={() => (menuOpen = false)} aria-label="Emnel Adventures home">
+            <span class="inline-flex items-center rounded-lg bg-deep-green px-3 py-1.5">
+              <img src={logoSrc} alt={$branding.site_name} class="h-9 w-auto object-contain" />
+            </span>
           </a>
           <button class="grid h-11 w-11 place-items-center rounded-xl border border-ink/15 bg-surface text-ink" type="button" aria-label="Close menu" on:click={() => (menuOpen = false)}>
             <X size={22} strokeWidth={2.4} />
