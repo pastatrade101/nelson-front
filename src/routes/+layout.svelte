@@ -11,13 +11,14 @@
   import PersistentCTA from '$lib/components/public/PersistentCTA.svelte';
   import ShortlistFab from '$lib/components/public/ShortlistFab.svelte';
   import EnquiryModal from '$lib/components/public/EnquiryModal.svelte';
+  import EmnelAIAdvisor from '$lib/components/public/EmnelAIAdvisor.svelte';
   import { consent } from '$lib/consent';
   import { setupPwaInstall } from '$lib/pwa';
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
   import { api } from '$lib/api/client';
   import { applyBranding, branding } from '$lib/branding';
   import { SITE_URL } from '$lib/config/env';
-  import { loadPublicSettings, publicSettings, settingBool } from '$lib/settings';
+  import { aiAdvisorEnabled, loadPublicSettings, publicSettings } from '$lib/settings';
 
   $: isAdmin = $page.url.pathname.startsWith('/admin');
 
@@ -48,20 +49,10 @@
     }
   };
 
-  // Makutano AI widget (public site only). The URL is env-configurable so local
-  // dev can point at the local widget server (http://localhost:5173/widget.js)
-  // while production uses the hosted one. Injected dynamically so it reliably runs.
-  const loadMakutanoWidget = () => {
-    const url = publicEnv.PUBLIC_MAKUTANO_WIDGET_URL || 'https://ai.makutano.co.tz/widget.js';
-    if (!url || document.getElementById('makutano-widget')) return;
-    const script = document.createElement('script');
-    script.id = 'makutano-widget';
-    script.src = url;
-    script.async = true;
-    script.setAttribute('data-client', publicEnv.PUBLIC_MAKUTANO_CLIENT || 'emnel-adventures');
-    document.body.appendChild(script);
-  };
-  $: if (browser && !isAdmin && settingBool($publicSettings, 'ai_widget_enabled', true)) loadMakutanoWidget();
+  // The public AI chatbot is the built-in Emnel AI Advisor (mounted below),
+  // powered by our own /ai/chat backend. The external Makutano widget is no
+  // longer loaded so there is only one chat launcher.
+  $: aiOn = !isAdmin && aiAdvisorEnabled($publicSettings);
 
   // Load GA4 (gtag) on the public site — gated by consent ('granted') above and a
   // configured PUBLIC_GA4_MEASUREMENT_ID. This activates trackEvent's GA4 path.
@@ -121,4 +112,7 @@
   <PersistentCTA />
   <ConsentBanner />
   <EnquiryModal />
+  {#if aiOn}
+    <EmnelAIAdvisor />
+  {/if}
 {/if}
