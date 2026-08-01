@@ -145,7 +145,7 @@
   // Shared media-library picker — targets either a logo row or a slide row.
   let mediaPicker: { list: 'logos' | 'slides'; index: number } | null = null;
 
-  const MANAGED_KEYS = [...BG_KEYS, 'logos', 'slides', 'ranges'];
+  const MANAGED_KEYS = [...BG_KEYS, 'logos', 'slides', 'ranges', 'parks', 'steps', 'eyebrow', 'accent_title', 'quote', 'closing', 'image_caption', 'secondary_cta_text', 'secondary_cta_url'];
 
   const openMediaPicker = async (list: 'logos' | 'slides', index: number) => {
     mediaPicker = { list, index };
@@ -234,6 +234,79 @@
         ...(r.note.trim() ? { note: r.note.trim() } : {})
       }));
 
+  // ── safari destinations section (extra_data: eyebrow/accent_title/quote/closing + parks[]) ──
+  type ParkRow = { title: string; description: string; href: string };
+  let parksIntro = { eyebrow: '', accent_title: '', quote: '', closing: '' };
+  let parkRows: ParkRow[] = [];
+  const addPark = () => { parkRows = [...parkRows, { title: '', description: '', href: '' }]; };
+  const removePark = (index: number) => { parkRows = parkRows.filter((_, i) => i !== index); };
+  const emptyParksIntro = () => ({ eyebrow: '', accent_title: '', quote: '', closing: '' });
+  const extraToParksIntro = (ed: Record<string, unknown>) => ({
+    eyebrow: typeof ed.eyebrow === 'string' ? ed.eyebrow : '',
+    accent_title: typeof ed.accent_title === 'string' ? ed.accent_title : '',
+    quote: typeof ed.quote === 'string' ? ed.quote : '',
+    closing: typeof ed.closing === 'string' ? ed.closing : ''
+  });
+  const extraToParkRows = (ed: Record<string, unknown>): ParkRow[] =>
+    Array.isArray(ed.parks)
+      ? (ed.parks as Array<Record<string, unknown>>).map((p) => ({
+          title: String(p?.title ?? ''),
+          description: String(p?.description ?? ''),
+          href: String(p?.href ?? '')
+        }))
+      : [];
+  const parksIntroToExtra = () => ({
+    ...(parksIntro.eyebrow.trim() ? { eyebrow: parksIntro.eyebrow.trim() } : {}),
+    ...(parksIntro.accent_title.trim() ? { accent_title: parksIntro.accent_title.trim() } : {}),
+    ...(parksIntro.quote.trim() ? { quote: parksIntro.quote.trim() } : {}),
+    ...(parksIntro.closing.trim() ? { closing: parksIntro.closing.trim() } : {})
+  });
+  const parkRowsToExtra = () =>
+    parkRows
+      .filter((p) => p.title.trim() && p.description.trim())
+      .map((p) => ({ title: p.title.trim(), description: p.description.trim(), ...(p.href.trim() ? { href: p.href.trim() } : {}) }));
+
+  // ── "how it works" section (extra_data: eyebrow/accent_title/quote + steps[]) ──
+  type StepRow = { title: string; description: string };
+  let processIntro = { eyebrow: '', accent_title: '', quote: '' };
+  let stepRows: StepRow[] = [];
+  const addStep = () => { stepRows = [...stepRows, { title: '', description: '' }]; };
+  const removeStep = (index: number) => { stepRows = stepRows.filter((_, i) => i !== index); };
+  const emptyProcessIntro = () => ({ eyebrow: '', accent_title: '', quote: '' });
+  const extraToProcessIntro = (ed: Record<string, unknown>) => ({
+    eyebrow: typeof ed.eyebrow === 'string' ? ed.eyebrow : '',
+    accent_title: typeof ed.accent_title === 'string' ? ed.accent_title : '',
+    quote: typeof ed.quote === 'string' ? ed.quote : ''
+  });
+  const extraToStepRows = (ed: Record<string, unknown>): StepRow[] =>
+    Array.isArray(ed.steps)
+      ? (ed.steps as Array<Record<string, unknown>>).map((s) => ({ title: String(s?.title ?? ''), description: String(s?.description ?? '') }))
+      : [];
+  const processIntroToExtra = () => ({
+    ...(processIntro.eyebrow.trim() ? { eyebrow: processIntro.eyebrow.trim() } : {}),
+    ...(processIntro.accent_title.trim() ? { accent_title: processIntro.accent_title.trim() } : {}),
+    ...(processIntro.quote.trim() ? { quote: processIntro.quote.trim() } : {})
+  });
+  const stepRowsToExtra = () =>
+    stepRows.filter((s) => s.title.trim() && s.description.trim()).map((s) => ({ title: s.title.trim(), description: s.description.trim() }));
+
+  // ── founder story section (extra_data: eyebrow/accent_title/quote/caption/secondary CTA) ──
+  let founderIntro = { eyebrow: '', accent_title: '', quote: '', image_caption: '', secondary_cta_text: '', secondary_cta_url: '' };
+  const emptyFounderIntro = () => ({ eyebrow: '', accent_title: '', quote: '', image_caption: '', secondary_cta_text: '', secondary_cta_url: '' });
+  const extraToFounderIntro = (ed: Record<string, unknown>) => ({
+    eyebrow: typeof ed.eyebrow === 'string' ? ed.eyebrow : '',
+    accent_title: typeof ed.accent_title === 'string' ? ed.accent_title : '',
+    quote: typeof ed.quote === 'string' ? ed.quote : '',
+    image_caption: typeof ed.image_caption === 'string' ? ed.image_caption : '',
+    secondary_cta_text: typeof ed.secondary_cta_text === 'string' ? ed.secondary_cta_text : '',
+    secondary_cta_url: typeof ed.secondary_cta_url === 'string' ? ed.secondary_cta_url : ''
+  });
+  const founderIntroToExtra = () => {
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(founderIntro)) if (v.trim()) out[k] = v.trim();
+    return out;
+  };
+
   $: sorted = [...rows].sort((a, b) => a.sort_order - b.sort_order || a.section_key.localeCompare(b.section_key));
 
   const showToast = (message: string, type: Toast['type'] = 'success') => {
@@ -304,13 +377,18 @@
     logos = extraToLogos(ed);
     slides = extraToSlides(ed);
     costRanges = extraToCostRanges(ed);
+    parksIntro = extraToParksIntro(ed);
+    parkRows = extraToParkRows(ed);
+    processIntro = extraToProcessIntro(ed);
+    stepRows = extraToStepRows(ed);
+    founderIntro = extraToFounderIntro(ed);
     const rest = Object.fromEntries(Object.entries(ed).filter(([key]) => !MANAGED_KEYS.includes(key)));
     extraDataText = Object.keys(rest).length ? JSON.stringify(rest, null, 2) : '{}';
     void loadMedia();
     modalOpen = true;
   };
 
-  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); extraDataText = '{}'; bg = emptyBg(); logos = []; slides = []; costRanges = []; mediaPicker = null; };
+  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); extraDataText = '{}'; bg = emptyBg(); logos = []; slides = []; costRanges = []; parksIntro = emptyParksIntro(); parkRows = []; processIntro = emptyProcessIntro(); stepRows = []; founderIntro = emptyFounderIntro(); mediaPicker = null; };
 
   const save = async () => {
     if (!/^[a-z0-9_]{2,}$/.test(form.section_key.trim())) {
@@ -345,6 +423,21 @@
     // Merge cost ranges for the typical-cost band.
     if (form.section_key.trim() === 'cost_ranges' || costRanges.some((r) => r.label.trim())) {
       extra = { ...extra, ranges: costRangesToExtra() };
+    }
+
+    // Merge the safari destinations section (eyebrow/accent/quote/closing + parks list).
+    if (form.section_key.trim() === 'safari_parks_intro') {
+      extra = { ...extra, ...parksIntroToExtra(), parks: parkRowsToExtra() };
+    }
+
+    // Merge the "how it works" section (eyebrow/accent/quote + numbered steps).
+    if (form.section_key.trim() === 'how_it_works') {
+      extra = { ...extra, ...processIntroToExtra(), steps: stepRowsToExtra() };
+    }
+
+    // Merge the founder story section (eyebrow/accent/quote/caption + secondary CTA).
+    if (form.section_key.trim() === 'founder_story') {
+      extra = { ...extra, ...founderIntroToExtra() };
     }
 
     saving = true;
@@ -684,6 +777,87 @@
                 <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove row" on:click={() => removeCostRange(i)}><Trash2 size={15} /></button>
               </div>
             {/each}
+          </div>
+        {/if}
+
+        <!-- safari destinations section editor -->
+        {#if form.section_key.trim() === 'safari_parks_intro'}
+          <div class="grid gap-3 rounded-none border border-ink/10 bg-sand/25 p-4">
+            <div>
+              <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Safari destinations section</p>
+              <p class="mt-1 text-xs text-ink/50">The "Best Safari Destinations" band. The heading &amp; intro use the Title and Content fields above; the button uses the Button text/URL fields below.</p>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Eyebrow (e.g. Tanzania's Greatest Safari Parks)" bind:value={parksIntro.eyebrow} />
+              <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Accent title (e.g. in Tanzania)" bind:value={parksIntro.accent_title} />
+            </div>
+            <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Pull quote" bind:value={parksIntro.quote} />
+            <textarea class="min-h-[70px] rounded-lg border border-ink/10 bg-surface px-3 py-2 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Closing paragraph" bind:value={parksIntro.closing}></textarea>
+
+            <div class="mt-1 flex flex-wrap items-center justify-between gap-2">
+              <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Parks / destinations list</p>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addPark}><Plus size={14} />Add park</button>
+            </div>
+            {#if parkRows.length === 0}
+              <p class="rounded-xl border border-dashed border-ink/15 bg-surface/60 py-4 text-center text-xs text-ink/45">No parks yet — add your first destination.</p>
+            {/if}
+            {#each parkRows as row, i (i)}
+              <div class="grid gap-2 rounded-xl border border-ink/10 bg-surface p-3 sm:grid-cols-[1fr_1.6fr_1fr_auto] sm:items-center">
+                <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Park name" bind:value={row.title} />
+                <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Short description" bind:value={row.description} />
+                <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Link (e.g. /destinations/serengeti)" bind:value={row.href} />
+                <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove park" on:click={() => removePark(i)}><Trash2 size={15} /></button>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- "how it works" section editor -->
+        {#if form.section_key.trim() === 'how_it_works'}
+          <div class="grid gap-3 rounded-none border border-ink/10 bg-sand/25 p-4">
+            <div>
+              <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">How it works section</p>
+              <p class="mt-1 text-xs text-ink/50">The numbered "How a Private Safari Works" band. Heading uses the Title field; the intro paragraph uses the Subtitle field; the button uses Button text/URL below.</p>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Eyebrow (e.g. Simple From the Start)" bind:value={processIntro.eyebrow} />
+              <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Accent title (e.g. With Emnel Works)" bind:value={processIntro.accent_title} />
+            </div>
+            <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Closing quote (e.g. One conversation. One contact…)" bind:value={processIntro.quote} />
+            <div class="mt-1 flex flex-wrap items-center justify-between gap-2">
+              <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Steps</p>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addStep}><Plus size={14} />Add step</button>
+            </div>
+            {#if stepRows.length === 0}
+              <p class="rounded-xl border border-dashed border-ink/15 bg-surface/60 py-4 text-center text-xs text-ink/45">No steps yet — add your first step.</p>
+            {/if}
+            {#each stepRows as row, i (i)}
+              <div class="grid gap-2 rounded-xl border border-ink/10 bg-surface p-3 sm:grid-cols-[1fr_1.8fr_auto] sm:items-start">
+                <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Step title" bind:value={row.title} />
+                <textarea class="min-h-[64px] rounded-lg border border-ink/10 bg-surface px-3 py-2 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Step description" bind:value={row.description}></textarea>
+                <button type="button" class="grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Remove step" on:click={() => removeStep(i)}><Trash2 size={15} /></button>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- founder story section editor -->
+        {#if form.section_key.trim() === 'founder_story'}
+          <div class="grid gap-3 rounded-none border border-ink/10 bg-sand/25 p-4">
+            <div>
+              <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Founder story section</p>
+              <p class="mt-1 text-xs text-ink/50">The "Built in Tanzania" band. Heading uses Title; the story paragraphs use Content; the portrait uses Image URL; the primary button uses Button text/URL below.</p>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Eyebrow (e.g. The Founder's Story)" bind:value={founderIntro.eyebrow} />
+              <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Accent title (e.g. For Those Who Want Africa Properly.)" bind:value={founderIntro.accent_title} />
+            </div>
+            <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Pull quote" bind:value={founderIntro.quote} />
+            <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Image caption" bind:value={founderIntro.image_caption} />
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Secondary button text (e.g. Speak to Nelson)" bind:value={founderIntro.secondary_cta_text} />
+              <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Secondary button URL (e.g. /contact)" bind:value={founderIntro.secondary_cta_url} />
+            </div>
           </div>
         {/if}
 

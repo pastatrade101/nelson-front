@@ -181,8 +181,8 @@
   content={cms('safari_parks_intro', 'content', DEFAULT_PARKS_CONTENT)}
   quote={typeof parksExtra.quote === 'string' ? parksExtra.quote : DEFAULT_PARKS_QUOTE}
   closing={typeof parksExtra.closing === 'string' ? parksExtra.closing : DEFAULT_PARKS_CLOSING}
-  ctaLabel="Explore Destinations"
-  ctaHref="/destinations"
+  ctaLabel={cms('safari_parks_intro', 'button_text', 'Explore Destinations')}
+  ctaHref={cms('safari_parks_intro', 'button_url', '/destinations')}
   stats={Array.isArray(parksExtra.stats) ? parksExtra.stats : undefined}
   parks={Array.isArray(parksExtra.parks) ? parksExtra.parks : undefined}
 />
