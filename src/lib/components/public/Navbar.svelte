@@ -41,10 +41,10 @@
   // Emnel primary nav: Home · Safaris (dropdown) · Kilimanjaro · About · Journal · Begin Your Journey (CTA).
   const NAV: NavItem[] = [
     { href: '/', label: 'Home' },
-    { href: '/tours', label: 'Safaris', dropdown: 'tours' },
+    { href: '/tours', label: 'Tours & Safaris', dropdown: 'tours' },
     { href: '/destinations', label: 'Destinations' },
     { href: '/accommodation', label: 'Accommodation' },
-    { href: '/destinations/kilimanjaro', label: 'Kilimanjaro' },
+    { href: '/safari-styles', label: 'Safari Styles' },
     { href: '/about', label: 'About' },
     { href: '/blog', label: 'Journal' }
   ];
@@ -173,7 +173,7 @@
     : `bg-deep-green ${scrolled ? 'border-transparent shadow-[0_8px_28px_rgba(28,26,22,0.20)]' : 'border-white/10'}`
 }`} use:navbarEntrance>
   <!-- ── mobile top bar ─────────────────────────────────────────────────── -->
-  <div class="flex h-[70px] items-center justify-between gap-3 px-4 sm:px-5 lg:hidden">
+  <div class="flex h-[70px] items-center justify-between gap-3 px-4 sm:px-5 xl:hidden">
     <button class="grid h-11 w-11 place-items-center rounded-xl border border-white/15 bg-white/5 text-white" type="button" aria-label="Toggle menu" aria-expanded={menuOpen} on:click={() => (menuOpen = !menuOpen)}>
       <Menu size={24} strokeWidth={2.4} />
     </button>
@@ -187,14 +187,18 @@
     </a>
   </div>
 
-  <!-- ── desktop nav row (single bar: logo + nav + CTA + WhatsApp) ───────── -->
-  <div class="hidden lg:block">
-    <div class="mx-auto flex w-full max-w-[1500px] items-stretch justify-between px-4">
-      <nav class="flex items-center gap-2" aria-label="Primary">
-        <a href="/" class="mr-5 flex shrink-0 items-center" aria-label="Emnel Adventures home">
-          <img src={logoSrc} alt={$branding.site_name} class="h-16 w-auto object-contain" />
-        </a>
-        {#each NAV as item}
+  <!-- ── desktop nav row (single bar: huge logo left · nav + CTA right) ───── -->
+  <div class="hidden xl:block">
+    <div class="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-6 px-4">
+      <!-- logo: left, oversized -->
+      <a href="/" class="flex shrink-0 items-center py-2" aria-label="Emnel Adventures home">
+        <img src={logoSrc} alt={$branding.site_name} class="h-24 w-auto object-contain" />
+      </a>
+
+      <!-- nav links + CTA, aligned right -->
+      <div class="flex items-center gap-2">
+        <nav class="flex items-center gap-1" aria-label="Primary">
+          {#each NAV as item}
           {@const active = isActive(path, item.href)}
           {#if item.dropdown}
             <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -272,23 +276,24 @@
             </a>
           {/if}
         {/each}
-      </nav>
+        </nav>
 
-      <!-- Begin Your Journey CTA — pinned to the right corner; opens the enquiry modal -->
-      <button
-        type="button"
-        class="my-auto inline-flex items-center gap-1.5 border border-goldfinch-gold px-6 py-2.5 text-[15px] font-semibold text-goldfinch-gold shadow-sm transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50"
-        on:click={openEnquiry}
-      >
-        Begin Your Journey
-        <ArrowRight size={15} strokeWidth={2.6} />
-      </button>
+        <!-- Begin Your Journey CTA — opens the enquiry modal -->
+        <button
+          type="button"
+          class="ml-1 inline-flex items-center gap-1.5 border border-goldfinch-gold px-6 py-2.5 text-[15px] font-semibold text-goldfinch-gold shadow-sm transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50"
+          on:click={openEnquiry}
+        >
+          Begin Your Journey
+          <ArrowRight size={15} strokeWidth={2.6} />
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- ── mobile drawer ──────────────────────────────────────────────────── -->
   {#if menuOpen}
-    <div class="fixed inset-0 z-[90] lg:hidden" transition:fade={{ duration: 120 }}>
+    <div class="fixed inset-0 z-[90] xl:hidden" transition:fade={{ duration: 120 }}>
       <button class="absolute inset-0 bg-black/45 backdrop-blur-md" type="button" aria-label="Close menu" on:click={() => (menuOpen = false)}></button>
 
       <aside class="absolute right-0 top-0 flex min-h-dvh w-[86vw] min-w-[300px] max-w-[380px] flex-col overflow-y-auto border-l border-ink/10 bg-surface px-5 py-5 shadow-[-20px_0_55px_rgba(0,0,0,0.12)]" transition:fly={{ x: 60, duration: 200 }}>
