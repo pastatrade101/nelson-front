@@ -301,8 +301,8 @@
         <h1 class="mt-5 max-w-[880px] font-serif text-[48px] font-light leading-[0.98] tracking-normal text-white sm:text-[66px] lg:text-[82px]">
           {tour.title}
         </h1>
-        <p class="mt-6 max-w-[720px] text-base font-medium leading-8 text-white/72 md:text-lg">
-          {tour.full_description ?? tour.short_description}
+        <p class="mt-6 line-clamp-4 max-w-[720px] text-base font-medium leading-8 text-white/72 md:text-lg">
+          {tour.short_description ?? tour.full_description}
         </p>
 
         <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -374,9 +374,18 @@
           <span class="block italic text-goldfinch-gold">Your timeline.</span>
           <span class="block">Your private vehicle.</span>
         </h2>
-        <p class="mt-7 max-w-[560px] text-[15px] font-medium leading-8 text-white/64 md:text-base">
-          This tour is a starting point shaped by the live CMS record. The route, pace, lodges, activities, and final cost can be adjusted by the Emnel team around your dates and travel style.
-        </p>
+        {#if tour.full_description}
+          {@const paras = tour.full_description.split(/\n\n+/).map((p) => p.trim()).filter(Boolean)}
+          <div class="mt-7 grid max-w-[600px] gap-4 text-[15px] font-medium leading-8 text-white/64 md:text-base">
+            {#each paras as para}
+              <p>{para}</p>
+            {/each}
+          </div>
+        {:else}
+          <p class="mt-7 max-w-[560px] text-[15px] font-medium leading-8 text-white/64 md:text-base">
+            This tour is a starting point shaped by the live CMS record. The route, pace, lodges, activities, and final cost can be adjusted by the Emnel team around your dates and travel style.
+          </p>
+        {/if}
       </div>
 
       <div class="grid gap-5">

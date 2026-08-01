@@ -79,8 +79,8 @@
     priceMin = prices.length ? Math.floor(Math.min(...prices)) : 0;
     priceMax = prices.length ? Math.ceil(Math.max(...prices)) : 10000;
     if (priceMax <= priceMin) priceMax = priceMin + 100;
-    lenMin = durs.length ? Math.min(...durs) : 1;
-    lenMax = durs.length ? Math.max(...durs) : 21;
+    lenMin = 1; // always start the range at 1 day
+    lenMax = durs.length ? Math.max(...durs) : 21; // top end follows the longest available itinerary
     if (lenMax <= lenMin) lenMax = lenMin + 1;
     priceLo = priceMin; priceHi = priceMax;
     lengthLo = lenMin; lengthHi = lenMax;
@@ -109,8 +109,10 @@
 
   // base = search + destination only (used for facet counts)
   $: base = allTours.filter((t) => (!searchTerm || matchSearch(t, searchTerm)) && (!destSlug || t.destinations?.slug === destSlug));
-  const catCount = (slug: string) => base.filter((t) => t.tour_categories?.slug === slug).length;
-  const tierCount = (key: string) => base.filter((t) => normTier(t.budget_tier) === key).length;
+  // Reactive so the counts update once tours load. A plain function call in the
+  // template (`{tierCount(t.key)}`) doesn't re-run when `base` changes, so it
+  // stayed frozen at the initial value (0, before the fetch resolved).
+  $: tierCounts = Object.fromEntries(TIERS.map((tier) => [tier.key, base.filter((t) => normTier(t.budget_tier) === tier.key).length]));
 
   // full result
   $: result = base.filter(
@@ -156,6 +158,7 @@
     writeUrl({ category: next.size ? [...next].join(',') : null, experience: null });
   };
   const setDestination = (slug: string) => writeUrl({ destination: slug || null });
+  const setCategory = (slug: string) => writeUrl({ category: slug || null, experience: null });
   const submitSearch = (e: Event) => {
     e.preventDefault();
     const v = (new FormData(e.target as HTMLFormElement).get('q') as string)?.trim();
@@ -232,8 +235,8 @@
 
   <div class="mt-8 grid gap-8 lg:grid-cols-[300px_1fr]">
     <!-- ============ FILTER SIDEBAR ============ -->
-    <aside class={`${filtersOpen ? 'block' : 'hidden'} lg:block`}>
-      <div class="filter-scroll grid gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overscroll-contain lg:pb-2">
+    <aside class={`${filtersOpen ? 'block' : 'hidden'} min-w-0 lg:block`}>
+      <div class="filter-scroll grid min-w-0 gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overscroll-contain lg:pb-2">
         <!-- search card -->
         <div class="rounded-2xl border border-goldfinch-gold/30 bg-sand/40 p-5">
           <p class="font-serif text-lg font-bold text-heading">Your Safari</p>
@@ -241,7 +244,7 @@
             <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/70">
               Where to
               <select
-                class="h-11 rounded-xl border border-ink/15 bg-surface px-3 text-sm font-medium text-ink outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+                class="h-11 w-full min-w-0 rounded-xl border border-ink/15 bg-surface px-3 text-sm font-medium text-ink outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
                 value={destSlug}
                 on:change={(e) => setDestination(e.currentTarget.value)}
               >
@@ -251,6 +254,21 @@
                 {/each}
               </select>
             </label>
+            {#if categoryOptions.length}
+              <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/70">
+                Safari type
+                <select
+                  class="h-11 w-full min-w-0 rounded-xl border border-ink/15 bg-surface px-3 text-sm font-medium text-ink outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+                  value={[...urlCategories][0] ?? ''}
+                  on:change={(e) => setCategory(e.currentTarget.value)}
+                >
+                  <option value="">All safari types</option>
+                  {#each categoryOptions as c}
+                    <option value={c.slug}>{c.name}</option>
+                  {/each}
+                </select>
+              </label>
+            {/if}
             <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/70">
               Keyword
               <span class="flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-surface px-3 transition focus-within:border-forest focus-within:ring-2 focus-within:ring-forest/15">
@@ -291,29 +309,11 @@
                   <input type="checkbox" class="h-4 w-4 accent-forest" checked={selectedTiers.includes(t.key)} on:change={() => toggleTier(t.key)} />
                   {t.label}
                 </span>
-                <span class="text-xs text-ink/40">({tierCount(t.key)})</span>
+                <span class="text-xs text-ink/40">({tierCounts[t.key]})</span>
               </label>
             {/each}
           </div>
         </div>
-
-        <!-- safari type / experience (category) -->
-        {#if categoryOptions.length}
-          <div class="rounded-2xl border border-ink/10 bg-surface p-5">
-            <p class="text-sm font-bold text-ink">Safari Type</p>
-            <div class="mt-3 grid gap-2.5">
-              {#each categoryOptions as c}
-                <label class="flex cursor-pointer items-center justify-between text-sm">
-                  <span class="flex items-center gap-2.5 text-ink/75">
-                    <input type="checkbox" class="h-4 w-4 accent-forest" checked={urlCategories.has(c.slug)} on:change={() => toggleCategory(c.slug)} />
-                    {c.name}
-                  </span>
-                  <span class="text-xs text-ink/40">({catCount(c.slug)})</span>
-                </label>
-              {/each}
-            </div>
-          </div>
-        {/if}
 
         <!-- quick toggle -->
         <div class="rounded-2xl border border-ink/10 bg-surface p-5">
