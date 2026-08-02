@@ -71,14 +71,14 @@
   <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.60)_0%,rgba(28,26,22,0.12)_28%,rgba(28,26,22,0.66)_100%)]"></div>
 
   <div class="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1500px] items-end px-5 pb-20 pt-28 md:px-8 md:pb-24 md:pt-36">
-    <div class="max-w-[760px]">
+    <div class="max-w-[620px]">
       <p class="brand-eyebrow" in:fly={{ y: 12, duration: 420 }}>{eyebrow}</p>
       {#key title}
-        <h1 class="mt-7 max-w-[760px] text-[42px] font-light leading-[1.14] tracking-normal sm:text-[56px] lg:text-[74px]" use:revealHeading={{ stagger: 0.018 }}>{title}</h1>
+        <h1 class="mt-6 max-w-[600px] text-[32px] font-light leading-[1.12] tracking-normal sm:text-[40px] lg:text-[50px] xl:text-[56px]" use:revealHeading={{ stagger: 0.018 }}>{title}</h1>
       {/key}
-      <p class="mt-6 max-w-[600px] text-[15px] font-normal leading-8 text-white/86 md:text-[18px]" in:fly={{ y: 14, duration: 480, delay: 120 }}>{description}</p>
+      <p class="mt-5 max-w-[520px] text-[15px] font-normal leading-7 text-white/86 md:text-[17px]" in:fly={{ y: 14, duration: 480, delay: 120 }}>{description}</p>
 
-      <div class="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
         <a class="inline-flex h-12 items-center justify-center gap-3 bg-goldfinch-gold px-7 text-[13px] font-semibold tracking-[0.08em] text-deep-green transition hover:bg-savanna sm:min-w-[230px]" href={primaryCtaUrl}>
           {primaryCta} <ArrowRight size={17} strokeWidth={2.4} />
         </a>
@@ -87,7 +87,7 @@
         </a>
       </div>
 
-      <div class="mt-12 flex max-w-[780px] flex-wrap items-center gap-x-3 gap-y-2 text-sm text-white/82">
+      <div class="mt-10 flex max-w-[620px] flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-white/82">
         <span class="inline-flex items-center gap-0.5 text-goldfinch-gold" aria-label="Five star rating">
           {#each Array(5) as _}
             <Star size={17} fill="currentColor" strokeWidth={1.7} />
