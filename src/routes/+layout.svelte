@@ -1,6 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import { page } from '$app/stores';
+  import { navigating, page } from '$app/stores';
   import { env as publicEnv } from '$env/dynamic/public';
   import { onMount } from 'svelte';
   import '../app.css';
@@ -97,6 +97,10 @@
 <!-- Org-wide schema (JsonLd injects via {@html}; a {mustache} inside <script> is
      not interpolated by Svelte, which is what broke the old inline block). -->
 <JsonLd data={{ '@type': 'TravelAgency', name: $branding.company_name, url: orgUrl, slogan: $branding.tagline }} />
+
+{#if $navigating}
+  <div class="nav-progress" role="progressbar" aria-label="Loading page" aria-busy="true"></div>
+{/if}
 
 {#if !isAdmin}
   <a
