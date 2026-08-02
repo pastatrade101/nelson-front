@@ -11,7 +11,7 @@
   import PersistentCTA from '$lib/components/public/PersistentCTA.svelte';
   import ShortlistFab from '$lib/components/public/ShortlistFab.svelte';
   import EnquiryModal from '$lib/components/public/EnquiryModal.svelte';
-  import EmnelAIAdvisor from '$lib/components/public/EmnelAIAdvisor.svelte';
+  import LazyAIAdvisor from '$lib/components/public/LazyAIAdvisor.svelte';
   import { consent } from '$lib/consent';
   import { setupPwaInstall } from '$lib/pwa';
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
@@ -99,10 +99,18 @@
 <JsonLd data={{ '@type': 'TravelAgency', name: $branding.company_name, url: orgUrl, slogan: $branding.tagline }} />
 
 {#if !isAdmin}
+  <a
+    href="#main-content"
+    class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-deep-green focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg"
+  >
+    Skip to content
+  </a>
   <Navbar />
 {/if}
 
-<slot />
+<main id="main-content">
+  <slot />
+</main>
 
 {#if !isAdmin}
   <Footer />
@@ -113,6 +121,6 @@
   <ConsentBanner />
   <EnquiryModal />
   {#if aiOn}
-    <EmnelAIAdvisor />
+    <LazyAIAdvisor />
   {/if}
 {/if}

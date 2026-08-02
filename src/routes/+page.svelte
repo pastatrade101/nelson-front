@@ -19,7 +19,11 @@
   import PriceRangeBlock from '$lib/components/public/PriceRangeBlock.svelte';
   import DealCard from '$lib/components/public/DealCard.svelte';
   import { fadeUpOnScroll, sectionReveal, staggeredCardReveal } from '$lib/animations';
+  import { imgUrl } from '$lib/img';
   import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   type HomeSection = {
     button_text?: string | null;
@@ -38,7 +42,9 @@
   let posts: BlogPost[] = [];
   let testimonials: Testimonial[] = [];
   let faqs: FAQ[] = [];
-  let sections: Record<string, HomeSection> = {};
+  // Sections arrive SSR-loaded from +page.ts so the hero renders in the initial
+  // HTML (and can be preloaded) rather than after a client-side fetch.
+  $: sections = (data.sections ?? {}) as unknown as Record<string, HomeSection>;
 
   // CMS lookup with a safe fallback so the existing design never breaks.
   // Reactive ($:) so it re-reads `sections` after onMount loads them — otherwise
@@ -86,6 +92,8 @@
 
   $: heroExtra = (sections.hero?.extra_data ?? {}) as Record<string, unknown>;
   $: heroVideo = typeof heroExtra.background_video === 'string' ? heroExtra.background_video : '';
+  // The hero image (SSR-known) is the LCP element — preload it at high priority.
+  $: heroImage = cms('hero', 'image_url', '');
   $: showcaseExtra = (sections.safari_showcase?.extra_data ?? {}) as Record<string, unknown>;
   $: faqExtra = (sections.faq?.extra_data ?? {}) as Record<string, unknown>;
   $: parksExtra = (sections.safari_parks_intro?.extra_data ?? {}) as Record<string, unknown>;
@@ -138,13 +146,12 @@
     // Each request is independent: a failure (or emptiness) in one collection
     // must never blank the others — in particular, a hiccup in tours/blog/faqs
     // should not wipe the CMS homepage sections and drop the hero to its default.
-    const [tourRes, destRes, postRes, testRes, faqRes, homeRes] = await Promise.allSettled([
+    const [tourRes, destRes, postRes, testRes, faqRes] = await Promise.allSettled([
       api.tours.list({ limit: 6 }),
       api.destinations.list({ status: 'published', limit: 6 }),
       api.blog.list({ limit: 3 }),
       api.testimonials.list({ limit: 6 }),
-      api.faqs.list({ destination_id: 'null', limit: 5 }),
-      api.homepage.get()
+      api.faqs.list({ destination_id: 'null', limit: 5 })
     ]);
 
     if (tourRes.status === 'fulfilled' && tourRes.value.data.items.length) tours = tourRes.value.data.items;
@@ -152,13 +159,14 @@
     if (postRes.status === 'fulfilled' && postRes.value.data.items.length) posts = postRes.value.data.items;
     if (testRes.status === 'fulfilled' && testRes.value.data.items.length) testimonials = testRes.value.data.items;
     if (faqRes.status === 'fulfilled' && faqRes.value.data.items.length) faqs = faqRes.value.data.items;
-
-    if (homeRes.status === 'fulfilled') {
-      const sectionList = (homeRes.value.data ?? []) as unknown as HomeSection[];
-      sections = Object.fromEntries(sectionList.map((section) => [section.section_key, section]));
-    }
   });
 </script>
+
+<svelte:head>
+  {#if heroImage}
+    <link rel="preload" as="image" href={imgUrl(heroImage, 1800)} fetchpriority="high" />
+  {/if}
+</svelte:head>
 
 <HeroSection
   title={cms('hero', 'title', 'Where the wild speaks, we know how to listen.')}
