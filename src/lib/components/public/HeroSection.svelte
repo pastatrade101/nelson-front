@@ -33,9 +33,22 @@
   // client's video plays.
   $: providedImage =
     imageUrl && /^(https?:\/\/|\/\/|\/|data:)/i.test(imageUrl.trim()) ? imageUrl.trim() : '';
-  $: resolvedVideo =
-    videoUrl && /^(https?:\/\/|\/\/|\/)/i.test(videoUrl.trim()) ? videoUrl.trim() : '';
   $: posterImage = providedImage ? imgUrl(providedImage, 1800) : '';
+
+  // Background video can be either a direct, browser-playable file OR a
+  // YouTube/Vimeo link. A raw <video> element can only play a file — pasting a
+  // YouTube page URL into it renders nothing (NO_SOURCE) and used to hide the
+  // hero image. So we split the two: files play in <video>, YouTube/Vimeo embed
+  // in a background <iframe>, and the image always renders beneath as a fallback.
+  $: rawVideo = (videoUrl ?? '').trim();
+  $: fileVideo = /^(https?:\/\/|\/\/|\/).+\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(rawVideo) ? rawVideo : '';
+  $: ytId = (rawVideo.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/) || [])[1] || '';
+  $: vimeoId = (rawVideo.match(/vimeo\.com\/(?:video\/)?(\d+)/) || [])[1] || '';
+  $: embedVideo = ytId
+    ? `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&fs=0&iv_load_policy=3`
+    : vimeoId
+      ? `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&loop=1&background=1`
+      : '';
 
   // Scroll roughly one viewport down when the "scroll" cue is tapped.
   const scrollDown = () => {
@@ -44,19 +57,8 @@
 </script>
 
 <section class="relative min-h-[100svh] overflow-hidden bg-deep-green text-white">
-  {#if resolvedVideo}
-    <!-- svelte-ignore a11y-media-has-caption -->
-    <video
-      class="absolute inset-0 h-full w-full object-cover"
-      style={`object-position:${imagePosition}`}
-      src={resolvedVideo}
-      poster={posterImage || undefined}
-      autoplay
-      muted
-      loop
-      playsinline
-    ></video>
-  {:else if providedImage}
+  <!-- Base layer: the image always renders (and is the fallback for any video). -->
+  {#if providedImage}
     <img
       class="absolute inset-0 h-full w-full object-cover"
       style={`object-position:${imagePosition}`}
@@ -66,6 +68,33 @@
       decoding="async"
       fetchpriority="high"
     />
+  {/if}
+  <!-- A direct video file plays over the image. -->
+  {#if fileVideo}
+    <!-- svelte-ignore a11y-media-has-caption -->
+    <video
+      class="absolute inset-0 h-full w-full object-cover"
+      style={`object-position:${imagePosition}`}
+      src={fileVideo}
+      poster={posterImage || undefined}
+      autoplay
+      muted
+      loop
+      playsinline
+    ></video>
+  {:else if embedVideo}
+    <!-- A YouTube/Vimeo link embeds as a background iframe, scaled to cover. -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <iframe
+        class="hero-bg-video absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        src={embedVideo}
+        title="Background video"
+        frameborder="0"
+        allow="autoplay; encrypted-media; picture-in-picture"
+        tabindex="-1"
+        aria-hidden="true"
+      ></iframe>
+    </div>
   {/if}
   <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.90)_0%,rgba(28,26,22,0.78)_32%,rgba(28,26,22,0.42)_58%,rgba(28,26,22,0.16)_100%)]"></div>
   <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.60)_0%,rgba(28,26,22,0.12)_28%,rgba(28,26,22,0.66)_100%)]"></div>
@@ -109,3 +138,15 @@
     <ChevronDown size={22} strokeWidth={2.2} class="animate-bounce" />
   </button>
 </section>
+
+<style>
+  /* Scale a 16:9 YouTube/Vimeo embed up so it fully covers the full-bleed hero
+     (like object-fit: cover) regardless of the viewport's aspect ratio. */
+  .hero-bg-video {
+    width: 100vw;
+    height: 56.25vw; /* 16:9 of the width */
+    min-height: 100%;
+    min-width: 177.78vh; /* 16:9 of the height */
+    border: 0;
+  }
+</style>
