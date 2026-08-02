@@ -8,6 +8,7 @@
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import { breadcrumbLd } from '$lib/seo';
   import type { TravelStyle, Tour } from '$lib/types';
 
@@ -92,7 +93,7 @@
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Travel Styles', path: '/travel-styles' }, { name: style.name, path: `/travel-styles/${style.slug}` }])} />
   <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
     {#if style.heroImage}
-      <img class="absolute inset-0 h-full w-full object-cover opacity-40" src={style.heroImage} alt="" />
+      <ResponsiveImage src={style.heroImage} alt="" sizes="100vw" imgClass="absolute inset-0 h-full w-full object-cover opacity-40" width={1920} eager priority />
       <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/80 to-deep-green/40"></div>
     {/if}
     <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>

@@ -3,9 +3,10 @@
   import { ArrowRight, ChevronDown, MapPin, MessageCircle, Quote, Search, ShieldCheck, Sparkles, X } from '@lucide/svelte';
   import { staggeredCardReveal, fadeUpOnScroll, revealHeading } from '$lib/animations/motion';
   import { api } from '$lib/api/client';
-  import { imgUrl } from '$lib/img';
+  import { origUrl } from '$lib/img';
   import { lodgeImage, lodgeRating } from '$lib/lodge';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
@@ -61,11 +62,12 @@
   $: typesPresent = [...new Set(lodges.map((l) => l.lodge_type))];
 
   // Real hero image — a featured (or the first) property that actually has a photo.
-  $: heroImage = (() => {
+  $: heroLodge = (() => {
     const withImg = lodges.filter((l) => lodgeImage(l));
-    const src = withImg.find((l) => l.is_featured) ?? withImg[0];
-    return src ? imgUrl(lodgeImage(src), 1920) : '';
+    return withImg.find((l) => l.is_featured) ?? withImg[0] ?? null;
   })();
+  $: heroImageSrc = heroLodge ? origUrl(heroLodge, 'hero_image_url', 'image_url') : '';
+  $: heroImageFallback = heroLodge ? lodgeImage(heroLodge) : '';
 
   // Honest, count-derived stats (chosen to read well on the real catalogue).
   $: stats = [
@@ -149,8 +151,8 @@
 
 <!-- ── cinematic hero ─────────────────────────────────────────────────────── -->
 <section class="relative overflow-hidden bg-deep-green text-white">
-  {#if heroImage}
-    <img src={heroImage} alt="" class="absolute inset-0 h-full w-full object-cover object-center" decoding="async" />
+  {#if heroImageSrc}
+    <ResponsiveImage src={heroImageSrc} fallbackSrc={heroImageFallback} width={1920} alt="" imgClass="absolute inset-0 h-full w-full object-cover object-center" sizes="100vw" eager priority />
     <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.94)_0%,rgba(28,26,22,0.72)_48%,rgba(28,26,22,0.38)_100%)]"></div>
   {/if}
   <div class="container-shell relative py-20 md:py-28">
@@ -307,7 +309,7 @@
   <!-- ── premium final CTA ────────────────────────────────────────────────── -->
   <section class="container-shell py-16 md:py-20">
     <div class="relative overflow-hidden bg-deep-green px-6 py-14 text-center text-white md:px-12 md:py-20">
-      {#if heroImage}<img src={heroImage} alt="" class="absolute inset-0 h-full w-full object-cover object-center opacity-25" decoding="async" />{/if}
+      {#if heroImageSrc}<ResponsiveImage src={heroImageSrc} fallbackSrc={heroImageFallback} width={1920} alt="" imgClass="absolute inset-0 h-full w-full object-cover object-center opacity-25" sizes="100vw" />{/if}
       <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
       <div class="relative mx-auto max-w-2xl">
         <p class="brand-eyebrow justify-center text-goldfinch-gold">Not sure where to stay?</p>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tilt } from '$lib/animations';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
+  import { origUrl, thumbUrl } from '$lib/img';
   import type { BlogPost } from '$lib/types';
 
   export let post: BlogPost;
@@ -10,7 +11,14 @@
   <a href={`/blog/${post.slug}`} class="flex h-full flex-col">
     <div class="aspect-[16/10] overflow-hidden bg-skywash">
       {#if post.featured_image_url}
-        <img class="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110" src={imgUrl(thumbUrl(post, 'featured_image_url'), 700)} alt={post.title} loading="lazy" decoding="async" />
+        <ResponsiveImage
+          src={origUrl(post, 'featured_image_url')}
+          fallbackSrc={thumbUrl(post, 'featured_image_url')}
+          alt={post.title}
+          sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+          width={700}
+          imgClass="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110"
+        />
       {/if}
     </div>
     <div class="flex flex-1 flex-col p-5">

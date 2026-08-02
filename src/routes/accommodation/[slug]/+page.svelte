@@ -4,11 +4,12 @@
     Heart, MapPin, MessageCircle, Sparkles, Star, Wallet
   } from '@lucide/svelte';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations/motion';
-  import { imgUrl } from '$lib/img';
+  import { imgUrl, origUrl, thumbUrl } from '$lib/img';
   import { LEVEL_STARS, levelLabel, lodgeBestForLabel, lodgeImage, lodgePriceLabel, lodgeRating, typeLabel } from '$lib/lodge';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -69,7 +70,7 @@
 <!-- ── hero ───────────────────────────────────────────────────────────────── -->
 <section class="relative overflow-hidden bg-deep-green text-white">
   {#if heroImg}
-    <img src={imgUrl(heroImg, 1920)} alt={l.name} class="absolute inset-0 h-full w-full object-cover object-center" decoding="async" />
+    <ResponsiveImage src={origUrl(l, 'hero_image_url', 'image_url')} fallbackSrc={heroImg} width={1920} alt={l.name} imgClass="absolute inset-0 h-full w-full object-cover object-center" sizes="100vw" eager priority />
     <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,25,22,0.5)_0%,rgba(20,25,22,0.35)_40%,rgba(15,22,20,0.9)_100%)]"></div>
   {:else}
     <div class="absolute inset-0 bg-[linear-gradient(150deg,#153733,rgba(74,55,40,0.95))]"></div>
@@ -170,11 +171,11 @@
     <aside class="space-y-5">
       {#if secondImg}
         <div class="overflow-hidden">
-          <img src={imgUrl(secondImg, 900)} alt={`${l.name} — view`} loading="lazy" class="aspect-[4/3] w-full object-cover" />
+          <ResponsiveImage src={secondImg} fallbackSrc={thumbUrl(l, 'image_url')} width={900} alt={`${l.name} — view`} imgClass="aspect-[4/3] w-full object-cover" sizes="(min-width:1024px) 40vw, 100vw" />
         </div>
       {:else if heroImg}
         <div class="overflow-hidden">
-          <img src={imgUrl(heroImg, 900)} alt={l.name} loading="lazy" class="aspect-[4/3] w-full object-cover" />
+          <ResponsiveImage src={origUrl(l, 'hero_image_url', 'image_url')} fallbackSrc={heroImg} width={900} alt={l.name} imgClass="aspect-[4/3] w-full object-cover" sizes="(min-width:1024px) 40vw, 100vw" />
         </div>
       {/if}
 
@@ -257,7 +258,7 @@
 <!-- ── planning CTA ───────────────────────────────────────────────────────── -->
 <section class="container-shell py-16 md:py-20">
   <div class="relative overflow-hidden bg-deep-green px-6 py-14 text-center text-white md:px-12 md:py-20">
-    {#if heroImg}<img src={imgUrl(heroImg, 1600)} alt="" class="absolute inset-0 h-full w-full object-cover object-center opacity-25" decoding="async" />{/if}
+    {#if heroImg}<ResponsiveImage src={origUrl(l, 'hero_image_url', 'image_url')} fallbackSrc={heroImg} width={1600} alt="" imgClass="absolute inset-0 h-full w-full object-cover object-center opacity-25" sizes="100vw" />{/if}
     <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
     <div class="relative mx-auto max-w-2xl">
       <p class="brand-eyebrow justify-center text-goldfinch-gold">Ready when you are</p>

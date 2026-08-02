@@ -1,8 +1,9 @@
 <script lang="ts">
   import { trackEvent } from '$lib/analytics';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { thumbUrl } from '$lib/img';
   import { tilt } from '$lib/animations';
   import ShortlistButton from './ShortlistButton.svelte';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import type { Tour } from '$lib/types';
 
   export let tour: Tour;
@@ -25,7 +26,14 @@
   <a href={`/tours/${tour.slug}`} class="flex h-full flex-col" on:click={() => trackEvent('tour_card_click', { tour_id: tour.id, tour_title: tour.title })}>
     <div class="aspect-[4/3] overflow-hidden bg-skywash">
       {#if tour.main_image_url}
-        <img class="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110" src={imgUrl(thumbUrl(tour, 'main_image_url'), 700)} alt={tour.title} loading="lazy" decoding="async" />
+        <ResponsiveImage
+          src={tour.main_image_url}
+          fallbackSrc={thumbUrl(tour, 'main_image_url')}
+          alt={tour.title}
+          width={700}
+          sizes="(min-width:1024px) 360px, (min-width:640px) 50vw, 100vw"
+          imgClass="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110"
+        />
       {/if}
     </div>
     <div class="flex flex-1 flex-col p-5">

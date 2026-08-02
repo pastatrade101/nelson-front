@@ -4,6 +4,8 @@
   import { goto } from '$app/navigation';
   import { api } from '$lib/api/client';
   import { fadeUpOnScroll, revealHeading, tilt } from '$lib/animations';
+  import { thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import type { Destination } from '$lib/types';
 
   const FALLBACK_PROMO = 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1200&q=80';
@@ -133,7 +135,13 @@
               {#each destinations as d, i (d.slug)}
                 {@const rating = ratingOf(d)}
                 <a class="dest-card group relative block aspect-[3/4] overflow-hidden rounded-none shadow-soft" href={`/destinations/${d.slug}`} use:registerCard={i} use:tilt={{ max: 6 }}>
-                  <img class="h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105" src={imgOf(d)} alt={d.name} loading="lazy" />
+                  <ResponsiveImage
+                    src={imgOf(d)}
+                    fallbackSrc={thumbUrl(d, 'main_image_url', 'banner_image_url', 'image_url')}
+                    alt={d.name}
+                    imgClass="h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
+                    sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                  />
 
                   {#if rating}
                     <span class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-goldfinch-gold px-2.5 py-1 text-xs font-bold text-heading shadow">

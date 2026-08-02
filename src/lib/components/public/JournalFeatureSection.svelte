@@ -1,7 +1,8 @@
 <script lang="ts">
   import { ArrowRight } from '@lucide/svelte';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
+  import { origUrl, thumbUrl } from '$lib/img';
   import type { BlogPost } from '$lib/types';
 
   type JournalCard = {
@@ -9,6 +10,7 @@
     title: string;
     excerpt: string;
     image: string;
+    imageThumb?: string;
     href: string;
   };
 
@@ -47,7 +49,8 @@
     category: post.author_name ?? 'Emnel Journal',
     title: post.title,
     excerpt: post.excerpt ?? 'Practical field notes from Tanzania safari planning.',
-    image: thumbUrl(post as unknown as Record<string, unknown>, 'featured_image_url') || post.featured_image_url || fallbackCards[0].image,
+    image: origUrl(post as unknown as Record<string, unknown>, 'featured_image_url') || post.featured_image_url || fallbackCards[0].image,
+    imageThumb: thumbUrl(post as unknown as Record<string, unknown>, 'featured_image_url') || undefined,
     href: `/blog/${post.slug}`
   });
 
@@ -75,7 +78,14 @@
         <article class="journal-card border-b border-white/[0.07] bg-[#25221b] md:border-b-0 md:border-r">
           <a href={card.href} class="group block h-full">
             <div class="aspect-[16/9] overflow-hidden bg-midnight">
-              <img class="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={imgUrl(card.image, 900, 76)} alt={card.title} loading="lazy" />
+              <ResponsiveImage
+                src={card.image}
+                fallbackSrc={card.imageThumb}
+                alt={card.title}
+                sizes="(min-width:768px) 33vw, 100vw"
+                width={900}
+                imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105"
+              />
             </div>
             <div class="p-7 md:p-8">
               <p class="text-[12px] font-bold uppercase tracking-[0.26em] text-white/42">{card.category}</p>

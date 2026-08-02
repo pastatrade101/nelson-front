@@ -4,6 +4,7 @@
   import { Compass, Lightbulb, ShieldCheck, Sparkles } from '@lucide/svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { GuideBlock } from '$lib/types';
 
   export let blocks: GuideBlock[] = [];
@@ -267,12 +268,11 @@
               </div>
             {:else if block.type === 'photo'}
               <figure class="mt-8">
-                <img
-                  class="w-full rounded-2xl object-cover shadow-soft"
+                <ResponsiveImage
                   src={block.url}
                   alt={block.alt || block.caption}
-                  loading="lazy"
-                  decoding="async"
+                  imgClass="w-full rounded-2xl object-cover shadow-soft"
+                  sizes="(min-width:768px) 768px, 100vw"
                 />
                 {#if block.caption}
                   <figcaption class="mt-2 text-xs italic text-ink/50">{block.caption}</figcaption>

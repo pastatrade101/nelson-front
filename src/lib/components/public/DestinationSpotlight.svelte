@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ArrowRight, Award, Calendar, Clock, Maximize2, MapPin, Sparkles, Star } from '@lucide/svelte';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { origUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import { destinationChips, destinationFacts, luxuryStars } from '$lib/destination-facts';
   import type { Destination, Tour } from '$lib/types';
 
@@ -30,7 +31,7 @@
     <!-- media -->
     <div class="group relative min-h-[260px] overflow-hidden bg-deep-green lg:min-h-[440px]">
       {#if image}
-        <img class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" src={imgUrl(image, 1100)} alt={destination.name} loading="eager" decoding="async" />
+        <ResponsiveImage src={origUrl(destination, 'banner_image_url', 'main_image_url', 'image_url')} fallbackSrc={image} width={1100} alt={destination.name} imgClass="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" sizes="(min-width:1024px) 45vw, 100vw" eager />
       {:else}
         <div class="absolute inset-0 flex items-center justify-center bg-[linear-gradient(135deg,rgba(28,26,22,1),rgba(74,55,40,0.92))]">
           <span class="font-serif text-[96px] font-light lowercase text-white/10 md:text-[130px]">{destination.name.charAt(0)}</span>

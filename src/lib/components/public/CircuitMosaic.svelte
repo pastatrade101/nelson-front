@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ArrowRight } from '@lucide/svelte';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { origUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import { destinationChips, destinationFacts } from '$lib/destination-facts';
   import type { Destination, Tour } from '$lib/types';
 
@@ -38,7 +39,7 @@
         <!-- image -->
         <div class={`group relative min-h-[300px] overflow-hidden bg-deep-green md:min-h-[420px] ${i % 2 ? 'md:order-2' : ''}`}>
           {#if img(d)}
-            <img class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" src={imgUrl(img(d), 1200)} alt={d.name} loading="lazy" decoding="async" />
+            <ResponsiveImage src={origUrl(d, 'banner_image_url', 'main_image_url', 'image_url')} fallbackSrc={img(d)} width={1200} alt={d.name} imgClass="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" sizes="(min-width:768px) 50vw, 100vw" />
             <span class="absolute inset-0 bg-[linear-gradient(180deg,transparent_50%,rgba(28,26,22,0.55)_100%)]"></span>
           {:else}
             <div class="absolute inset-0 flex items-center justify-center bg-[linear-gradient(135deg,rgba(28,26,22,1),rgba(74,55,40,0.92))]">

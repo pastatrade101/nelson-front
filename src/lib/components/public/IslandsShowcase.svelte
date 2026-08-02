@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ArrowRight } from '@lucide/svelte';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
+  import { origUrl, thumbUrl } from '$lib/img';
   import { destinationChips } from '$lib/destination-facts';
   import type { Destination, Tour } from '$lib/types';
 
@@ -31,7 +32,14 @@
           href={`/destinations/${d.slug}`}
         >
           {#if img(d)}
-            <img class="absolute inset-0 h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={imgUrl(img(d), i === 0 ? 1400 : 800)} alt={d.name} loading="lazy" decoding="async" />
+            <ResponsiveImage
+              src={origUrl(d, 'banner_image_url', 'main_image_url', 'image_url')}
+              fallbackSrc={img(d)}
+              alt={d.name}
+              sizes="(min-width:1024px) 50vw, 100vw"
+              width={i === 0 ? 1400 : 800}
+              imgClass="absolute inset-0 h-full w-full object-cover transition duration-[800ms] group-hover:scale-105"
+            />
           {:else}
             <div class="absolute inset-0 bg-[linear-gradient(135deg,#0f3b3a_0%,#0b2e3a_100%)]"></div>
           {/if}

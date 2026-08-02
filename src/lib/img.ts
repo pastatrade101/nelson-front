@@ -32,6 +32,18 @@ export const imgUrl = (url: string | null | undefined, width = 800, quality = 70
   }
 };
 
+// The ORIGINAL (full-size) image URL for a record — the first non-empty field in
+// the chain, ignoring thumbnails. Pass this to <ResponsiveImage src> so the
+// responsive AVIF/WebP variants (derived from the original) can be used.
+export const origUrl = (record: Record<string, any> | null | undefined, ...fields: string[]): string => {
+  if (!record) return '';
+  for (const field of fields) {
+    const value = record[field];
+    if (typeof value === 'string' && value) return value;
+  }
+  return '';
+};
+
 // Pick the best source URL for a record's image: prefer the server-attached
 // `<field>_thumbnail` (a small webp from media_library) over the full-size
 // original, walking a fallback chain of fields. Pass the result to imgUrl().

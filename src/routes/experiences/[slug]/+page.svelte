@@ -3,8 +3,10 @@
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
+  import { thumbUrl } from '$lib/img';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
   import { breadcrumbLd } from '$lib/seo';
   import type { Tour } from '$lib/types';
@@ -58,7 +60,7 @@
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Experiences', path: '/experiences' }, { name, path: `/experiences/${slug}` }])} />
   <section class="relative overflow-hidden bg-deep-green text-white">
     {#if image}
-      <img class="absolute inset-0 h-full w-full object-cover opacity-45" src={image} alt={name} />
+      <ResponsiveImage imgClass="absolute inset-0 h-full w-full object-cover opacity-45" src={image} fallbackSrc={thumbUrl(exp, 'image_url')} alt={name} sizes="100vw" eager priority />
     {/if}
     <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/80 to-deep-green/40"></div>
     <div class="container-shell relative py-14 md:py-20">

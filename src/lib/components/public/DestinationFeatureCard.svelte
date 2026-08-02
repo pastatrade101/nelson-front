@@ -1,12 +1,14 @@
 <script lang="ts">
   import { ArrowRight, Star } from '@lucide/svelte';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { origUrl, thumbUrl } from '$lib/img';
   import { bestForTags } from '$lib/destination-facts';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { Destination } from '$lib/types';
 
   export let destination: Destination;
 
   $: image = thumbUrl(destination, 'main_image_url', 'banner_image_url', 'image_url');
+  $: original = origUrl(destination, 'main_image_url', 'banner_image_url', 'image_url');
   $: region = destination.region || destination.country || 'Tanzania';
   $: blurb = destination.short_description || destination.description || '';
   $: tags = bestForTags(destination).slice(0, 2);
@@ -31,12 +33,13 @@
   aria-label={`Explore ${destination.name}`}
 >
   {#if image}
-    <img
-      class="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105"
-      src={imgUrl(image, 900)}
+    <ResponsiveImage
+      src={original}
+      fallbackSrc={image}
       alt={destination.name}
-      loading="lazy"
-      decoding="async"
+      width={900}
+      sizes="(min-width:1024px) 400px, (min-width:640px) 50vw, 100vw"
+      imgClass="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105"
     />
   {:else}
     <!-- branded fallback until a real photo is added — never a blank box -->

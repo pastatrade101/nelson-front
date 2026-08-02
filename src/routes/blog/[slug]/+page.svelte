@@ -3,12 +3,14 @@
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
+  import { thumbUrl } from '$lib/img';
   import { staggeredCardReveal } from '$lib/animations/motion';
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import DestinationCard from '$lib/components/public/DestinationCard.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import { breadcrumbLd } from '$lib/seo';
   import type { BlogPost, Destination } from '$lib/types';
@@ -85,7 +87,7 @@
       <p class="mt-4 text-lg leading-8 text-ink/70">{post.excerpt}</p>
     </div>
     {#if post.featured_image_url}
-      <img class="mt-8 aspect-[16/8] w-full rounded-lg object-cover shadow-soft" src={post.featured_image_url} alt={post.title} />
+      <ResponsiveImage imgClass="mt-8 aspect-[16/8] w-full rounded-lg object-cover shadow-soft" src={post.featured_image_url} fallbackSrc={thumbUrl(post, 'featured_image_url')} alt={post.title} sizes="100vw" eager priority />
     {/if}
     <div class="rich-content mt-8 max-w-3xl">
       {#if isHtml(post.content)}

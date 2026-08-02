@@ -1,14 +1,16 @@
 <script lang="ts">
   import { ArrowRight, MapPin, Sparkles, Star, Tent } from '@lucide/svelte';
-  import { imgUrl } from '$lib/img';
+  import { origUrl } from '$lib/img';
   import { lodgeBestForLabel, lodgeImage, lodgePriceLabel, lodgeRating, levelLabel, typeLabel } from '$lib/lodge';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { Lodge } from '$lib/types';
 
   export let lodge: Lodge;
   export let feature = false; // larger, two-column treatment for a standout property
 
   $: imageUrl = lodgeImage(lodge);
+  $: originalImage = origUrl(lodge, 'hero_image_url', 'image_url');
   $: priceLabel = lodgePriceLabel(lodge);
   $: rating = lodgeRating(lodge);
   $: bestForLabel = lodgeBestForLabel(lodge);
@@ -30,7 +32,14 @@
   <!-- image -->
   <div class={`relative overflow-hidden bg-deep-green ${feature ? 'min-h-[260px] md:min-h-full' : 'aspect-[4/3]'}`}>
     {#if imageUrl}
-      <img class="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105" src={imgUrl(imageUrl, feature ? 1200 : 720)} alt={lodge.name} loading="lazy" decoding="async" />
+      <ResponsiveImage
+        src={originalImage}
+        fallbackSrc={imageUrl}
+        alt={lodge.name}
+        width={feature ? 1200 : 720}
+        sizes={feature ? '(min-width:768px) 640px, 100vw' : '(min-width:1024px) 360px, (min-width:640px) 50vw, 100vw'}
+        imgClass="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105"
+      />
     {:else}
       <div class="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-[linear-gradient(135deg,rgba(21,55,51,0.98),rgba(74,55,40,0.92))] text-white/80">
         <Tent size={30} strokeWidth={1.4} />

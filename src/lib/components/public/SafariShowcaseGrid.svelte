@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ArrowRight, CalendarDays, MapPin } from '@lucide/svelte';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
-  import { imgUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import { isHtml } from '$lib/richtext';
   import type { Tour } from '$lib/types';
 
@@ -171,11 +171,14 @@
           href={card.href}
           aria-label={`View ${card.title}`}
         >
-          <img
-            class="absolute inset-0 h-full w-full object-cover transition duration-[900ms] ease-out group-hover:scale-105"
-            src={imgUrl(card.image, i === 0 ? 2000 : 1100, 78)}
+          <ResponsiveImage
+            imgClass="absolute inset-0 h-full w-full object-cover transition duration-[900ms] ease-out group-hover:scale-105"
+            src={card.image}
             alt={card.title}
-            loading={i < 2 ? 'eager' : 'lazy'}
+            width={i === 0 ? 2000 : 1100}
+            sizes={isCompact(i) ? '(min-width:1024px) 25vw, (min-width:768px) 50vw, 100vw' : '(min-width:768px) 50vw, 100vw'}
+            eager={i < 2}
+            priority={i === 0}
           />
           <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.38)_0%,rgba(28,26,22,0.62)_44%,rgba(28,26,22,0.95)_100%)]"></span>
           <span class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.66)_0%,rgba(28,26,22,0.18)_60%,rgba(28,26,22,0.30)_100%)]"></span>

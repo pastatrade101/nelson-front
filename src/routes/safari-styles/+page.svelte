@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { ArrowRight, ChevronDown, Compass, MapPin, MessageCircle, Quote, ShieldCheck, Sparkles, Users } from '@lucide/svelte';
   import { api } from '$lib/api/client';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { imgUrl, origUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import { fadeUpOnScroll, revealHeading, staggeredCardReveal } from '$lib/animations';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
@@ -23,6 +24,8 @@
   let styles: Style[] = [];
   let catStats: Record<string, Stat> = {};
   let heroImage = '';
+  let heroOrig = '';
+  let heroThumb = '';
   let destCount = 0;
   let loading = true;
   let failed = false;
@@ -57,6 +60,8 @@
       const withImg = (d: Destination) => thumbUrl(d, 'banner_image_url', 'main_image_url', 'image_url');
       const src = dests.find((d) => d.is_featured && withImg(d)) ?? dests.find((d) => withImg(d));
       heroImage = src ? imgUrl(withImg(src), 1920) : '';
+      heroThumb = src ? withImg(src) : '';
+      heroOrig = src ? origUrl(src, 'banner_image_url', 'main_image_url', 'image_url') : '';
     }
     loading = false;
   });
@@ -138,7 +143,7 @@
 <!-- ── cinematic hero ─────────────────────────────────────────────────────── -->
 <section class="relative overflow-hidden bg-deep-green text-white">
   {#if heroImage}
-    <img src={heroImage} alt="" class="absolute inset-0 h-full w-full object-cover object-center" decoding="async" />
+    <ResponsiveImage src={heroOrig} fallbackSrc={heroThumb} alt="" sizes="100vw" imgClass="absolute inset-0 h-full w-full object-cover object-center" width={1920} eager priority />
     <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.94)_0%,rgba(28,26,22,0.74)_48%,rgba(28,26,22,0.4)_100%)]"></div>
   {/if}
   <div class="container-shell relative py-20 md:py-28">
@@ -235,7 +240,7 @@
       <a href={`/tours?category=${featured.slug}`} class="group grid overflow-hidden border border-ink/10 bg-surface shadow-soft transition-shadow duration-300 hover:shadow-[0_28px_70px_rgba(28,26,22,0.18)] lg:grid-cols-2">
         <div class="relative min-h-[300px] overflow-hidden bg-deep-green lg:min-h-[480px]">
           {#if fImg}
-            <img src={fImg} alt={featured.name} loading="lazy" class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
+            <ResponsiveImage src={featured.image_url} fallbackSrc={thumbUrl(featured, 'image_url')} alt={featured.name} imgClass="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" sizes="(min-width:1024px) 50vw, 100vw" width={1400} />
           {:else}
             <div class="absolute inset-0 bg-[linear-gradient(150deg,#153733_0%,#0f2a2a_46%,rgba(74,55,40,0.96)_100%)]"></div>
             <span class="pointer-events-none absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(circle, #fff 1px, transparent 1.5px); background-size: 22px 22px;" aria-hidden="true"></span>
@@ -276,7 +281,7 @@
         <a href={`/tours?category=${style.slug}`} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
           <div class="relative aspect-[16/10] overflow-hidden bg-deep-green">
             {#if image}
-              <img src={image} alt={style.name} loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+              <ResponsiveImage src={style.image_url} fallbackSrc={thumbUrl(style, 'image_url')} alt={style.name} imgClass="h-full w-full object-cover transition duration-500 group-hover:scale-105" sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" width={900} />
             {:else}
               <div class="absolute inset-0 bg-[linear-gradient(150deg,#153733_0%,#0f2a2a_46%,rgba(74,55,40,0.96)_100%)]"></div>
               <span class="pointer-events-none absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(circle, #fff 1px, transparent 1.5px); background-size: 22px 22px;" aria-hidden="true"></span>
@@ -327,7 +332,7 @@
           <a href={`/tours?category=${style.slug}`} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
             <div class="relative aspect-[16/10] overflow-hidden bg-deep-green">
               {#if image}
-                <img src={image} alt={style.name} loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <ResponsiveImage src={style.image_url} fallbackSrc={thumbUrl(style, 'image_url')} alt={style.name} imgClass="h-full w-full object-cover transition duration-500 group-hover:scale-105" sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" width={900} />
               {:else}
                 <div class="absolute inset-0 bg-[linear-gradient(150deg,#153733_0%,#0f2a2a_46%,rgba(74,55,40,0.96)_100%)]"></div>
                 <span class="pointer-events-none absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(circle, #fff 1px, transparent 1.5px); background-size: 22px 22px;" aria-hidden="true"></span>
@@ -361,7 +366,7 @@
   <section class="container-shell py-16 md:py-20">
     <div class="relative overflow-hidden bg-deep-green px-6 py-14 text-center text-white md:px-12 md:py-20">
       {#if heroImage}
-        <img src={heroImage} alt="" class="absolute inset-0 h-full w-full object-cover object-center opacity-25" decoding="async" />
+        <ResponsiveImage src={heroOrig} fallbackSrc={heroThumb} alt="" sizes="100vw" imgClass="absolute inset-0 h-full w-full object-cover object-center opacity-25" width={1920} />
       {/if}
       <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
       <div class="relative mx-auto max-w-2xl">

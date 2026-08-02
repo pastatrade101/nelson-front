@@ -7,6 +7,7 @@
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import { breadcrumbLd, faqLd } from '$lib/seo';
   import type { Comparison } from '$lib/types';
 
@@ -94,10 +95,10 @@
   <!-- hero -->
   <section class="relative overflow-hidden bg-deep-green text-white">
     {#if cmp.a.image}
-      <img class="absolute inset-y-0 left-0 h-full w-1/2 object-cover opacity-40" src={cmp.a.image} alt="" />
+      <ResponsiveImage imgClass="absolute inset-y-0 left-0 h-full w-1/2 object-cover opacity-40" src={cmp.a.image} alt="" sizes="50vw" eager priority />
     {/if}
     {#if cmp.b.image}
-      <img class="absolute inset-y-0 right-0 h-full w-1/2 object-cover opacity-40" src={cmp.b.image} alt="" />
+      <ResponsiveImage imgClass="absolute inset-y-0 right-0 h-full w-1/2 object-cover opacity-40" src={cmp.b.image} alt="" sizes="50vw" eager priority />
     {/if}
     <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/80 to-deep-green/40"></div>
     <div class="container-shell relative py-14 md:py-20">

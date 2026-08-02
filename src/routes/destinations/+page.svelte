@@ -4,7 +4,8 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { imgUrl, origUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import { groupByCircuit } from '$lib/destination-facts';
   import DestinationSpotlight from '$lib/components/public/DestinationSpotlight.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
@@ -117,7 +118,7 @@
 <!-- page header -->
 <section class="relative overflow-hidden bg-deep-green text-white">
   {#if heroImage}
-    <img src={heroImage} alt={heroSource?.name ?? ''} class="absolute inset-0 h-full w-full object-cover object-center" decoding="async" />
+    <ResponsiveImage src={origUrl(heroSource, 'banner_image_url', 'main_image_url', 'image_url')} fallbackSrc={thumbUrl(heroSource, 'banner_image_url', 'main_image_url', 'image_url')} alt={heroSource?.name ?? ''} sizes="100vw" imgClass="absolute inset-0 h-full w-full object-cover object-center" width={1920} eager priority />
     <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.94)_0%,rgba(28,26,22,0.78)_45%,rgba(28,26,22,0.42)_100%)]"></div>
   {/if}
   <div class="container-shell relative py-16 md:py-24">

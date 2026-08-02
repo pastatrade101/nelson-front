@@ -1,7 +1,8 @@
 <script lang="ts">
   import { ArrowRight, Banknote, Compass, Globe } from '@lucide/svelte';
-  import { imgUrl } from '$lib/img';
+  import { origUrl, thumbUrl } from '$lib/img';
   import ScoreBars from '$lib/components/public/ScoreBars.svelte';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import type { Destination } from '$lib/types';
   import type { DestinationScores } from '$lib/data/destination-scores';
 
@@ -46,7 +47,16 @@
 <!-- Cinematic full-bleed hero -->
 <section class="relative min-h-[60vh] overflow-hidden bg-deep-green text-white md:min-h-[64vh]">
   {#if heroImage}
-    <img class="absolute inset-0 h-full w-full object-cover" src={imgUrl(heroImage, 2000)} alt={destination.name} />
+    <ResponsiveImage
+      src={origUrl(destination, 'banner_image_url', 'main_image_url', 'image_url')}
+      fallbackSrc={thumbUrl(destination, 'banner_image_url', 'main_image_url', 'image_url')}
+      alt={destination.name}
+      imgClass="absolute inset-0 h-full w-full object-cover"
+      sizes="100vw"
+      width={2000}
+      eager
+      priority
+    />
   {:else}
     <!-- branded fallback so the hero looks intentional before a photo is added -->
     <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(28,26,22,1)_0%,rgba(74,55,40,0.92)_100%)]"></div>

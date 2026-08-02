@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { CalendarDays, CheckCircle2, LogOut, MapPin, MessageCircle, Send, Users, Wallet } from '@lucide/svelte';
   import { api } from '$lib/api/client';
-  import { imgUrl } from '$lib/img';
+  import { thumbUrl } from '$lib/img';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
 
   type Payment = { amount: number; currency: string; payment_method?: string | null; transaction_reference?: string | null; status: string; paid_at?: string | null };
   type Day = { day_number: number; title: string; description?: string | null; accommodation?: string | null; meals?: string | null; activities?: string | null };
@@ -171,7 +172,7 @@
         <!-- Trip summary -->
         <div class="overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-soft">
           {#if trip.tour?.main_image_url}
-            <img class="h-44 w-full object-cover md:h-56" src={imgUrl(trip.tour.main_image_url, 1000)} alt={trip.tour?.title ?? 'Trip'} />
+            <ResponsiveImage imgClass="h-44 w-full object-cover md:h-56" src={trip.tour.main_image_url} fallbackSrc={thumbUrl(trip.tour, 'main_image_url')} alt={trip.tour?.title ?? 'Trip'} sizes="(min-width:1024px) 66vw, 100vw" width={1000} />
           {/if}
           <div class="grid grid-cols-2 gap-4 p-5 sm:grid-cols-3">
             <div class="flex items-start gap-2.5">

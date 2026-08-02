@@ -17,7 +17,8 @@
   import { api } from '$lib/api/client';
   import { fadeUpOnScroll, revealHeading } from '$lib/animations';
   import { brand } from '$lib/brand';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { origUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import type { Specialist, Tour } from '$lib/types';
 
   type Tab = { slug: string; name: string; tour: Tour };
@@ -193,7 +194,13 @@
             <div class={`grid aspect-[5/4] gap-3 ${gridClass}`}>
               {#each tiles as tile, i (tile.url)}
                 <a href={`/tours/${active.tour.slug}`} class={`group relative overflow-hidden rounded-2xl bg-skywash ${spanClass(i, tiles.length)}`}>
-                  <img class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" src={imgUrl(tile.url, 800)} alt={tile.caption || active.tour.title} loading="lazy" decoding="async" />
+                  <ResponsiveImage
+                    imgClass="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                    src={tile.url}
+                    alt={tile.caption || active.tour.title}
+                    width={800}
+                    sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                  />
                   {#if tile.caption}
                     <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent p-3">
                       <span class="text-sm font-semibold text-white drop-shadow">{tile.caption}</span>
@@ -205,7 +212,14 @@
           {:else}
             <div class="aspect-[5/4] overflow-hidden rounded-2xl bg-skywash">
               {#if active.tour.main_image_url}
-                <img class="h-full w-full object-cover" src={imgUrl(thumbUrl(active.tour, 'main_image_url'), 800)} alt={active.tour.title} loading="lazy" decoding="async" />
+                <ResponsiveImage
+                  imgClass="h-full w-full object-cover"
+                  src={origUrl(active.tour, 'main_image_url')}
+                  fallbackSrc={thumbUrl(active.tour, 'main_image_url')}
+                  alt={active.tour.title}
+                  width={800}
+                  sizes="(min-width:1024px) 50vw, 100vw"
+                />
               {/if}
             </div>
           {/if}

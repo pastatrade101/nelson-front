@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { origUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
+
   export let images: Record<string, unknown>[] = [];
 </script>
 
@@ -9,7 +12,13 @@
     <figure>
       <div class="aspect-[4/3] overflow-hidden rounded-lg bg-skywash">
         {#if typeof image.image_url === 'string'}
-          <img class="h-full w-full object-cover" src={image.image_url} alt={String(image.alt_text ?? image.title ?? 'Gallery image')} />
+          <ResponsiveImage
+            src={origUrl(image, 'image_url')}
+            fallbackSrc={thumbUrl(image, 'image_url')}
+            alt={String(image.alt_text ?? image.title ?? 'Gallery image')}
+            imgClass="h-full w-full object-cover"
+            sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+          />
         {/if}
       </div>
       {#if title || caption}

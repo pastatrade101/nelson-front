@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ArrowRight } from '@lucide/svelte';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { origUrl, thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import { destinationChips } from '$lib/destination-facts';
   import type { Destination, Tour } from '$lib/types';
 
@@ -35,7 +36,7 @@
           <div class="flex items-center gap-4">
             <div class="hidden h-16 w-24 shrink-0 overflow-hidden bg-deep-green sm:block">
               {#if img(d)}
-                <img class="h-full w-full object-cover" src={imgUrl(img(d), 240)} alt={d.name} loading="lazy" decoding="async" />
+                <ResponsiveImage src={origUrl(d, 'main_image_url', 'image_url', 'banner_image_url')} fallbackSrc={img(d)} width={240} alt={d.name} imgClass="h-full w-full object-cover" sizes="96px" />
               {:else}
                 <div class="h-full w-full bg-[linear-gradient(135deg,rgba(28,26,22,1),rgba(74,55,40,0.9))]"></div>
               {/if}

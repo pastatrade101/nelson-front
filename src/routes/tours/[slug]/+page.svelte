@@ -25,12 +25,13 @@
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
   import { staggeredCardReveal } from '$lib/animations/motion';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { origUrl, thumbUrl } from '$lib/img';
   import { publicSettings, settingText } from '$lib/settings';
   import BookingForm from '$lib/components/public/BookingForm.svelte';
   import EmailItineraryCapture from '$lib/components/public/EmailItineraryCapture.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import type { BlogPost, FAQ, ItineraryDay, Tour } from '$lib/types';
@@ -283,7 +284,7 @@
   </section>
 {:else}
   <section class="relative isolate min-h-[82vh] overflow-hidden bg-midnight text-white">
-    <img class="absolute inset-0 h-full w-full object-cover" src={imgUrl(heroImage, 1900, 78)} alt={tour.title} />
+    <ResponsiveImage imgClass="absolute inset-0 h-full w-full object-cover" src={heroImage} fallbackSrc={thumbUrl(tour, 'banner_image_url', 'main_image_url')} width={1900} alt={tour.title} sizes="100vw" eager priority />
     <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.86)_0%,rgba(28,26,22,0.58)_46%,rgba(28,26,22,0.24)_100%)]"></div>
     <div class="absolute inset-x-0 bottom-0 h-48 bg-[linear-gradient(180deg,rgba(28,26,22,0)_0%,rgba(28,26,22,1)_100%)]"></div>
 
@@ -495,7 +496,7 @@
         <div class="mt-12 grid gap-4 md:grid-cols-3">
           {#each detailImages as image, i}
             <div class={`overflow-hidden bg-deep-green ${i === 0 ? 'md:col-span-2' : ''}`}>
-              <img class="h-full min-h-[260px] w-full object-cover" src={imgUrl(image, i === 0 ? 1100 : 700, 76)} alt={`${tour.title} image ${i + 1}`} loading="lazy" />
+              <ResponsiveImage imgClass="h-full min-h-[260px] w-full object-cover" src={image} width={i === 0 ? 1100 : 700} alt={`${tour.title} image ${i + 1}`} sizes={i === 0 ? '(min-width:768px) 66vw, 100vw' : '(min-width:768px) 33vw, 100vw'} />
             </div>
           {/each}
         </div>
@@ -543,9 +544,9 @@
               </div>
               <div class="hidden overflow-hidden bg-midnight md:block">
                 {#if day.image_url}
-                  <img class="h-full min-h-[150px] w-full object-cover" src={imgUrl(day.image_url, 420, 72)} alt={day.title} loading="lazy" />
+                  <ResponsiveImage imgClass="h-full min-h-[150px] w-full object-cover" src={day.image_url} width={420} alt={day.title} sizes="220px" />
                 {:else}
-                  <img class="h-full min-h-[150px] w-full object-cover" src={imgUrl(heroImage, 420, 72)} alt={day.title} loading="lazy" />
+                  <ResponsiveImage imgClass="h-full min-h-[150px] w-full object-cover" src={heroImage} fallbackSrc={thumbUrl(tour, 'banner_image_url', 'main_image_url')} width={420} alt={day.title} sizes="220px" />
                 {/if}
               </div>
             </li>
@@ -568,7 +569,7 @@
           {#each galleryImages as image (image.id)}
             <figure class="tour-gallery-card group overflow-hidden border border-ink/10 bg-surface">
               <div class="aspect-[4/3] overflow-hidden bg-deep-green">
-                <img class="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={imgUrl(image.image_url, 800, 76)} alt={image.alt_text ?? tour.title} loading="lazy" />
+                <ResponsiveImage imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={image.image_url} fallbackSrc={thumbUrl(image, 'image_url')} width={800} alt={image.alt_text ?? tour.title} sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" />
               </div>
               {#if image.caption}
                 <figcaption class="px-5 py-4 text-[13px] font-medium leading-6 text-ink/64">{image.caption}</figcaption>
@@ -703,7 +704,7 @@
             <article class="related-tour-card border-b border-white/[0.08] bg-[#242118] md:border-b-0 md:border-r">
               <a class="group block h-full" href={`/tours/${item.slug}`}>
                 <div class="aspect-[16/10] overflow-hidden bg-midnight">
-                  <img class="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={imgUrl(tourCardImage(item), 800, 74)} alt={item.title} loading="lazy" />
+                  <ResponsiveImage imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={origUrl(item as unknown as Record<string, unknown>, 'main_image_url', 'banner_image_url')} fallbackSrc={tourCardImage(item)} width={800} alt={item.title} sizes="(min-width:768px) 33vw, 100vw" />
                 </div>
                 <div class="p-7">
                   <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/38">{item.duration_days ?? 1} days · {item.currency ?? 'USD'} {item.price_from?.toLocaleString() ?? 'on request'}</p>
@@ -736,7 +737,7 @@
             <article class={`planning-card group overflow-hidden border border-ink/10 bg-surface ${i < 2 ? 'md:col-span-2' : ''}`}>
               <a class="block h-full" href={`/blog/${post.slug}`}>
                 <div class={i < 2 ? 'aspect-[16/8]' : 'aspect-[16/10]'}>
-                  <img class="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={imgUrl(postCardImage(post), i < 2 ? 1000 : 620, 74)} alt={post.title} loading="lazy" />
+                  <ResponsiveImage imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={origUrl(post as unknown as Record<string, unknown>, 'featured_image_url')} fallbackSrc={postCardImage(post)} width={i < 2 ? 1000 : 620} alt={post.title} sizes={i < 2 ? '(min-width:768px) 50vw, 100vw' : '(min-width:768px) 25vw, 100vw'} />
                 </div>
                 <div class="p-6">
                   <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">{post.author_name ?? 'Emnel Journal'}</p>

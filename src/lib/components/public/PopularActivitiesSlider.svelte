@@ -3,6 +3,7 @@
   import { ArrowUpRight, MapPin, Timer } from '@lucide/svelte';
   import { fadeUpOnScroll, revealHeading, staggeredCardReveal, tilt } from '$lib/animations';
   import { api } from '$lib/api/client';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import type { Activity as ActivityRecord } from '$lib/types';
 
   type ActivityCard = {
@@ -128,11 +129,11 @@
           use:tilt={{ max: 5 }}
         >
           <a href={activity.href} class="relative block aspect-[16/10] overflow-hidden bg-skywash">
-            <img
-              class="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110"
+            <ResponsiveImage
               src={activity.image}
               alt={activity.title}
-              loading="lazy"
+              imgClass="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110"
+              sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
             />
             <span class="pointer-events-none absolute inset-0 bg-gradient-to-t from-deep-green/45 via-transparent to-transparent"></span>
 

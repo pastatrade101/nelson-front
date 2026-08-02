@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ArrowRight } from '@lucide/svelte';
   import { fadeUpOnScroll } from '$lib/animations';
-  import { imgUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import { isHtml } from '$lib/richtext';
 
   export let eyebrow = "The Founder's Story";
@@ -29,7 +29,13 @@
 <section class="bg-deep-green py-16 text-white md:py-24" use:fadeUpOnScroll={{ y: 14 }}>
   <div class="container-shell grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
     <figure class="relative min-h-[520px] overflow-hidden border border-white/[0.08] bg-midnight md:min-h-[680px]">
-      <img class="absolute inset-0 h-full w-full object-cover" src={imgUrl(imageUrl, 1000, 78)} alt="Emnel Adventures founder story" loading="lazy" />
+      <ResponsiveImage
+        src={imageUrl}
+        alt="Emnel Adventures founder story"
+        imgClass="absolute inset-0 h-full w-full object-cover"
+        sizes="(min-width:1024px) 50vw, 100vw"
+        width={1000}
+      />
       <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.03)_0%,rgba(28,26,22,0.16)_52%,rgba(28,26,22,0.86)_100%)]"></span>
       <figcaption class="absolute inset-x-0 bottom-0 border-l-4 border-goldfinch-gold px-7 py-8 font-serif text-xl italic leading-8 text-white/82">
         {imageCaption}

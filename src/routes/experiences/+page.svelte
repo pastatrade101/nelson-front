@@ -5,6 +5,7 @@
   import { revealHeading, staggeredCardReveal, tilt } from '$lib/animations';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
 
   type Experience = { name: string; slug: string; description: string; image_url: string };
 
@@ -51,7 +52,7 @@
       {#each experiences as exp (exp.slug)}
         <a class="group relative flex h-64 flex-col justify-end overflow-hidden rounded-none bg-deep-green shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]" href={`/experiences/${exp.slug}`} use:tilt={{ max: 5 }}>
           {#if exp.image_url}
-            <img class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" src={exp.image_url} alt={exp.name} loading="lazy" />
+            <ResponsiveImage imgClass="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" src={exp.image_url} alt={exp.name} sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" />
           {/if}
           <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/40 to-transparent"></div>
           <div class="relative p-5 text-white">
