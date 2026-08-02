@@ -1,88 +1,93 @@
 <script lang="ts">
-  import { ExternalLink, Sparkles, Star, Tent } from '@lucide/svelte';
-  import { tilt } from '$lib/animations';
-  import { imgUrl, thumbUrl } from '$lib/img';
+  import { ArrowRight, MapPin, Sparkles, Star, Tent } from '@lucide/svelte';
+  import { imgUrl } from '$lib/img';
+  import { lodgeBestForLabel, lodgeImage, lodgePriceLabel, lodgeRating, levelLabel, typeLabel } from '$lib/lodge';
+  import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
   import type { Lodge } from '$lib/types';
 
   export let lodge: Lodge;
+  export let feature = false; // larger, two-column treatment for a standout property
 
-  const levelLabels: Record<string, string> = {
-    budget: 'Budget',
-    mid_range: 'Mid-range',
-    luxury: 'Luxury',
-    ultra_luxury: 'Ultra-luxury'
+  $: imageUrl = lodgeImage(lodge);
+  $: priceLabel = lodgePriceLabel(lodge);
+  $: rating = lodgeRating(lodge);
+  $: bestForLabel = lodgeBestForLabel(lodge);
+  $: isLux = lodge.accommodation_level === 'luxury' || lodge.accommodation_level === 'ultra_luxury';
+  $: shortlistItem = {
+    slug: lodge.slug,
+    title: lodge.name,
+    image_url: imageUrl,
+    destination: lodge.destinations?.name,
+    price_from: lodge.price_per_night_from ?? undefined,
+    currency: lodge.currency
   };
-  const typeLabels: Record<string, string> = {
-    tented_camp: 'Tented camp',
-    lodge: 'Lodge',
-    hotel: 'Hotel',
-    mobile_camp: 'Mobile camp',
-    treehouse: 'Treehouse'
-  };
-
-  $: imageUrl = thumbUrl(lodge, 'image_url', 'hero_image_url');
-  $: priceLabel =
-    lodge.price_per_night_from != null
-      ? `${lodge.currency ?? 'USD'} ${Math.round(lodge.price_per_night_from).toLocaleString()}`
-      : '';
 </script>
 
-<article class="group flex h-full flex-col overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]" use:tilt={{ max: 5 }}>
-  <div class="relative aspect-[4/3] overflow-hidden bg-skywash">
+<a
+  href={`/accommodation/${lodge.slug}`}
+  class={`group relative flex h-full flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)] ${feature ? 'md:grid md:grid-cols-2' : ''}`}
+>
+  <!-- image -->
+  <div class={`relative overflow-hidden bg-deep-green ${feature ? 'min-h-[260px] md:min-h-full' : 'aspect-[4/3]'}`}>
     {#if imageUrl}
-      <img class="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110" src={imgUrl(imageUrl, 700)} alt={lodge.name} loading="lazy" decoding="async" />
+      <img class="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105" src={imgUrl(imageUrl, feature ? 1200 : 720)} alt={lodge.name} loading="lazy" decoding="async" />
     {:else}
-      <!-- branded placeholder until a real photo is added in the Media Library -->
-      <div class="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-[linear-gradient(135deg,rgba(28,26,22,0.96),rgba(74,55,40,0.9))] text-white/80">
+      <div class="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-[linear-gradient(135deg,rgba(21,55,51,0.98),rgba(74,55,40,0.92))] text-white/80">
         <Tent size={30} strokeWidth={1.4} />
-        <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/65">{typeLabels[lodge.lodge_type] ?? 'Lodge'}</span>
+        <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/65">{typeLabel(lodge)}</span>
       </div>
     {/if}
-    {#if lodge.is_featured}
-      <span class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-goldfinch-gold px-2.5 py-1 text-[11px] font-bold text-heading shadow">
-        <Sparkles size={12} /> Recommended
+    <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,24,0)_45%,rgba(13,22,20,0.72)_100%)]"></span>
+
+    <!-- badges -->
+    <div class="absolute left-3 top-3 flex flex-wrap items-center gap-2">
+      {#if lodge.is_featured}
+        <span class="inline-flex items-center gap-1 bg-goldfinch-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-deep-green shadow"><Sparkles size={11} strokeWidth={2.6} /> Recommended</span>
+      {:else if isLux}
+        <span class="bg-deep-green/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-goldfinch-gold backdrop-blur">{levelLabel(lodge)}</span>
+      {/if}
+    </div>
+    <div class="absolute right-3 top-3">
+      <ShortlistButton item={shortlistItem} />
+    </div>
+
+    {#if rating != null}
+      <span class="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-surface/90 px-2 py-1 text-[12px] font-bold text-heading backdrop-blur">
+        <Star size={12} fill="currentColor" class="text-goldfinch-gold" /> {rating.toFixed(1)}<span class="font-medium text-ink/45">/10</span>
       </span>
     {/if}
   </div>
-  <div class="flex flex-1 flex-col p-5">
-    <p class="text-xs font-semibold uppercase tracking-[0.12em] text-clay">
-      {levelLabels[lodge.accommodation_level] ?? lodge.accommodation_level} · {typeLabels[lodge.lodge_type] ?? lodge.lodge_type}
-    </p>
-    <h3 class="mt-2 text-lg font-bold tracking-normal text-ink">{lodge.name}</h3>
-    {#if lodge.why_we_recommend}
-      <p class="mt-2 line-clamp-3 text-sm leading-6 text-ink/70">{lodge.why_we_recommend}</p>
-    {:else if lodge.description}
-      <p class="mt-2 line-clamp-3 text-sm leading-6 text-ink/70">{lodge.description}</p>
+
+  <!-- body -->
+  <div class={`flex flex-1 flex-col p-5 ${feature ? 'md:justify-center md:p-8' : ''}`}>
+    <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-clay">{levelLabel(lodge)} · {typeLabel(lodge)}</p>
+    <h3 class={`mt-2 font-serif font-normal leading-tight text-heading ${feature ? 'text-[26px] md:text-[32px]' : 'text-[20px]'}`}>{lodge.name}</h3>
+    {#if lodge.destinations?.name}
+      <p class="mt-1 inline-flex items-center gap-1 text-[12px] font-semibold text-ink/50"><MapPin size={12} /> {lodge.destinations.name}</p>
     {/if}
 
-    {#if lodge.best_for?.length}
-      <div class="mt-3 flex flex-wrap gap-1.5">
-        {#each lodge.best_for.slice(0, 3) as tag}
-          <span class="rounded-full bg-sand px-2.5 py-1 text-[11px] font-semibold text-forest">{tag}</span>
+    {#if lodge.why_we_recommend || lodge.description}
+      <p class={`mt-3 leading-6 text-ink/70 ${feature ? 'text-[15px] md:line-clamp-4' : 'text-[14px] line-clamp-2'}`}>{lodge.why_we_recommend || lodge.description}</p>
+    {/if}
+
+    {#if bestForLabel || lodge.best_for?.length}
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        {#if bestForLabel}
+          <span class="border border-goldfinch-gold/40 bg-goldfinch-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{bestForLabel}</span>
+        {/if}
+        {#each (lodge.best_for ?? []).slice(0, feature ? 4 : 2) as tag}
+          <span class="border border-ink/10 bg-sand/50 px-2.5 py-1 text-[11px] font-semibold text-ink/65">{tag}</span>
         {/each}
       </div>
     {/if}
 
-    {#if lodge.website_url}
-      <a class="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-forest transition-colors hover:text-forest/70" href={lodge.website_url} target="_blank" rel="noopener">
-        <ExternalLink size={14} /> Visit website
-      </a>
-    {/if}
-
-    <div class="mt-auto flex items-center justify-between pt-4">
+    <div class="mt-auto flex items-center justify-between gap-3 pt-5">
+      <span class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition group-hover:text-goldfinch-gold">
+        View property <ArrowRight size={14} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
+      </span>
       {#if priceLabel}
-        <p class="text-sm text-ink/70">
-          <span class="font-bold text-ink">{priceLabel}</span> / night
-        </p>
-      {:else}
-        <span></span>
-      {/if}
-      {#if lodge.romantic_rating != null || lodge.family_rating != null}
-        <span class="inline-flex items-center gap-1 text-sm font-semibold text-goldfinch-gold">
-          <Star size={14} fill="currentColor" />
-          {Math.max(lodge.romantic_rating ?? 0, lodge.family_rating ?? 0).toFixed(1)}
-        </span>
+        <span class="shrink-0 text-right text-[13px] text-ink/60"><span class="font-bold text-heading">{priceLabel}</span> <span class="text-ink/45">/ night</span></span>
       {/if}
     </div>
   </div>
-</article>
+</a>
