@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
+  import { imgUrl, thumbUrl } from '$lib/img';
   import { groupByCircuit } from '$lib/destination-facts';
   import DestinationSpotlight from '$lib/components/public/DestinationSpotlight.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
@@ -17,7 +18,12 @@
   import FounderStorySection from '$lib/components/public/FounderStorySection.svelte';
   import GuestReviewsSection from '$lib/components/public/GuestReviewsSection.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
-  import type { BlogPost, Destination, FAQ, Testimonial } from '$lib/types';
+  import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
+
+  // Per-destination itinerary stats (real): count of published tours that
+  // reference it + the lowest price_from. Powers "N itineraries · from $X".
+  type TourStat = { count: number; from: number; currency: string; tours: Tour[] };
+  let tourStats: Record<string, TourStat> = {};
 
   let destinations: Destination[] = [];
   let posts: BlogPost[] = [];
@@ -38,15 +44,32 @@
     }
 
     // Supporting content for the lower sections — best-effort, never blocking.
-    const [p, t, f, h] = await Promise.allSettled([
+    const [p, t, f, h, tr] = await Promise.allSettled([
       api.blog.list({ status: 'published', limit: 8 }),
       api.testimonials.list({ status: 'published', limit: 6 }),
       api.faqs.list({ status: 'published', limit: 200 }),
-      api.homepage.get()
+      api.homepage.get(),
+      api.tours.list({ status: 'published', limit: 100 })
     ]);
     if (p.status === 'fulfilled') posts = p.value.data.items ?? [];
     if (t.status === 'fulfilled') testimonials = t.value.data.items ?? [];
     if (f.status === 'fulfilled') allFaqs = f.value.data.items ?? [];
+    if (tr.status === 'fulfilled') {
+      const stats: Record<string, TourStat> = {};
+      for (const tour of (tr.value.data.items ?? []) as Tour[]) {
+        const id =
+          (tour as unknown as { destinations?: { id?: string } }).destinations?.id ??
+          (tour as unknown as { destination_id?: string }).destination_id;
+        if (!id) continue;
+        const s = (stats[id] = stats[id] ?? { count: 0, from: Infinity, currency: 'USD', tours: [] });
+        s.count += 1;
+        s.tours.push(tour);
+        const price = tour.price_from ?? 0;
+        if (price > 0 && price < s.from) { s.from = price; s.currency = tour.currency || 'USD'; }
+      }
+      for (const s of Object.values(stats)) if (s.from === Infinity) s.from = 0;
+      tourStats = stats;
+    }
     if (h.status === 'fulfilled') {
       const founder = (h.value.data ?? []).find(
         (s) => (s as Record<string, unknown>).section_key === 'founder_story'
@@ -56,6 +79,12 @@
   });
 
   $: circuits = groupByCircuit(destinations);
+
+  // Hero banner: prefer a featured destination's photo, else any destination
+  // with an image; deep-green branded fallback when none has one yet.
+  const destImg = (d: Destination) => thumbUrl(d, 'banner_image_url', 'main_image_url', 'image_url');
+  $: heroSource = destinations.find((d) => d.is_featured && destImg(d)) ?? destinations.find((d) => destImg(d));
+  $: heroImage = heroSource ? imgUrl(destImg(heroSource), 1920) : '';
 
   // Tab selection lives in the URL (?d=slug) so it's deep-linkable + shareable.
   // No selection (or ?d=all) = the default "all destinations" editorial page.
@@ -86,14 +115,33 @@
 </svelte:head>
 
 <!-- page header -->
-<section class="bg-deep-green text-white">
-  <div class="container-shell py-16 md:py-20">
+<section class="relative overflow-hidden bg-deep-green text-white">
+  {#if heroImage}
+    <img src={heroImage} alt={heroSource?.name ?? ''} class="absolute inset-0 h-full w-full object-cover object-center" decoding="async" />
+    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.94)_0%,rgba(28,26,22,0.78)_45%,rgba(28,26,22,0.42)_100%)]"></div>
+  {/if}
+  <div class="container-shell relative py-16 md:py-24">
     <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">Safari destinations</p>
     <h1 class="mt-4 max-w-3xl font-serif text-4xl font-light leading-[1.08] md:text-6xl">Where to go on safari in Tanzania</h1>
     <p class="mt-5 max-w-2xl text-base leading-8 text-white/80 md:text-lg">
       One country, endless safari worlds. From the northern circuit's iconic parks to the wild, uncrowded south and the
       beaches of the Indian Ocean — here's how it all fits together, and how we help you choose.
     </p>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="#circuits" class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna">
+        Explore Destinations <ArrowRight size={16} strokeWidth={2.5} />
+      </a>
+      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 border border-white/30 px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold">
+        Plan My Safari
+      </a>
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/15 pt-6 text-[13px] font-medium text-white/80">
+      {#each ['Arusha-based since 2016', 'Tanzania-born guides', 'Private vehicles only', 'Tailor-made journeys'] as point}
+        <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-goldfinch-gold"></span>{point}</span>
+      {/each}
+    </div>
   </div>
 </section>
 
@@ -139,13 +187,15 @@
   <!-- Spotlight for the selected destination (editorial layout stays below) -->
   {#if spotlight}
     {#key spotlight.slug}
-      <DestinationSpotlight destination={spotlight} />
+      <DestinationSpotlight destination={spotlight} stat={tourStats[spotlight.id]} />
     {/key}
   {/if}
 
   <!-- Northern circuit — iconic parks mosaic -->
   {#if circuits.northern.length}
-    <CircuitMosaic destinations={circuits.northern} />
+    <div id="circuits" class="scroll-mt-24">
+      <CircuitMosaic destinations={circuits.northern} stats={tourStats} />
+    </div>
   {/if}
 
   <!-- Combine-parks CTA -->
@@ -160,12 +210,12 @@
 
   <!-- Southern & western circuits — table -->
   {#if circuits.beyond.length}
-    <CircuitTable destinations={circuits.beyond} />
+    <CircuitTable destinations={circuits.beyond} stats={tourStats} />
   {/if}
 
   <!-- Islands -->
   {#if circuits.islands.length}
-    <IslandsShowcase destinations={circuits.islands} />
+    <IslandsShowcase destinations={circuits.islands} stats={tourStats} />
   {/if}
 
   <!-- Planning hub — journal guides -->

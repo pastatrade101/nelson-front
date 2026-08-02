@@ -209,7 +209,7 @@
             <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
               <div class="flex items-center gap-3">
                 <span class="grid h-11 w-11 place-items-center rounded-xl bg-forest/10 text-forest"><ShieldCheck size={20} /></span>
-                <h3 class="text-lg font-bold text-ink">Is it safe?</h3>
+                <h3 class="text-lg font-serif font-normal text-ink">Is it safe?</h3>
               </div>
               <p class="mt-3 text-sm leading-7 text-ink/70">{destination.safety_overview}</p>
             </div>
@@ -266,7 +266,7 @@
               </div>
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                  <h3 class="text-base font-bold text-ink">{point.name}</h3>
+                  <h3 class="text-base font-serif font-normal text-ink">{point.name}</h3>
                   {#if point.airport_code}
                     <span class="rounded-md bg-forest/10 px-1.5 py-0.5 font-mono text-[11px] font-bold text-forest">{point.airport_code}</span>
                   {/if}
@@ -366,7 +366,7 @@
       <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
       <div class="pointer-events-none absolute -bottom-20 -left-12 h-56 w-56 rounded-full bg-savanna/15 blur-3xl"></div>
       <div class="relative mx-auto max-w-2xl">
-        <h2 class="text-2xl font-extrabold md:text-3xl">Ready to explore {destination.name}?</h2>
+        <h2 class="text-2xl font-serif font-light md:text-3xl">Ready to explore {destination.name}?</h2>
         <p class="mt-3 text-white/75">
           Tell us what you have in mind and a local expert will craft a tailored plan — no payment needed to start.
         </p>

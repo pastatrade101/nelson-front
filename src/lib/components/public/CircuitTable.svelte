@@ -1,10 +1,11 @@
 <script lang="ts">
   import { ArrowRight } from '@lucide/svelte';
   import { imgUrl, thumbUrl } from '$lib/img';
-  import { bestForTags } from '$lib/destination-facts';
-  import type { Destination } from '$lib/types';
+  import { destinationChips } from '$lib/destination-facts';
+  import type { Destination, Tour } from '$lib/types';
 
   export let destinations: Destination[] = [];
+  export let stats: Record<string, { count: number; from: number; currency: string; tours: Tour[] }> = {};
   export let eyebrow = 'Beyond the north';
   export let title = 'The southern & western circuits';
   export let intro = "Tanzania's wilder, less-visited parks — for travellers who want the full picture, with fewer vehicles and a more expedition-style pace.";
@@ -29,6 +30,7 @@
 
     <div class="divide-y divide-ink/10 border-b border-ink/10">
       {#each destinations as d (d.id)}
+        {@const s = stats[d.id]}
         <div class="grid items-center gap-5 py-6 lg:grid-cols-[2.2fr_1.4fr_auto] lg:gap-6">
           <div class="flex items-center gap-4">
             <div class="hidden h-16 w-24 shrink-0 overflow-hidden bg-deep-green sm:block">
@@ -43,12 +45,15 @@
               {#if d.short_description || d.description}
                 <p class="mt-1 line-clamp-2 text-sm leading-6 text-ink/65">{d.short_description || d.description}</p>
               {/if}
+              {#if s?.count}
+                <p class="mt-1.5 text-[12px] font-semibold text-clay">{s.count} itinerar{s.count === 1 ? 'y' : 'ies'}{#if s.from} · from {s.currency} {s.from.toLocaleString()}{/if}</p>
+              {/if}
             </div>
           </div>
 
           <div class="flex flex-wrap gap-1.5">
-            {#each bestForTags(d) as tag}
-              <span class="bg-surface px-2.5 py-1 text-[11px] font-semibold text-ink/70 shadow-sm">{tag}</span>
+            {#each destinationChips(d).slice(0, 3) as tag}
+              <span class="border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{tag}</span>
             {/each}
           </div>
 

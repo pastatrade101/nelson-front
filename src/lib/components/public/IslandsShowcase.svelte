@@ -1,9 +1,11 @@
 <script lang="ts">
   import { ArrowRight } from '@lucide/svelte';
   import { imgUrl, thumbUrl } from '$lib/img';
-  import type { Destination } from '$lib/types';
+  import { destinationChips } from '$lib/destination-facts';
+  import type { Destination, Tour } from '$lib/types';
 
   export let destinations: Destination[] = [];
+  export let stats: Record<string, { count: number; from: number; currency: string; tours: Tour[] }> = {};
   export let eyebrow = 'The islands';
   export let title = "Tanzania's islands";
   export let intro = 'Every northern-circuit safari can end on the Indian Ocean. Tanzania has three distinct islands — each with a different character, a different pace.';
@@ -22,6 +24,8 @@
 
     <div class="mt-10 grid gap-4 lg:grid-cols-2 lg:grid-rows-2">
       {#each [lead, ...rest] as d, i (d.id)}
+        {@const chips = destinationChips(d)}
+        {@const s = stats[d.id]}
         <a
           class={`group relative isolate flex min-h-[280px] flex-col justify-end overflow-hidden bg-deep-green p-6 text-white md:p-8 ${i === 0 ? 'lg:row-span-2 lg:min-h-[560px]' : ''}`}
           href={`/destinations/${d.slug}`}
@@ -39,9 +43,19 @@
             {#if d.short_description}
               <p class={`mt-2 max-w-lg leading-6 text-white/80 ${i === 0 ? 'text-[14px] md:text-[15px]' : 'text-[13px] line-clamp-2'}`}>{d.short_description}</p>
             {/if}
+            {#if chips.length}
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                {#each chips.slice(0, i === 0 ? 4 : 2) as chip}
+                  <span class="border border-white/25 bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur">{chip}</span>
+                {/each}
+              </div>
+            {/if}
             <span class="mt-4 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white transition group-hover:text-goldfinch-gold">
               Explore {d.name} <ArrowRight size={14} strokeWidth={2.5} class="transition group-hover:translate-x-1" />
             </span>
+            {#if s?.count}
+              <span class="mt-2 block text-[11px] text-white/60">{s.count} itinerar{s.count === 1 ? 'y' : 'ies'}{#if s.from} · from {s.currency} {s.from.toLocaleString()}{/if}</span>
+            {/if}
           </div>
         </a>
       {/each}
