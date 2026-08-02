@@ -122,7 +122,7 @@
         <span class="pointer-events-none absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, #1C1A16 1px, transparent 1.5px); background-size: 24px 24px;" aria-hidden="true"></span>
         <div class="relative">
           <p class="font-serif text-xl italic text-clay">Top Destinations</p>
-          <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>Explore Popular Destinations</h2>
+          <h2 class="mt-2 text-3xl font-serif font-light text-heading md:text-[40px]" use:revealHeading>Explore Popular Destinations</h2>
           <p class="mt-3 max-w-xl text-[15px] leading-7 text-ink/70">
             From the Serengeti's endless plains to Zanzibar's white-sand shores — handpicked places our local specialists know inside out.
           </p>
@@ -144,7 +144,7 @@
                   <!-- info panel: name peeks; full info on hover -->
                   <div class="absolute inset-x-0 bottom-0 translate-y-[calc(100%-4rem)] bg-gradient-to-t from-deep-green via-deep-green/85 to-deep-green/0 p-4 text-white transition-transform duration-300 ease-out group-hover:translate-y-0">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-savanna">Destination</p>
-                    <h3 class="text-lg font-extrabold leading-tight">{d.name}</h3>
+                    <h3 class="text-lg font-serif font-normal leading-tight">{d.name}</h3>
                     <p class="mt-1.5 line-clamp-2 text-sm leading-5 text-white/80">{taglineOf(d)}</p>
                     <span class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/40 px-4 py-1.5 text-sm font-bold transition group-hover:bg-surface group-hover:text-heading">
                       Discover <ArrowRight size={14} strokeWidth={2.6} />

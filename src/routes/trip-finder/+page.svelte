@@ -187,7 +187,7 @@
       <div class="text-center">
         <p class="font-serif text-xl italic text-clay">Trip Finder</p>
         {#key isResults}
-          <h1 class="mx-auto mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-tight text-heading md:text-[40px]" use:revealHeading>
+          <h1 class="mx-auto mt-4 max-w-xl text-3xl font-serif font-light leading-tight text-heading md:text-[40px]" use:revealHeading>
             {isResults ? 'Your best-fit trips' : 'Find the right trip in a minute'}
           </h1>
         {/key}
@@ -212,7 +212,7 @@
 
         <!-- question -->
         <div class="mt-8 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_18px_50px_rgba(28,26,22,0.07)] md:p-8">
-          <h2 class="text-xl font-bold text-heading md:text-2xl">{current.title}</h2>
+          <h2 class="text-xl font-serif font-normal text-heading md:text-2xl">{current.title}</h2>
           {#if current.subtitle}<p class="mt-1 text-sm text-ink/70">{current.subtitle}</p>{/if}
 
           <div class={`mt-6 grid gap-3 ${current.key === 'when' ? 'grid-cols-3 sm:grid-cols-4' : 'sm:grid-cols-2'}`}>
@@ -261,7 +261,7 @@
                     {#if rec.tour.duration_days}<span class="text-ink/70">{rec.tour.duration_days} days</span>{/if}
                     <span class="text-ink/70">from <span class="text-heading">{fmtPrice(rec.tour)}</span></span>
                   </div>
-                  <h3 class="mt-1 text-lg font-extrabold leading-snug text-heading">{rec.tour.title}</h3>
+                  <h3 class="mt-1 text-lg font-serif font-normal leading-snug text-heading">{rec.tour.title}</h3>
                   <p class="mt-1.5 inline-flex items-start gap-1.5 text-sm font-medium text-forest">
                     <Sparkles size={15} class="mt-0.5 shrink-0 text-goldfinch-gold" />{rec.reason}
                   </p>

@@ -54,7 +54,7 @@
   <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Destination Scores</p>
-    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-tight md:text-[44px]" use:revealHeading>How Tanzania's destinations really score</h1>
+    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-serif font-light leading-[1.1] md:text-[44px]" use:revealHeading>How Tanzania's destinations really score</h1>
     <p class="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">
       Our honest 1–10 ratings across wildlife, luxury, family, photography and adventure — so you can match the place to what matters to you.
     </p>
@@ -70,7 +70,7 @@
             {#if row.image}<img class="h-full w-full object-cover" src={row.image} alt={row.name} loading="lazy" />{/if}
           </div>
           <div>
-            <h2 class="text-lg font-extrabold text-heading">{row.name}</h2>
+            <h2 class="text-lg font-serif font-normal text-heading">{row.name}</h2>
             <p class="text-sm font-semibold text-clay">Best for {topDimension(row.scores)}{row.scores.budgetFromUsd ? ` · from $${row.scores.budgetFromUsd.toLocaleString()}pp` : ''}</p>
           </div>
         </div>
@@ -85,7 +85,7 @@
   </div>
 
   <div class="mt-12 overflow-hidden rounded-none bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
-    <h2 class="text-2xl font-extrabold md:text-3xl">Not sure which scores matter most for you?</h2>
+    <h2 class="text-2xl font-serif font-light md:text-3xl">Not sure which scores matter most for you?</h2>
     <p class="mx-auto mt-3 max-w-xl text-white/75">Tell us how you like to travel and we'll match the right destination — honestly.</p>
     <a class="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-heading transition hover:brightness-105" href="/plan-my-trip">Plan My Safari <ArrowRight size={18} /></a>
   </div>

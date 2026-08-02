@@ -199,7 +199,7 @@
     <div class="overflow-hidden rounded-none border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
       <p class="font-serif text-xl italic text-clay">For {personaCfg.label}</p>
       {#key personaCfg.headline}
-        <h1 class="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight text-heading md:text-4xl" use:revealHeading>{personaCfg.headline}</h1>
+        <h1 class="mt-2 max-w-2xl text-3xl font-serif font-light text-heading md:text-4xl" use:revealHeading>{personaCfg.headline}</h1>
       {/key}
       <p class="mt-3 max-w-2xl text-base leading-7 text-ink/70">{personaCfg.sub}</p>
       <div class="mt-5 flex flex-wrap gap-2.5">
@@ -213,7 +213,7 @@
     </div>
   {:else}
     <p class="font-serif text-xl italic text-clay">Safari Itineraries</p>
-    <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[40px]" use:revealHeading>Private Tanzania Safari Itineraries</h1>
+    <h1 class="mt-2 text-3xl font-serif font-light text-heading md:text-[40px]" use:revealHeading>Private Tanzania Safari Itineraries</h1>
     <p class="mt-3 max-w-3xl text-base leading-7 text-ink/70">
       Explore route ideas for private safaris, Kilimanjaro climbs and Zanzibar beach escapes.
       Use the filters to find the itinerary that fits your dates, budget and style.

@@ -152,7 +152,7 @@
         <div class="mt-9 grid items-stretch gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]" in:fade={{ duration: 220 }}>
           <!-- details card -->
           <div class="flex flex-col rounded-none bg-sand p-7 md:p-8">
-            <h3 class="text-2xl font-extrabold leading-tight text-ink md:text-3xl">{active.tour.title}</h3>
+            <h3 class="text-2xl font-serif font-light leading-tight text-ink md:text-3xl">{active.tour.title}</h3>
 
             {#if facts.length}
               <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-ink/70">

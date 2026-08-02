@@ -103,7 +103,7 @@
         <span class="font-medium text-white">{style.name}</span>
       </nav>
       <p class="font-serif text-xl italic text-savanna">{style.name}</p>
-      <h1 class="mt-2 max-w-3xl text-3xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">{style.emotionalPromise}</h1>
+      <h1 class="mt-2 max-w-3xl text-3xl font-serif font-light leading-[1.08] md:text-5xl">{style.emotionalPromise}</h1>
       <p class="mt-4 max-w-2xl text-[15px] leading-7 text-white/85 md:text-base">{style.description}</p>
       <div class="mt-6 flex flex-wrap gap-3">
         <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading transition hover:brightness-105" href={planHref}>
@@ -141,7 +141,7 @@
     {#if featured.length}
       <div class="mt-12">
         <div class="flex flex-wrap items-end justify-between gap-4">
-          <h2 class="text-2xl font-bold text-heading md:text-3xl">Trips to start from</h2>
+          <h2 class="text-2xl font-serif font-light text-heading md:text-3xl">Trips to start from</h2>
           <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href={toursHref}>Browse all <ArrowRight size={16} /></a>
         </div>
         <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -153,11 +153,11 @@
     {/if}
 
     <div class="mt-12">
-      <h2 class="text-xl font-bold text-heading">Other travel styles</h2>
+      <h2 class="text-xl font-serif font-normal text-heading">Other travel styles</h2>
       <div class="mt-4 grid gap-4 sm:grid-cols-3">
         {#each others as o (o.slug)}
           <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-surface p-5 transition hover:border-goldfinch-gold/40" href={`/travel-styles/${o.slug}`}>
-            <span class="font-extrabold text-heading">{o.name}</span>
+            <span class="font-serif font-normal text-heading">{o.name}</span>
             <ArrowRight size={18} class="shrink-0 text-ink/30 transition group-hover:text-forest" />
           </a>
         {/each}

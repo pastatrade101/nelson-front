@@ -63,7 +63,7 @@
           </span>
         </div>
 
-        <h2 class="mt-4 text-3xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-4xl lg:text-[42px]">
+        <h2 class="mt-4 text-3xl font-serif font-light leading-[1.08] text-white sm:text-4xl lg:text-[42px]">
           Find your perfect Tanzania trip in <span class="text-goldfinch-gold">60 seconds</span>.
         </h2>
 

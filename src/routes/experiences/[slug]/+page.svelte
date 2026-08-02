@@ -67,7 +67,7 @@
         <span class="text-white/30">/</span>
         <span class="font-medium text-white">{name}</span>
       </nav>
-      <h1 class="max-w-3xl text-3xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">{name}</h1>
+      <h1 class="max-w-3xl text-3xl font-serif font-light leading-[1.08] md:text-5xl">{name}</h1>
       {#if exp.description}<p class="mt-4 max-w-2xl text-[15px] leading-7 text-white/85 md:text-base">{String(exp.description)}</p>{/if}
       <div class="mt-6 flex flex-wrap gap-3">
         <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading transition hover:brightness-105" href={`/plan-my-trip?experience=${slug}`}>
@@ -106,7 +106,7 @@
     {#if tours.length}
       <div class="mt-12">
         <div class="flex flex-wrap items-end justify-between gap-4">
-          <h2 class="text-2xl font-bold text-heading md:text-3xl">{name} trips</h2>
+          <h2 class="text-2xl font-serif font-light text-heading md:text-3xl">{name} trips</h2>
           <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href={`/tours?experience=${slug}`}>
             See all <ArrowRight size={16} />
           </a>
@@ -121,7 +121,7 @@
   </section>
 {:else}
   <section class="container-shell py-20 text-center">
-    <h1 class="text-2xl font-bold text-heading">Experience not found</h1>
+    <h1 class="text-2xl font-serif font-light text-heading">Experience not found</h1>
     <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-heading" href="/experiences">All experiences <ArrowRight size={16} /></a>
   </section>
 {/if}

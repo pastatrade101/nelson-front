@@ -122,7 +122,7 @@
     <!-- No / invalid / expired session -->
     <div class="mx-auto max-w-lg rounded-2xl border border-ink/10 bg-surface p-8 text-center shadow-soft">
       <span class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-goldfinch-gold/10 text-goldfinch-gold"><MapPin size={22} /></span>
-      <h1 class="mt-4 text-xl font-bold text-heading">Access your trip</h1>
+      <h1 class="mt-4 text-xl font-serif font-normal text-heading">Access your trip</h1>
       <p class="mt-2 text-sm leading-6 text-ink/65">
         Enter the email on your booking and we’ll send a fresh, secure link to view your trip. (Your previous link may have expired or been replaced.)
       </p>
@@ -156,7 +156,7 @@
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <p class="text-xs font-bold uppercase tracking-[0.16em] text-goldfinch-gold">Your trip</p>
-        <h1 class="mt-1 text-2xl font-extrabold tracking-tight text-heading md:text-3xl">{trip.tour?.title ?? 'Your Tanzania safari'}</h1>
+        <h1 class="mt-1 text-2xl font-serif font-light text-heading md:text-3xl">{trip.tour?.title ?? 'Your Tanzania safari'}</h1>
         <p class="mt-1 text-sm text-ink/60">Booking reference <span class="font-mono font-bold text-ink/80">{trip.booking_code}</span></p>
       </div>
       <div class="flex items-center gap-2">
@@ -200,7 +200,7 @@
         <!-- Itinerary -->
         {#if trip.itinerary.length}
           <div class="rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft md:p-6">
-            <h2 class="text-lg font-bold text-heading">Day-by-day itinerary</h2>
+            <h2 class="text-lg font-serif font-normal text-heading">Day-by-day itinerary</h2>
             <ol class="mt-4 grid gap-4">
               {#each trip.itinerary as day (day.day_number)}
                 <li class="flex gap-4">
@@ -224,7 +224,7 @@
       <div class="grid content-start gap-6">
         <!-- Payments -->
         <div class="rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft md:p-6">
-          <div class="flex items-center gap-2"><Wallet size={18} class="text-forest" /><h2 class="text-lg font-bold text-heading">Payments</h2></div>
+          <div class="flex items-center gap-2"><Wallet size={18} class="text-forest" /><h2 class="text-lg font-serif font-normal text-heading">Payments</h2></div>
           <dl class="mt-4 grid gap-2.5 text-sm">
             <div class="flex items-center justify-between"><dt class="text-ink/55">Trip total</dt><dd class="font-semibold text-ink">{money(trip.estimated_amount, trip.currency)}</dd></div>
             <div class="flex items-center justify-between"><dt class="text-ink/55">Paid</dt><dd class="font-semibold text-forest">{money(trip.amount_paid, trip.currency)}</dd></div>
@@ -247,7 +247,7 @@
 
         <!-- Message -->
         <div class="rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft md:p-6">
-          <div class="flex items-center gap-2"><MessageCircle size={18} class="text-forest" /><h2 class="text-lg font-bold text-heading">Message your specialist</h2></div>
+          <div class="flex items-center gap-2"><MessageCircle size={18} class="text-forest" /><h2 class="text-lg font-serif font-normal text-heading">Message your specialist</h2></div>
           {#if messageSent}
             <div class="mt-4 flex items-start gap-2 rounded-xl border border-forest/20 bg-forest/[0.06] p-3 text-sm font-medium text-forest">
               <CheckCircle2 size={16} class="mt-0.5 shrink-0" /> Thanks — your message is with our team. We’ll reply by email shortly.

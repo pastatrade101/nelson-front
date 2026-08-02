@@ -161,7 +161,7 @@
   <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Scheduled Departures</p>
-    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-normal md:text-[44px]" use:revealHeading>
+    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-serif font-light leading-[1.1] tracking-normal md:text-[44px]" use:revealHeading>
       Confirmed Tanzania Safari Departure Dates
     </h1>
     <p class="mx-auto mt-4 max-w-2xl text-[15px] font-medium leading-7 text-white/75 md:text-lg">
@@ -231,7 +231,7 @@
               </div>
 
               <div class="flex flex-1 flex-col p-5">
-                <h3 class="text-lg font-extrabold leading-snug tracking-normal text-heading">{g.tour.tour_title}</h3>
+                <h3 class="text-lg font-serif font-normal leading-snug tracking-normal text-heading">{g.tour.tour_title}</h3>
                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                   {#if g.tour.destination_name}<span class="inline-flex items-center gap-1.5 font-semibold text-clay"><MapPin size={14} />{g.tour.destination_name}</span>{/if}
                   {#if g.tour.duration_days}<span class="inline-flex items-center gap-1.5 text-ink/70"><Clock size={14} class="text-forest" />{g.tour.duration_days} day{g.tour.duration_days === 1 ? '' : 's'}</span>{/if}

@@ -13,7 +13,7 @@
   <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
   <div class="container-shell relative py-14 md:py-20">
     <p class="font-serif text-xl italic text-savanna">{eyebrow}</p>
-    <h1 class="mt-3 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-tight md:text-5xl" use:revealHeading>{title}</h1>
+    <h1 class="mt-3 max-w-3xl text-3xl font-serif font-light leading-[1.1] md:text-5xl" use:revealHeading>{title}</h1>
     {#if intro}
       <p class="mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">{intro}</p>
     {/if}

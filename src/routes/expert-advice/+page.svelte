@@ -56,7 +56,7 @@
   <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Expert Advice</p>
-    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-[1.1] tracking-tight md:text-[44px]" use:revealHeading>
+    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-serif font-light leading-[1.1] md:text-[44px]" use:revealHeading>
       Honest guides to plan Tanzania with confidence
     </h1>
     <p class="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">
@@ -79,7 +79,7 @@
 {#if aiOn}
   <section class="container-shell py-12 md:py-16" use:fadeUpOnScroll={{ y: 16 }}>
     <p class="font-serif text-xl italic text-clay">Ask away</p>
-    <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[34px]" use:revealHeading>Popular questions, answered instantly</h2>
+    <h2 class="mt-2 text-3xl font-serif font-light text-heading md:text-[34px]" use:revealHeading>Popular questions, answered instantly</h2>
     <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">Tap a question and our AI safari advisor will answer it for you — grounded in real Emnel trips, with honest limitations.</p>
 
     <div class="mt-6 flex flex-wrap gap-2.5">
@@ -101,7 +101,7 @@
 <section class="bg-sand/30 py-12 md:py-16">
   <div class="container-shell">
     <p class="font-serif text-xl italic text-clay">Guides</p>
-    <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-[34px]" use:revealHeading>Latest planning guides</h2>
+    <h2 class="mt-2 text-3xl font-serif font-light text-heading md:text-[34px]" use:revealHeading>Latest planning guides</h2>
     <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">Practical, no-fluff reads from the team who plans these trips every day.</p>
 
     <div class="mt-8">
@@ -126,7 +126,7 @@
         <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest"><GitCompare size={20} /></span>
         <div>
           <p class="font-serif text-lg italic text-clay">Decision help</p>
-          <p class="mt-0.5 text-lg font-extrabold text-heading">Compare destinations &amp; routes side by side</p>
+          <p class="mt-0.5 text-lg font-serif font-normal text-heading">Compare destinations &amp; routes side by side</p>
         </div>
       </div>
       <a href="/compare" class="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-forest/20 bg-surface px-5 font-semibold text-forest transition group-hover:bg-sand/40">
@@ -141,7 +141,7 @@
   <section class="container-shell grid gap-8 py-12 md:grid-cols-[0.7fr_1.3fr] md:py-16" use:fadeUpOnScroll={{ y: 16 }}>
     <div>
       <p class="font-serif text-xl italic text-clay">Good to know</p>
-      <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-heading md:text-4xl" use:revealHeading>Frequently asked</h2>
+      <h2 class="mt-2 text-3xl font-serif font-light text-heading md:text-4xl" use:revealHeading>Frequently asked</h2>
       <p class="mt-3 text-[15px] leading-7 text-ink/70">The questions Tanzania safari travellers ask us most. Need something specific? A local specialist can help.</p>
       {#if aiOn}
         <button type="button" on:click={() => openAiAdvisor()} class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-forest transition hover:text-heading">
@@ -158,7 +158,7 @@
   <div class="relative overflow-hidden rounded-none bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
     <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
     <div class="relative mx-auto max-w-2xl">
-      <h2 class="text-2xl font-extrabold md:text-3xl">Still have questions?</h2>
+      <h2 class="text-2xl font-serif font-light md:text-3xl">Still have questions?</h2>
       <p class="mx-auto mt-3 text-white/75">Tell us what you're planning and a local expert will follow up — honest advice, no pressure.</p>
       <div class="mt-7 flex flex-wrap justify-center gap-3">
         {#if aiOn}

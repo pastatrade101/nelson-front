@@ -108,7 +108,7 @@
       </nav>
       <p class="font-serif text-xl italic text-savanna">{cmp.eyebrow}</p>
       {#key cmp.title}
-        <h1 class="mt-2 max-w-3xl text-3xl font-extrabold leading-[1.08] tracking-tight md:text-5xl" use:revealHeading>{cmp.title}</h1>
+        <h1 class="mt-2 max-w-3xl text-3xl font-serif font-light leading-[1.08] md:text-5xl" use:revealHeading>{cmp.title}</h1>
       {/key}
       <p class="mt-4 max-w-2xl text-[15px] leading-7 text-white/80 md:text-base">{cmp.intro}</p>
     </div>
@@ -119,8 +119,8 @@
     <div class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-soft">
       <div class="hidden grid-cols-[200px_1fr_1fr] border-b border-ink/10 bg-sand/40 sm:grid">
         <div class="p-4"></div>
-        <div class="p-4 text-center text-lg font-extrabold text-heading">{cmp.a.name}</div>
-        <div class="p-4 text-center text-lg font-extrabold text-heading">{cmp.b.name}</div>
+        <div class="p-4 text-center text-lg font-serif font-normal text-heading">{cmp.a.name}</div>
+        <div class="p-4 text-center text-lg font-serif font-normal text-heading">{cmp.b.name}</div>
       </div>
       {#each cmp.dimensions as dim, i}
         <div class={`grid sm:grid-cols-[200px_1fr_1fr] ${i % 2 ? 'bg-sand/20' : 'bg-surface'}`}>
@@ -149,7 +149,7 @@
 
     {#if cmp.faqs?.length}
       <div class="mt-10">
-        <h2 class="text-2xl font-bold text-heading">Common questions</h2>
+        <h2 class="text-2xl font-serif font-light text-heading">Common questions</h2>
         <div class="mt-4 grid gap-3">
           {#each cmp.faqs as faq}
             <div class="rounded-2xl border border-ink/10 bg-surface p-5">
@@ -165,13 +165,13 @@
 
     {#if others.length}
       <div class="mt-12">
-        <h2 class="text-xl font-bold text-heading">More comparisons</h2>
+        <h2 class="text-xl font-serif font-normal text-heading">More comparisons</h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           {#each others as o (o.slug)}
             <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-surface p-5 transition hover:border-goldfinch-gold/40" href={`/compare/${o.slug}`}>
               <span>
                 <span class="block text-xs font-bold uppercase tracking-[0.14em] text-clay">{o.eyebrow}</span>
-                <span class="mt-0.5 block font-extrabold text-heading">{o.title}</span>
+                <span class="mt-0.5 block font-serif font-normal text-heading">{o.title}</span>
               </span>
               <ArrowRight size={18} class="shrink-0 text-ink/30 transition group-hover:text-forest" />
             </a>

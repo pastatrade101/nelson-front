@@ -70,7 +70,7 @@
         {/if}
       </div>
 
-      <h3 class="absolute inset-x-0 bottom-0 p-4 text-xl font-extrabold leading-tight text-white drop-shadow">
+      <h3 class="absolute inset-x-0 bottom-0 p-4 text-xl font-serif font-normal leading-tight text-white drop-shadow">
         {tour.title}
       </h3>
     </div>
