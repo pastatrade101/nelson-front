@@ -1,20 +1,20 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { ArrowRight, ChevronDown, MapPin, MessageCircle, Quote, Search, ShieldCheck, Sparkles, X } from '@lucide/svelte';
   import { staggeredCardReveal, fadeUpOnScroll, revealHeading } from '$lib/animations/motion';
-  import { api } from '$lib/api/client';
   import { origUrl } from '$lib/img';
   import { lodgeImage, lodgeRating } from '$lib/lodge';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
-  import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import type { Lodge } from '$lib/types';
+  import type { PageData } from './$types';
 
-  let lodges: Lodge[] = [];
-  let loading = true;
-  let loadFailed = false;
+  export let data: PageData;
+
+  // lodges + loadFailed are SSR-loaded in +page.ts.
+  $: lodges = (data.lodges ?? []) as Lodge[];
+  $: loadFailed = data.loadFailed;
 
   let search = '';
   let activeDestination = 'All';
@@ -45,18 +45,6 @@
     { value: 'name', label: 'Name (A–Z)' }
   ];
   const LEVEL_RANK: Record<string, number> = { ultra_luxury: 4, luxury: 3, mid_range: 2, budget: 1 };
-
-  onMount(async () => {
-    try {
-      const res = await api.lodges.list({ status: 'published', limit: 200 });
-      lodges = res.data.items ?? [];
-    } catch {
-      loadFailed = true;
-      lodges = [];
-    } finally {
-      loading = false;
-    }
-  });
 
   $: destinations = ['All', ...new Set(lodges.map((l) => l.destinations?.name).filter((n): n is string => Boolean(n)))].sort((a, b) => (a === 'All' ? -1 : a.localeCompare(b)));
   $: typesPresent = [...new Set(lodges.map((l) => l.lodge_type))];
@@ -183,9 +171,7 @@
   </a>
 </section>
 
-{#if loading}
-  <section class="container-shell py-20"><LoadingState message="Loading lodges & camps..." /></section>
-{:else if loadFailed}
+{#if loadFailed}
   <section class="container-shell py-20"><ErrorState message="We couldn't load our lodges right now. Please refresh in a moment." /></section>
 {:else if !lodges.length}
   <section class="container-shell py-20"><EmptyState title="Lodges coming soon" message="Our hand-picked lodges and camps are being prepared. Please check back again shortly." /></section>

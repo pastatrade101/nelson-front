@@ -8,7 +8,6 @@
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import { groupByCircuit } from '$lib/destination-facts';
   import DestinationSpotlight from '$lib/components/public/DestinationSpotlight.svelte';
-  import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
@@ -20,30 +19,24 @@
   import GuestReviewsSection from '$lib/components/public/GuestReviewsSection.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   // Per-destination itinerary stats (real): count of published tours that
   // reference it + the lowest price_from. Powers "N itineraries · from $X".
   type TourStat = { count: number; from: number; currency: string; tours: Tour[] };
   let tourStats: Record<string, TourStat> = {};
 
-  let destinations: Destination[] = [];
+  // destinations + loadFailed are SSR-loaded in +page.ts.
+  $: destinations = (data.destinations ?? []) as Destination[];
+  $: loadFailed = data.loadFailed;
   let posts: BlogPost[] = [];
   let testimonials: Testimonial[] = [];
   let allFaqs: FAQ[] = [];
   let founderImage = '';
-  let loading = true;
-  let loadFailed = false;
 
   onMount(async () => {
-    try {
-      const res = await api.destinations.list({ status: 'published', limit: 100 });
-      destinations = res.data.items ?? [];
-    } catch {
-      loadFailed = true;
-    } finally {
-      loading = false;
-    }
-
     // Supporting content for the lower sections — best-effort, never blocking.
     const [p, t, f, h, tr] = await Promise.allSettled([
       api.blog.list({ status: 'published', limit: 8 }),
@@ -146,9 +139,7 @@
   </div>
 </section>
 
-{#if loading}
-  <section class="container-shell py-20"><LoadingState message="Loading destinations..." /></section>
-{:else if loadFailed}
+{#if loadFailed}
   <section class="container-shell py-20">
     <ErrorState message="We couldn't load destinations right now. Please refresh in a moment." />
   </section>

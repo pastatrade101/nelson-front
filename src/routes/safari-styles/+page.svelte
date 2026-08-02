@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { ArrowRight, ChevronDown, Compass, MapPin, MessageCircle, Quote, ShieldCheck, Sparkles, Users } from '@lucide/svelte';
-  import { api } from '$lib/api/client';
   import { imgUrl, origUrl, thumbUrl } from '$lib/img';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import { fadeUpOnScroll, revealHeading, staggeredCardReveal } from '$lib/animations';
-  import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import type { Destination } from '$lib/types';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   type Style = {
     name: string;
@@ -21,50 +21,31 @@
   };
   type Stat = { count: number; from: number; currency: string };
 
-  let styles: Style[] = [];
-  let catStats: Record<string, Stat> = {};
-  let heroImage = '';
-  let heroOrig = '';
-  let heroThumb = '';
-  let destCount = 0;
-  let loading = true;
-  let failed = false;
-
-  onMount(async () => {
-    const [catRes, tourRes, destRes] = await Promise.allSettled([
-      api.categories.list({ status: 'published', limit: 100 }),
-      api.tours.list({ status: 'published', limit: 100 }),
-      api.destinations.list({ status: 'published', limit: 100 })
-    ]);
-    if (catRes.status === 'fulfilled') {
-      styles = ((catRes.value.data.items ?? []) as unknown as Style[]).filter((s) => s.name && s.slug);
-    } else {
-      failed = true;
+  // All three lists are SSR-loaded in +page.ts and derived reactively here.
+  $: styles = ((data.categories ?? []) as unknown as Style[]).filter((s) => s.name && s.slug);
+  $: failed = data.failed;
+  $: catStats = ((): Record<string, Stat> => {
+    const stats: Record<string, Stat> = {};
+    for (const t of (data.tours ?? []) as Array<Record<string, unknown>>) {
+      const slug = (t.tour_categories as { slug?: string } | undefined)?.slug;
+      if (!slug) continue;
+      const s = (stats[slug] = stats[slug] ?? { count: 0, from: Infinity, currency: 'USD' });
+      s.count += 1;
+      const price = Number(t.price_from) || 0;
+      if (price > 0 && price < s.from) { s.from = price; s.currency = String(t.currency || 'USD'); }
     }
-    if (tourRes.status === 'fulfilled') {
-      const stats: Record<string, Stat> = {};
-      for (const t of (tourRes.value.data.items ?? []) as Array<Record<string, unknown>>) {
-        const slug = (t.tour_categories as { slug?: string } | undefined)?.slug;
-        if (!slug) continue;
-        const s = (stats[slug] = stats[slug] ?? { count: 0, from: Infinity, currency: 'USD' });
-        s.count += 1;
-        const price = Number(t.price_from) || 0;
-        if (price > 0 && price < s.from) { s.from = price; s.currency = String(t.currency || 'USD'); }
-      }
-      for (const s of Object.values(stats)) if (s.from === Infinity) s.from = 0;
-      catStats = stats;
-    }
-    if (destRes.status === 'fulfilled') {
-      const dests = (destRes.value.data.items ?? []) as Destination[];
-      destCount = dests.length;
-      const withImg = (d: Destination) => thumbUrl(d, 'banner_image_url', 'main_image_url', 'image_url');
-      const src = dests.find((d) => d.is_featured && withImg(d)) ?? dests.find((d) => withImg(d));
-      heroImage = src ? imgUrl(withImg(src), 1920) : '';
-      heroThumb = src ? withImg(src) : '';
-      heroOrig = src ? origUrl(src, 'banner_image_url', 'main_image_url', 'image_url') : '';
-    }
-    loading = false;
-  });
+    for (const s of Object.values(stats)) if (s.from === Infinity) s.from = 0;
+    return stats;
+  })();
+  $: destCount = ((data.destinations ?? []) as Destination[]).length;
+  $: heroSrc = ((): Destination | null => {
+    const dests = (data.destinations ?? []) as Destination[];
+    const withImg = (d: Destination) => thumbUrl(d, 'banner_image_url', 'main_image_url', 'image_url');
+    return dests.find((d) => d.is_featured && withImg(d)) ?? dests.find((d) => withImg(d)) ?? null;
+  })();
+  $: heroThumb = heroSrc ? thumbUrl(heroSrc, 'banner_image_url', 'main_image_url', 'image_url') : '';
+  $: heroOrig = heroSrc ? origUrl(heroSrc, 'banner_image_url', 'main_image_url', 'image_url') : '';
+  $: heroImage = heroThumb ? imgUrl(heroThumb, 1920) : '';
 
   const styleImg = (s: Style, w = 900) =>
     /^(https?:\/\/|\/)/.test(s.image_url ?? '') ? imgUrl(s.image_url ?? '', w) : '';
@@ -200,9 +181,7 @@
   </div>
 </section>
 
-{#if loading}
-  <section class="container-shell py-20"><LoadingState message="Loading safari styles..." /></section>
-{:else if failed}
+{#if failed}
   <section class="container-shell py-20"><ErrorState message="We couldn't load safari styles right now. Please refresh in a moment." /></section>
 {:else if !styles.length}
   <section class="container-shell py-20"><EmptyState title="Safari styles coming soon" message="Our safari styles are being prepared — check back again shortly." /></section>

@@ -1,34 +1,23 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { ArrowRight } from '@lucide/svelte';
-  import { api } from '$lib/api/client';
   import { revealHeading, staggeredCardReveal, tilt } from '$lib/animations';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
-  import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   type Experience = { name: string; slug: string; description: string; image_url: string };
 
-  let experiences: Experience[] = [];
-  let loading = true;
-
-  onMount(async () => {
-    try {
-      const res = await api.categories.list({ status: 'published', limit: 100 });
-      experiences = (res.data.items as Array<Record<string, unknown>>)
-        .filter((c) => c.slug)
-        .map((c) => ({
-          name: String(c.name ?? c.slug),
-          slug: String(c.slug),
-          description: c.description ? String(c.description) : '',
-          image_url: c.image_url ? String(c.image_url) : ''
-        }));
-    } catch {
-      experiences = [];
-    } finally {
-      loading = false;
-    }
-  });
+  // SSR-loaded categories (in +page.ts) mapped into experience cards.
+  $: experiences = ((data.categories ?? []) as Array<Record<string, unknown>>)
+    .filter((c) => c.slug)
+    .map((c) => ({
+      name: String(c.name ?? c.slug),
+      slug: String(c.slug),
+      description: c.description ? String(c.description) : '',
+      image_url: c.image_url ? String(c.image_url) : ''
+    }));
 </script>
 
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
@@ -43,9 +32,7 @@
 </section>
 
 <section class="container-shell py-12 md:py-16">
-  {#if loading}
-    <LoadingState message="Loading experiences..." />
-  {:else if experiences.length === 0}
+  {#if experiences.length === 0}
     <EmptyState title="Experiences coming soon" message="Tell us what you'd love to do and we'll plan it." />
   {:else}
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>

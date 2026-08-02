@@ -1,19 +1,18 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
-  import { onMount } from 'svelte';
   import { Check, MapPin, Search, SlidersHorizontal, Star, X } from '@lucide/svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
-  import { api } from '$lib/api/client';
   import { revealHeading, staggeredCardReveal } from '$lib/animations';
   import { EXPERIENCE_TO_CATEGORY, PERSONA_ORDER, PERSONAS } from '$lib/data/personas';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
-  import LoadingState from '$lib/components/public/LoadingState.svelte';
   import RangeSlider from '$lib/components/public/RangeSlider.svelte';
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import type { Tour } from '$lib/types';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   // ---- canonical comfort tiers ----
   const TIERS = [
@@ -30,10 +29,9 @@
     return v;
   };
 
-  // ---- data ----
-  let allTours: Tour[] = [];
-  let loading = true;
-  let error = '';
+  // ---- data (SSR-loaded in +page.ts) ----
+  $: allTours = (data.tours ?? []) as Tour[];
+  $: error = data.loadError ? 'Unable to load itineraries.' : '';
 
   // ---- local (non-URL) filter state ----
   let selectedTiers: string[] = [];
@@ -58,21 +56,6 @@
   })();
   $: personaCfg = persona ? PERSONAS[persona] : null;
 
-  const load = async () => {
-    loading = true;
-    error = '';
-    try {
-      const res = await api.tours.list({ status: 'published', limit: 100 });
-      allTours = res.data.items ?? [];
-    } catch (err) {
-      error = err instanceof Error ? err.message : 'Unable to load itineraries.';
-      allTours = [];
-    } finally {
-      loading = false;
-    }
-    initRanges();
-  };
-
   const initRanges = () => {
     const prices = allTours.map((t) => t.price_from ?? 0).filter((n) => n > 0);
     const durs = allTours.map((t) => t.duration_days ?? 0).filter((n) => n > 0);
@@ -87,7 +70,8 @@
     rangesReady = true;
   };
 
-  onMount(load);
+  // Compute the filter ranges once the (SSR-loaded) tours are available.
+  $: if (allTours.length && !rangesReady) initRanges();
 
   // ---- facet option lists (derived from the loaded tours) ----
   const distinctBy = <T,>(arr: T[], key: (x: T) => string | undefined) => {
@@ -338,7 +322,7 @@
           >
             <SlidersHorizontal size={15} /> Filters{#if activeCount}<span class="rounded-full bg-forest px-1.5 text-xs text-white">{activeCount}</span>{/if}
           </button>
-          <p class="text-sm text-ink/70">{#if !loading}<span class="font-bold text-ink">{sorted.length}</span> itinerar{sorted.length === 1 ? 'y' : 'ies'}{/if}</p>
+          <p class="text-sm text-ink/70"><span class="font-bold text-ink">{sorted.length}</span> itinerar{sorted.length === 1 ? 'y' : 'ies'}</p>
         </div>
         <label class="flex items-center gap-2 text-sm text-ink/70">
           Sort
@@ -381,9 +365,7 @@
       {/if}
 
       <div class="mt-6">
-        {#if loading}
-          <LoadingState message="Loading itineraries..." />
-        {:else if error && allTours.length === 0}
+        {#if error && allTours.length === 0}
           <ErrorState message={error} />
         {:else if sorted.length === 0}
           <EmptyState
