@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ArrowRight, Sparkle } from '@lucide/svelte';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
+  import { isHtml } from '$lib/richtext';
 
   type Metric = {
     value: string;
@@ -99,7 +100,11 @@
         <span class="block italic text-goldfinch-gold">{accentTitle}</span>
       </h2>
 
-      <p class="mt-8 text-[15px] font-medium leading-8 text-white/68 md:text-base">{content}</p>
+      {#if isHtml(content)}
+        <div class="cms-rich mt-8 text-[15px] font-medium leading-8 text-white/68 md:text-base">{@html content}</div>
+      {:else}
+        <p class="mt-8 text-[15px] font-medium leading-8 text-white/68 md:text-base">{content}</p>
+      {/if}
 
       <blockquote class="mt-8 border-l-2 border-goldfinch-gold pl-6 font-serif text-2xl italic leading-[1.45] text-goldfinch-gold md:text-[28px]">
         {quote}

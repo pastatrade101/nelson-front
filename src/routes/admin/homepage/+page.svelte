@@ -20,7 +20,8 @@
   import AdminPageHeader from '$lib/components/admin/AdminPageHeader.svelte';
   import AdminSelect from '$lib/components/admin/AdminSelect.svelte';
   import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
-  import AdminTextArea from '$lib/components/admin/AdminTextArea.svelte';
+  import RichTextEditor from '$lib/components/admin/RichTextEditor.svelte';
+  import { plainTextToHtml, richTextToStore } from '$lib/richtext';
   import ConfirmModal from '$lib/components/admin/ConfirmModal.svelte';
   import ToastStack from '$lib/components/admin/ToastStack.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
@@ -364,7 +365,9 @@
     form = {
       button_text: section.button_text ?? '',
       button_url: section.button_url ?? '',
-      content: section.content ?? '',
+      // Upgrade legacy plain-text bodies to paragraph HTML so their breaks
+      // survive the first open in the rich-text editor.
+      content: plainTextToHtml(section.content),
       image_url: section.image_url ?? '',
       is_active: section.is_active,
       section_key: section.section_key,
@@ -444,7 +447,7 @@
     const payload = {
       button_text: form.button_text.trim() || null,
       button_url: form.button_url.trim() || null,
-      content: form.content.trim() || null,
+      content: richTextToStore(form.content),
       extra_data: extra,
       image_url: form.image_url.trim() || null,
       is_active: form.is_active,
@@ -638,7 +641,14 @@
           <AdminFormInput label="Subtitle" name="subtitle" bind:value={form.subtitle} placeholder="Supporting line" />
         </div>
 
-        <AdminTextArea label="Content" name="content" bind:value={form.content} rows={3} placeholder="Optional body text for this section." />
+        <RichTextEditor
+          label="Content"
+          bind:value={form.content}
+          media={mediaItems}
+          uploadFolder="homepage"
+          minHeight="220px"
+          placeholder="Optional body text — add headings, links (internal links keep SEO value), lists and images…"
+        />
 
         <!-- image -->
         <div class="rounded-none border border-ink/10 bg-sand/25 p-4">

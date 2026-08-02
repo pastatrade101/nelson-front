@@ -2,6 +2,7 @@
   import { ArrowRight } from '@lucide/svelte';
   import { fadeUpOnScroll } from '$lib/animations';
   import { imgUrl } from '$lib/img';
+  import { isHtml } from '$lib/richtext';
 
   export let eyebrow = "The Founder's Story";
   export let title = 'Built in Tanzania.';
@@ -42,11 +43,15 @@
         <span class="block italic text-goldfinch-gold">{accentTitle}</span>
       </h2>
 
-      <div class="mt-8 space-y-6 text-[15px] font-medium leading-8 text-white/66 md:text-base">
-        {#each paragraphs as paragraph}
-          <p>{paragraph}</p>
-        {/each}
-      </div>
+      {#if isHtml(content)}
+        <div class="cms-rich mt-8 text-[15px] font-medium leading-8 text-white/66 md:text-base">{@html content}</div>
+      {:else}
+        <div class="mt-8 space-y-6 text-[15px] font-medium leading-8 text-white/66 md:text-base">
+          {#each paragraphs as paragraph}
+            <p>{paragraph}</p>
+          {/each}
+        </div>
+      {/if}
 
       <blockquote class="mt-8 border-l-2 border-goldfinch-gold pl-6 font-serif text-[23px] italic leading-[1.5] text-goldfinch-gold md:text-[28px]">
         {quote}

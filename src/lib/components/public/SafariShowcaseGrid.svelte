@@ -2,6 +2,7 @@
   import { ArrowRight, CalendarDays, MapPin } from '@lucide/svelte';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
   import { imgUrl } from '$lib/img';
+  import { isHtml } from '$lib/richtext';
   import type { Tour } from '$lib/types';
 
   type ShowcaseCard = {
@@ -147,7 +148,11 @@
         <h2 class="mt-5 font-serif text-[36px] font-light leading-[1.08] tracking-normal text-heading sm:text-[48px] lg:text-[56px]">
           {title} <span class="italic text-goldfinch-gold">{accentTitle}</span>
         </h2>
-        <p class="mt-6 text-[15px] font-medium leading-8 text-ink/70 md:text-base">{content}</p>
+        {#if isHtml(content)}
+          <div class="cms-rich mt-6 text-[15px] font-medium leading-8 text-ink/70 md:text-base">{@html content}</div>
+        {:else}
+          <p class="mt-6 text-[15px] font-medium leading-8 text-ink/70 md:text-base">{content}</p>
+        {/if}
       </div>
       <a class="inline-flex shrink-0 items-center gap-2 pb-1 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold transition hover:text-heading" href={ctaHref}>
         {ctaLabel}

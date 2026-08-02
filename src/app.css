@@ -230,6 +230,49 @@ select {
 }
 .rich-content th { background: rgb(var(--c-savanna)); font-weight: 700; }
 
+/* Context-inheriting rich text — for admin-authored CMS bodies rendered inside
+   bespoke sections (dark or light). Unlike .rich-content it inherits the
+   surrounding text colour/size, and only styles links, lists, headings and
+   quotes, so the same HTML reads correctly on any section background. */
+.cms-rich { color: inherit; }
+.cms-rich > :first-child { margin-top: 0; }
+.cms-rich > :last-child { margin-bottom: 0; }
+.cms-rich p { margin: 0 0 1em; }
+.cms-rich a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--c-goldfinch-gold));
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+.cms-rich a:hover { color: rgb(var(--c-goldfinch-gold)); }
+.cms-rich strong { font-weight: 700; }
+.cms-rich em { font-style: italic; }
+.cms-rich ul,
+.cms-rich ol { margin: 0 0 1em; padding-left: 1.35em; }
+.cms-rich ul { list-style: disc; }
+.cms-rich ol { list-style: decimal; }
+.cms-rich li { margin: 0.3em 0; }
+.cms-rich li > p { margin: 0; }
+.cms-rich h2,
+.cms-rich h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 1.1em 0 0.4em;
+}
+.cms-rich h2 { font-size: 1.5rem; }
+.cms-rich h3 { font-size: 1.25rem; }
+.cms-rich blockquote {
+  margin: 1.2em 0;
+  padding: 0.2em 1em;
+  border-left: 3px solid rgb(var(--c-goldfinch-gold));
+  font-style: italic;
+}
+.cms-rich img,
+.cms-rich .rich-img { max-width: 100%; height: auto; margin: 1.2em 0; display: block; }
+
 /* Editor-only chrome (TipTap / ProseMirror) */
 .pm-editor { padding: 1rem 1.15rem; min-height: inherit; }
 .pm-editor:focus,
