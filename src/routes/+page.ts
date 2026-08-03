@@ -1,4 +1,5 @@
 import type { PageLoad } from './$types';
+import { cachedJson } from '$lib/cache';
 
 // SSR-load the homepage CMS sections so the hero (image, title, CTAs) is in the
 // initial HTML. This lets the hero image be preloaded and become the LCP element
@@ -7,13 +8,10 @@ import type { PageLoad } from './$types';
 // the component's onMount — they aren't LCP-critical.
 export const load: PageLoad = async ({ fetch }) => {
   try {
-    const res = await fetch('/api/homepage');
-    if (res.ok) {
-      const body = await res.json();
-      const list = (body?.data ?? []) as Array<Record<string, unknown> & { section_key: string }>;
-      const sections = Object.fromEntries(list.map((s) => [s.section_key, s]));
-      return { sections };
-    }
+    const body = await cachedJson<{ data?: Array<Record<string, unknown> & { section_key: string }> }>('/api/homepage', fetch);
+    const list = body?.data ?? [];
+    const sections = Object.fromEntries(list.map((s) => [s.section_key, s]));
+    return { sections };
   } catch {
     // fall through — the component keeps its built-in default copy/imagery
   }

@@ -1,10 +1,19 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
   import { Cookie } from '@lucide/svelte';
   import { consent, setConsent } from '$lib/consent';
+
+  // Only decide visibility after mount. The server can't read localStorage, so an
+  // SSR-rendered banner would appear in the initial HTML and then vanish on
+  // hydration for anyone who already chose — the "disappears for no reason"
+  // flash. Waiting for mount shows it once, with the correct state, and it stays
+  // put until the visitor accepts or declines.
+  let mounted = false;
+  onMount(() => { mounted = true; });
 </script>
 
-{#if $consent === null}
+{#if mounted && $consent === null}
   <div
     class="fixed inset-x-3 bottom-3 z-[55] mx-auto max-w-3xl rounded-2xl border border-ink/10 bg-surface p-4 shadow-[0_18px_50px_rgba(28,26,22,0.22)] sm:inset-x-auto sm:left-4 sm:right-4 md:left-6 md:right-6"
     role="dialog"

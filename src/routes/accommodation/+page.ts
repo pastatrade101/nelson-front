@@ -1,15 +1,13 @@
 import type { PageLoad } from './$types';
 import type { Lodge } from '$lib/types';
+import { cachedJson } from '$lib/cache';
 
 // SSR-load the lodges so the accommodation grid is in the initial HTML rather
 // than a client-side fetch after hydration. Filtering/sorting stays client-side.
 export const load: PageLoad = async ({ fetch }) => {
   try {
-    const res = await fetch('/api/lodges?status=published&limit=200');
-    if (res.ok) {
-      const body = await res.json();
-      return { lodges: (body?.data?.items ?? []) as Lodge[], loadFailed: false };
-    }
+    const body = await cachedJson<{ data?: { items?: Lodge[] } }>('/api/lodges?status=published&limit=200', fetch);
+    return { lodges: body?.data?.items ?? [], loadFailed: false };
   } catch {
     // fall through to the error state
   }
