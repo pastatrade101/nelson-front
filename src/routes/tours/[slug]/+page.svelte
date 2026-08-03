@@ -238,7 +238,15 @@
 
     if (tour) {
       void loadRelated(tour);
-      trackEvent('tour_page_view', { tour_id: tour.id, tour_title: tour.title, destination: tour.destinations?.name });
+      trackEvent('tour_page_view', {
+        tour_id: tour.id,
+        tour_title: tour.title,
+        destination: tour.destinations?.name,
+        experience_type: tour.experience_type,
+        duration_days: tour.duration_days ?? undefined,
+        price_from: tour.price_from ?? undefined,
+        currency: tour.currency ?? undefined
+      });
     }
   };
 

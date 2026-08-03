@@ -299,9 +299,12 @@
         destination: destination_interest,
         budget_range: budget_per_person,
         traveller_type,
-        experience_type: experience_interests.join(', ')
+        experience_type: experience_interests.join(', '),
+        lead_type: 'plan_my_trip',
+        transaction_id: bookingCode || undefined
       });
     } catch (error) {
+      trackEvent('form_submit_error', { form_name: 'plan_my_trip', error_type: 'submit_failed' });
       errorMessage =
         error instanceof Error && error.message
           ? error.message

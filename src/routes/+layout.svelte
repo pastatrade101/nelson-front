@@ -1,6 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { navigating, page } from '$app/stores';
+  import { afterNavigate } from '$app/navigation';
   import { env as publicEnv } from '$env/dynamic/public';
   import { onMount } from 'svelte';
   import '../app.css';
@@ -19,6 +20,7 @@
   import { applyBranding, branding } from '$lib/branding';
   import { SITE_URL } from '$lib/config/env';
   import { aiAdvisorEnabled, loadPublicSettings, publicSettings } from '$lib/settings';
+  import { trackPageView } from '$lib/analytics';
 
   $: isAdmin = $page.url.pathname.startsWith('/admin');
 
@@ -54,11 +56,18 @@
   // longer loaded so there is only one chat launcher.
   $: aiOn = !isAdmin && aiAdvisorEnabled($publicSettings);
 
+  // Local dev / preview hosts must never pollute the production GA4 property.
+  const isProdHost = () =>
+    browser && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname) && !window.location.hostname.endsWith('.local');
+
   // Load GA4 (gtag) on the public site — gated by consent ('granted') above and a
-  // configured PUBLIC_GA4_MEASUREMENT_ID. This activates trackEvent's GA4 path.
+  // configured PUBLIC_GA4_MEASUREMENT_ID. send_page_view is off so the SPA
+  // page-view tracker (afterNavigate → trackPageView) is the single source of
+  // truth for page views; we send the current page once here to catch the entry
+  // page (afterNavigate for it already ran before gtag existed).
   const loadGa4 = () => {
     const id = publicEnv.PUBLIC_GA4_MEASUREMENT_ID;
-    if (!browser || !id || isAdmin || document.getElementById('ga4-src')) return;
+    if (!browser || !id || isAdmin || !isProdHost() || document.getElementById('ga4-src')) return;
     const script = document.createElement('script');
     script.id = 'ga4-src';
     script.async = true;
@@ -68,11 +77,19 @@
     w.dataLayer = w.dataLayer || [];
     w.gtag = function gtag() { w.dataLayer.push(arguments); };
     w.gtag('js', new Date());
-    w.gtag('config', id, { anonymize_ip: true });
+    w.gtag('config', id, { anonymize_ip: true, send_page_view: false });
+    trackPageView();
   };
 
   // Load GA4 only once the visitor has explicitly granted consent.
   $: if (browser && $consent === 'granted') loadGa4();
+
+  // One page_view per navigation (initial + every client-side route change,
+  // incl. back/forward). Deduped + query-stripped inside trackPageView. Public
+  // site only — the admin app is excluded from analytics.
+  afterNavigate(() => {
+    if (!isAdmin) trackPageView();
+  });
 
   onMount(() => {
     void setupGsap();

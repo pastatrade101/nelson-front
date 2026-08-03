@@ -190,8 +190,14 @@
       });
       bookingCode = String((res.data as Record<string, unknown>)?.booking_code ?? '');
       submitted = true;
-      trackEvent('begin_journey_submitted', { budget_range: budget, metadata: { contact_method } });
+      trackEvent('begin_journey_submitted', {
+        budget_range: budget,
+        lead_type: 'begin_your_journey',
+        transaction_id: bookingCode || undefined,
+        metadata: { contact_method }
+      });
     } catch (err) {
+      trackEvent('form_submit_error', { form_name: 'begin_your_journey', error_type: 'submit_failed' });
       errorMessage =
         err instanceof Error && err.message
           ? err.message

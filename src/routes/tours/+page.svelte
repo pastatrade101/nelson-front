@@ -1,8 +1,9 @@
 <script lang="ts">
   import { Check, MapPin, Search, SlidersHorizontal, Star, X } from '@lucide/svelte';
+  import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { trackEvent } from '$lib/analytics';
+  import { trackEvent, trackSearch } from '$lib/analytics';
   import { revealHeading, staggeredCardReveal } from '$lib/animations';
   import { EXPERIENCE_TO_CATEGORY, PERSONA_ORDER, PERSONAS } from '$lib/data/personas';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
@@ -128,6 +129,20 @@
       return Number(Boolean(b.is_popular)) - Number(Boolean(a.is_popular));
     });
   })();
+
+  // ── Analytics: fire view_item_list once, and a search event (deduped) per
+  // distinct search term with the settled results count. Never per keystroke —
+  // searchTerm is URL-driven, so it only changes on a committed search.
+  let listViewTracked = false;
+  $: if (browser && !listViewTracked && allTours.length) {
+    listViewTracked = true;
+    trackEvent('tour_list_view', { list_name: 'tours', results_count: allTours.length });
+  }
+  let lastSearchTracked = '';
+  $: if (browser && searchTerm && searchTerm !== lastSearchTracked) {
+    lastSearchTracked = searchTerm;
+    trackSearch({ search_term: searchTerm, results_count: sorted.length, list_name: 'tours' });
+  }
 
   // ---- URL writers ----
   const withParams = (changes: Record<string, string | null>) => {

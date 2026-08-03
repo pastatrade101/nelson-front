@@ -158,9 +158,12 @@
         tour_id: tour?.id,
         tour_title: tour?.title,
         budget_range,
-        experience_type: travel_interests.join(', ')
+        experience_type: travel_interests.join(', '),
+        lead_type: 'request_trip',
+        transaction_id: bookingCode || undefined
       });
     } catch (error) {
+      trackEvent('form_submit_error', { form_name: 'request_trip', tour_id: tour?.id, error_type: 'submit_failed' });
       errorMessage =
         error instanceof Error && error.message
           ? error.message
