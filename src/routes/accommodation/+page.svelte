@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from '$app/stores';
   import { ArrowRight, ChevronDown, MapPin, MessageCircle, Quote, Search, ShieldCheck, Sparkles, X } from '@lucide/svelte';
   import { staggeredCardReveal, fadeUpOnScroll, revealHeading } from '$lib/animations/motion';
   import { origUrl } from '$lib/img';
@@ -21,6 +22,23 @@
   let activeLevel = 'All';
   let activeType = 'All';
   let sortBy = 'recommended';
+
+  // Seed the filters from ?level= / ?type= / ?destination= so the nav mega-menu's
+  // "Browse by Style" links land pre-filtered. Re-applies only when the query
+  // string itself changes, so in-page filter changes are never overridden.
+  let lastQuery = '';
+  $: if ($page.url.search !== lastQuery) {
+    lastQuery = $page.url.search;
+    const sp = $page.url.searchParams;
+    const lvl = sp.get('level');
+    const typ = sp.get('type');
+    const dst = sp.get('destination');
+    const q = sp.get('search');
+    if (lvl) activeLevel = lvl;
+    if (typ) activeType = typ;
+    if (dst) activeDestination = dst;
+    if (q) search = q;
+  }
 
   const LEVELS = [
     { value: 'All', label: 'All styles' },

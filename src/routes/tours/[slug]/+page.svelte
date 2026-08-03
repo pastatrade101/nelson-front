@@ -158,6 +158,19 @@
   $: exclusions = [...(tour?.tour_exclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   // Pricing options + gallery images (embedded in the tour detail response).
   $: priceOptions = [...(tour?.tour_price_options ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+  // Elegant hero chips — from the tour's own real data (+ facts true of every
+  // Emnel safari: private & tailor-made). No invented ratings or numbers.
+  const HERO_TIER: Record<string, string> = { budget: 'Comfortable', 'mid-range': 'Mid-range', mid_range: 'Mid-range', luxury: 'Luxury', 'luxury-plus': 'Luxury+', luxury_plus: 'Luxury+', ultra_luxury: 'Luxury+' };
+  const HERO_PERSONA: Record<string, string> = { honeymoon: 'honeymoon', couple: 'couples', family: 'families', 'first-time-visitor': 'first-timers', 'first-time-safari': 'first-timers', 'luxury-traveller': 'luxury travellers', photographer: 'photographers', 'wildlife-enthusiast': 'wildlife lovers', 'wildlife-focused': 'wildlife lovers', 'multi-generational': 'multi-gen families', solo: 'solo travellers' };
+  $: heroPerfectFor = [...new Set((tour?.persona_tags ?? []).map((p) => HERO_PERSONA[p]).filter(Boolean))].slice(0, 2) as string[];
+  $: heroChips = [
+    tour?.budget_tier ? (HERO_TIER[tour.budget_tier] ?? tour.budget_tier) : null,
+    'Private & tailor-made',
+    tour?.experience_type === 'safari-beach' ? 'Safari + beach' : null,
+    tour?.difficulty_level ? `${tour.difficulty_level} pace` : null,
+    ...heroPerfectFor.map((p) => `Perfect for ${p}`)
+  ].filter(Boolean) as string[];
   $: galleryImages = [...(tour?.tour_images ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: highlights = tour?.highlights ?? [];
   $: groupSize = tour
@@ -262,16 +275,49 @@
   ]).slice(0, 3);
   $: planningCards = recentPosts.slice(0, 6);
   $: tourNavLinks = [
-    { href: '#overview', label: 'Overview', show: true },
-    { href: '#highlights', label: 'Highlights', show: highlights.length > 0 || fitTags.length > 0 },
-    { href: '#itinerary', label: 'Itinerary', show: displayDays.length > 0 },
-    { href: '#gallery', label: 'Gallery', show: galleryImages.length > 0 },
-    { href: '#included', label: 'Included', show: inclusions.length > 0 || exclusions.length > 0 },
-    { href: '#pricing', label: 'Pricing', show: priceOptions.length > 0 },
-    { href: '#related', label: 'More Trips', show: relatedTours.length > 0 },
-    { href: '#planning', label: 'Planning', show: planningCards.length > 0 },
-    { href: '#faqs', label: 'FAQs', show: faqs.length > 0 }
+    { key: 'overview', label: 'Overview', show: true },
+    { key: 'highlights', label: 'Highlights', show: highlights.length > 0 || fitTags.length > 0 },
+    { key: 'itinerary', label: 'Itinerary', show: displayDays.length > 0 },
+    { key: 'gallery', label: 'Gallery', show: galleryImages.length > 0 },
+    { key: 'included', label: 'Included', show: inclusions.length > 0 || exclusions.length > 0 },
+    { key: 'pricing', label: 'Pricing', show: priceOptions.length > 0 },
+    { key: 'related', label: 'More Trips', show: relatedTours.length > 0 },
+    { key: 'planning', label: 'Planning', show: planningCards.length > 0 },
+    { key: 'faqs', label: 'FAQs', show: faqs.length > 0 }
   ].filter((link) => link.show);
+
+  // Tabbed content: only the active section renders, so the page stays short —
+  // hero → stat stripe → sticky tabs → one section → enquiry → footer.
+  let activeTab = 'overview';
+  $: if (tourNavLinks.length && !tourNavLinks.some((l) => l.key === activeTab)) activeTab = tourNavLinks[0].key;
+
+  // The global navbar is a sticky bar (top:0, z-40) on inner pages, so the tab
+  // bar must pin *below* it — pinning it at top:0 too just hides it behind the
+  // navbar. Measure the navbar's live height and use it as the tab bar's offset.
+  const navHeight = () => document.querySelector('header')?.getBoundingClientRect().height ?? 0;
+  function stickBelowNav(node: HTMLElement) {
+    const apply = () => { node.style.top = `${Math.round(navHeight())}px`; };
+    apply();
+    requestAnimationFrame(apply);
+    window.addEventListener('resize', apply);
+    return { destroy() { window.removeEventListener('resize', apply); } };
+  }
+
+  // A non-sticky marker sitting just above the tab bar: its document position is
+  // the tabs' resting offset — constant, and unaffected both by the sticky shift
+  // and by which panel is open — which is exactly what we scroll back to.
+  let tabsAnchorEl: HTMLElement | undefined;
+  const selectTab = (key: string) => {
+    activeTab = key;
+    if (typeof window === 'undefined' || !tabsAnchorEl) return;
+    const restY = tabsAnchorEl.getBoundingClientRect().top + window.scrollY;
+    const target = Math.max(0, restY - navHeight());
+    // Only ever pull the view UP to the top of the panel — never down into it —
+    // so switching tabs keeps the sticky bar in place with the panel fresh below.
+    // (`overflow-anchor: none` on #main-content stops the browser's own
+    // scroll-anchoring from fighting this when the panel height changes.)
+    if (window.scrollY > target + 4) window.scrollTo({ top: target });
+  };
 </script>
 
 {#if loading}
@@ -285,8 +331,10 @@
 {:else}
   <section class="relative isolate min-h-[82vh] overflow-hidden bg-midnight text-white">
     <ResponsiveImage imgClass="absolute inset-0 h-full w-full object-cover" src={heroImage} fallbackSrc={thumbUrl(tour, 'banner_image_url', 'main_image_url')} width={1900} alt={tour.title} sizes="100vw" eager priority />
-    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.86)_0%,rgba(28,26,22,0.58)_46%,rgba(28,26,22,0.24)_100%)]"></div>
-    <div class="absolute inset-x-0 bottom-0 h-48 bg-[linear-gradient(180deg,rgba(28,26,22,0)_0%,rgba(28,26,22,1)_100%)]"></div>
+    <!-- cinematic overlays: darker on the left, plus a top + bottom vignette so
+         the image reads clean in the centre-right and the text stays legible -->
+    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,18,15,0.9)_0%,rgba(20,18,15,0.55)_44%,rgba(20,18,15,0.12)_100%)]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.72)_0%,rgba(20,18,15,0.05)_26%,rgba(20,18,15,0.12)_56%,rgba(20,18,15,0.97)_100%)]"></div>
 
     <div class="container-shell relative flex min-h-[82vh] flex-col justify-end pb-10 pt-28 md:pb-14">
       <nav class="mb-8 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-white/58">
@@ -297,14 +345,22 @@
         <span class="text-white/78">{tour.title}</span>
       </nav>
 
-      <div class="max-w-[920px]">
+      <div class="max-w-[660px]">
         <p class="brand-eyebrow text-goldfinch-gold">{categoryName} · {destinationName}</p>
-        <h1 class="mt-5 max-w-[880px] font-serif text-[48px] font-light leading-[0.98] tracking-normal text-white sm:text-[66px] lg:text-[82px]">
+        <h1 class="mt-4 max-w-[620px] font-serif text-[34px] font-light leading-[1.05] tracking-normal text-white sm:text-[44px] lg:text-[54px]">
           {tour.title}
         </h1>
-        <p class="mt-6 line-clamp-4 max-w-[720px] text-base font-medium leading-8 text-white/72 md:text-lg">
+        <p class="mt-5 line-clamp-3 max-w-[540px] text-[15px] font-medium leading-7 text-white/72 md:text-base">
           {tour.short_description ?? tour.full_description}
         </p>
+
+        {#if heroChips.length}
+          <div class="mt-6 flex flex-wrap gap-2">
+            {#each heroChips as chip}
+              <span class="border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/85 backdrop-blur">{chip}</span>
+            {/each}
+          </div>
+        {/if}
 
         <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
           <button
@@ -330,34 +386,45 @@
         </div>
       </div>
 
-      <div class="mt-12 grid border-y border-white/[0.12] md:grid-cols-4">
-        <div class="border-b border-white/[0.12] py-5 md:border-b-0 md:border-r md:px-6">
-          <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/42">Duration</p>
-          <p class="mt-2 font-serif text-2xl text-white">{durationText}</p>
-        </div>
-        <div class="border-b border-white/[0.12] py-5 md:border-b-0 md:border-r md:px-6">
-          <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/42">From</p>
-          <p class="mt-2 font-serif text-2xl text-white">{priceText}</p>
-        </div>
-        <div class="border-b border-white/[0.12] py-5 md:border-b-0 md:border-r md:px-6">
-          <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/42">Route</p>
-          <p class="mt-2 font-serif text-2xl text-white">{routeLabel}</p>
-        </div>
-        <div class="py-5 md:px-6">
-          <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/42">Style</p>
-          <p class="mt-2 font-serif text-2xl text-white">{tour.budget_tier ?? categoryName}</p>
-        </div>
-      </div>
     </div>
   </section>
 
-  <div class="sticky top-0 z-30 border-y border-white/[0.08] bg-deep-green/95 text-white shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur">
+  <!-- quick-facts stripe: a solid band beneath the hero, not overlaid on the image -->
+  <div class="border-b border-white/10 bg-deep-green text-white">
+    <div class="container-shell grid md:grid-cols-4">
+      <div class="border-b border-white/[0.12] py-5 md:border-b-0 md:border-r md:px-6 md:first:pl-0">
+        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Duration</p>
+        <p class="mt-2 font-serif text-2xl font-light text-white">{durationText}</p>
+      </div>
+      <div class="border-b border-white/[0.12] py-5 md:border-b-0 md:border-r md:px-6">
+        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">From</p>
+        <p class="mt-2 font-serif text-2xl font-light text-white">{priceText}</p>
+      </div>
+      <div class="border-b border-white/[0.12] py-5 md:border-b-0 md:border-r md:px-6">
+        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Route</p>
+        <p class="mt-2 font-serif text-2xl font-light text-white">{routeLabel}</p>
+      </div>
+      <div class="py-5 md:px-6">
+        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Style</p>
+        <p class="mt-2 font-serif text-2xl font-light text-white">{tour.budget_tier ?? categoryName}</p>
+      </div>
+    </div>
+  </div>
+
+  <div bind:this={tabsAnchorEl} aria-hidden="true"></div>
+  <div id="tour-tabs" use:stickBelowNav class="sticky top-0 z-30 border-y border-white/[0.08] bg-deep-green/95 text-white shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur">
     <div class="container-shell flex min-h-[64px] items-center justify-between gap-4">
-      <div class="flex min-w-0 flex-1 gap-1 overflow-x-auto py-2">
+      <div class="hide-scroll flex min-w-0 flex-1 gap-1 overflow-x-auto" role="tablist" aria-label="Itinerary sections">
         {#each tourNavLinks as link}
-          <a class="shrink-0 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white/62 transition hover:text-goldfinch-gold" href={link.href}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === link.key}
+            class={`shrink-0 border-b-2 px-3.5 py-4 text-[11px] font-bold uppercase tracking-[0.16em] transition ${activeTab === link.key ? 'border-goldfinch-gold text-goldfinch-gold' : 'border-transparent text-white/62 hover:text-white'}`}
+            on:click={() => selectTab(link.key)}
+          >
             {link.label}
-          </a>
+          </button>
         {/each}
       </div>
       <button class="hidden h-10 shrink-0 items-center gap-2 border border-goldfinch-gold px-4 text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green md:inline-flex" type="button" on:click={openForm}>
@@ -366,7 +433,7 @@
     </div>
   </div>
 
-  <section id="overview" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+  <section id="overview" class:hidden={activeTab !== 'overview'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
     <div class="container-shell grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
       <div>
         <p class="brand-eyebrow text-goldfinch-gold">Private safari design</p>
@@ -451,7 +518,7 @@
     </div>
   </section>
 
-  <section id="highlights" class="scroll-mt-28 border-y border-[#C5A265]/16 bg-[#16130F] py-16 text-[#FAFAF7] md:py-24">
+  <section id="highlights" class:hidden={activeTab !== 'highlights'} class="scroll-mt-28 border-y border-[#C5A265]/16 bg-[#16130F] py-16 text-[#FAFAF7] md:py-24">
     <div class="container-shell">
       <div class="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
         <div class="max-w-[650px]">
@@ -505,7 +572,7 @@
   </section>
 
   {#if displayDays.length}
-    <section id="itinerary" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+    <section id="itinerary" class:hidden={activeTab !== 'itinerary'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
       <div class="container-shell">
         <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div class="max-w-[720px]">
@@ -557,7 +624,7 @@
   {/if}
 
   {#if galleryImages.length}
-    <section id="gallery" class="scroll-mt-28 bg-linen py-16 text-ink md:py-24">
+    <section id="gallery" class:hidden={activeTab !== 'gallery'} class="scroll-mt-28 bg-linen py-16 text-ink md:py-24">
       <div class="container-shell">
         <div class="max-w-[760px]">
           <p class="brand-eyebrow">From the field</p>
@@ -582,7 +649,7 @@
   {/if}
 
   {#if inclusions.length || exclusions.length}
-    <section id="included" class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
+    <section id="included" class:hidden={activeTab !== 'included'} class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
       <div class="container-shell">
         <div class="max-w-[760px]">
           <p class="brand-eyebrow">What is covered</p>
@@ -623,7 +690,7 @@
   {/if}
 
   {#if priceOptions.length}
-    <section id="pricing" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+    <section id="pricing" class:hidden={activeTab !== 'pricing'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
       <div class="container-shell">
         <div class="max-w-[760px]">
           <p class="brand-eyebrow text-goldfinch-gold">Pricing</p>
@@ -659,33 +726,8 @@
     </section>
   {/if}
 
-  <section class="bg-linen py-16 text-ink md:py-24">
-    <div class="container-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-      <div>
-        <p class="brand-eyebrow">Ask for this route</p>
-        <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-heading sm:text-[56px]">
-          Tell us what you are imagining and we will build it around you.
-        </h2>
-        <p class="mt-6 text-[15px] font-medium leading-8 text-ink/68">
-          No payment is required to start. Share your email for the itinerary or speak directly on WhatsApp if you want a faster answer.
-        </p>
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          <button class="inline-flex h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" type="button" on:click={openForm}>
-            Start a conversation <ArrowRight size={16} />
-          </button>
-          <a class="inline-flex h-[52px] items-center justify-center gap-3 border border-ink/20 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-heading transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={waHref} target="_blank" rel="noopener noreferrer">
-            <MessageCircle size={16} /> WhatsApp us
-          </a>
-        </div>
-      </div>
-      <div class="border border-ink/10 bg-surface p-6 md:p-8">
-        <EmailItineraryCapture tourTitle={tour.title} />
-      </div>
-    </div>
-  </section>
-
   {#if relatedTours.length}
-    <section id="related" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+    <section id="related" class:hidden={activeTab !== 'related'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
       <div class="container-shell">
         <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div class="max-w-[720px]">
@@ -723,7 +765,7 @@
   {/if}
 
   {#if planningCards.length}
-    <section id="planning" class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
+    <section id="planning" class:hidden={activeTab !== 'planning'} class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
       <div class="container-shell">
         <div class="mx-auto max-w-[760px] text-center">
           <p class="brand-eyebrow">Planning hub</p>
@@ -754,7 +796,7 @@
   {/if}
 
   {#if faqs.length}
-    <section id="faqs" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+    <section id="faqs" class:hidden={activeTab !== 'faqs'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
       <div class="container-shell grid gap-12 lg:grid-cols-[0.65fr_1.35fr]">
         <div>
           <p class="brand-eyebrow text-goldfinch-gold">Safari FAQs</p>
@@ -781,6 +823,32 @@
       </div>
     </section>
   {/if}
+
+  <!-- enquiry (always visible, after the active tab) -->
+  <section class="bg-linen py-16 text-ink md:py-24">
+    <div class="container-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+      <div>
+        <p class="brand-eyebrow">Ask for this route</p>
+        <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-heading sm:text-[56px]">
+          Tell us what you are imagining and we will build it around you.
+        </h2>
+        <p class="mt-6 text-[15px] font-medium leading-8 text-ink/68">
+          No payment is required to start. Share your email for the itinerary or speak directly on WhatsApp if you want a faster answer.
+        </p>
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <button class="inline-flex h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" type="button" on:click={openForm}>
+            Start a conversation <ArrowRight size={16} />
+          </button>
+          <a class="inline-flex h-[52px] items-center justify-center gap-3 border border-ink/20 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-heading transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={waHref} target="_blank" rel="noopener noreferrer">
+            <MessageCircle size={16} /> WhatsApp us
+          </a>
+        </div>
+      </div>
+      <div class="border border-ink/10 bg-surface p-6 md:p-8">
+        <EmailItineraryCapture tourTitle={tour.title} />
+      </div>
+    </div>
+  </section>
 
   <section class="bg-linen py-16 text-ink md:py-20">
     <div class="container-shell">

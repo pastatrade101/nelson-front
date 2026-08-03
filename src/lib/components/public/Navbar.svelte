@@ -2,8 +2,9 @@
   import { onMount } from 'svelte';
   import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { ArrowDownToLine, ArrowRight, ChevronDown, CircleHelp, Menu, MessageCircle, Search, X } from '@lucide/svelte';
+  import { ArrowDownToLine, ArrowRight, BadgeCheck, BedDouble, Binoculars, Camera, ChevronDown, CircleHelp, Compass, Gem, Handshake, Headphones, Heart, Home, MapPin, Menu, MessageCircle, Mountain, Plane, Route, Search, ShieldCheck, Sparkles, Tent, Users, Wallet, Waves, X } from '@lucide/svelte';
   import { fade, fly } from 'svelte/transition';
+  import MegaMenu from './MegaMenu.svelte';
   import { api } from '$lib/api/client';
   import { openAiAdvisor } from '$lib/aiAdvisor';
   import { openEnquiry } from '$lib/enquiry';
@@ -14,56 +15,199 @@
   import { aiAdvisorEnabled, publicSettings, settingText } from '$lib/settings';
   import { canInstall, promptInstall } from '$lib/pwa';
 
-  type NavLink = { href: string; label: string; image?: string };
-  type NavItem = { dropdown?: 'destinations' | 'tours'; href: string; label: string };
-
-  // Featured image panel + copy for each mega menu.
-  const FALLBACK_FEATURE_IMG = 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
-  const FEATURE: Record<'destinations' | 'tours', { eyebrow: string; title: string; blurb: string; cta: string; href: string }> = {
-    destinations: {
-      eyebrow: 'Where to go',
-      title: 'Explore Tanzania',
-      blurb: 'Serengeti, Ngorongoro, Tarangire, Zanzibar & the Masai Mara.',
-      cta: 'All destinations',
-      href: '/destinations'
-    },
-    tours: {
-      eyebrow: 'Ready to plan?',
-      title: 'Find your safari',
-      blurb: 'Northern Circuit, the Great Migration, family, honeymoon, photography — or fully tailor-made.',
-      cta: 'Plan my safari',
-      href: '/plan-my-trip'
-    }
+  type NavLink = {
+    href: string; label: string; image?: string; description?: string; slug?: string;
+    subtitle?: string; badge?: string; tier?: string; duration?: string; price?: string;
   };
-  const featureImage = (key: 'destinations' | 'tours') =>
-    navLinks[key].find((l) => l.image)?.image || FALLBACK_FEATURE_IMG;
+  type DropdownKey = 'tours' | 'destinations' | 'accommodation' | 'safari-styles';
+  type NavItem = { dropdown?: DropdownKey; href: string; label: string };
 
-  // Emnel primary nav: Home · Safaris (dropdown) · Kilimanjaro · About · Journal · Begin Your Journey (CTA).
+  let menuOpen = false;
+  let openDropdown: '' | DropdownKey = '';
+  let mobileAccordion: '' | DropdownKey = '';
+  let searchQuery = '';
+  let scrolled = false;
+
+  // Dropdown data comes ONLY from published CMS content — no invented fallbacks.
+  let destinations: NavLink[] = [];
+  let categories: NavLink[] = [];
+  // Real published tours (genuine images) power the Tours "popular experiences"
+  // cards; category records only carry placeholder image names.
+  let popularTours: NavLink[] = [];
+  // Featured cards for the other menus, each filtered to real http images only.
+  let featuredDestinations: NavLink[] = [];
+  let featuredLodges: NavLink[] = [];
+  // Real photo borrowed from each safari style's representative tour (category
+  // images are placeholders), keyed by category slug.
+  let styleImageBySlug: Record<string, string> = {};
+
+  // Icon for a category / destination, picked from keywords in its real name.
+  // Purely presentational — labels and links always come from the record.
+  const catIcon = (label: string): typeof Compass => {
+    const s = label.toLowerCase();
+    if (/migration|wildebeest/.test(s)) return Binoculars;
+    if (/photograph/.test(s)) return Camera;
+    if (/family|kids|children/.test(s)) return Users;
+    if (/honeymoon|romance|couple/.test(s)) return Heart;
+    if (/luxury|prestige|premium|exclusive/.test(s)) return Gem;
+    if (/fly|air|charter/.test(s)) return Plane;
+    if (/zanzibar|beach|coast|island|ocean|holiday|mafia|pemba/.test(s)) return Waves;
+    if (/crater|ngorongoro|mountain|kilimanjaro|highland/.test(s)) return Mountain;
+    if (/northern|circuit|classic|serengeti|big five|tarangire|manyara|ruaha|mikumi|nyerere|eyasi|arusha/.test(s)) return Route;
+    return Compass;
+  };
+
+  // Real, verbatim brand promises per section (each reused from that section's own
+  // hero / CTA copy) shown as the mega-menu CTA panel's 2×2 trust badges.
+  const TRUST: Record<DropdownKey, { icon: typeof Compass; label: string }[]> = {
+    tours: [
+      { icon: BadgeCheck, label: '100% private & tailor-made' },
+      { icon: MapPin, label: 'Local safari experts' },
+      { icon: Wallet, label: 'No hidden costs' },
+      { icon: Headphones, label: '24/7 travel support' }
+    ],
+    destinations: [
+      { icon: MapPin, label: 'Arusha-based since 2016' },
+      { icon: Users, label: 'Tanzania-born guides' },
+      { icon: ShieldCheck, label: 'Private vehicles only' },
+      { icon: Sparkles, label: 'Tailor-made journeys' }
+    ],
+    accommodation: [
+      { icon: BadgeCheck, label: 'Personally visited' },
+      { icon: Handshake, label: 'Booked & managed for you' },
+      { icon: MapPin, label: 'Location-first choices' },
+      { icon: ShieldCheck, label: 'Honest guidance' }
+    ],
+    'safari-styles': [
+      { icon: ShieldCheck, label: 'Private vehicles only' },
+      { icon: Sparkles, label: 'Tailor-made itineraries' },
+      { icon: Users, label: 'Tanzania-born guides' },
+      { icon: MapPin, label: 'Arusha-based since 2016' }
+    ]
+  };
+
+  // Accommodation "browse by style" — ONLY enum values that exist in published
+  // lodges (types: tented_camp, lodge · levels: luxury, mid_range, budget).
+  const ACCOMMODATION_BROWSE: { label: string; href: string; icon: typeof Compass }[] = [
+    { label: 'Luxury', href: '/accommodation?level=luxury', icon: Gem },
+    { label: 'Mid-range', href: '/accommodation?level=mid_range', icon: Sparkles },
+    { label: 'Comfortable', href: '/accommodation?level=budget', icon: BedDouble },
+    { label: 'Tented camp', href: '/accommodation?type=tented_camp', icon: Tent },
+    { label: 'Lodge', href: '/accommodation?type=lodge', icon: Home }
+  ];
+
+  const closeAndEnquire = () => { openDropdown = ''; openEnquiry(); };
+
+  // ── Real-data formatters for the rich editorial cards ─────────────────────
+  const TIER_LABELS: Record<string, string> = {
+    budget: 'Comfortable', mid_range: 'Mid-range', 'mid-range': 'Mid-range', midrange: 'Mid-range',
+    luxury: 'Luxury', luxury_plus: 'Luxury+', 'luxury-plus': 'Luxury+', ultra_luxury: 'Ultra-luxury'
+  };
+  const tierLabel = (t?: unknown): string | undefined => {
+    if (!t) return undefined;
+    const k = String(t).toLowerCase();
+    return TIER_LABELS[k] ?? String(t);
+  };
+  const durationLabel = (days?: unknown): string | undefined => {
+    const n = Number(days);
+    return Number.isFinite(n) && n > 0 ? `${n} day${n === 1 ? '' : 's'}` : undefined;
+  };
+  const priceLabel = (from?: unknown, currency?: unknown, suffix = ''): string | undefined => {
+    const n = Number(from);
+    return Number.isFinite(n) && n > 0 ? `From ${currency ? String(currency) : 'USD'} ${n.toLocaleString()}${suffix}` : undefined;
+  };
+  // Trim real copy to a single tidy line (for browse subtitles) at a word break.
+  const oneLine = (text?: unknown, max = 46): string | undefined => {
+    const s = String(text ?? '').replace(/\s+/g, ' ').trim();
+    if (!s) return undefined;
+    if (s.length <= max) return s;
+    const cut = s.slice(0, max);
+    const sp = cut.lastIndexOf(' ');
+    return `${(sp > 20 ? cut.slice(0, sp) : cut).replace(/[,;:.\s]+$/, '')}…`;
+  };
+
+  // Curated, concise order for the Tours browse column (marquee styles first);
+  // every one is a real published category — the rest live behind "All".
+  const CURATED_STYLE_ORDER = [
+    'classic-northern-circuit', 'great-migration-safaris', 'big-five-safaris', 'luxury-tanzania-safaris',
+    'family-safaris', 'honeymoon-safaris', 'photography-safaris', 'fly-in-safaris',
+    'safari-zanzibar-holidays', 'private-tanzania-safaris'
+  ];
+
+  // Emnel primary nav. Tours, Destinations, Accommodation & Safari Styles each
+  // open a rich mega-menu; the rest are plain links.
   const NAV: NavItem[] = [
     { href: '/', label: 'Home' },
     { href: '/tours', label: 'Tours & Safaris', dropdown: 'tours' },
-    { href: '/destinations', label: 'Destinations' },
-    { href: '/accommodation', label: 'Accommodation' },
-    { href: '/safari-styles', label: 'Safari Styles' },
+    { href: '/destinations', label: 'Destinations', dropdown: 'destinations' },
+    { href: '/accommodation', label: 'Accommodation', dropdown: 'accommodation' },
+    { href: '/safari-styles', label: 'Safari Styles', dropdown: 'safari-styles' },
     { href: '/about', label: 'About' },
     { href: '/blog', label: 'Journal' }
   ];
 
-  // Dropdown links come ONLY from published CMS content (destinations / categories).
-  // No hardcoded fallbacks — when there is none, the dropdown just shows its
-  // "All Safaris" / "All Destinations" link with no sub-items.
-  let destinations: NavLink[] = [];
-  let categories: NavLink[] = [];
+  // Sub-links for the mobile accordion, per dropdown (label + href only are read).
+  $: mobileSubLinks = {
+    tours: categories,
+    destinations,
+    accommodation: ACCOMMODATION_BROWSE,
+    'safari-styles': categories
+  } as Record<DropdownKey, NavLink[]>;
 
-  // Reactive map so the dropdowns re-render when the API data loads (a plain
-  // function would hide the dependency on categories/destinations from Svelte).
-  $: navLinks = { destinations, tours: categories } as Record<'destinations' | 'tours', NavLink[]>;
+  // Background photo for a CTA panel: the first genuine http image from real data.
+  $: ctaImage = [...popularTours, ...destinations].map((x) => x.image).find((u) => typeof u === 'string' && u.startsWith('http')) ?? '';
 
-  let menuOpen = false;
-  let openDropdown: '' | 'destinations' | 'tours' = '';
-  let mobileAccordion: '' | 'destinations' | 'tours' = '';
-  let searchQuery = '';
-  let scrolled = false;
+  // Left "browse" columns: real records mapped to labelled, icon'd links.
+  // Tours = a concise, curated set with an editorial one-line subtitle (from the
+  // category's real who_its_for); Styles = the full, compact style directory.
+  $: curatedTours = CURATED_STYLE_ORDER
+    .map((slug) => categories.find((c) => c.slug === slug))
+    .filter((c): c is NavLink => Boolean(c));
+  $: browseTours = (curatedTours.length >= 5 ? curatedTours : categories)
+    .slice(0, 8)
+    .map((c) => ({ label: c.label, href: c.href, icon: catIcon(c.label), subtitle: c.subtitle }));
+  $: browseStyles = categories.map((c) => ({ label: c.label, href: c.href, icon: catIcon(c.label) }));
+  $: browseDestinations = destinations.map((d) => ({ label: d.label, href: d.href, icon: catIcon(d.label) }));
+  // Featured safari-style cards: category name + description (verbatim) over a
+  // photo borrowed from that style's representative real tour; skip styles with
+  // no real-image tour so no card is ever imageless/fabricated.
+  $: featuredStyles = categories
+    .map((c) => ({ label: c.label, href: c.href, description: c.description, image: styleImageBySlug[c.slug ?? ''] }))
+    .filter((c) => Boolean(c.image))
+    .slice(0, 5);
+
+  // One config per mega-menu, assembled from the real data above. Every menu gets
+  // a live search, a concierge CTA (enquiry + WhatsApp) and real trust badges.
+  $: megaConfig = {
+    tours: {
+      id: 'dd-tours', href: '/tours', searchPlaceholder: 'Search safaris…', pageSupportsSearch: true,
+      browseTitle: 'Browse Tours & Safaris', allLabel: 'All Tours & Safaris', browseItems: browseTours,
+      featuredTitle: 'Popular Experiences', featuredItems: popularTours, viewAllLabel: 'View all tours & safaris',
+      cta: { eyebrow: 'Ready to plan?', title: "Let's create your perfect safari", subtitle: 'Share your dates and a local safari expert designs a private journey around your pace and budget.', buttonLabel: 'Design My Safari', image: ctaImage },
+      trust: TRUST.tours, onCta: closeAndEnquire, secondaryLabel: 'Speak to a Safari Expert', secondaryHref: waHref
+    },
+    destinations: {
+      id: 'dd-destinations', href: '/destinations', searchPlaceholder: 'Search destinations…',
+      browseTitle: 'Browse Destinations', allLabel: 'All Destinations', browseItems: browseDestinations,
+      featuredTitle: 'Popular Destinations', featuredItems: featuredDestinations, viewAllLabel: 'View all destinations',
+      cta: { eyebrow: 'Not sure where to go?', title: "We'll help you choose", subtitle: 'Tell us what you want to see and a local expert maps the right regions into one seamless journey.', buttonLabel: 'Design My Safari', image: featuredDestinations[0]?.image || ctaImage },
+      trust: TRUST.destinations, onCta: closeAndEnquire, secondaryLabel: 'Speak to a Safari Expert', secondaryHref: waHref
+    },
+    accommodation: {
+      id: 'dd-accommodation', href: '/accommodation', searchPlaceholder: 'Search stays…', pageSupportsSearch: true,
+      browseTitle: 'Browse by Style', allLabel: 'All Stays', browseItems: ACCOMMODATION_BROWSE,
+      featuredTitle: 'Featured Stays', featuredItems: featuredLodges, viewAllLabel: 'View all stays',
+      cta: { eyebrow: 'Not sure where to stay?', title: "We'll match you to the right camps", subtitle: 'Tell us your dates and how you like to travel — a local specialist pairs you with the right lodges.', buttonLabel: 'Design My Safari', image: featuredLodges[0]?.image || ctaImage },
+      trust: TRUST.accommodation, onCta: closeAndEnquire, secondaryLabel: 'Speak to a Safari Expert', secondaryHref: waHref
+    },
+    'safari-styles': {
+      id: 'dd-safari-styles', href: '/safari-styles', searchPlaceholder: 'Search safari styles…',
+      browseTitle: 'Browse Safari Styles', allLabel: 'All Safari Styles', browseItems: browseStyles,
+      featuredTitle: 'Popular Safari Styles', featuredItems: featuredStyles, viewAllLabel: 'View all safari styles',
+      cta: { eyebrow: 'Still deciding?', title: 'Tell us how you like to travel', subtitle: 'A style is only a starting point — share your dates and a local specialist shapes the right private safari around you.', buttonLabel: 'Design My Safari', image: featuredStyles[0]?.image || ctaImage },
+      trust: TRUST['safari-styles'], onCta: closeAndEnquire, secondaryLabel: 'Speak to a Safari Expert', secondaryHref: waHref
+    }
+  } as Record<DropdownKey, import('svelte').ComponentProps<MegaMenu>>;
 
   const submitSearch = () => {
     const query = searchQuery.trim();
@@ -106,7 +250,7 @@
   $: supportEmail = settingText(s, 'contact_email') || 'hello@emneladventures.com';
   $: supportPhone = settingText(s, 'contact_phone') || waNumber;
 
-  const toggleDropdown = (key: 'destinations' | 'tours') => {
+  const toggleDropdown = (key: DropdownKey) => {
     openDropdown = openDropdown === key ? '' : key;
   };
 
@@ -121,16 +265,83 @@
   onMount(() => {
     const loadNav = async () => {
       try {
-        const res = await api.destinations.list({ status: 'published', limit: 8 });
-        const items = res.data.items ?? [];
-        if (items.length) destinations = items.map((d) => ({ label: String(d.name ?? d.slug), href: `/destinations/${d.slug}`, image: d.main_image_url || d.image_url || d.banner_image_url || undefined }));
+        const res = await api.destinations.list({ status: 'published', limit: 100 });
+        const items = (res.data.items ?? []) as Array<Record<string, unknown>>;
+        if (items.length) {
+          destinations = items.map((d) => ({
+            label: String(d.name ?? d.slug),
+            href: `/destinations/${d.slug}`,
+            slug: String(d.slug ?? ''),
+            image: (d.main_image_url || d.image_url || d.banner_image_url || undefined) as string | undefined,
+            description: d.short_description ? String(d.short_description) : undefined
+          }));
+          // Popular cards: only destinations with a real photo; featured first,
+          // then the ones that also have a real short description (richer cards).
+          const withImage = items.filter((d) => typeof d.image_url === 'string' && (d.image_url as string).startsWith('http'));
+          withImage.sort((a, b) =>
+            (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0) ||
+            (b.short_description ? 1 : 0) - (a.short_description ? 1 : 0)
+          );
+          featuredDestinations = withImage.slice(0, 5).map((d) => ({
+            label: String(d.name ?? d.slug),
+            href: `/destinations/${d.slug}`,
+            image: (d.image_url_thumbnail || d.image_url) as string,
+            description: d.short_description ? String(d.short_description) : undefined,
+            tier: (d.region || d.country) ? String(d.region || d.country) : undefined
+          }));
+        }
       } catch {
         // keep fallback
       }
       try {
-        const res = await api.categories.list({ status: 'published', limit: 8 });
+        const res = await api.categories.list({ status: 'published', limit: 20 });
         const items = res.data.items ?? [];
-        if (items.length) categories = items.map((c) => ({ label: String(c.name ?? c.slug), href: `/tours?category=${c.slug}`, image: (c.image_url as string) || undefined }));
+        if (items.length) categories = items.map((c) => ({ label: String(c.name ?? c.slug), href: `/tours?category=${c.slug}`, slug: String(c.slug ?? ''), image: (c.image_url as string) || undefined, description: c.description ? String(c.description) : undefined, subtitle: oneLine(c.who_its_for) ?? oneLine(c.description) }));
+      } catch {
+        // keep fallback
+      }
+      try {
+        const res = await api.tours.list({ status: 'published', limit: 24 });
+        const items = (res.data.items ?? []) as Array<Record<string, unknown>>;
+        const withImage = items.filter((t) => typeof t.main_image_url === 'string' && (t.main_image_url as string).startsWith('http'));
+        // Surface the most promoted trips first (best-sellers, then recommended).
+        withImage.sort((a, b) => (b.is_popular ? 1 : 0) - (a.is_popular ? 1 : 0) || (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+        popularTours = withImage.slice(0, 5).map((t) => ({
+          label: String(t.title ?? t.slug),
+          href: `/tours/${t.slug}`,
+          image: t.main_image_url as string,
+          description: t.short_description ? String(t.short_description) : undefined,
+          badge: t.is_popular ? 'Best Seller' : t.is_featured ? 'Recommended' : undefined,
+          tier: tierLabel(t.budget_tier),
+          duration: durationLabel(t.duration_days),
+          price: priceLabel(t.price_from, t.currency)
+        }));
+        // Map each category slug -> a real tour photo, for the Safari Styles cards.
+        const byStyle: Record<string, string> = {};
+        for (const t of withImage) {
+          const slug = (t.tour_categories as { slug?: string } | null)?.slug;
+          const img = t.main_image_url as string;
+          if (slug && !byStyle[slug]) byStyle[slug] = img;
+        }
+        styleImageBySlug = byStyle;
+      } catch {
+        // keep fallback
+      }
+      try {
+        const res = await api.lodges.list({ status: 'published', limit: 200 });
+        const items = (res.data.items ?? []) as Array<Record<string, unknown>>;
+        // Only lodges with a real hero photo (6 of 12); recommended first.
+        const withImage = items.filter((l) => typeof l.hero_image_url === 'string' && (l.hero_image_url as string).startsWith('http'));
+        withImage.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+        featuredLodges = withImage.slice(0, 5).map((l) => ({
+          label: String(l.name ?? l.slug),
+          href: `/accommodation/${l.slug}`,
+          image: l.hero_image_url as string,
+          description: l.why_we_recommend ? String(l.why_we_recommend) : undefined,
+          badge: l.is_featured ? 'Recommended' : undefined,
+          tier: tierLabel(l.accommodation_level),
+          price: priceLabel(l.price_per_night_from, l.currency, ' / night')
+        }));
       } catch {
         // keep fallback
       }
@@ -225,44 +436,8 @@
                 </button>
               </div>
 
-              {#if openDropdown === item.dropdown}
-                {@const feat = FEATURE[item.dropdown]}
-                <div
-                  id={`dd-${item.dropdown}`}
-                  class="absolute left-0 top-full z-50 grid w-[660px] grid-cols-[1fr_248px] overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-[0_24px_60px_rgba(28,26,22,0.18)]"
-                  role="menu"
-                  transition:fly={{ y: 6, duration: 140 }}
-                >
-                  <!-- link list -->
-                  <div class="p-4">
-                    <a class="flex items-center justify-between rounded-xl px-3 py-2 text-sm font-bold text-forest transition hover:bg-sand/60" href={item.href} role="menuitem">
-                      All {item.label}
-                      <ArrowRight size={14} strokeWidth={2.6} />
-                    </a>
-                    {#if navLinks[item.dropdown].length}
-                      <div class="my-1.5 h-px bg-black/5"></div>
-                      <div class="grid grid-cols-2 gap-0.5">
-                        {#each navLinks[item.dropdown] as link (link.href)}
-                          <a class="truncate rounded-xl px-3 py-2.5 text-sm font-medium text-ink/75 transition hover:bg-sand/60 hover:text-forest" href={link.href} role="menuitem">{link.label}</a>
-                        {/each}
-                      </div>
-                    {/if}
-                  </div>
-
-                  <!-- featured image panel -->
-                  <a href={feat.href} class="group/feat relative block overflow-hidden bg-deep-green" role="menuitem" aria-label={feat.cta}>
-                    <img class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover/feat:scale-105" src={featureImage(item.dropdown)} alt={feat.title} loading="lazy" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/45 to-deep-green/10"></div>
-                    <div class="relative flex h-full flex-col justify-end p-4 text-white">
-                      <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-savanna">{feat.eyebrow}</p>
-                      <p class="mt-1 text-lg font-extrabold leading-tight">{feat.title}</p>
-                      <p class="mt-1 text-xs leading-5 text-white/80">{feat.blurb}</p>
-                      <span class="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-goldfinch-gold">
-                        {feat.cta} <ArrowRight size={14} strokeWidth={2.6} class="transition-transform group-hover/feat:translate-x-0.5" />
-                      </span>
-                    </div>
-                  </a>
-                </div>
+              {#if openDropdown === item.dropdown && megaConfig[item.dropdown]}
+                <MegaMenu {...megaConfig[item.dropdown]} />
               {/if}
             </div>
           {:else}
@@ -331,15 +506,15 @@
               <div class="rounded-xl">
                 <div class="flex items-center">
                   <a class={`flex-1 rounded-xl px-3 py-3 text-[17px] font-semibold transition ${active ? 'text-forest dark:text-goldfinch-gold' : 'text-ink'}`} href={item.href} on:click={() => (menuOpen = false)}>{item.label}</a>
-                  {#if navLinks[item.dropdown].length}
+                  {#if mobileSubLinks[item.dropdown].length}
                     <button class="grid h-11 w-11 place-items-center rounded-xl text-ink/70 transition hover:bg-sand/50" type="button" aria-expanded={mobileAccordion === item.dropdown} aria-label={`Toggle ${item.label}`} on:click={() => (mobileAccordion = mobileAccordion === item.dropdown ? '' : (item.dropdown ?? ''))}>
                       <ChevronDown size={18} strokeWidth={2.6} class={`transition-transform ${mobileAccordion === item.dropdown ? 'rotate-180' : ''}`} />
                     </button>
                   {/if}
                 </div>
-                {#if mobileAccordion === item.dropdown && navLinks[item.dropdown].length}
+                {#if mobileAccordion === item.dropdown && mobileSubLinks[item.dropdown].length}
                   <div class="grid gap-0.5 pb-2 pl-3" transition:fly={{ y: -4, duration: 150 }}>
-                    {#each navLinks[item.dropdown] as link (link.href)}
+                    {#each mobileSubLinks[item.dropdown] as link (link.href)}
                       <a class="rounded-lg px-3 py-2 text-[15px] font-medium text-ink/65 transition hover:bg-sand/50 hover:text-forest" href={link.href} on:click={() => (menuOpen = false)}>{link.label}</a>
                     {/each}
                   </div>

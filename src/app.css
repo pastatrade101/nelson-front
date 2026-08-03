@@ -299,6 +299,16 @@ select {
   .nav-progress { animation: none; transform: scaleX(0.5); }
 }
 
+/* Scroll a horizontal strip (e.g. tab bars, filter rails) with no visible bar. */
+.hide-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+.hide-scroll::-webkit-scrollbar { display: none; }
+
+/* Tabbed panels (e.g. the tour detail page) swap height as the active tab
+   changes; the browser's scroll-anchoring would then yank the page to "preserve"
+   the old content position, fighting our own tab-change scroll. Opt the main
+   content region out — reserved image dimensions already prevent reflow jank. */
+#main-content { overflow-anchor: none; }
+
 /* Editor-only chrome (TipTap / ProseMirror) */
 .pm-editor { padding: 1rem 1.15rem; min-height: inherit; }
 .pm-editor:focus,
