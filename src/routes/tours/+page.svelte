@@ -109,12 +109,16 @@
   );
 
   const personaTags = (t: Tour) => t.persona_tags ?? [];
+  const TIER_RANK: Record<string, number> = { 'luxury-plus': 3, luxury_plus: 3, ultra_luxury: 3, luxury: 2, 'mid-range': 1, mid_range: 1, midrange: 1, budget: 0 };
   $: sorted = (() => {
     const r = [...result];
     if (sort === 'price_asc') return r.sort((a, b) => (a.price_from ?? 0) - (b.price_from ?? 0));
     if (sort === 'price_desc') return r.sort((a, b) => (b.price_from ?? 0) - (a.price_from ?? 0));
     if (sort === 'duration_asc') return r.sort((a, b) => (a.duration_days ?? 0) - (b.duration_days ?? 0));
     if (sort === 'duration_desc') return r.sort((a, b) => (b.duration_days ?? 0) - (a.duration_days ?? 0));
+    if (sort === 'popular') return r.sort((a, b) => Number(Boolean(b.is_popular)) - Number(Boolean(a.is_popular)) || Number(Boolean(b.is_featured)) - Number(Boolean(a.is_featured)));
+    if (sort === 'luxury') return r.sort((a, b) => (TIER_RANK[b.budget_tier ?? ''] ?? 0) - (TIER_RANK[a.budget_tier ?? ''] ?? 0));
+    if (sort === 'value') return r.sort((a, b) => (a.price_from ?? 0) / (a.duration_days || 1) - (b.price_from ?? 0) / (b.duration_days || 1));
     // recommended: persona match → featured → popular
     return r.sort((a, b) => {
       const p = persona ? Number(personaTags(b).includes(persona)) - Number(personaTags(a).includes(persona)) : 0;
@@ -198,10 +202,17 @@
   {:else}
     <p class="font-serif text-xl italic text-clay">Safari Itineraries</p>
     <h1 class="mt-2 text-3xl font-serif font-light text-heading md:text-[40px]" use:revealHeading>Private Tanzania Safari Itineraries</h1>
-    <p class="mt-3 max-w-3xl text-base leading-7 text-ink/70">
-      Explore route ideas for private safaris, Kilimanjaro climbs and Zanzibar beach escapes.
-      Use the filters to find the itinerary that fits your dates, budget and style.
+    <p class="mt-3 max-w-3xl text-base leading-8 text-ink/70">
+      Extraordinary safari experiences handcrafted by local experts in Arusha. Every itinerary below is a
+      starting point — fully tailor-made to match your dates, budget and travel style.
     </p>
+    <!-- trust badges -->
+    <div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[12px] font-semibold text-ink/70">
+      <span class="inline-flex items-center gap-1.5"><span class="text-goldfinch-gold">★★★★★</span> Rated by travellers</span>
+      {#each ['100% private & tailor-made', 'Local safari experts', 'No hidden costs', '24/7 travel support'] as claim}
+        <span class="inline-flex items-center gap-1.5"><Check size={13} class="text-forest" strokeWidth={3} /> {claim}</span>
+      {/each}
+    </div>
   {/if}
 
   <!-- persona switcher -->
@@ -328,6 +339,9 @@
           Sort
           <select class="h-9 rounded-lg border border-ink/15 bg-surface px-2 text-sm font-medium text-ink outline-none focus:border-forest" bind:value={sort}>
             <option value="recommended">Recommended</option>
+            <option value="popular">Most popular</option>
+            <option value="value">Best value</option>
+            <option value="luxury">Luxury first</option>
             <option value="price_asc">Price: low to high</option>
             <option value="price_desc">Price: high to low</option>
             <option value="duration_asc">Duration: short to long</option>
