@@ -30,7 +30,7 @@
   class={`group relative flex h-full flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)] ${feature ? 'md:grid md:grid-cols-2' : ''}`}
 >
   <!-- image -->
-  <div class={`relative overflow-hidden bg-deep-green ${feature ? 'min-h-[260px] md:min-h-full' : 'aspect-[4/3]'}`}>
+  <div class={`relative overflow-hidden bg-deep-green ${feature ? 'aspect-[4/3] md:aspect-auto md:h-full' : 'aspect-[4/3]'}`}>
     {#if imageUrl}
       <ResponsiveImage
         src={originalImage}
@@ -38,7 +38,7 @@
         alt={lodge.name}
         width={feature ? 1200 : 720}
         sizes={feature ? '(min-width:768px) 640px, 100vw' : '(min-width:1024px) 360px, (min-width:640px) 50vw, 100vw'}
-        imgClass="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105"
+        imgClass={`${feature ? 'absolute inset-0 ' : ''}h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105`}
       />
     {:else}
       <div class="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-[linear-gradient(135deg,rgba(21,55,51,0.98),rgba(74,55,40,0.92))] text-white/80">
