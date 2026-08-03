@@ -21,6 +21,7 @@
   import { SITE_URL } from '$lib/config/env';
   import { aiAdvisorEnabled, loadPublicSettings, publicSettings } from '$lib/settings';
   import { trackPageView } from '$lib/analytics';
+  import { loadClarity } from '$lib/clarity';
 
   $: isAdmin = $page.url.pathname.startsWith('/admin');
 
@@ -81,8 +82,18 @@
     trackPageView();
   };
 
-  // Load GA4 only once the visitor has explicitly granted consent.
-  $: if (browser && $consent === 'granted') loadGa4();
+  // Microsoft Clarity — UX companion to GA4 (session recordings, heatmaps,
+  // rage/dead clicks, scroll behaviour). Same gates as GA4: consent granted,
+  // production host, public site, and PUBLIC_CLARITY_PROJECT_ID configured.
+  // Clarity handles SPA route changes itself, so there is no per-navigation call.
+  const loadClarityIfReady = () => {
+    const id = publicEnv.PUBLIC_CLARITY_PROJECT_ID;
+    if (!browser || !id || isAdmin || !isProdHost()) return;
+    loadClarity(id);
+  };
+
+  // Load analytics (GA4 + Clarity) only once the visitor has granted consent.
+  $: if (browser && $consent === 'granted') { loadGa4(); loadClarityIfReady(); }
 
   // One page_view per navigation (initial + every client-side route change,
   // incl. back/forward). Deduped + query-stripped inside trackPageView. Public

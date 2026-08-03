@@ -268,7 +268,9 @@
     </header>
 
     <!-- Messages -->
-    <div class="flex-1 space-y-3 overflow-y-auto bg-sand/30 px-4 py-4" bind:this={scroller}>
+    <!-- data-clarity-mask: the advisor conversation can contain free-form PII the
+         visitor typed, so mask it from Clarity recordings regardless of settings. -->
+    <div class="flex-1 space-y-3 overflow-y-auto bg-sand/30 px-4 py-4" data-clarity-mask="true" bind:this={scroller}>
       {#each messages as m, i (i)}
         {#if m.role === 'user'}
           <div class="flex justify-end" in:fade={{ duration: reduce ? 0 : 120 }}>

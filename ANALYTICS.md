@@ -1,13 +1,17 @@
-# Analytics (GA4 + first-party)
+# Analytics (GA4 + first-party + Clarity)
 
-This site runs **two analytics layers from one helper** (`src/lib/analytics.ts`):
+This site runs **three complementary layers**:
 
-1. **GA4** via `gtag.js`, loaded in `src/routes/+layout.svelte` (`loadGa4()`).
+1. **GA4** via `gtag.js`, loaded in `src/routes/+layout.svelte` (`loadGa4()`) — the
+   primary business analytics (traffic, events, conversions).
 2. **First-party** — every event is also `POST`ed to `/api/analytics/events`
    (own backend, fire-and-forget). This keeps working even when GA4 is blocked.
+3. **Microsoft Clarity** (`src/lib/clarity.ts`) — **UX analytics only**: session
+   recordings, heatmaps, rage/dead clicks, scroll behaviour. A companion to GA4,
+   not a replacement.
 
-GA4 is installed **directly (no Google Tag Manager)**. Do not add GTM unless the
-team wants tag management in the UI — it would duplicate this direct setup.
+GA4 and Clarity are installed **directly (no Google Tag Manager)**. Do not add
+GTM unless the team wants tag management in the UI — it would duplicate this setup.
 
 ## Configuration
 
@@ -95,6 +99,67 @@ with `whatsapp_click` / `phone_click` / `email_click` as parallel outbound leads
 - URLs sent to analytics are **query-stripped** (`cleanLocation()`); search terms
   that look like an email/phone or exceed 64 chars are dropped.
 - `denied` consent = zero tracking. GA4 waits for `granted`.
+
+## Microsoft Clarity (UX analytics)
+
+Clarity is the qualitative UX layer — **session recordings, heatmaps, rage
+clicks, dead clicks, scroll behaviour**. It is a companion to GA4, never a
+replacement. GA4 remains the primary business-analytics platform.
+
+**Architecture** — `src/lib/clarity.ts` (`loadClarity(projectId)`, `clarityReady()`,
+`clarityDashboardUrl()`), injected once from `+layout.svelte` using Clarity's
+official async snippet (no npm dependency, mirrors how GA4 is loaded).
+
+| Thing | Where | Notes |
+|---|---|---|
+| Project ID | `PUBLIC_CLARITY_PROJECT_ID` env var | Blank = Clarity off. |
+| When it loads | `+layout.svelte`, same gate as GA4 | Only after `consent === 'granted'`, on a **production host**, public site (not `/admin`), env set. |
+| Init once | `loaded` flag + `#clarity-src` DOM guard in `loadClarity()` | Never double-initialises. |
+| SSR | never — `browser`-guarded | |
+| SPA routes | handled by Clarity automatically | No per-navigation call, so **no page-view duplication** with GA4. |
+| Dev/preview | excluded via `isProdHost()` (localhost / `*.local`) | Set the env only in prod (or a staging property). |
+
+### Enable / disable
+- **Enable:** set `PUBLIC_CLARITY_PROJECT_ID=<id>` in the production env and redeploy.
+- **Disable:** clear the env var (or don't set it). Nothing else to change.
+- **Staging:** use a *separate* Clarity project id on the staging host, or leave blank.
+
+### Privacy
+- Clarity **masks every form input value by default** — passwords, emails, phones,
+  passport/payment fields are never captured as typed.
+- Keep the Clarity **dashboard masking mode on “Mask” (default) or “Balanced.”** Do
+  not switch to “Relaxed/Unmask.”
+- The AI advisor conversation is force-masked in code with `data-clarity-mask="true"`.
+  Add the same attribute to any new element that renders visitor PII.
+- The whole `/admin` app is excluded from Clarity.
+- Clarity loads only after cookie consent (`granted`).
+
+### Verification
+1. **Prod / consent:** on the live domain, accept cookies → in DevTools ▸ Network,
+   confirm one request to `clarity.ms/tag/<id>` and `window.clarity` is defined.
+2. **Once:** navigate around — only **one** `#clarity-src` script exists; no duplicate init.
+3. **SPA routes:** in Clarity ▸ Recordings, a single session spans multiple pages.
+4. **Recordings / heatmaps / rage & dead clicks / scroll:** appear in the Clarity
+   dashboard within a few minutes of live traffic.
+5. **No dev pollution:** on `localhost`, `window.clarity` is **undefined** (host-guarded).
+6. **No consent:** decline cookies → Clarity never loads.
+7. **No JS errors:** console is clean; a blocked `clarity.ms` request must not break the app.
+
+### Troubleshooting
+- *Clarity not loading in prod:* env var missing/typo, consent not granted, or an
+  ad-blocker is blocking `clarity.ms` (expected for some users).
+- *Nothing on localhost:* by design — `isProdHost()` blocks it. Test on the deployed host.
+- *PII visible in a recording:* dashboard masking was relaxed, or a new PII element
+  lacks `data-clarity-mask` — re-check both.
+- *Admin “Connected” but no recordings:* “Connected” reflects the env var being set;
+  recordings only accrue from **production** traffic after consent.
+
+### Admin UX Insights
+`/admin/analytics` shows a **UX Insights** card: connection status, what Clarity
+captures, and an **“Open Microsoft Clarity”** launch button (`clarityDashboardUrl`).
+It deliberately does **not** rebuild Clarity's recording/heatmap viewer. A dashed
+“AI UX recommendations” panel is wired (empty `clarityUxInsights[]`) as the
+foundation for future AI-generated UX call-outs — no AI summarisation is built yet.
 
 ## Not implemented (deliberate — add only if the feature/value warrants it)
 
