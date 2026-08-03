@@ -18,6 +18,7 @@
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import PriceRangeBlock from '$lib/components/public/PriceRangeBlock.svelte';
   import DealCard from '$lib/components/public/DealCard.svelte';
+  import GallerySection from '$lib/components/public/GallerySection.svelte';
   import { fadeUpOnScroll, sectionReveal, staggeredCardReveal } from '$lib/animations';
   import { imgUrl } from '$lib/img';
   import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
@@ -42,6 +43,7 @@
   let posts: BlogPost[] = [];
   let testimonials: Testimonial[] = [];
   let faqs: FAQ[] = [];
+  let gallery: Record<string, unknown>[] = [];
   // Sections arrive SSR-loaded from +page.ts so the hero renders in the initial
   // HTML (and can be preloaded) rather than after a client-side fetch.
   $: sections = (data.sections ?? {}) as unknown as Record<string, HomeSection>;
@@ -146,12 +148,13 @@
     // Each request is independent: a failure (or emptiness) in one collection
     // must never blank the others — in particular, a hiccup in tours/blog/faqs
     // should not wipe the CMS homepage sections and drop the hero to its default.
-    const [tourRes, destRes, postRes, testRes, faqRes] = await Promise.allSettled([
+    const [tourRes, destRes, postRes, testRes, faqRes, galRes] = await Promise.allSettled([
       api.tours.list({ limit: 6 }),
       api.destinations.list({ status: 'published', limit: 6 }),
       api.blog.list({ limit: 3 }),
       api.testimonials.list({ limit: 6 }),
-      api.faqs.list({ destination_id: 'null', limit: 5 })
+      api.faqs.list({ category: 'General', status: 'published', limit: 6 }),
+      api.gallery.list({ status: 'published', limit: 8 })
     ]);
 
     if (tourRes.status === 'fulfilled' && tourRes.value.data.items.length) tours = tourRes.value.data.items;
@@ -159,6 +162,7 @@
     if (postRes.status === 'fulfilled' && postRes.value.data.items.length) posts = postRes.value.data.items;
     if (testRes.status === 'fulfilled' && testRes.value.data.items.length) testimonials = testRes.value.data.items;
     if (faqRes.status === 'fulfilled' && faqRes.value.data.items.length) faqs = faqRes.value.data.items;
+    if (galRes.status === 'fulfilled' && galRes.value.data.items.length) gallery = galRes.value.data.items;
   });
 </script>
 
@@ -262,7 +266,7 @@
   <section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-surface to-surface py-16 md:py-24" use:sectionReveal>
     <span class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl" aria-hidden="true"></span>
     <div class="container-shell relative">
-      <div class="mx-auto max-w-2xl text-center" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="max-w-2xl text-left" use:fadeUpOnScroll={{ y: 14 }}>
         <p class="brand-eyebrow">Limited Time Offers</p>
         <h2 class="mt-4 text-3xl font-normal tracking-normal text-heading md:text-[40px]">
           {cms('featured_tours', 'title', 'Exclusive Safari Deals & Travel Offers')}
@@ -310,6 +314,8 @@
     </div>
   </section>
 {/if}
+
+<GallerySection images={gallery} />
 
 {#if faqs.length}
   <JsonLd data={faqLd(faqs.map((f) => ({ q: f.question, a: f.answer })))} />
