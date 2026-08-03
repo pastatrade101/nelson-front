@@ -4,14 +4,15 @@
   import { brand } from '$lib/brand';
   import { branding } from '$lib/branding';
   import { publicSettings, settingText } from '$lib/settings';
+  import SocialIcon from './SocialIcon.svelte';
 
   const SOCIAL = [
-    { key: 'facebook_url', label: 'Facebook' },
-    { key: 'instagram_url', label: 'Instagram' },
-    { key: 'youtube_url', label: 'YouTube' },
-    { key: 'tiktok_url', label: 'TikTok' },
-    { key: 'linkedin_url', label: 'LinkedIn' },
-    { key: 'tripadvisor_url', label: 'TripAdvisor' }
+    { key: 'facebook_url', label: 'Facebook', name: 'facebook' },
+    { key: 'instagram_url', label: 'Instagram', name: 'instagram' },
+    { key: 'youtube_url', label: 'YouTube', name: 'youtube' },
+    { key: 'tiktok_url', label: 'TikTok', name: 'tiktok' },
+    { key: 'linkedin_url', label: 'LinkedIn', name: 'linkedin' },
+    { key: 'tripadvisor_url', label: 'TripAdvisor', name: 'tripadvisor' }
   ];
 
   $: s = $publicSettings;
@@ -58,16 +59,17 @@
       {/if}
 
       {#if socials.length}
-        <div class="mt-5 flex flex-wrap gap-2">
+        <div class="mt-5 flex flex-wrap gap-2.5">
           {#each socials as social (social.key)}
             <a
-              class="inline-flex items-center rounded-full bg-surface/10 px-3.5 py-1.5 text-xs font-semibold text-white/80 transition hover:bg-goldfinch-gold hover:text-heading"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface/10 text-white/80 transition hover:bg-goldfinch-gold hover:text-heading"
               href={settingText(s, social.key)}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={social.label}
+              title={social.label}
             >
-              {social.label}
+              <SocialIcon name={social.name} size={17} />
             </a>
           {/each}
         </div>

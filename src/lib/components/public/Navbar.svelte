@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
+  import { browser } from '$app/environment';
   import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { ArrowDownToLine, ArrowRight, BadgeCheck, BedDouble, Binoculars, Camera, ChevronDown, CircleHelp, Compass, Gem, Handshake, Headphones, Heart, Home, MapPin, Menu, MessageCircle, Mountain, Plane, Route, Search, ShieldCheck, Sparkles, Tent, Users, Wallet, Waves, X } from '@lucide/svelte';
@@ -262,6 +263,34 @@
     openDropdown = '';
   });
 
+  // Lock the page while the mobile drawer is open so the content underneath can't
+  // be scrolled or tapped through. iOS ignores overflow:hidden for touch scroll,
+  // so we pin <body> in place and restore the scroll position on close.
+  let lockedScrollY = 0;
+  const setScrollLock = (locked: boolean) => {
+    if (!browser) return;
+    const body = document.body;
+    if (locked) {
+      lockedScrollY = window.scrollY;
+      body.style.position = 'fixed';
+      body.style.top = `-${lockedScrollY}px`;
+      body.style.left = '0';
+      body.style.right = '0';
+      body.style.width = '100%';
+      body.style.overflow = 'hidden';
+    } else if (body.style.position === 'fixed') {
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      body.style.overflow = '';
+      window.scrollTo(0, lockedScrollY);
+    }
+  };
+  $: setScrollLock(menuOpen);
+  onDestroy(() => setScrollLock(false));
+
   onMount(() => {
     const loadNav = async () => {
       try {
@@ -471,7 +500,7 @@
     <div class="fixed inset-0 z-[90] xl:hidden" transition:fade={{ duration: 120 }}>
       <button class="absolute inset-0 bg-black/45 backdrop-blur-md" type="button" aria-label="Close menu" on:click={() => (menuOpen = false)}></button>
 
-      <aside class="absolute right-0 top-0 flex min-h-dvh w-[86vw] min-w-[300px] max-w-[380px] flex-col overflow-y-auto border-l border-ink/10 bg-surface px-5 py-5 shadow-[-20px_0_55px_rgba(0,0,0,0.12)]" transition:fly={{ x: 60, duration: 200 }}>
+      <aside class="absolute right-0 top-0 flex h-dvh w-[86vw] min-w-[300px] max-w-[380px] flex-col overflow-y-auto overscroll-contain border-l border-ink/10 bg-surface px-5 py-5 shadow-[-20px_0_55px_rgba(0,0,0,0.12)]" transition:fly={{ x: 60, duration: 200 }}>
         <div class="flex items-center justify-between gap-4">
           <!-- Logo sits on a deep-green chip so the gold wordmark stays legible on the light drawer. -->
           <a href="/" class="flex shrink-0 items-center" on:click={() => (menuOpen = false)} aria-label="Emnel Adventures home">
