@@ -9,7 +9,6 @@
   import Footer from '$lib/components/public/Footer.svelte';
   import ConsentBanner from '$lib/components/public/ConsentBanner.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
-  import PersistentCTA from '$lib/components/public/PersistentCTA.svelte';
   import ShortlistFab from '$lib/components/public/ShortlistFab.svelte';
   import EnquiryModal from '$lib/components/public/EnquiryModal.svelte';
   import LazyAIAdvisor from '$lib/components/public/LazyAIAdvisor.svelte';
@@ -146,10 +145,7 @@
 
 {#if !isAdmin}
   <Footer />
-  <!-- clearance so the fixed mobile CTA bar never covers footer content -->
-  <div class="h-16 lg:hidden" aria-hidden="true"></div>
   <ShortlistFab />
-  <PersistentCTA />
   <ConsentBanner />
   <EnquiryModal />
   {#if aiOn}
