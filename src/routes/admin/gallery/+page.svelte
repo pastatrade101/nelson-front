@@ -13,6 +13,7 @@
     Map as MapIcon,
     Plus,
     Search,
+    Star,
     Trash2,
     X
   } from '@lucide/svelte';
@@ -104,12 +105,16 @@
   let toDelete: GalleryItem | null = null;
   let form = emptyForm();
   let toasts: Toast[] = [];
+  let heroBusy = '';
 
   // backend orders by sort_order; apply stable secondary sort by created_at
   $: sorted = [...rows].sort((a, b) => {
     if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
     return String(a.created_at ?? '').localeCompare(String(b.created_at ?? ''));
   });
+  // The public gallery hero = the lowest-sort_order published image. "Make hero"
+  // gives an image the lowest sort_order so it leads the gallery page.
+  $: heroId = (sorted.find((i) => i.status === 'published') ?? sorted[0])?.id ?? '';
 
   const showToast = (message: string, type: Toast['type'] = 'success') => {
     const id = crypto.randomUUID();
@@ -250,6 +255,33 @@
     }
   };
 
+  // Promote an image to the gallery hero by giving it the lowest sort_order, so it
+  // leads the public /gallery page. Reuses the same fields the edit form sends.
+  const makeHero = async (item: GalleryItem) => {
+    if (item.id === heroId || heroBusy) return;
+    heroBusy = item.id;
+    try {
+      const minSort = Math.min(0, ...rows.map((r) => Number(r.sort_order) || 0));
+      await api.gallery.update(item.id, {
+        alt_text: item.alt_text ?? null,
+        caption: item.caption ?? null,
+        destination_id: item.destination_id ?? null,
+        image_url: item.image_url,
+        media_type: item.media_type,
+        sort_order: minSort - 1,
+        status: item.status,
+        title: item.title ?? null,
+        tour_id: item.tour_id ?? null
+      });
+      showToast('Set as gallery hero — it now leads the gallery page.');
+      await load();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Unable to set the hero image.', 'error');
+    } finally {
+      heroBusy = '';
+    }
+  };
+
   const mediaTypeMeta = (type: GalleryItem['media_type']) => {
     if (type === 'video') return { icon: Film, classes: 'bg-purple-50 text-purple-600 ring-purple-200/60' };
     if (type === 'document') return { icon: FileText, classes: 'bg-slate-100 text-slate-600 ring-slate-200/70' };
@@ -273,7 +305,7 @@
     on:action={openCreate}
   />
 
-  <AdminToolbar className="grid gap-3 lg:grid-cols-[1fr_repeat(4,150px)_auto] lg:items-end">
+  <AdminToolbar className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:items-end lg:grid-cols-3 xl:grid-cols-[minmax(200px,1.6fr)_repeat(4,minmax(0,1fr))_auto]">
     <label class="grid gap-2 text-sm font-medium text-ink">
       <span>Search</span>
       <span class="flex h-11 items-center gap-2 rounded-2xl border border-ink/10 bg-surface px-3 shadow-sm transition focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
@@ -325,6 +357,9 @@
               <svelte:component this={meta.icon} size={10} />{item.media_type}
             </span>
             <span class="absolute right-2.5 top-2.5"><StatusBadge status={item.status} /></span>
+            {#if item.id === heroId}
+              <span class="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-goldfinch-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-deep-green shadow"><Star size={10} fill="currentColor" strokeWidth={0} />Hero</span>
+            {/if}
           </div>
           <div class="grid gap-2 p-4">
             <p class="truncate font-semibold text-ink">{item.title || 'Untitled'}</p>
@@ -339,6 +374,16 @@
               {/if}
             </div>
             <div class="mt-1 flex gap-2">
+              <button
+                class={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-sm transition disabled:cursor-default ${item.id === heroId ? 'border-goldfinch-gold/50 bg-goldfinch-gold/20 text-heading' : 'border-ink/10 bg-surface text-ink hover:border-goldfinch-gold/35 hover:bg-sand/70'}`}
+                type="button"
+                title={item.id === heroId ? 'Current gallery hero' : 'Make gallery hero'}
+                aria-label={item.id === heroId ? 'Current gallery hero' : 'Make gallery hero'}
+                disabled={item.id === heroId || heroBusy === item.id}
+                on:click={() => makeHero(item)}
+              >
+                <Star size={13} fill={item.id === heroId ? 'currentColor' : 'none'} strokeWidth={item.id === heroId ? 0 : 2} />
+              </button>
               <button class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
                 <Edit size={13} />Edit
               </button>
@@ -382,9 +427,22 @@
                   {#if !relationLabel(item.destinations, 'name') && !relationLabel(item.tours, 'title')}<span class="text-ink/35">—</span>{/if}
                 </td>
                 <td class="px-4 py-3"><StatusBadge status={item.status} /></td>
-                <td class="px-4 py-3 text-ink/65">{item.sort_order}</td>
+                <td class="px-4 py-3 text-ink/65">
+                  {item.sort_order}
+                  {#if item.id === heroId}<span class="ml-1.5 inline-flex items-center gap-1 rounded-full bg-goldfinch-gold px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wide text-deep-green"><Star size={9} fill="currentColor" strokeWidth={0} />Hero</span>{/if}
+                </td>
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-2">
+                    <button
+                      class={`inline-flex h-9 w-9 items-center justify-center rounded-xl border shadow-sm transition disabled:cursor-default ${item.id === heroId ? 'border-goldfinch-gold/50 bg-goldfinch-gold/20 text-heading' : 'border-ink/10 bg-surface text-ink hover:border-goldfinch-gold/35 hover:bg-sand/70'}`}
+                      type="button"
+                      title={item.id === heroId ? 'Current gallery hero' : 'Make gallery hero'}
+                      aria-label={item.id === heroId ? 'Current gallery hero' : 'Make gallery hero'}
+                      disabled={item.id === heroId || heroBusy === item.id}
+                      on:click={() => makeHero(item)}
+                    >
+                      <Star size={14} fill={item.id === heroId ? 'currentColor' : 'none'} strokeWidth={item.id === heroId ? 0 : 2} />
+                    </button>
                     <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
                       <Edit size={14} />Edit
                     </button>

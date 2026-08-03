@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
-  import { ArrowRight, Camera, ChevronLeft, ChevronRight, ImageOff, MapPin, X } from '@lucide/svelte';
+  import { ArrowRight, Camera, ChevronLeft, ChevronRight, Compass, ImageOff, MapPin, Route, X } from '@lucide/svelte';
   import { origUrl, thumbUrl } from '$lib/img';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
@@ -10,7 +10,10 @@
   export let data: PageData;
 
   // Only real, published images with a usable URL — never invented placeholders.
-  $: images = ((data.images ?? []) as Record<string, unknown>[]).filter((im) => typeof im.image_url === 'string' && im.image_url);
+  // Ordered by sort_order, so images[0] (the lowest) is the "hero" set in admin.
+  $: images = ((data.images ?? []) as Record<string, unknown>[])
+    .filter((im) => typeof im.image_url === 'string' && im.image_url)
+    .sort((a, b) => (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0));
 
   const destOf = (im: Record<string, unknown>) => (im.destinations as { name?: string; slug?: string } | null) ?? null;
   const tourOf = (im: Record<string, unknown>) => (im.tours as { title?: string; slug?: string } | null) ?? null;
@@ -65,15 +68,28 @@
     <nav class="mb-6 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-white/55">
       <a class="transition hover:text-goldfinch-gold" href="/">Home</a><span>/</span><span class="text-white/80">Gallery</span>
     </nav>
-    <p class="brand-eyebrow text-goldfinch-gold">Recent Safari Gallery</p>
-    <h1 class="mt-3 max-w-2xl font-serif text-[34px] font-light leading-[1.05] md:text-[52px]">Safari moments, unedited</h1>
+    <p class="brand-eyebrow text-goldfinch-gold">Travel Journal</p>
+    <h1 class="mt-3 max-w-2xl font-serif text-[34px] font-light leading-[1.05] md:text-[52px]">Safari Moments,<br />Unedited.</h1>
     <p class="mt-4 max-w-xl text-[15px] font-medium leading-7 text-white/75 md:text-base">
-      Real photographs from Emnel journeys across the Serengeti, Ngorongoro, Tarangire and Zanzibar. Click any frame to explore it full-screen.
+      Every image tells the story of a real journey across Tanzania—from sunrise game drives in the Serengeti to quiet evenings overlooking the Ngorongoro Crater.
     </p>
     {#if images.length}
-      <p class="mt-5 inline-flex items-center gap-2 border border-white/20 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80">
-        <Camera size={13} /> {images.length} photo{images.length === 1 ? '' : 's'}
-      </p>
+      <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2.5">
+        <span class="inline-flex items-center gap-2 text-sm font-bold text-white/90">
+          <Camera size={16} strokeWidth={2.2} class="text-goldfinch-gold" /> {images.length} Image{images.length === 1 ? '' : 's'}
+        </span>
+        {#if destinations.length}
+          <span class="h-3.5 w-px bg-white/25" aria-hidden="true"></span>
+          <span class="inline-flex items-center gap-2 text-sm font-bold text-white/90">
+            <MapPin size={16} strokeWidth={2.2} class="text-goldfinch-gold" /> {destinations.length} Destination{destinations.length === 1 ? '' : 's'}
+          </span>
+          <span class="h-3.5 w-px bg-white/25" aria-hidden="true"></span>
+          <span class="inline-flex min-w-0 items-center gap-2 text-[13px] font-semibold text-white/70">
+            <Compass size={16} strokeWidth={2.2} class="shrink-0 text-goldfinch-gold" />
+            <span class="truncate">{destinations.slice(0, 4).join(' • ')}{destinations.length > 4 ? ' …' : ''}</span>
+          </span>
+        {/if}
+      </div>
     {/if}
   </div>
 </section>
@@ -94,6 +110,7 @@
         {#each filtered as im, i (im.id ?? i)}
           {@const c = cap(im)}
           {@const d = destOf(im)}
+          {@const t = tourOf(im)}
           <button
             type="button"
             class="group relative aspect-square overflow-hidden bg-deep-green"
@@ -114,8 +131,15 @@
                 <MapPin size={9} strokeWidth={2.6} /> {d.name}
               </span>
             {/if}
-            {#if c}
-              <p class="absolute inset-x-0 bottom-0 translate-y-1 p-3 text-left text-[13px] font-semibold leading-tight text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">{c}</p>
+            <!-- hover detail: caption + destination + itinerary the image belongs to -->
+            {#if c || d?.name || t?.title}
+              <div class="absolute inset-x-0 bottom-0 translate-y-2 p-3 text-left opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+                {#if c}<p class="line-clamp-2 text-[13px] font-bold leading-tight text-white">{c}</p>{/if}
+                <div class="mt-1.5 flex flex-col gap-0.5">
+                  {#if d?.name}<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-white/75"><MapPin size={11} strokeWidth={2.4} /> {d.name}</span>{/if}
+                  {#if t?.title}<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-goldfinch-gold/90"><Route size={11} strokeWidth={2.4} /> <span class="truncate">{t.title}</span></span>{/if}
+                </div>
+              </div>
             {/if}
           </button>
         {/each}
