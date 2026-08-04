@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import {
-    AlertTriangle, ArrowDownRight, ArrowUpRight, BarChart3, Bot, ClipboardList, Compass, ExternalLink, Filter,
-    Flame, Hand, Lightbulb, MapPin, MessageCircle, MousePointer2, MousePointerClick, MoveVertical, PlayCircle,
-    Send, Sparkles, Target, TrendingUp, Trophy, Users
+    Activity, AlertTriangle, AppWindow, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Bot, Check,
+    CheckCircle2, ClipboardList, Compass, Copy, Download, ExternalLink, Eye, Filter, Flame, Globe, Hand, History,
+    Info, Lightbulb, Link2, ListChecks, MapPin, MessageCircle, Monitor, MousePointer2, MousePointerClick,
+    MoveVertical, PlayCircle, RefreshCw, ScanEye, Send, ShieldCheck, Sparkles, Target, TrendingUp, Trophy, Users, Zap
   } from '@lucide/svelte';
   import { env as publicEnv } from '$env/dynamic/public';
   import { api } from '$lib/api/client';
@@ -12,6 +13,11 @@
   import Sparkline from '$lib/components/admin/Sparkline.svelte';
   import Counter from '$lib/components/admin/Counter.svelte';
   import AnalyticsEmpty from '$lib/components/admin/AnalyticsEmpty.svelte';
+  import MetricCard from '$lib/components/admin/ux/MetricCard.svelte';
+  import InsightCard from '$lib/components/admin/ux/InsightCard.svelte';
+  import BreakdownBars from '$lib/components/admin/ux/BreakdownBars.svelte';
+  import DeepLinkCard from '$lib/components/admin/ux/DeepLinkCard.svelte';
+  import ScoreRing from '$lib/components/admin/ux/ScoreRing.svelte';
   import { barConfig, doughnutConfig, funnelConfig, lineConfig } from '$lib/charts';
 
   type Tally = Array<{ label: string; value: number }>;
@@ -32,6 +38,42 @@
     byDay: Array<{ date: string; users: number; sessions: number; pageViews: number }>;
     topPages: Tally; sources: Tally; countries: Tally; devices: Tally;
   };
+  // Real Microsoft Clarity aggregates (Data Export API) — nulls where unavailable.
+  type ClarityTotals = {
+    sessions: number | null; botSessions: number | null; distinctUsers: number | null; pagesPerSession: number | null;
+    avgScrollDepth: number | null; totalTimeMs: number | null; activeTimeMs: number | null; rageClicks: number | null;
+    deadClicks: number | null; excessiveScroll: number | null; quickBacks: number | null; scriptErrors: number | null; errorClicks: number | null;
+  };
+  type Clarity = {
+    configured: boolean; error?: string; windowDays: number; fetchedAt: string | null;
+    totals: ClarityTotals; byDevice: Tally; byBrowser: Tally; byCountry: Tally; byUrl: Tally;
+  };
+  type UxInsight = {
+    id: string; priority: 'critical' | 'high' | 'medium' | 'low'; confidence: 'high' | 'medium' | 'low';
+    title: string; why: string; impact: string; difficulty: 'easy' | 'medium' | 'hard'; estTime: string; source: string;
+  };
+  type UxInsights = { available: boolean; reason?: string; generatedAt: string | null; summary: string | null; insights: UxInsight[]; dataSources: string[] };
+  // Deterministic website-intelligence engine (no LLM) — health/category scores,
+  // executive summary, rule-based alerts, prioritized actions, real timeline.
+  type MetricRef = { value: number | null; source: string; changePct: number | null; status: 'direct' | 'derived' | 'na'; note?: string };
+  type CategoryScore = { key: string; label: string; score: number | null; changePct: number | null; available: boolean; reason: string; basis: string };
+  type WiAlert = { id: string; severity: 'critical' | 'warning' | 'info' | 'success'; category: string; title: string; detail: string; metric: string | null; deepLink?: string };
+  type WiAction = { id: string; priority: 'critical' | 'high' | 'medium' | 'low'; category: string; issue: string; supportingMetric: string; why: string; fix: string; expectedOutcome: string; effort: 'easy' | 'medium' | 'hard'; confidence: 'high' | 'medium' | 'low'; deepLink?: string };
+  type WiTimeline = { when: string; date: string; label: string; detail: string; direction: 'up' | 'down' | 'flat' };
+  type Intelligence = {
+    generatedAt: string; range: { from: string; to: string; days: number; label: string };
+    sources: { firstParty: boolean; ga4: boolean; clarity: boolean };
+    health: { score: number | null; status: string; changePct: number | null; criticalCount: number; basis: string; contributing: string[] };
+    categoryScores: CategoryScore[];
+    executive: { metrics: Record<string, MetricRef>; biggestDropOff: string | null; topIssue: string | null };
+    alerts: WiAlert[]; actions: WiAction[]; timeline: WiTimeline[];
+  };
+  // A source-labeled KPI — provider-agnostic so new providers slot in unchanged.
+  type MetricCardModel = {
+    key: string; label: string; value: number | null; format?: 'number' | 'percent' | 'duration' | 'currency';
+    source: string; available: boolean; deepLink?: string; deepLinkLabel?: string; emptyText?: string;
+    hint?: string; series?: number[]; icon?: typeof Users; accent?: string;
+  };
 
   const RANGES = [
     { k: 'today', l: 'Today' }, { k: 'yesterday', l: 'Yesterday' }, { k: '7d', l: '7 days' },
@@ -45,26 +87,22 @@
   let funnel: Funnel | null = null;
   let traffic: Traffic | null = null;
   let ga4: Ga4 | null = null;
+  let clarity: Clarity | null = null;
+  let ux: UxInsights | null = null;
+  let intel: Intelligence | null = null;
+  let uxLoading = false;
+  let copied = false;
   let updatedAt = 0;
   let eventView: 'business' | 'dev' = 'business';
   let activeStep = -1;
 
-  // ── Microsoft Clarity — UX analytics companion (a launch point, not a rebuild)
+  // ── Microsoft Clarity — one source inside the UX Intelligence Hub. Recordings
+  // & heatmaps stay in Clarity (deep-linked); real aggregates come from the API.
   const clarityId = publicEnv.PUBLIC_CLARITY_PROJECT_ID;
   const clarityConnected = Boolean(clarityId);
   const clarityUrl = clarityDashboardUrl(clarityId);
-  const CLARITY_CAPS = [
-    { icon: PlayCircle, label: 'Session recordings', desc: 'Watch real visitor sessions' },
-    { icon: Flame, label: 'Heatmaps', desc: 'Click, scroll & attention maps' },
-    { icon: Hand, label: 'Rage clicks', desc: 'Frustration & friction signals' },
-    { icon: MousePointer2, label: 'Dead clicks', desc: 'Clicks that lead nowhere' },
-    { icon: MoveVertical, label: 'Scroll depth', desc: 'How far people actually read' }
-  ];
-  // Foundation for future AI-generated UX recommendations (biggest drop-offs,
-  // rage-clicked elements, mobile usability, CTA performance…). Rendered when
-  // populated; empty for now — no AI summarisation is implemented yet.
-  type ClarityUxInsight = { title: string; detail: string };
-  const clarityUxInsights: ClarityUxInsight[] = [];
+  const clarityLink = (view: string) =>
+    clarityId ? `https://clarity.microsoft.com/projects/view/${clarityId}/${view}` : 'https://clarity.microsoft.com/';
 
   const load = async () => {
     loading = true;
@@ -86,6 +124,46 @@
     } finally {
       loading = false;
     }
+    void loadUx();
+  };
+
+  // UX Intelligence (Clarity aggregates + grounded AI insights) loads separately
+  // so the core KPIs never wait on it. `force` bypasses the server-side cache.
+  const loadUx = async (force = false) => {
+    uxLoading = true;
+    const q = force ? { range, refresh: '1' } : { range };
+    try {
+      const [c, u, w] = await Promise.all([
+        api.analytics.clarity(force ? { refresh: '1' } : undefined).catch(() => null),
+        api.analytics.uxInsights(q).catch(() => null),
+        api.analytics.intelligence({ range }).catch(() => null)
+      ]);
+      clarity = (c?.data ?? null) as Clarity | null;
+      ux = (u?.data ?? null) as UxInsights | null;
+      intel = (w?.data ?? null) as Intelligence | null;
+    } finally {
+      uxLoading = false;
+    }
+  };
+
+  // ── Export + share (real data only) ─────────────────────────────────────────
+  const csvCell = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const exportCsv = () => {
+    if (typeof document === 'undefined') return;
+    const rows: string[][] = [['Section', 'Metric', 'Value', 'Source', 'Change vs prev']];
+    const m = intel?.executive.metrics ?? {};
+    for (const [k, v] of Object.entries(m)) rows.push(['Executive', k, v.value == null ? 'N/A' : String(v.value), v.source, v.changePct == null ? '' : `${v.changePct}%`]);
+    for (const s of intel?.categoryScores ?? []) rows.push(['Score', s.label, s.score == null ? 'N/A' : String(s.score), 'derived', s.changePct == null ? '' : `${s.changePct}%`]);
+    for (const a of intel?.actions ?? []) rows.push(['Action', a.issue, a.supportingMetric, a.priority, a.expectedOutcome]);
+    const csv = rows.map((r) => r.map(csvCell).join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = `website-analytics-${range}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  };
+  const copyLink = async () => {
+    if (typeof window === 'undefined') return;
+    try { await navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => (copied = false), 1800); } catch { /* clipboard blocked */ }
   };
 
   const setRange = (k: string) => { range = k; activeStep = -1; void load(); };
@@ -126,6 +204,74 @@
   $: eventSeries = (traffic?.byDay ?? []).map((d) => d.events);
   $: waSeries = (traffic?.byDay ?? []).map((d) => d.whatsapp);
   $: aiSeries = (traffic?.byDay ?? []).map((d) => d.ai);
+
+  // ── UX friction cards (Clarity) — real or honestly empty; source-labeled.
+  // The business + GA4 KPIs now live in the deterministic Executive summary.
+  $: ga4Cfg = ga4?.configured === true;
+  $: cCfg = clarity?.configured === true; // Data Export API token present (real numbers)
+  $: cT = clarity?.totals ?? null;
+
+  $: clarityMetrics = [
+    { key: 'rage', label: 'Rage clicks', value: cT?.rageClicks ?? null, source: 'clarity', available: cCfg && cT?.rageClicks != null, deepLink: clarityLink('impressions'), deepLinkLabel: 'Watch recordings', icon: Hand, accent: '#0F6CBD' },
+    { key: 'dead', label: 'Dead clicks', value: cT?.deadClicks ?? null, source: 'clarity', available: cCfg && cT?.deadClicks != null, deepLink: clarityLink('impressions'), deepLinkLabel: 'Watch recordings', icon: MousePointer2, accent: '#0F6CBD' },
+    { key: 'scroll', label: 'Avg scroll depth', value: cT?.avgScrollDepth ?? null, format: 'percent', source: 'clarity', available: cCfg && cT?.avgScrollDepth != null, deepLink: clarityLink('heatmaps'), deepLinkLabel: 'Open heatmap', icon: MoveVertical, accent: '#0F6CBD' },
+    { key: 'quick', label: 'Quick-backs', value: cT?.quickBacks ?? null, source: 'clarity', available: cCfg && cT?.quickBacks != null, deepLink: clarityLink('impressions'), deepLinkLabel: 'Watch recordings', icon: Zap, accent: '#0F6CBD' }
+  ] as MetricCardModel[];
+
+  // Breakdowns prefer GA4 (richer), falling back to Clarity; each stays labeled.
+  $: deviceRows = ga4Cfg && ga4!.devices.length ? ga4!.devices : clarity?.byDevice ?? [];
+  $: deviceSource = ga4Cfg && ga4!.devices.length ? 'ga4' : 'clarity';
+  $: countryRows = ga4Cfg && ga4!.countries.length ? ga4!.countries : clarity?.byCountry ?? [];
+  $: countrySource = ga4Cfg && ga4!.countries.length ? 'ga4' : 'clarity';
+  $: pageRows = ga4Cfg && ga4!.topPages.length ? ga4!.topPages : clarity?.byUrl ?? [];
+  $: pageSource = ga4Cfg && ga4!.topPages.length ? 'ga4' : 'clarity';
+  $: browserRows = clarity?.byBrowser ?? [];
+
+  // Connection panel — Makutano AI is always live; the rest reflect real config.
+  $: hubSources = [
+    { key: 'makutano', label: 'Makutano AI', connected: true, note: 'First-party events · live' },
+    { key: 'ga4', label: 'Google Analytics 4', connected: ga4Cfg, note: ga4Cfg ? 'Traffic API · live' : 'Add GA4 credentials' },
+    { key: 'clarity', label: 'Microsoft Clarity', connected: clarityConnected, note: cCfg ? 'Recordings + data export · live' : clarityConnected ? 'Recordings live · export off' : 'Not connected' }
+  ];
+  $: connectedCount = hubSources.filter((s) => s.connected).length;
+
+  // ── Executive summary — real KPIs + previous-period benchmarks (deterministic).
+  const execConfig: Array<{ key: string; label: string; icon: typeof Users; accent: string; format?: 'percent'; series?: () => number[] }> = [
+    { key: 'visitors', label: 'Visitors', icon: Users, accent: '#4A3728', series: () => visitorSeries },
+    { key: 'sessions', label: 'Sessions', icon: Activity, accent: '#E37400' },
+    { key: 'pageViews', label: 'Page views', icon: Eye, accent: '#E37400' },
+    { key: 'interactions', label: 'Interactions', icon: MousePointerClick, accent: '#153733' },
+    { key: 'leads', label: 'Leads', icon: Target, accent: '#153733', series: () => leadSeries },
+    { key: 'conversionRate', label: 'Conversion rate', icon: TrendingUp, accent: '#153733', format: 'percent' },
+    { key: 'formOpens', label: 'Form opens', icon: ClipboardList, accent: '#4A3728' },
+    { key: 'formSubmissions', label: 'Form submissions', icon: Send, accent: '#4A3728' },
+    { key: 'bookingRequests', label: 'Booking requests', icon: MapPin, accent: '#153733' },
+    { key: 'whatsappClicks', label: 'WhatsApp clicks', icon: MessageCircle, accent: '#128C7E', series: () => waSeries }
+  ];
+  $: execCards = intel
+    ? execConfig.flatMap((cfg) => {
+        const ref = intel!.executive.metrics[cfg.key];
+        return ref ? [{ cfg, ref }] : [];
+      })
+    : [];
+
+  // deterministic-alert + action styling (const maps, used in markup)
+  const ALERT_STYLE: Record<string, { cls: string; text: string; icon: typeof Info }> = {
+    critical: { cls: 'border-red-300/70 bg-red-50/50', text: 'text-red-700', icon: AlertTriangle },
+    warning: { cls: 'border-amber-300/70 bg-amber-50/40', text: 'text-amber-700', icon: AlertTriangle },
+    info: { cls: 'border-ink/12 bg-sand/25', text: 'text-ink/60', icon: Info },
+    success: { cls: 'border-emerald-300/70 bg-emerald-50/40', text: 'text-emerald-700', icon: CheckCircle2 }
+  };
+  const PRIO_STYLE: Record<string, { label: string; cls: string; bar: string }> = {
+    critical: { label: 'Critical', cls: 'bg-red-500/12 text-red-600', bar: 'bg-red-500' },
+    high: { label: 'High', cls: 'bg-amber-500/12 text-amber-600', bar: 'bg-amber-500' },
+    medium: { label: 'Medium', cls: 'bg-forest/12 text-forest', bar: 'bg-forest' },
+    low: { label: 'Low', cls: 'bg-ink/[0.06] text-ink/50', bar: 'bg-ink/30' }
+  };
+  $: healthStatusColor =
+    intel?.health.score == null ? 'text-ink/40'
+    : intel.health.score >= 70 ? 'text-emerald-600'
+    : intel.health.score >= 50 ? 'text-amber-600' : 'text-red-500';
 
   $: cards = overview
     ? [
@@ -332,69 +478,259 @@
       {/each}
     </div>
 
-    <!-- ── UX Insights · Microsoft Clarity (companion to GA4, not a rebuild) ── -->
-    <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div class="flex items-center gap-2">
-          <span class="grid h-8 w-8 place-items-center rounded-xl bg-forest text-white"><MousePointerClick size={17} /></span>
+    <!-- ══ Website Intelligence — deterministic health, behaviour & priorities (real-only) ══ -->
+    <section id="sec-ux" class="scroll-mt-24 overflow-hidden rounded-none border border-ink/10 bg-surface shadow-card">
+      <!-- header: neutral branding · connection summary · quick actions -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-deep-green to-forest p-5 text-white">
+        <div class="flex items-center gap-3">
+          <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/12 text-goldfinch-gold ring-1 ring-white/15"><ShieldCheck size={20} /></span>
           <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">UX insights · Microsoft Clarity</p>
-            <h3 class="text-lg font-bold text-ink">The “why” behind the numbers</h3>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">Website Intelligence</p>
+            <h3 class="font-serif text-xl font-light leading-tight">Health, behaviour &amp; what to fix next</h3>
           </div>
         </div>
-        <span class={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${clarityConnected ? 'bg-emerald-500/12 text-emerald-600' : 'bg-ink/[0.06] text-ink/50'}`}>
-          <span class={`h-2 w-2 rounded-full ${clarityConnected ? 'bg-emerald-500' : 'bg-ink/30'}`}></span>
-          {clarityConnected ? 'Connected' : 'Not connected'}
-        </span>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold ring-1 ring-white/15">
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span> {connectedCount}/{hubSources.length} sources live
+          </span>
+          <button type="button" on:click={() => loadUx(true)} disabled={uxLoading} class="inline-flex items-center gap-1.5 rounded-lg bg-white/12 px-3 py-1.5 text-xs font-bold ring-1 ring-white/15 transition hover:bg-white/20 disabled:opacity-50" aria-label="Refresh website intelligence">
+            <RefreshCw size={14} class={uxLoading ? 'animate-spin' : ''} /> Refresh
+          </button>
+          <button type="button" on:click={exportCsv} class="inline-flex items-center gap-1.5 rounded-lg bg-white/12 px-3 py-1.5 text-xs font-bold ring-1 ring-white/15 transition hover:bg-white/20" aria-label="Export CSV">
+            <Download size={14} /> CSV
+          </button>
+          <button type="button" on:click={copyLink} class="inline-flex items-center gap-1.5 rounded-lg bg-white/12 px-3 py-1.5 text-xs font-bold ring-1 ring-white/15 transition hover:bg-white/20" aria-label="Copy dashboard link">
+            {#if copied}<Check size={14} /> Copied{:else}<Link2 size={14} /> Copy link{/if}
+          </button>
+          <a class="inline-flex items-center gap-1.5 rounded-lg bg-goldfinch-gold px-3 py-1.5 text-xs font-bold text-deep-green transition hover:brightness-105" href={clarityUrl} target="_blank" rel="noopener noreferrer">
+            Open Clarity <ExternalLink size={13} />
+          </a>
+        </div>
       </div>
-      <p class="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
-        Clarity records real sessions and builds heatmaps — capturing rage clicks, dead clicks and scroll behaviour. It's the qualitative UX layer that complements GA4's metrics: GA4 stays your primary business analytics, while recordings &amp; heatmaps live inside Clarity.
-      </p>
 
-      {#if clarityConnected}
-        <div class="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {#each CLARITY_CAPS as cap}
-            {@const CI = cap.icon}
-            <div class="rounded-xl border border-ink/[0.07] bg-sand/20 p-3">
-              <span class="grid h-8 w-8 place-items-center rounded-lg bg-forest/10 text-forest dark:text-goldfinch-gold"><CI size={16} /></span>
-              <p class="mt-2 text-[13px] font-bold text-ink/80">{cap.label}</p>
-              <p class="mt-0.5 text-[11px] leading-4 text-ink/50">{cap.desc}</p>
+      <div class="grid gap-5 p-5">
+        <!-- connection panel -->
+        <div class="grid gap-2.5 sm:grid-cols-3">
+          {#each hubSources as s}
+            <div class="flex items-center gap-2.5 rounded-xl border border-ink/[0.07] bg-sand/20 px-3.5 py-2.5">
+              <span class={`h-2.5 w-2.5 shrink-0 rounded-full ${s.connected ? 'bg-emerald-500 ring-4 ring-emerald-500/15' : 'bg-ink/20'}`}></span>
+              <div class="min-w-0">
+                <p class="truncate text-[13px] font-bold text-ink/80">{s.label}</p>
+                <p class="truncate text-[11px] text-ink/45">{s.note}</p>
+              </div>
             </div>
           {/each}
         </div>
-        <div class="mt-4 flex flex-wrap items-center gap-2">
-          <a class="inline-flex items-center gap-2 rounded-lg bg-forest px-4 py-2.5 text-sm font-bold text-white transition hover:bg-forest/90" href={clarityUrl} target="_blank" rel="noopener noreferrer">
-            Open Microsoft Clarity <ExternalLink size={15} />
-          </a>
-          <span class="text-xs text-ink/45">Recordings &amp; heatmaps open in Clarity — nothing is duplicated here.</span>
-        </div>
 
-        <!-- Future AI UX insights — architecture ready, not yet generated -->
-        <div class="mt-4 rounded-xl border border-dashed border-goldfinch-gold/30 bg-goldfinch-gold/[0.05] p-4">
-          <p class="flex items-center gap-1.5 text-xs font-bold text-clay"><Sparkles size={14} /> AI UX recommendations</p>
-          {#if clarityUxInsights.length}
-            <div class="mt-2 grid gap-2">
-              {#each clarityUxInsights as ux}
-                <div><p class="text-[13px] font-bold text-ink/80">{ux.title}</p><p class="text-xs text-ink/55">{ux.detail}</p></div>
-              {/each}
+        <!-- Website Health + category scores (derived from real analytics) -->
+        <div class="grid gap-4 rounded-2xl border border-ink/10 bg-gradient-to-br from-sand/35 to-surface p-5 lg:grid-cols-[auto_1fr] lg:items-center">
+          <div class="flex items-center gap-4">
+            <ScoreRing score={intel?.health.score ?? null} label={intel?.health.status ?? ''} size={128} />
+            <div>
+              <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40">Website Health</p>
+              <p class={`text-2xl font-extrabold ${healthStatusColor}`}>{intel?.health.status ?? 'N/A'}</p>
+              <p class={`mt-1 flex items-center gap-1.5 text-[12px] font-semibold ${intel && intel.health.criticalCount > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                {#if intel && intel.health.criticalCount > 0}<AlertTriangle size={13} /> {intel.health.criticalCount} critical issue{intel.health.criticalCount === 1 ? '' : 's'}{:else}<CheckCircle2 size={13} /> No critical issues{/if}
+              </p>
+              <p class="mt-1 text-[10px] uppercase tracking-wide text-ink/35">Derived from website analytics</p>
             </div>
-          {:else}
-            <p class="mt-1 text-xs leading-5 text-ink/55">Coming soon: automatic call-outs for your biggest funnel drop-off, most rage-clicked elements, mobile usability issues and high-performing CTAs — generated from Clarity data. This panel is already wired to display them.</p>
-          {/if}
-        </div>
-      {:else}
-        <div class="mt-4">
-          <AnalyticsEmpty icon={PlayCircle} title="Connect Microsoft Clarity for UX analytics" minHeight={180}
-            description="Create a free Clarity project, then set PUBLIC_CLARITY_PROJECT_ID in the environment. Clarity then loads automatically on the live site after cookie consent — session recordings, heatmaps and rage/dead-click detection, with no further code changes."
-            hint="Clarity masks all form inputs by default; keep the dashboard masking on 'Mask' or 'Balanced' for privacy." />
-          <div class="mt-3">
-            <a class="inline-flex items-center gap-2 rounded-lg border border-forest px-4 py-2.5 text-sm font-bold text-forest transition hover:bg-forest hover:text-white" href="https://clarity.microsoft.com/" target="_blank" rel="noopener noreferrer">
-              Create a free Clarity project <ExternalLink size={15} />
-            </a>
+          </div>
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {#each intel?.categoryScores ?? [] as cat (cat.key)}
+              <div class="flex flex-col items-center rounded-xl border border-ink/[0.07] bg-surface p-3 text-center">
+                <ScoreRing score={cat.score} size={68} stroke={7} />
+                <p class="mt-1.5 text-[12px] font-bold text-ink/75">{cat.label}</p>
+                <p class="mt-0.5 line-clamp-2 text-[10px] leading-3 text-ink/40">{cat.reason}</p>
+              </div>
+            {/each}
           </div>
         </div>
-      {/if}
-    </div>
+
+        <!-- Executive summary — real KPIs + previous-period benchmarks -->
+        <div>
+          <div class="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40">Executive summary · {intel?.range.label ?? `${range}`} vs previous period</p>
+            {#if lastUpdatedLabel}<span class="text-[11px] text-ink/40">{lastUpdatedLabel}</span>{/if}
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {#each execCards as x (x.cfg.key)}
+              <MetricCard
+                label={x.cfg.label} value={x.ref.value} format={x.cfg.format ?? 'number'} source={x.ref.source}
+                available={x.ref.status !== 'na'} emptyText={x.ref.note ?? ''} changePct={x.ref.changePct}
+                series={x.cfg.series ? x.cfg.series() : []} icon={x.cfg.icon} accent={x.cfg.accent} loading={uxLoading && !intel} />
+            {/each}
+          </div>
+          {#if intel && (intel.executive.biggestDropOff || intel.executive.topIssue)}
+            <div class="mt-3 grid gap-3 sm:grid-cols-2">
+              {#if intel.executive.biggestDropOff}
+                <div class="flex items-center gap-2.5 rounded-xl border border-amber-300/60 bg-amber-50/40 px-4 py-3">
+                  <ArrowDownRight size={18} class="shrink-0 text-amber-600" />
+                  <div><p class="text-[10px] font-bold uppercase tracking-wide text-amber-700/80">Biggest drop-off</p><p class="text-[13px] font-bold text-ink/80">{intel.executive.biggestDropOff}</p></div>
+                </div>
+              {/if}
+              {#if intel.executive.topIssue}
+                <div class="flex items-center gap-2.5 rounded-xl border border-red-300/60 bg-red-50/40 px-4 py-3">
+                  <AlertTriangle size={18} class="shrink-0 text-red-500" />
+                  <div><p class="text-[10px] font-bold uppercase tracking-wide text-red-700/80">Most important issue</p><p class="text-[13px] font-bold text-ink/80">{intel.executive.topIssue}</p></div>
+                </div>
+              {/if}
+            </div>
+          {/if}
+        </div>
+
+        <!-- Alerts — rule-based on real conditions -->
+        {#if intel?.alerts.length}
+          <div>
+            <p class="mb-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40">Alerts · {intel.alerts.length}</p>
+            <div class="grid gap-2">
+              {#each intel.alerts as a (a.id)}
+                {@const st = ALERT_STYLE[a.severity]}
+                <div class={`flex items-start gap-3 rounded-xl border px-4 py-3 ${st.cls}`}>
+                  <svelte:component this={st.icon} size={16} class={`mt-0.5 shrink-0 ${st.text}`} />
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <p class="text-[13px] font-bold text-ink/85">{a.title}</p>
+                      <span class="rounded-full bg-ink/[0.05] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-ink/50">{a.category}</span>
+                      {#if a.metric}<span class={`text-[11px] font-bold ${st.text}`}>{a.metric}</span>{/if}
+                    </div>
+                    <p class="mt-0.5 text-[12px] leading-5 text-ink/60">{a.detail}</p>
+                  </div>
+                  {#if a.deepLink}<a class="shrink-0 text-[11px] font-bold text-forest hover:underline" href={clarityLink(a.deepLink)} target="_blank" rel="noopener noreferrer">View →</a>{/if}
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        <!-- Recommended action plan — deterministic, priority-ordered -->
+        {#if intel?.actions.length}
+          <div>
+            <p class="mb-2.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40"><ListChecks size={13} /> Recommended action plan · priority order</p>
+            <div class="grid gap-2.5">
+              {#each intel.actions as a, i (a.id)}
+                {@const p = PRIO_STYLE[a.priority]}
+                <div class="relative flex gap-3 overflow-hidden rounded-2xl border border-ink/10 bg-surface p-4 shadow-[0_1px_2px_rgba(28,26,22,0.04)]">
+                  <span class={`absolute inset-y-0 left-0 w-1 ${p.bar}`} aria-hidden="true"></span>
+                  <span class="ml-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink/[0.05] text-[13px] font-extrabold text-ink/60">{i + 1}</span>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${p.cls}`}>{p.label}</span>
+                      <span class="rounded-full bg-ink/[0.05] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-ink/50">{a.category}</span>
+                      <span class="text-[11px] font-bold text-ink/45">{a.supportingMetric}</span>
+                    </div>
+                    <p class="mt-1 text-[14px] font-bold text-heading">{a.issue}</p>
+                    <p class="mt-0.5 text-[12px] leading-5 text-ink/60"><span class="font-semibold text-ink/70">Why:</span> {a.why}</p>
+                    <p class="mt-0.5 text-[12px] leading-5 text-ink/60"><span class="font-semibold text-ink/70">Fix:</span> {a.fix}</p>
+                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                      <span class="inline-flex items-center gap-1 rounded-lg bg-emerald-500/[0.08] px-2 py-1 text-[11px] font-bold text-emerald-700"><TrendingUp size={12} /> {a.expectedOutcome}</span>
+                      <span class="inline-flex items-center gap-1 rounded-lg bg-sand/50 px-2 py-1 text-[11px] font-semibold text-ink/65">Effort: {a.effort}</span>
+                      <span class="inline-flex items-center gap-1 rounded-lg bg-sand/50 px-2 py-1 text-[11px] font-semibold text-ink/65">Confidence: {a.confidence}</span>
+                      {#if a.deepLink}<a class="ml-auto text-[11px] font-bold text-forest hover:underline" href={clarityLink(a.deepLink)} target="_blank" rel="noopener noreferrer">View supporting data →</a>{/if}
+                    </div>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {:else if intel}
+          <div class="flex items-center gap-2.5 rounded-xl border border-emerald-300/50 bg-emerald-50/40 px-4 py-3">
+            <CheckCircle2 size={18} class="shrink-0 text-emerald-600" />
+            <p class="text-[13px] text-ink/70">No priority issues detected in this period. Keep an eye on the alerts above as traffic grows.</p>
+          </div>
+        {/if}
+
+        <!-- AI analyst summary — supporting, grounded in real data (not a chatbot) -->
+        <div class="rounded-2xl border border-goldfinch-gold/25 bg-gradient-to-br from-goldfinch-gold/[0.06] to-transparent p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="flex items-center gap-1.5 text-[13px] font-bold text-clay">
+              <Sparkles size={15} /> AI analyst summary
+              <span class="rounded bg-clay/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-clay/70">Supporting · grounded in real data</span>
+            </p>
+            {#if ux?.generatedAt}
+              <span class="text-[11px] text-ink/40">Generated {new Date(ux.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            {/if}
+          </div>
+          {#if uxLoading && !ux}
+            <div class="mt-3 grid gap-2" aria-hidden="true">
+              <div class="h-4 w-3/4 animate-pulse rounded bg-ink/[0.07]"></div>
+              <div class="h-4 w-2/3 animate-pulse rounded bg-ink/[0.05]"></div>
+            </div>
+          {:else if ux?.available}
+            {#if ux.summary}<p class="mt-2 text-sm leading-6 text-ink/70">{ux.summary}</p>{/if}
+            {#if ux.insights.length}
+              <div class="mt-3 grid gap-3 lg:grid-cols-2">
+                {#each ux.insights as ins (ins.id)}<InsightCard insight={ins} />{/each}
+              </div>
+            {/if}
+            {#if ux.dataSources.length}<p class="mt-3 text-[11px] text-ink/40">Grounded in: {ux.dataSources.join(' · ')}</p>{/if}
+          {:else}
+            <div class="mt-2 flex items-start gap-2.5 rounded-xl border border-dashed border-ink/12 bg-sand/20 p-3.5">
+              <Lightbulb size={16} class="mt-0.5 shrink-0 text-clay/60" />
+              <p class="text-[13px] leading-6 text-ink/55">{ux?.reason ?? 'The AI summary fills in once there is enough traffic — the deterministic metrics above are unaffected.'}</p>
+            </div>
+          {/if}
+        </div>
+
+        <!-- UX friction signals (Clarity) -->
+        <div>
+          <p class="mb-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40">UX friction signals · Microsoft Clarity</p>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {#each clarityMetrics as m (m.key)}
+              <MetricCard
+                label={m.label} value={m.value} format={m.format ?? 'number'} source={m.source}
+                available={m.available} deepLink={m.deepLink} deepLinkLabel={m.deepLinkLabel ?? 'Open in Clarity'}
+                emptyText={m.emptyText ?? ''} icon={m.icon} accent={m.accent ?? '#0F6CBD'} loading={uxLoading && !clarity} />
+            {/each}
+          </div>
+        </div>
+
+        <!-- breakdowns (GA4 preferred, Clarity fallback — each stays labeled) -->
+        <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <BreakdownBars title="Devices" source={deviceSource} rows={deviceRows} icon={Monitor} accent="#153733" emptyText="Device split appears once GA4 or Clarity export is live." />
+          <BreakdownBars title="Top countries" source={countrySource} rows={countryRows} icon={Globe} accent="#4A3728" emptyText="Country data appears with GA4 or Clarity export." />
+          <BreakdownBars title="Top pages" source={pageSource} rows={pageRows} icon={AppWindow} accent="#0F6CBD" emptyText="Top pages appear with GA4 or Clarity export." />
+          <BreakdownBars title="Browsers" source="clarity" rows={browserRows} icon={AppWindow} accent="#0F6CBD" emptyText="Browser split comes from Clarity data export." />
+        </div>
+
+        <!-- Event timeline — real detected changes only -->
+        {#if intel?.timeline.length}
+          <div>
+            <p class="mb-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40"><History size={13} /> Event timeline · detected changes</p>
+            <div class="ml-2 grid gap-4 border-l border-ink/10 pl-5">
+              {#each intel.timeline as ev (ev.date + ev.label)}
+                <div class="relative">
+                  <span class={`absolute -left-[27px] top-0.5 grid h-4 w-4 place-items-center rounded-full ring-4 ring-surface ${ev.direction === 'up' ? 'bg-emerald-500' : ev.direction === 'down' ? 'bg-red-500' : 'bg-ink/30'}`}>
+                    <svelte:component this={ev.direction === 'up' ? ArrowUpRight : ev.direction === 'down' ? ArrowDownRight : ArrowRight} size={10} class="text-white" strokeWidth={3} />
+                  </span>
+                  <p class="text-[10px] font-bold uppercase tracking-wide text-ink/40">{ev.when}</p>
+                  <p class="text-[13px] font-bold text-ink/80">{ev.label}</p>
+                  <p class="text-[11px] text-ink/50">{ev.detail}</p>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        <!-- deep-link launchers — recordings & heatmaps live in Clarity, never rebuilt -->
+        <div>
+          <p class="mb-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40">
+            Explore in Microsoft Clarity <span class="font-medium normal-case tracking-normal text-ink/30">— recordings &amp; heatmaps open in Clarity</span>
+          </p>
+          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <DeepLinkCard title="Session recordings" desc="Watch real visitor sessions" href={clarityLink('impressions')} icon={PlayCircle} enabled={clarityConnected} />
+            <DeepLinkCard title="Click & scroll heatmaps" desc="Where attention actually goes" href={clarityLink('heatmaps')} icon={Flame} enabled={clarityConnected} />
+            <DeepLinkCard title="Rage & dead clicks" desc="Frustration & friction signals" href={clarityLink('impressions')} icon={Hand} enabled={clarityConnected} />
+            <DeepLinkCard title="Clarity dashboard" desc="Full UX analytics workspace" href={clarityUrl} icon={Activity} enabled={clarityConnected} />
+          </div>
+        </div>
+
+        {#if !clarityConnected}
+          <AnalyticsEmpty icon={ScanEye} title="Connect Microsoft Clarity" minHeight={140}
+            description="Set PUBLIC_CLARITY_PROJECT_ID on the site and CLARITY_API_TOKEN on the backend to unlock live recordings, heatmaps and real rage/dead-click metrics here — the panels above light up automatically."
+            hint="Clarity masks all form inputs by default — keep dashboard masking on 'Mask' or 'Balanced' for privacy." />
+        {/if}
+      </div>
+    </section>
 
     <!-- ── funnel (interactive: click a step; bottleneck auto-flagged) ───── -->
     {#if funnel}

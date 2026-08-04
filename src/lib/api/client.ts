@@ -386,6 +386,9 @@ export const api = {
     funnel: (params?: Record<string, QueryValue>) => apiRequest<Record<string, unknown>>(`/analytics/funnel${queryString(params)}`),
     timeseries: (params?: Record<string, QueryValue>) => apiRequest<Record<string, unknown>>(`/analytics/timeseries${queryString(params)}`),
     traffic: (params?: Record<string, QueryValue>) => apiRequest<Record<string, unknown>>(`/analytics/traffic${queryString(params)}`),
+    clarity: (params?: Record<string, QueryValue>) => apiRequest<Record<string, unknown>>(`/analytics/clarity${queryString(params)}`),
+    uxInsights: (params?: Record<string, QueryValue>) => apiRequest<Record<string, unknown>>(`/analytics/ux-insights${queryString(params)}`),
+    intelligence: (params?: Record<string, QueryValue>) => apiRequest<Record<string, unknown>>(`/analytics/website-intelligence${queryString(params)}`),
     integrations: () => apiRequest<Record<string, unknown>>('/analytics/integrations')
   },
   payments: {
