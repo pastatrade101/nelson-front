@@ -137,6 +137,10 @@
     url?: string;
   }>;
   $: partnersActive = sections.partners?.is_active !== false;
+  // A homepage section renders only when its CMS "Active" toggle is on (absent /
+  // undefined counts as active). This makes the admin Active switch actually
+  // control what shows — previously most sections ignored it and always rendered.
+  $: sectionOn = (key: string): boolean => sections[key]?.is_active !== false;
 
   // Typical-cost rows, CMS-overridable (cost_ranges → extra_data.ranges).
   $: costRanges = (() => {
@@ -189,6 +193,7 @@
   overlayGradient={heroExtra.overlay_gradient !== false}
 />
 
+{#if sectionOn('safari_parks_intro')}
 <SafariParksIntroSection
   eyebrow={typeof parksExtra.eyebrow === 'string' ? parksExtra.eyebrow : "Tanzania's Greatest Safari Parks"}
   title={cms('safari_parks_intro', 'title', 'The Best Safari Destinations')}
@@ -201,8 +206,9 @@
   stats={Array.isArray(parksExtra.stats) ? parksExtra.stats : undefined}
   parks={Array.isArray(parksExtra.parks) ? parksExtra.parks : undefined}
 />
+{/if}
 
-{#if tours.length}
+{#if sectionOn('safari_showcase') && tours.length}
   <SafariShowcaseGrid
     eyebrow={typeof showcaseExtra.eyebrow === 'string' ? showcaseExtra.eyebrow : 'Private Safari Itineraries'}
     title={cms('safari_showcase', 'title', 'Six Routes')}
@@ -214,6 +220,7 @@
   />
 {/if}
 
+{#if sectionOn('founder_story')}
 <FounderStorySection
   eyebrow={typeof founderExtra.eyebrow === 'string' ? founderExtra.eyebrow : "The Founder's Story"}
   title={cms('founder_story', 'title', 'Built in Tanzania.')}
@@ -227,7 +234,9 @@
   secondaryCta={typeof founderExtra.secondary_cta_text === 'string' ? founderExtra.secondary_cta_text : 'Speak to Nelson'}
   secondaryHref={typeof founderExtra.secondary_cta_url === 'string' ? founderExtra.secondary_cta_url : '/contact'}
 />
+{/if}
 
+{#if sectionOn('how_it_works')}
 <SafariProcessSection
   eyebrow={typeof processExtra.eyebrow === 'string' ? processExtra.eyebrow : 'Simple From the Start'}
   title={cms('how_it_works', 'title', 'How a Private Tanzania Safari')}
@@ -238,8 +247,9 @@
   ctaHref={cms('how_it_works', 'button_url', '/plan-my-trip')}
   steps={Array.isArray(processExtra.steps) ? processExtra.steps : undefined}
 />
+{/if}
 
-{#if posts.length}
+{#if sectionOn('blog_preview') && posts.length}
   <JournalFeatureSection
     eyebrow={typeof blogExtra.eyebrow === 'string' ? blogExtra.eyebrow : 'The Emnel Journal'}
     title={cms('blog_preview', 'title', 'Field Notes From')}
@@ -250,7 +260,7 @@
   />
 {/if}
 
-{#if testimonials.length}
+{#if sectionOn('testimonials') && testimonials.length}
   <GuestReviewsSection
     eyebrow={typeof testimonialExtra.eyebrow === 'string' ? testimonialExtra.eyebrow : 'Guest Experiences'}
     title={cms('testimonials', 'title', 'What Guests Say About')}
@@ -265,7 +275,7 @@
 
 <StatsCounter stats={homeStats} />
 
-{#if tours.length}
+{#if sectionOn('featured_tours') && tours.length}
   <section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-surface to-surface py-16 md:py-24" use:sectionReveal>
     <span class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl" aria-hidden="true"></span>
     <div class="container-shell relative">
@@ -288,7 +298,7 @@
 {/if}
 
 <!-- typical cost band (spec §4.1 F / §6) — only shown when real ranges are set in the CMS -->
-{#if costRanges.length}
+{#if sectionOn('cost_ranges') && costRanges.length}
   <section class="bg-canvas py-16 md:py-24" use:sectionReveal>
     <div class="container-shell">
       <PriceRangeBlock
@@ -300,7 +310,7 @@
   </section>
 {/if}
 
-{#if destinations.length}
+{#if sectionOn('featured_destinations') && destinations.length}
   <section class="bg-sand/40 py-16 md:py-24" use:sectionReveal>
     <div class="container-shell">
       <div class="flex flex-wrap items-end justify-between gap-4">
@@ -320,7 +330,7 @@
 
 <GallerySection images={gallery} />
 
-{#if faqs.length}
+{#if sectionOn('faq') && faqs.length}
   <JsonLd data={faqLd(faqs.map((f) => ({ q: f.question, a: f.answer })))} />
   <section class="bg-canvas py-16 md:py-24" use:sectionReveal>
     <div class="container-shell grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-12">

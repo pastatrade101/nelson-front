@@ -485,18 +485,29 @@
   };
 
   const move = async (section: Section, direction: 'down' | 'up') => {
-    const idx = sorted.findIndex((s) => s.id === section.id);
-    const swapWith = direction === 'up' ? sorted[idx - 1] : sorted[idx + 1];
-    if (!swapWith) return;
+    // Move the section one position in the *displayed* order, then re-number every
+    // section 0..n-1. Swapping two sort_order values fails when they're equal or
+    // gappy (which they often are) — a full re-index always reorders cleanly.
+    const arr = [...sorted];
+    const idx = arr.findIndex((s) => s.id === section.id);
+    const target = direction === 'up' ? idx - 1 : idx + 1;
+    if (idx < 0 || target < 0 || target >= arr.length) return;
+    [arr[idx], arr[target]] = [arr[target], arr[idx]];
+
+    // Optimistic: reflect the new order immediately, then persist the changed rows.
+    const reindexed = arr.map((s, i) => ({ ...s, sort_order: i }));
+    const changed = reindexed.filter((s) => {
+      const prev = rows.find((r) => r.id === s.id);
+      return prev && prev.sort_order !== s.sort_order;
+    });
+    rows = reindexed;
     reordering = true;
     try {
-      await Promise.all([
-        api.homepage.updateSection(section.id, { sort_order: swapWith.sort_order }),
-        api.homepage.updateSection(swapWith.id, { sort_order: section.sort_order })
-      ]);
+      await Promise.all(changed.map((s) => api.homepage.updateSection(s.id, { sort_order: s.sort_order })));
       await load();
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Unable to reorder sections.', 'error');
+      await load();
     } finally {
       reordering = false;
     }
