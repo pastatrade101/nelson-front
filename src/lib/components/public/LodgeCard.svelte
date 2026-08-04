@@ -5,6 +5,7 @@
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { Lodge } from '$lib/types';
+  import { normalizeTier } from '$lib/tiers';
 
   export let lodge: Lodge;
   export let feature = false; // larger, two-column treatment for a standout property
@@ -14,7 +15,7 @@
   $: priceLabel = lodgePriceLabel(lodge);
   $: rating = lodgeRating(lodge);
   $: bestForLabel = lodgeBestForLabel(lodge);
-  $: isLux = lodge.accommodation_level === 'luxury' || lodge.accommodation_level === 'ultra_luxury';
+  $: isLux = ['luxury', 'ultra_luxury'].includes(normalizeTier(lodge.accommodation_level));
   $: shortlistItem = {
     slug: lodge.slug,
     title: lodge.name,

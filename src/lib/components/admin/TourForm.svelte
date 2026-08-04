@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import { ArrowLeft, Save } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { TIER_OPTIONS } from '$lib/tiers';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
   import AdminPageHeader from '$lib/components/admin/AdminPageHeader.svelte';
@@ -44,13 +45,7 @@
     { label: 'Archived', value: 'archived' }
   ];
 
-  const budgetTierOptions = [
-    { label: 'Not set', value: '' },
-    { label: 'Budget', value: 'budget' },
-    { label: 'Mid-range', value: 'mid_range' },
-    { label: 'Luxury', value: 'luxury' },
-    { label: 'Ultra luxury', value: 'ultra_luxury' }
-  ];
+  const budgetTierOptions = [{ label: 'Not set', value: '' }, ...TIER_OPTIONS];
 
   let loading = mode === 'edit';
   let loadingOptions = true;

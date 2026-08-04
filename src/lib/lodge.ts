@@ -1,15 +1,10 @@
 import { thumbUrl } from '$lib/img';
 import type { Lodge } from '$lib/types';
+import { normalizeTier, tierLabel, tierStars } from '$lib/tiers';
 
 // Shared, honest helpers for rendering lodges/accommodations. Everything here is
 // derived from the REAL Lodge fields — no invented ratings, prices or amenities.
-
-export const LEVEL_LABELS: Record<string, string> = {
-  budget: 'Comfortable',
-  mid_range: 'Mid-range',
-  luxury: 'Luxury',
-  ultra_luxury: 'Ultra-luxury'
-};
+// Comfort tiers use the shared vocabulary (Essential · Classic · Luxury · Ultra Luxury).
 
 export const TYPE_LABELS: Record<string, string> = {
   tented_camp: 'Tented camp',
@@ -19,15 +14,10 @@ export const TYPE_LABELS: Record<string, string> = {
   treehouse: 'Treehouse'
 };
 
-// A 1–5 "stars" read for the luxury tier — a visual indicator, not a review score.
-export const LEVEL_STARS: Record<string, number> = {
-  budget: 3,
-  mid_range: 4,
-  luxury: 5,
-  ultra_luxury: 5
-};
+// A 1–5 "stars" read for the comfort tier — a visual indicator, not a review score.
+export const lodgeStars = (l: Lodge): number => tierStars(l.accommodation_level) || 4;
 
-export const levelLabel = (l: Lodge) => LEVEL_LABELS[l.accommodation_level] ?? l.accommodation_level;
+export const levelLabel = (l: Lodge) => tierLabel(l.accommodation_level);
 export const typeLabel = (l: Lodge) => TYPE_LABELS[l.lodge_type] ?? l.lodge_type;
 
 export const lodgeImage = (l: Lodge) => thumbUrl(l, 'hero_image_url', 'image_url');
@@ -52,8 +42,9 @@ export const lodgeBestForLabel = (l: Lodge): string => {
   if (/migration/.test(hay)) return 'Great Migration access';
   if (/solo/.test(hay)) return 'Solo friendly';
   if (/adventure|walking|active/.test(hay)) return 'Adventure base';
-  if (l.accommodation_level === 'ultra_luxury') return 'Ultra-luxury escape';
-  if (l.accommodation_level === 'luxury') return 'Luxury escape';
-  if (l.accommodation_level === 'budget') return 'Great value stay';
+  const t = normalizeTier(l.accommodation_level);
+  if (t === 'ultra_luxury') return 'Ultra-luxury escape';
+  if (t === 'luxury') return 'Luxury escape';
+  if (t === 'essential') return 'Great value stay';
   return '';
 };

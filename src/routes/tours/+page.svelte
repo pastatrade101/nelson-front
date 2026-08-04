@@ -6,6 +6,7 @@
   import { trackEvent, trackSearch } from '$lib/analytics';
   import { revealHeading, staggeredCardReveal } from '$lib/animations';
   import { EXPERIENCE_TO_CATEGORY, PERSONA_ORDER, PERSONAS } from '$lib/data/personas';
+  import { TIER_KEYS, TIER_LABELS, normalizeTier, tierRank } from '$lib/tiers';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import RangeSlider from '$lib/components/public/RangeSlider.svelte';
@@ -15,20 +16,9 @@
 
   export let data: PageData;
 
-  // ---- canonical comfort tiers ----
-  const TIERS = [
-    { key: 'luxury_plus', label: 'Luxury+' },
-    { key: 'luxury', label: 'Luxury' },
-    { key: 'mid_range', label: 'Mid-range' },
-    { key: 'budget', label: 'Budget' }
-  ];
-  const normTier = (t?: string | null) => {
-    if (!t) return '';
-    const v = t.toLowerCase().replace(/[\s-]+/g, '_');
-    if (v === 'midrange') return 'mid_range';
-    if (v === 'luxuryplus' || v === 'ultra_luxury') return 'luxury_plus';
-    return v;
-  };
+  // ---- canonical comfort tiers (Essential · Classic · Luxury · Ultra Luxury) ----
+  const TIERS = TIER_KEYS.map((k) => ({ key: k, label: TIER_LABELS[k] }));
+  const normTier = normalizeTier;
 
   // ---- data (SSR-loaded in +page.ts) ----
   $: allTours = (data.tours ?? []) as Tour[];
@@ -110,7 +100,6 @@
   );
 
   const personaTags = (t: Tour) => t.persona_tags ?? [];
-  const TIER_RANK: Record<string, number> = { 'luxury-plus': 3, luxury_plus: 3, ultra_luxury: 3, luxury: 2, 'mid-range': 1, mid_range: 1, midrange: 1, budget: 0 };
   $: sorted = (() => {
     const r = [...result];
     if (sort === 'price_asc') return r.sort((a, b) => (a.price_from ?? 0) - (b.price_from ?? 0));
@@ -118,7 +107,7 @@
     if (sort === 'duration_asc') return r.sort((a, b) => (a.duration_days ?? 0) - (b.duration_days ?? 0));
     if (sort === 'duration_desc') return r.sort((a, b) => (b.duration_days ?? 0) - (a.duration_days ?? 0));
     if (sort === 'popular') return r.sort((a, b) => Number(Boolean(b.is_popular)) - Number(Boolean(a.is_popular)) || Number(Boolean(b.is_featured)) - Number(Boolean(a.is_featured)));
-    if (sort === 'luxury') return r.sort((a, b) => (TIER_RANK[b.budget_tier ?? ''] ?? 0) - (TIER_RANK[a.budget_tier ?? ''] ?? 0));
+    if (sort === 'luxury') return r.sort((a, b) => tierRank(b.budget_tier) - tierRank(a.budget_tier));
     if (sort === 'value') return r.sort((a, b) => (a.price_from ?? 0) / (a.duration_days || 1) - (b.price_from ?? 0) / (b.duration_days || 1));
     // recommended: persona match → featured → popular
     return r.sort((a, b) => {

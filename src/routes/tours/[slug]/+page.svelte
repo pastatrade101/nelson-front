@@ -27,6 +27,7 @@
   import { staggeredCardReveal } from '$lib/animations/motion';
   import { origUrl, thumbUrl } from '$lib/img';
   import { publicSettings, settingText } from '$lib/settings';
+  import { tierLabel } from '$lib/tiers';
   import BookingForm from '$lib/components/public/BookingForm.svelte';
   import EmailItineraryCapture from '$lib/components/public/EmailItineraryCapture.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
@@ -161,11 +162,10 @@
 
   // Elegant hero chips — from the tour's own real data (+ facts true of every
   // Emnel safari: private & tailor-made). No invented ratings or numbers.
-  const HERO_TIER: Record<string, string> = { budget: 'Comfortable', 'mid-range': 'Mid-range', mid_range: 'Mid-range', luxury: 'Luxury', 'luxury-plus': 'Luxury+', luxury_plus: 'Luxury+', ultra_luxury: 'Luxury+' };
   const HERO_PERSONA: Record<string, string> = { honeymoon: 'honeymoon', couple: 'couples', family: 'families', 'first-time-visitor': 'first-timers', 'first-time-safari': 'first-timers', 'luxury-traveller': 'luxury travellers', photographer: 'photographers', 'wildlife-enthusiast': 'wildlife lovers', 'wildlife-focused': 'wildlife lovers', 'multi-generational': 'multi-gen families', solo: 'solo travellers' };
   $: heroPerfectFor = [...new Set((tour?.persona_tags ?? []).map((p) => HERO_PERSONA[p]).filter(Boolean))].slice(0, 2) as string[];
   $: heroChips = [
-    tour?.budget_tier ? (HERO_TIER[tour.budget_tier] ?? tour.budget_tier) : null,
+    tierLabel(tour?.budget_tier) || null,
     'Private & tailor-made',
     tour?.experience_type === 'safari-beach' ? 'Safari + beach' : null,
     tour?.difficulty_level ? `${tour.difficulty_level} pace` : null,
@@ -414,7 +414,7 @@
       </div>
       <div class="py-5 md:px-6">
         <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Style</p>
-        <p class="mt-2 font-serif text-2xl font-light text-white">{tour.budget_tier ?? categoryName}</p>
+        <p class="mt-2 font-serif text-2xl font-light text-white">{tierLabel(tour.budget_tier) || categoryName}</p>
       </div>
     </div>
   </div>

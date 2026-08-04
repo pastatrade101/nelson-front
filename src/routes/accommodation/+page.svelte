@@ -9,6 +9,7 @@
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import type { Lodge } from '$lib/types';
+  import { TIER_OPTIONS, normalizeTier, tierRank } from '$lib/tiers';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -40,13 +41,8 @@
     if (q) search = q;
   }
 
-  const LEVELS = [
-    { value: 'All', label: 'All styles' },
-    { value: 'ultra_luxury', label: 'Ultra-luxury' },
-    { value: 'luxury', label: 'Luxury' },
-    { value: 'mid_range', label: 'Mid-range' },
-    { value: 'budget', label: 'Comfortable' }
-  ];
+  // Premium-first (Ultra Luxury → Essential), from the shared tier vocabulary.
+  const LEVELS = [{ value: 'All', label: 'All styles' }, ...[...TIER_OPTIONS].reverse()];
   const TYPES: Record<string, string> = {
     tented_camp: 'Tented camp',
     lodge: 'Lodge',
@@ -62,7 +58,6 @@
     { value: 'rated', label: 'Highest rated' },
     { value: 'name', label: 'Name (A–Z)' }
   ];
-  const LEVEL_RANK: Record<string, number> = { ultra_luxury: 4, luxury: 3, mid_range: 2, budget: 1 };
 
   $: destinations = ['All', ...new Set(lodges.map((l) => l.destinations?.name).filter((n): n is string => Boolean(n)))].sort((a, b) => (a === 'All' ? -1 : a.localeCompare(b)));
   $: typesPresent = [...new Set(lodges.map((l) => l.lodge_type))];
@@ -78,7 +73,7 @@
   // Honest, count-derived stats (chosen to read well on the real catalogue).
   $: stats = [
     { n: lodges.length, s: '', l: 'Hand-picked stays' },
-    { n: lodges.filter((l) => l.accommodation_level === 'luxury' || l.accommodation_level === 'ultra_luxury').length, s: '', l: 'Luxury camps' },
+    { n: lodges.filter((l) => ['luxury', 'ultra_luxury'].includes(normalizeTier(l.accommodation_level))).length, s: '', l: 'Luxury camps' },
     { n: lodges.filter((l) => l.lodge_type === 'tented_camp').length, s: '', l: 'Tented camps' },
     { n: lodges.filter((l) => l.lodge_type === 'lodge').length, s: '', l: 'Safari lodges' }
   ];
@@ -92,7 +87,7 @@
 
   $: matched = lodges
     .filter((l) => activeDestination === 'All' || l.destinations?.name === activeDestination)
-    .filter((l) => activeLevel === 'All' || l.accommodation_level === activeLevel)
+    .filter((l) => activeLevel === 'All' || normalizeTier(l.accommodation_level) === activeLevel)
     .filter((l) => activeType === 'All' || l.lodge_type === activeType)
     .filter((l) => {
       const q = search.trim().toLowerCase();
@@ -103,7 +98,7 @@
   $: sorted = matched.slice().sort((a, b) => {
     switch (sortBy) {
       case 'luxury':
-        return (LEVEL_RANK[b.accommodation_level] ?? 0) - (LEVEL_RANK[a.accommodation_level] ?? 0) || a.name.localeCompare(b.name);
+        return tierRank(b.accommodation_level) - tierRank(a.accommodation_level) || a.name.localeCompare(b.name);
       case 'price_asc':
         return (a.price_per_night_from ?? Infinity) - (b.price_per_night_from ?? Infinity);
       case 'price_desc':

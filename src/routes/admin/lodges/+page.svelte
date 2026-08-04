@@ -3,6 +3,7 @@
   import { fade, scale } from 'svelte/transition';
   import { Edit, Hotel, Plus, Search, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { TIER_OPTIONS, tierLabel } from '$lib/tiers';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -22,7 +23,7 @@
     slug: string;
     destination_id?: string | null;
     destinations?: { name: string; slug: string } | null;
-    accommodation_level: 'budget' | 'mid_range' | 'luxury' | 'ultra_luxury';
+    accommodation_level: string;
     lodge_type: 'tented_camp' | 'lodge' | 'hotel' | 'mobile_camp' | 'treehouse';
     description?: string | null;
     why_we_recommend?: string | null;
@@ -49,12 +50,7 @@
     { label: 'Published', value: 'published' },
     { label: 'Archived', value: 'archived' }
   ];
-  const levelOptions = [
-    { label: 'Budget', value: 'budget' },
-    { label: 'Mid-range', value: 'mid_range' },
-    { label: 'Luxury', value: 'luxury' },
-    { label: 'Ultra-luxury', value: 'ultra_luxury' }
-  ];
+  const levelOptions = TIER_OPTIONS;
   const typeOptions = [
     { label: 'Tented camp', value: 'tented_camp' },
     { label: 'Lodge', value: 'lodge' },
@@ -62,14 +58,14 @@
     { label: 'Mobile camp', value: 'mobile_camp' },
     { label: 'Treehouse', value: 'treehouse' }
   ];
-  const levelLabel = (v: string) => levelOptions.find((o) => o.value === v)?.label ?? v;
+  const levelLabel = (v: string) => tierLabel(v);
   const typeLabel = (v: string) => typeOptions.find((o) => o.value === v)?.label ?? v;
 
   const emptyForm = () => ({
     name: '',
     slug: '',
     destination_id: '',
-    accommodation_level: 'mid_range' as Lodge['accommodation_level'],
+    accommodation_level: 'classic',
     lodge_type: 'lodge' as Lodge['lodge_type'],
     description: '',
     why_we_recommend: '',

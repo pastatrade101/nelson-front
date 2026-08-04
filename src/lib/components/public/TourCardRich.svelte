@@ -6,13 +6,10 @@
   import { tilt } from '$lib/animations';
   import ShortlistButton from './ShortlistButton.svelte';
   import type { Tour } from '$lib/types';
+  import { tierLabel } from '$lib/tiers';
 
   export let tour: Tour;
 
-  const tierLabels: Record<string, string> = {
-    budget: 'Budget', mid_range: 'Mid-range', 'mid-range': 'Mid-range', midrange: 'Mid-range',
-    luxury: 'Luxury', luxury_plus: 'Luxury+', 'luxury-plus': 'Luxury+', ultra_luxury: 'Luxury+'
-  };
 
   // "Perfect for" audience labels, from the tour's real persona tags.
   const PERSONA_LABEL: Record<string, string> = {
@@ -43,7 +40,7 @@
   };
 
   $: country = tour.destinations?.country || tour.destinations?.name || '';
-  $: comfort = tour.budget_tier ? tierLabels[tour.budget_tier] ?? tour.budget_tier : '';
+  $: comfort = tierLabel(tour.budget_tier);
   $: durationLabel =
     tour.duration_days != null
       ? `${tour.duration_days} day${tour.duration_days === 1 ? '' : 's'}${tour.duration_nights ? `, ${tour.duration_nights} nights` : ''}`

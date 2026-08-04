@@ -166,7 +166,7 @@ export type Lodge = {
   slug: string;
   destination_id?: string | null;
   destinations?: { name: string; slug: string } | null;
-  accommodation_level: 'budget' | 'mid_range' | 'luxury' | 'ultra_luxury';
+  accommodation_level: string; // comfort tier — see $lib/tiers (essential|classic|luxury|ultra_luxury; legacy-tolerant)
   lodge_type: 'tented_camp' | 'lodge' | 'hotel' | 'mobile_camp' | 'treehouse';
   description?: string;
   why_we_recommend?: string;

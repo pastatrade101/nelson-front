@@ -5,7 +5,7 @@
   } from '@lucide/svelte';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations/motion';
   import { imgUrl, origUrl, thumbUrl } from '$lib/img';
-  import { LEVEL_STARS, levelLabel, lodgeBestForLabel, lodgeImage, lodgePriceLabel, lodgeRating, typeLabel } from '$lib/lodge';
+  import { lodgeStars, levelLabel, lodgeBestForLabel, lodgeImage, lodgePriceLabel, lodgeRating, typeLabel } from '$lib/lodge';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import TourCard from '$lib/components/public/TourCard.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
@@ -18,7 +18,7 @@
   $: heroImg = lodgeImage(l);
   $: secondImg = l.image_url && l.image_url !== l.hero_image_url ? l.image_url : '';
   $: rating = lodgeRating(l);
-  $: stars = LEVEL_STARS[l.accommodation_level] ?? 4;
+  $: stars = lodgeStars(l);
   $: priceLabel = lodgePriceLabel(l);
   $: bestForLabel = lodgeBestForLabel(l);
   $: planHref = `/plan-my-trip?lodge=${encodeURIComponent(l.slug)}`;
