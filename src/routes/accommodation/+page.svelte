@@ -154,9 +154,9 @@
 <section class="relative overflow-hidden bg-deep-green text-white">
   {#if heroImageSrc}
     <ResponsiveImage src={heroImageSrc} fallbackSrc={heroImageFallback} width={1920} alt="" imgClass="absolute inset-0 h-full w-full object-cover object-center" sizes="100vw" eager priority />
-    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.94)_0%,rgba(28,26,22,0.72)_48%,rgba(28,26,22,0.38)_100%)]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.5)_0%,rgba(28,26,22,0.22)_48%,transparent_100%)]"></div>
   {/if}
-  <div class="container-shell relative py-20 md:py-28">
+  <div class="container-shell relative py-20 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-28">
     <p class="text-[12px] font-bold uppercase tracking-[0.22em] text-goldfinch-gold">Where to stay</p>
     <h1 class="mt-4 max-w-3xl font-serif text-4xl font-light leading-[1.06] md:text-6xl" use:revealHeading>
       A collection of Tanzania's finest safari stays

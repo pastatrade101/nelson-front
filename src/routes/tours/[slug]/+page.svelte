@@ -341,10 +341,10 @@
     <ResponsiveImage imgClass="absolute inset-0 h-full w-full object-cover" src={heroImage} fallbackSrc={thumbUrl(tour, 'banner_image_url', 'main_image_url')} width={1900} alt={tour.title} sizes="100vw" eager priority />
     <!-- cinematic overlays: darker on the left, plus a top + bottom vignette so
          the image reads clean in the centre-right and the text stays legible -->
-    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,18,15,0.9)_0%,rgba(20,18,15,0.55)_44%,rgba(20,18,15,0.12)_100%)]"></div>
-    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.72)_0%,rgba(20,18,15,0.05)_26%,rgba(20,18,15,0.12)_56%,rgba(20,18,15,0.97)_100%)]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,18,15,0.5)_0%,rgba(20,18,15,0.22)_44%,transparent_100%)]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.18)_0%,transparent_30%,transparent_56%,rgba(20,18,15,0.82)_100%)]"></div>
 
-    <div class="container-shell relative flex min-h-[82vh] flex-col justify-end pb-10 pt-28 md:pb-14">
+    <div class="container-shell relative flex min-h-[82vh] flex-col justify-end pb-10 pt-28 [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] md:pb-14">
       <nav class="mb-8 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-white/58">
         <a class="transition hover:text-goldfinch-gold" href="/">Home</a>
         <span>/</span>

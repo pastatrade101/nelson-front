@@ -112,9 +112,9 @@
 <section class="relative overflow-hidden bg-deep-green text-white">
   {#if heroImage}
     <ResponsiveImage src={origUrl(heroSource, 'banner_image_url', 'main_image_url', 'image_url')} fallbackSrc={thumbUrl(heroSource, 'banner_image_url', 'main_image_url', 'image_url')} alt={heroSource?.name ?? ''} sizes="100vw" imgClass="absolute inset-0 h-full w-full object-cover object-center" width={1920} eager priority />
-    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.94)_0%,rgba(28,26,22,0.78)_45%,rgba(28,26,22,0.42)_100%)]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.5)_0%,rgba(28,26,22,0.22)_48%,transparent_100%)]"></div>
   {/if}
-  <div class="container-shell relative py-16 md:py-24">
+  <div class="container-shell relative py-16 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-24">
     <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">Safari destinations</p>
     <h1 class="mt-4 max-w-3xl font-serif text-4xl font-light leading-[1.08] md:text-6xl">Where to go on safari in Tanzania</h1>
     <p class="mt-5 max-w-2xl text-base leading-8 text-white/80 md:text-lg">

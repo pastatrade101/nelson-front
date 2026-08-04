@@ -71,12 +71,12 @@
 <section class="relative overflow-hidden bg-deep-green text-white">
   {#if heroImg}
     <ResponsiveImage src={origUrl(l, 'hero_image_url', 'image_url')} fallbackSrc={heroImg} width={1920} alt={l.name} imgClass="absolute inset-0 h-full w-full object-cover object-center" sizes="100vw" eager priority />
-    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,25,22,0.5)_0%,rgba(20,25,22,0.35)_40%,rgba(15,22,20,0.9)_100%)]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,25,22,0.25)_0%,transparent_42%,rgba(15,22,20,0.78)_100%)]"></div>
   {:else}
     <div class="absolute inset-0 bg-[linear-gradient(150deg,#153733,rgba(74,55,40,0.95))]"></div>
   {/if}
 
-  <div class="container-shell relative">
+  <div class="container-shell relative [text-shadow:0_2px_16px_rgba(0,0,0,0.5)]">
     <!-- breadcrumb -->
     <nav class="flex flex-wrap items-center gap-1.5 pt-8 text-[12px] font-semibold text-white/60" aria-label="Breadcrumb">
       <a href="/" class="hover:text-goldfinch-gold">Home</a><ChevronRight size={13} />

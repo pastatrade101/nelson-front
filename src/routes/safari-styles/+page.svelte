@@ -125,9 +125,9 @@
 <section class="relative overflow-hidden bg-deep-green text-white">
   {#if heroImage}
     <ResponsiveImage src={heroOrig} fallbackSrc={heroThumb} alt="" sizes="100vw" imgClass="absolute inset-0 h-full w-full object-cover object-center" width={1920} eager priority />
-    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.94)_0%,rgba(28,26,22,0.74)_48%,rgba(28,26,22,0.4)_100%)]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.5)_0%,rgba(28,26,22,0.22)_48%,transparent_100%)]"></div>
   {/if}
-  <div class="container-shell relative py-20 md:py-28">
+  <div class="container-shell relative py-20 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-28">
     <p class="text-[12px] font-bold uppercase tracking-[0.22em] text-goldfinch-gold">Safari Styles</p>
     <h1 class="mt-4 max-w-3xl font-serif text-4xl font-light leading-[1.06] md:text-6xl" use:revealHeading>
       Find the safari that fits the way you travel

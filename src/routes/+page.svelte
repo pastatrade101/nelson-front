@@ -184,6 +184,9 @@
   secondaryCta={typeof heroExtra.secondary_cta_text === 'string' ? heroExtra.secondary_cta_text : 'Talk to a Safari Advisor'}
   secondaryCtaUrl={typeof heroExtra.secondary_cta_url === 'string' ? heroExtra.secondary_cta_url : '/contact'}
   trustLine={typeof heroExtra.trust_line === 'string' ? heroExtra.trust_line : 'TripAdvisor · TLTO Certified · Private vehicles only · Tanzania-born team · Dedicated safari specialist'}
+  overlayColor={typeof heroExtra.overlay_color === 'string' ? heroExtra.overlay_color : '#1C1A16'}
+  overlayOpacity={typeof heroExtra.overlay_opacity === 'number' ? heroExtra.overlay_opacity : 0.3}
+  overlayGradient={heroExtra.overlay_gradient !== false}
 />
 
 <SafariParksIntroSection

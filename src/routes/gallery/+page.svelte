@@ -61,10 +61,10 @@
 <!-- header -->
 <section class="relative isolate overflow-hidden bg-deep-green text-white">
   {#if images[0]}
-    <img class="absolute inset-0 h-full w-full object-cover opacity-25" src={origUrl(images[0], 'image_url')} alt="" aria-hidden="true" />
+    <img class="absolute inset-0 h-full w-full object-cover opacity-60" src={origUrl(images[0], 'image_url')} alt="" aria-hidden="true" />
   {/if}
-  <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.7)_0%,rgba(20,18,15,0.55)_50%,rgba(20,18,15,0.9)_100%)]"></div>
-  <div class="container-shell relative py-16 md:py-20">
+  <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.35)_0%,transparent_45%,rgba(20,18,15,0.72)_100%)]"></div>
+  <div class="container-shell relative py-16 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-20">
     <nav class="mb-6 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-white/55">
       <a class="transition hover:text-goldfinch-gold" href="/">Home</a><span>/</span><span class="text-white/80">Gallery</span>
     </nav>

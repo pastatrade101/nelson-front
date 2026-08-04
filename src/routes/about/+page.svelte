@@ -89,11 +89,11 @@
     loading="eager"
     fetchpriority="high"
   />
-  <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.93)_0%,rgba(28,26,22,0.80)_34%,rgba(28,26,22,0.42)_70%,rgba(28,26,22,0.14)_100%)]"></div>
-  <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.55)_0%,rgba(28,26,22,0.08)_28%,rgba(28,26,22,0.62)_100%)]"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.52)_0%,rgba(28,26,22,0.28)_38%,transparent_100%)]"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.12)_0%,transparent_32%,rgba(28,26,22,0.4)_100%)]"></div>
 
   <div class="relative z-10 mx-auto flex min-h-[560px] w-full max-w-[1500px] items-center px-5 py-24 md:min-h-[660px] md:px-8 md:py-28">
-    <div class="max-w-[840px]">
+    <div class="max-w-[840px] [text-shadow:0_2px_18px_rgba(0,0,0,0.5)]">
       <p class="brand-eyebrow">About Emnel Adventures</p>
       <h1 class="mt-6 font-serif text-[44px] font-light leading-[1.04] tracking-normal sm:text-[60px] lg:text-[74px]">
         We are not a travel agency. We are Tanzania.

@@ -25,6 +25,29 @@
   // applied as object-position so the chosen part of the image stays in frame.
   export let imagePosition = 'center';
 
+  // Overlay — fully controlled from Admin → Homepage → Background & overlay
+  // (hero section). There is NO hardcoded overlay: at opacity 0 the image shows
+  // with full clarity. Text stays legible via a text-shadow, not a dark scrim.
+  export let overlayColor = '#1C1A16';
+  export let overlayOpacity = 0.3; // 0–1; 0 = no overlay
+  export let overlayGradient = true;
+
+  const hexToRgba = (hex: string, a: number): string => {
+    const h = (hex || '').replace('#', '');
+    const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+    const n = parseInt(full || '1c1a16', 16);
+    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+  };
+  // Bottom-weighted so the (bottom-left) text keeps contrast while the rest of
+  // the photo stays clear. Empty string → no overlay element at all.
+  $: heroAlpha = Math.max(0, Math.min(1, Number(overlayOpacity) || 0));
+  $: overlayStyle =
+    heroAlpha <= 0
+      ? ''
+      : overlayGradient
+        ? `background:linear-gradient(180deg, ${hexToRgba(overlayColor, heroAlpha * 0.22)} 0%, ${hexToRgba(overlayColor, heroAlpha * 0.1)} 40%, ${hexToRgba(overlayColor, heroAlpha)} 100%)`
+        : `background:${hexToRgba(overlayColor, heroAlpha)}`;
+
   // Accept any real image reference the CMS/admin can produce — full URLs,
   // protocol- or root-relative paths, and data URIs — not just http(s). An
   // empty/blank value means "no image": the hero renders on the dark brand
@@ -96,18 +119,22 @@
       ></iframe>
     </div>
   {/if}
-  <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.90)_0%,rgba(28,26,22,0.78)_32%,rgba(28,26,22,0.42)_58%,rgba(28,26,22,0.16)_100%)]"></div>
-  <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.60)_0%,rgba(28,26,22,0.12)_28%,rgba(28,26,22,0.66)_100%)]"></div>
+  <!-- Controllable overlay (Admin → Homepage → Background & overlay). At opacity
+       0 nothing renders, so the hero image shows with full clarity. -->
+  {#if overlayStyle}
+    <div class="pointer-events-none absolute inset-0" style={overlayStyle}></div>
+  {/if}
 
   <div class="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1500px] items-end px-5 pb-20 pt-28 md:px-8 md:pb-24 md:pt-36">
-    <div class="max-w-[620px]">
+    <!-- text-shadow keeps copy legible on a bright, un-overlaid photo (buttons reset it) -->
+    <div class="max-w-[620px] [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]">
       <p class="brand-eyebrow" in:fly={{ y: 12, duration: 420 }}>{eyebrow}</p>
       {#key title}
         <h1 class="mt-6 max-w-[600px] text-[32px] font-light leading-[1.12] tracking-normal sm:text-[40px] lg:text-[50px] xl:text-[56px]" use:revealHeading={{ stagger: 0.018 }}>{title}</h1>
       {/key}
-      <p class="mt-5 max-w-[520px] text-[15px] font-normal leading-7 text-white/86 md:text-[17px]" in:fly={{ y: 14, duration: 480, delay: 120 }}>{description}</p>
+      <p class="mt-5 max-w-[520px] text-[15px] font-normal leading-7 text-white/90 md:text-[17px]" in:fly={{ y: 14, duration: 480, delay: 120 }}>{description}</p>
 
-      <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div class="mt-8 flex flex-col gap-4 [text-shadow:none] sm:flex-row sm:items-center">
         <a class="inline-flex h-12 items-center justify-center gap-3 bg-goldfinch-gold px-7 text-[13px] font-semibold tracking-[0.08em] text-deep-green transition hover:bg-savanna sm:min-w-[230px]" href={primaryCtaUrl}>
           {primaryCta} <ArrowRight size={17} strokeWidth={2.4} />
         </a>

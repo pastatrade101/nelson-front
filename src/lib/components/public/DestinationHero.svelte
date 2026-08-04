@@ -61,10 +61,10 @@
     <!-- branded fallback so the hero looks intentional before a photo is added -->
     <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(28,26,22,1)_0%,rgba(74,55,40,0.92)_100%)]"></div>
   {/if}
-  <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.55)_0%,rgba(28,26,22,0.18)_34%,rgba(28,26,22,0.92)_100%)]"></div>
-  <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.72)_0%,rgba(28,26,22,0.20)_58%,transparent_100%)]"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.28)_0%,transparent_38%,rgba(28,26,22,0.78)_100%)]"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.32)_0%,transparent_55%)]"></div>
 
-  <div class="container-shell relative flex min-h-[60vh] flex-col justify-end pb-12 pt-28 md:min-h-[64vh] md:pb-16">
+  <div class="container-shell relative flex min-h-[60vh] flex-col justify-end pb-12 pt-28 [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] md:min-h-[64vh] md:pb-16">
     <nav class="mb-5 flex items-center gap-2 text-sm text-white/70">
       <a class="font-medium transition hover:text-white" href="/destinations">Destinations</a>
       <span class="text-white/40">/</span>
