@@ -19,6 +19,7 @@
     Utensils,
     X
   } from '@lucide/svelte';
+  import { onMount } from 'svelte';
   import { fade, scale, slide } from 'svelte/transition';
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
@@ -276,11 +277,6 @@
     tour?.difficulty_level,
     ...(tour?.persona_tags ?? [])
   ]).slice(0, 5);
-  $: detailImages = uniqueStrings([
-    tour?.main_image_url,
-    tour?.banner_image_url,
-    ...displayDays.map((day) => day.image_url)
-  ]).slice(0, 3);
   $: planningCards = recentPosts.slice(0, 6);
   $: tourNavLinks = [
     { key: 'overview', label: 'Overview', show: true },
@@ -294,8 +290,9 @@
     { key: 'faqs', label: 'FAQs', show: faqs.length > 0 }
   ].filter((link) => link.show);
 
-  // Tabbed content: only the active section renders, so the page stays short —
-  // hero → stat stripe → sticky tabs → one section → enquiry → footer.
+  // Content sections are stacked and scrollable; the sticky tab bar is a
+  // scroll-spy nav — the active tab follows the section in view (so a visitor who
+  // never clicks a tab still stays oriented), and clicking a tab scrolls to it.
   let activeTab = 'overview';
   $: if (tourNavLinks.length && !tourNavLinks.some((l) => l.key === activeTab)) activeTab = tourNavLinks[0].key;
 
@@ -311,21 +308,44 @@
     return { destroy() { window.removeEventListener('resize', apply); } };
   }
 
-  // A non-sticky marker sitting just above the tab bar: its document position is
-  // the tabs' resting offset — constant, and unaffected both by the sticky shift
-  // and by which panel is open — which is exactly what we scroll back to.
-  let tabsAnchorEl: HTMLElement | undefined;
+  // Combined height of the sticky navbar + tab bar — the line a section lands on.
+  const stickyOffset = () => {
+    const tabBar = document.getElementById('tour-tabs');
+    return navHeight() + (tabBar ? tabBar.getBoundingClientRect().height : 56);
+  };
+
+  // Click a tab → smooth-scroll to its section (up or down). The scroll-spy is
+  // suppressed briefly so it doesn't flicker through intermediate sections.
+  let spySuppressedUntil = 0;
   const selectTab = (key: string) => {
     activeTab = key;
-    if (typeof window === 'undefined' || !tabsAnchorEl) return;
-    const restY = tabsAnchorEl.getBoundingClientRect().top + window.scrollY;
-    const target = Math.max(0, restY - navHeight());
-    // Only ever pull the view UP to the top of the panel — never down into it —
-    // so switching tabs keeps the sticky bar in place with the panel fresh below.
-    // (`overflow-anchor: none` on #main-content stops the browser's own
-    // scroll-anchoring from fighting this when the panel height changes.)
-    if (window.scrollY > target + 4) window.scrollTo({ top: target });
+    const el = typeof document !== 'undefined' ? document.getElementById(key) : null;
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY - stickyOffset() - 8;
+    spySuppressedUntil = Date.now() + 800;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
   };
+
+  // Scroll-spy: the active tab is the last section whose top has passed under the
+  // tab bar. Wired on mount (once the tour has rendered its sections).
+  const updateSpy = () => {
+    if (typeof window === 'undefined' || Date.now() < spySuppressedUntil) return;
+    const trigger = stickyOffset() + 12;
+    let current = tourNavLinks[0]?.key ?? activeTab;
+    for (const link of tourNavLinks) {
+      const el = document.getElementById(link.key);
+      if (el && el.getBoundingClientRect().top <= trigger) current = link.key;
+    }
+    if (current && current !== activeTab) activeTab = current;
+  };
+  onMount(() => {
+    window.addEventListener('scroll', updateSpy, { passive: true });
+    window.addEventListener('resize', updateSpy);
+    return () => {
+      window.removeEventListener('scroll', updateSpy);
+      window.removeEventListener('resize', updateSpy);
+    };
+  });
 </script>
 
 {#if loading}
@@ -419,7 +439,6 @@
     </div>
   </div>
 
-  <div bind:this={tabsAnchorEl} aria-hidden="true"></div>
   <div id="tour-tabs" use:stickBelowNav class="sticky top-0 z-30 border-y border-white/[0.08] bg-deep-green/95 text-white shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur">
     <div class="container-shell flex min-h-[64px] items-center justify-between gap-4">
       <div class="hide-scroll flex min-w-0 flex-1 gap-1 overflow-x-auto" role="tablist" aria-label="Itinerary sections">
@@ -441,7 +460,7 @@
     </div>
   </div>
 
-  <section id="overview" class:hidden={activeTab !== 'overview'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+  <section id="overview" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
     <div class="container-shell grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
       <div>
         <p class="brand-eyebrow text-goldfinch-gold">Private safari design</p>
@@ -526,7 +545,7 @@
     </div>
   </section>
 
-  <section id="highlights" class:hidden={activeTab !== 'highlights'} class="scroll-mt-28 border-y border-[#C5A265]/16 bg-[#16130F] py-16 text-[#FAFAF7] md:py-24">
+  <section id="highlights" class="scroll-mt-28 border-y border-[#C5A265]/16 bg-[#16130F] py-16 text-[#FAFAF7] md:py-24">
     <div class="container-shell">
       <div class="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
         <div class="max-w-[650px]">
@@ -567,20 +586,11 @@
         </div>
       {/if}
 
-      {#if detailImages.length}
-        <div class="mt-12 grid gap-4 md:grid-cols-3">
-          {#each detailImages as image, i}
-            <div class={`overflow-hidden bg-deep-green ${i === 0 ? 'md:col-span-2' : ''}`}>
-              <ResponsiveImage imgClass="h-full min-h-[260px] w-full object-cover" src={image} width={i === 0 ? 1100 : 700} alt={`${tour.title} image ${i + 1}`} sizes={i === 0 ? '(min-width:768px) 66vw, 100vw' : '(min-width:768px) 33vw, 100vw'} />
-            </div>
-          {/each}
-        </div>
-      {/if}
     </div>
   </section>
 
   {#if displayDays.length}
-    <section id="itinerary" class:hidden={activeTab !== 'itinerary'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+    <section id="itinerary" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
       <div class="container-shell">
         <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div class="max-w-[720px]">
@@ -632,7 +642,7 @@
   {/if}
 
   {#if galleryImages.length}
-    <section id="gallery" class:hidden={activeTab !== 'gallery'} class="scroll-mt-28 bg-linen py-16 text-ink md:py-24">
+    <section id="gallery" class="scroll-mt-28 bg-linen py-16 text-ink md:py-24">
       <div class="container-shell">
         <div class="max-w-[760px]">
           <p class="brand-eyebrow">From the field</p>
@@ -657,7 +667,7 @@
   {/if}
 
   {#if inclusions.length || exclusions.length}
-    <section id="included" class:hidden={activeTab !== 'included'} class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
+    <section id="included" class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
       <div class="container-shell">
         <div class="max-w-[760px]">
           <p class="brand-eyebrow">What is covered</p>
@@ -698,7 +708,7 @@
   {/if}
 
   {#if priceOptions.length}
-    <section id="pricing" class:hidden={activeTab !== 'pricing'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+    <section id="pricing" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
       <div class="container-shell">
         <div class="max-w-[760px]">
           <p class="brand-eyebrow text-goldfinch-gold">Pricing</p>
@@ -735,7 +745,7 @@
   {/if}
 
   {#if relatedTours.length}
-    <section id="related" class:hidden={activeTab !== 'related'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+    <section id="related" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
       <div class="container-shell">
         <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div class="max-w-[720px]">
@@ -773,7 +783,7 @@
   {/if}
 
   {#if planningCards.length}
-    <section id="planning" class:hidden={activeTab !== 'planning'} class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
+    <section id="planning" class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
       <div class="container-shell">
         <div class="mx-auto max-w-[760px] text-center">
           <p class="brand-eyebrow">Planning hub</p>
@@ -804,7 +814,7 @@
   {/if}
 
   {#if faqs.length}
-    <section id="faqs" class:hidden={activeTab !== 'faqs'} class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
+    <section id="faqs" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
       <div class="container-shell grid gap-12 lg:grid-cols-[0.65fr_1.35fr]">
         <div>
           <p class="brand-eyebrow text-goldfinch-gold">Safari FAQs</p>
