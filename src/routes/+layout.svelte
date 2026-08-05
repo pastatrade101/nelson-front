@@ -16,8 +16,19 @@
   import { setupPwaInstall } from '$lib/pwa';
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
   import { api } from '$lib/api/client';
-  import { applyBranding, branding } from '$lib/branding';
+  import { applyBranding, branding, brandColorStyleTag } from '$lib/branding';
   import { SITE_URL } from '$lib/config/env';
+  import type { LayoutData } from './$types';
+
+  export let data: LayoutData;
+
+  // Seed the store from the SSR-loaded branding so the first render (and every
+  // <svelte:head> tag below) is already branded — no flash, correct for crawlers.
+  // Kept in sync on client-side navigation as `data` refreshes.
+  $: branding.set(data.branding);
+
+  // Inline the palette during SSR so first paint matches the saved brand.
+  $: brandStyleTag = brandColorStyleTag($branding.colors);
   import { aiAdvisorEnabled, loadPublicSettings, publicSettings } from '$lib/settings';
   import { trackPageView } from '$lib/analytics';
   import { loadClarity } from '$lib/clarity';
@@ -103,6 +114,10 @@
 
   onMount(() => {
     void setupGsap();
+    // Apply the SSR-loaded branding's client-side effects (brand-color-vars style
+    // tag + favicon) right away, then refresh from the API (also retries if the
+    // server-side fetch had failed and we fell back to defaults).
+    applyBranding(data.branding);
     void loadBranding();
     void loadPublicSettings();
     setupPwaInstall();
@@ -119,6 +134,11 @@
   <meta property="og:description" content={$branding.positioning} />
   <meta property="og:type" content="website" />
   <link rel="canonical" href={canonicalUrl} />
+  {#if $branding.favicon_url}
+    <link rel="icon" href={$branding.favicon_url} />
+  {/if}
+  <!-- Inlined brand palette for a flash-free, already-branded first paint. -->
+  {@html brandStyleTag}
 </svelte:head>
 
 <!-- Org-wide schema (JsonLd injects via {@html}; a {mustache} inside <script> is

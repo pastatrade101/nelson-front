@@ -459,7 +459,9 @@
         {:else}
           {#each filteredMedia as m (m.id)}
             <button type="button" class="group overflow-hidden border border-ink/10 text-left transition hover:-translate-y-0.5 hover:border-forest/40" on:click={() => insertImage(m.file_url, m.file_name)}>
-              <img class="aspect-square w-full bg-sand/30 object-cover" src={imgUrl(m.thumbnail_url || m.file_url, 300)} alt={m.file_name} width="300" height="300" loading="lazy" decoding="async" />
+              <div class="relative aspect-square w-full overflow-hidden bg-sand/30">
+                <img class="absolute inset-0 h-full w-full object-cover" src={imgUrl(m.thumbnail_url || m.file_url, 300)} alt={m.file_name} loading="lazy" decoding="async" />
+              </div>
               <span class="block truncate px-2 py-1.5 text-[11px] text-ink/60">{m.file_name}</span>
             </button>
           {/each}

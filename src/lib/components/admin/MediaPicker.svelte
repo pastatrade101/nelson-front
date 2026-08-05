@@ -163,21 +163,21 @@
               class={`group overflow-hidden rounded-xl border text-left transition hover:-translate-y-0.5 ${value === m.file_url ? 'border-goldfinch-gold ring-2 ring-goldfinch-gold/40' : 'border-ink/10 hover:border-forest/40'}`}
               on:click={() => select(m.file_url)}
             >
-              {#if isVideo}
-                <!-- svelte-ignore a11y-media-has-caption -->
-                <video class="aspect-square w-full bg-sand/30 object-cover" src={m.file_url} muted playsinline preload="metadata"></video>
-              {:else}
-                <img
-                  class="aspect-square w-full bg-sand/30 object-cover opacity-0 transition-opacity duration-300"
-                  src={imgUrl(m.thumbnail_url || m.file_url, 300)}
-                  alt={m.file_name}
-                  width="300"
-                  height="300"
-                  loading="lazy"
-                  decoding="async"
-                  on:load={(e) => ((e.currentTarget as HTMLImageElement).style.opacity = '1')}
-                />
-              {/if}
+              <div class="relative aspect-square w-full overflow-hidden bg-sand/30">
+                {#if isVideo}
+                  <!-- svelte-ignore a11y-media-has-caption -->
+                  <video class="absolute inset-0 h-full w-full object-cover" src={m.file_url} muted playsinline preload="metadata"></video>
+                {:else}
+                  <img
+                    class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300"
+                    src={imgUrl(m.thumbnail_url || m.file_url, 300)}
+                    alt={m.file_name}
+                    loading="lazy"
+                    decoding="async"
+                    on:load={(e) => ((e.currentTarget as HTMLImageElement).style.opacity = '1')}
+                  />
+                {/if}
+              </div>
               <span class="block truncate px-2 py-1.5 text-[11px] text-ink/60">{m.file_name}</span>
             </button>
           {/each}

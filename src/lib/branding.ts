@@ -62,6 +62,42 @@ export const hexToRgbTriple = (hex: string): string | null => {
   return `${(int >> 16) & 255} ${(int >> 8) & 255} ${int & 255}`;
 };
 
+/** Merge partial branding (e.g. from the API) with the Emnel defaults — pure, SSR-safe. */
+export const mergeBranding = (data: Partial<Branding> | null | undefined): Branding => {
+  const incoming = data ?? {};
+  return {
+    ...defaultBranding,
+    ...incoming,
+    colors: { ...defaultColors, ...(incoming.colors ?? {}) }
+  };
+};
+
+/**
+ * Build a `:root{ … }` CSS string of the brand color vars — used to inline the
+ * palette during SSR so first paint is already branded (no post-hydration flash).
+ * Returns '' when nothing valid is present.
+ */
+export const brandColorsToCss = (colors: Partial<BrandColors> | null | undefined): string => {
+  const source = colors ?? {};
+  const declarations: string[] = [];
+  for (const key of Object.keys(cssVarMap) as (keyof BrandColors)[]) {
+    const triple = hexToRgbTriple(source[key] ?? '');
+    if (triple) declarations.push(`${cssVarMap[key]}: ${triple};`);
+  }
+  return declarations.length ? `:root{${declarations.join('')}}` : '';
+};
+
+/**
+ * Full `<style>…</style>` string for the brand palette. Built here (a .ts module,
+ * not a .svelte file) so the literal style tag never appears in component markup —
+ * where Svelte's CSS preprocessor would try to compile it. Inject via {@html} in
+ * <svelte:head>. Returns '' when there is nothing to inline.
+ */
+export const brandColorStyleTag = (colors: Partial<BrandColors> | null | undefined): string => {
+  const css = brandColorsToCss(colors);
+  return css ? `<style>${css}</style>` : '';
+};
+
 const BRAND_STYLE_ID = 'brand-color-vars';
 
 /**
@@ -104,12 +140,7 @@ const setFavicon = (url: string) => {
 
 /** Merge incoming branding with defaults, update the store, and apply colors + favicon live. */
 export const applyBranding = (data: Partial<Branding> | null | undefined) => {
-  const incoming = data ?? {};
-  const merged: Branding = {
-    ...defaultBranding,
-    ...incoming,
-    colors: { ...defaultColors, ...(incoming.colors ?? {}) }
-  };
+  const merged = mergeBranding(data);
   branding.set(merged);
   applyBrandColors(merged.colors);
   if (merged.favicon_url) setFavicon(merged.favicon_url);

@@ -13,6 +13,14 @@
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
 
+  // Move the modal to <body> so its `fixed inset-0` is viewport-relative and not
+  // trapped inside a transformed ancestor (Lenis / page transition), which would
+  // otherwise push the popup off-screen until the user scrolls.
+  const portal = (node: HTMLElement) => {
+    document.body.appendChild(node);
+    return { destroy: () => node.remove() };
+  };
+
   // The single source of truth for a tour's day-by-day plan. Embedded in the
   // tour editor (edit everything in one place) and reused by the standalone
   // Itineraries page. Keyed on tourId; fetches its own tour context if the
@@ -338,7 +346,7 @@
 </div>
 
 {#if modalOpen}
-  <div class="fixed inset-0 z-[60] grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
+  <div use:portal class="fixed inset-0 z-[60] grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
     <form class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-none border border-ink/10 bg-surface p-5 shadow-[0_24px_80px_rgba(28,26,22,0.18)] sm:p-6" transition:scale={{ duration: 160, start: 0.98 }} on:submit|preventDefault={saveDay}>
       <div class="flex items-start justify-between gap-4">
         <div>

@@ -45,22 +45,27 @@
   type Option = { label: string; value: string };
   type Toast = { id: string; message: string; type: 'error' | 'success' };
 
-  const recommendedKeys = [
-    'hero',
-    'safari_parks_intro',
-    'safari_showcase',
-    'founder_story',
-    'how_it_works',
-    'blog_preview',
-    'testimonials',
-    'cost_ranges',
-    'featured_destinations',
-    'featured_tours',
-    'faq',
-    'final_cta',
-    'partners',
-    'stats'
-  ];
+  // The homepage renders a FIXED set of section components. A new section must use
+  // one of these keys — anything else becomes an "orphan" that never renders, so
+  // creation is restricted to this list (editing keeps an existing key untouched).
+  const SECTION_LABELS: Record<string, string> = {
+    hero: 'Hero',
+    safari_parks_intro: 'Safari parks intro',
+    safari_showcase: 'Safari showcase (itineraries)',
+    founder_story: 'Founder story',
+    how_it_works: 'How it works',
+    blog_preview: 'Journal / blog preview',
+    testimonials: 'Testimonials',
+    cost_ranges: 'Typical costs',
+    featured_destinations: 'Featured destinations',
+    featured_tours: 'Featured tours / deals',
+    faq: 'FAQ',
+    final_cta: 'Final CTA',
+    partners: 'Partners',
+    stats: 'Stats counter',
+    login_slider: 'Login screen slider'
+  };
+  const ALLOWED_KEYS = Object.keys(SECTION_LABELS);
 
   const emptyForm = () => ({
     button_text: '',
@@ -309,6 +314,8 @@
   };
 
   $: sorted = [...rows].sort((a, b) => a.sort_order - b.sort_order || a.section_key.localeCompare(b.section_key));
+  // Renderable section keys not already used — the choices offered when adding a section.
+  $: availableKeys = ALLOWED_KEYS.filter((k) => !rows.some((r) => r.section_key === k));
 
   const showToast = (message: string, type: Toast['type'] = 'success') => {
     const id = crypto.randomUUID();
@@ -394,9 +401,22 @@
   const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); extraDataText = '{}'; bg = emptyBg(); logos = []; slides = []; costRanges = []; parksIntro = emptyParksIntro(); parkRows = []; processIntro = emptyProcessIntro(); stepRows = []; founderIntro = emptyFounderIntro(); mediaPicker = null; };
 
   const save = async () => {
-    if (!/^[a-z0-9_]{2,}$/.test(form.section_key.trim())) {
-      showToast('Section key is required (lowercase letters, numbers, underscores).', 'error');
+    const key = form.section_key.trim();
+    if (!/^[a-z0-9_]{2,}$/.test(key)) {
+      showToast('Please choose a section type.', 'error');
       return;
+    }
+    // Backstop: only renderable keys, and no duplicates (creation only — editing
+    // never changes an existing section's key, incl. legacy ones).
+    if (!editing) {
+      if (!ALLOWED_KEYS.includes(key)) {
+        showToast('Please choose a section type from the list.', 'error');
+        return;
+      }
+      if (rows.some((r) => r.section_key === key)) {
+        showToast('That section already exists — edit the existing one instead.', 'error');
+        return;
+      }
     }
 
     let extra: Record<string, unknown> = {};
@@ -637,13 +657,22 @@
 
       <div class="mt-6 grid gap-4">
         <div>
-          <AdminFormInput label="Section key" name="section_key" bind:value={form.section_key} placeholder="e.g. hero" required />
-          {#if !editing}
-            <div class="mt-2 flex flex-wrap gap-1.5">
-              {#each recommendedKeys as key}
-                <button class="rounded-full border border-ink/10 bg-sand/40 px-2.5 py-1 font-mono text-[11px] font-semibold text-ink/60 transition hover:border-forest/40 hover:bg-sand/70" type="button" on:click={() => (form.section_key = key)}>{key}</button>
-              {/each}
+          {#if editing}
+            <div class="grid gap-1.5 text-sm font-medium text-ink">
+              <span>Section type</span>
+              <div class="flex h-11 items-center rounded-lg border border-ink/10 bg-sand/30 px-3 font-mono text-sm text-ink/55">{form.section_key}</div>
+              <span class="text-xs text-ink/45">A section's type can't be changed once created.</span>
             </div>
+          {:else if availableKeys.length}
+            <AdminSelect
+              label="Section type"
+              name="section_key"
+              bind:value={form.section_key}
+              options={[{ label: 'Choose a section…', value: '' }, ...availableKeys.map((k) => ({ label: `${SECTION_LABELS[k]} (${k})`, value: k }))]}
+            />
+            <p class="mt-1.5 text-xs text-ink/50">Only sections the homepage can render are listed — so a new section can't end up invisible.</p>
+          {:else}
+            <div class="rounded-lg border border-dashed border-ink/15 bg-sand/25 p-4 text-sm text-ink/55">Every homepage section already exists — edit or reorder the ones above instead.</div>
           {/if}
         </div>
 
