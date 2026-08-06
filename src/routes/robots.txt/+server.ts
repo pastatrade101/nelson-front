@@ -6,6 +6,12 @@ export const GET: RequestHandler = ({ url }) => {
   return new Response(
     `User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /trip/
+Disallow: /shortlist
+Disallow: /enquiry
+Disallow: /booking/
 
 Sitemap: ${origin}/sitemap.xml
 `,
