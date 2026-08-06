@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { AlertCircle, CheckCircle2, Copy, MapPin, ShieldCheck } from '@lucide/svelte';
+  import { AlertCircle, CheckCircle2, Copy, MapPin, MessageCircle, ShieldCheck } from '@lucide/svelte';
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
+  import { publicSettings, settingText } from '$lib/settings';
   import Button from './Button.svelte';
   import CountrySelect from './CountrySelect.svelte';
   import type { Tour } from '$lib/types';
@@ -69,6 +70,25 @@
 
   const todayStr = new Date().toISOString().slice(0, 10);
   const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  // WhatsApp handoff — carry the submitted request (reference + key details) into a
+  // prefilled WhatsApp chat so the guest can continue on the same details.
+  $: waDigits = (settingText($publicSettings, 'whatsapp_number') || '+255 700 000 000').replace(/[^0-9]/g, '');
+  $: waText = [
+    "Hi Emnel Adventures, I've just submitted a trip request and would like to continue here.",
+    bookingCode ? `Reference: ${bookingCode}` : '',
+    tour?.title ? `Trip: ${tour.title}` : '',
+    full_name ? `Name: ${full_name}` : '',
+    Number(number_of_adults) || Number(number_of_children)
+      ? `Travellers: ${number_of_adults} adults, ${number_of_children} children`
+      : '',
+    travel_date ? `Preferred date: ${travel_date}${date_flexibility ? ` (flexible: ${date_flexibility})` : ''}` : '',
+    trip_duration ? `Duration: ${trip_duration}` : '',
+    budget_range ? `Budget: ${budget_range}` : ''
+  ]
+    .filter(Boolean)
+    .join('\n');
+  $: waHref = `https://wa.me/${waDigits}?text=${encodeURIComponent(waText)}`;
 
   const clearErr = (key: string) => {
     if (errors[key]) {
@@ -216,7 +236,18 @@
       </div>
     {/if}
 
-    <Button type="button" variant="secondary" on:click={resetForm}>Submit another request</Button>
+    <div class="grid gap-3">
+      <a
+        href={waHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        on:click={() => trackEvent('whatsapp_click', { tour_id: tour?.id })}
+        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#20bd5a]"
+      >
+        <MessageCircle size={18} /> Continue on WhatsApp
+      </a>
+      <Button type="button" variant="secondary" on:click={resetForm}>Submit another request</Button>
+    </div>
   </div>
 {:else}
   <form class="relative flex max-h-[88vh] flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-soft" on:submit|preventDefault={submit} novalidate>

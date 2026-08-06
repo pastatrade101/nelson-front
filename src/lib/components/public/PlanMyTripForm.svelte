@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { get } from 'svelte/store';
-  import { AlertCircle, CheckCircle2, Copy, MapPin, Scale, ShieldCheck } from '@lucide/svelte';
+  import { AlertCircle, CheckCircle2, Copy, MapPin, MessageCircle, Scale, ShieldCheck } from '@lucide/svelte';
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
@@ -72,6 +72,25 @@
 
   $: wantsExactDates = travel_month === 'I know exact dates';
   $: sent = submitted;
+
+  // WhatsApp handoff — carry the submitted request into a prefilled chat so the
+  // guest can continue on the same details.
+  $: waDigits = (settingText($publicSettings, 'whatsapp_number') || '+255 700 000 000').replace(/[^0-9]/g, '');
+  $: waText = [
+    "Hi Emnel Adventures, I've just submitted a trip request and would like to continue here.",
+    bookingCode ? `Reference: ${bookingCode}` : '',
+    tripContext || destination_interest ? `Trip: ${tripContext || destination_interest}` : '',
+    full_name ? `Name: ${full_name}` : '',
+    Number(number_of_adults) || Number(number_of_children)
+      ? `Travellers: ${number_of_adults} adults, ${number_of_children} children${traveller_type ? ` — ${traveller_type}` : ''}`
+      : '',
+    travel_month ? `Travel month: ${travel_month}${date_flexibility ? ` (flexible: ${date_flexibility})` : ''}` : '',
+    trip_duration ? `Duration: ${trip_duration}` : '',
+    budget_per_person ? `Budget: ${budget_per_person}` : ''
+  ]
+    .filter(Boolean)
+    .join('\n');
+  $: waHref = `https://wa.me/${waDigits}?text=${encodeURIComponent(waText)}`;
 
   const inputBase = 'w-full rounded-md border bg-surface px-3 py-3 text-sm text-ink outline-none transition focus:ring-2';
   $: cls = (field: string) =>
@@ -380,7 +399,18 @@
           Book a call now
         </a>
       {/if}
-      <Button type="button" variant="secondary" on:click={resetForm}>Start another request</Button>
+      <div class="grid gap-3">
+        <a
+          href={waHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          on:click={() => trackEvent('whatsapp_click')}
+          class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#20bd5a]"
+        >
+          <MessageCircle size={18} /> Continue on WhatsApp
+        </a>
+        <Button type="button" variant="secondary" on:click={resetForm}>Start another request</Button>
+      </div>
     </div>
     <p class="text-center text-xs text-ink/70">A confirmation email is on its way to the address you provided.</p>
   </div>
