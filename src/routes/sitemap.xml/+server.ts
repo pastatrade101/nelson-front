@@ -1,7 +1,13 @@
-import { API_URL, SITE_URL } from '$lib/config/env';
+import { env as privateEnv } from '$env/dynamic/private';
+import { SITE_URL } from '$lib/config/env';
 import { COMPARISONS } from '$lib/data/comparisons';
 import { TRAVEL_STYLES } from '$lib/data/travel-styles';
 import type { RequestHandler } from './$types';
+
+// Server-side the sitemap must reach the backend over the internal Docker
+// network (BACKEND_ORIGIN) — NOT the public API_URL, which inside the container
+// falls back to localhost:5000 (dead). Mirrors the /api proxy's target.
+const BACKEND_ORIGIN = (privateEnv.BACKEND_ORIGIN || 'http://127.0.0.1:5000').replace(/\/+$/, '');
 
 // One indexable URL. `lastmod` is optional (only emitted when the record carries
 // a usable date). Admin, /api, transactional forms (booking/enquiry), user-state
@@ -69,7 +75,7 @@ const collect = async (
   opts: { changefreq: string; priority: number }
 ): Promise<Entry[]> => {
   try {
-    const res = await fetchFn(`${API_URL}${endpoint}`);
+    const res = await fetchFn(`${BACKEND_ORIGIN}/api${endpoint}`);
     if (!res.ok) return [];
     const json = (await res.json()) as { data?: unknown };
     const raw = json?.data;
