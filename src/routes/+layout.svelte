@@ -133,6 +133,14 @@
   <meta property="og:title" content={$branding.site_name} />
   <meta property="og:description" content={$branding.positioning} />
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content={$branding.site_name} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={`${siteOrigin}/emnel-icon.png`} />
+  <meta property="og:image:alt" content={$branding.site_name} />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content={$branding.site_name} />
+  <meta name="twitter:description" content={$branding.positioning} />
+  <meta name="twitter:image" content={`${siteOrigin}/emnel-icon.png`} />
   <link rel="canonical" href={canonicalUrl} />
   {#if $branding.favicon_url}
     <link rel="icon" href={$branding.favicon_url} />
