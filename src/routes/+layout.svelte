@@ -41,6 +41,10 @@
   $: orgUrl = `${siteOrigin}/`;
 
   let smoothScrollCleanup: (() => void) | undefined;
+  // Gate the AI widget until real public settings have loaded — otherwise, on a
+  // refresh, the fallback defaults (AI on) render the widget for a moment before
+  // the saved "disabled" setting arrives and removes it (a visible flash).
+  let settingsReady = false;
 
   $: if (browser) {
     if (isAdmin && smoothScrollCleanup) {
@@ -65,7 +69,7 @@
   // The public AI chatbot is the built-in Emnel AI Advisor (mounted below),
   // powered by our own /ai/chat backend. The external Makutano widget is no
   // longer loaded so there is only one chat launcher.
-  $: aiOn = !isAdmin && aiAdvisorEnabled($publicSettings);
+  $: aiOn = !isAdmin && settingsReady && aiAdvisorEnabled($publicSettings);
 
   // Local dev / preview hosts must never pollute the production GA4 property.
   const isProdHost = () =>
@@ -119,7 +123,7 @@
     // server-side fetch had failed and we fell back to defaults).
     applyBranding(data.branding);
     void loadBranding();
-    void loadPublicSettings();
+    void loadPublicSettings().then(() => (settingsReady = true));
     setupPwaInstall();
     return () => {
       smoothScrollCleanup?.();
