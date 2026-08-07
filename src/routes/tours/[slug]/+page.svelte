@@ -2,11 +2,14 @@
   import {
     ArrowRight,
     BedDouble,
+    Binoculars,
     CalendarDays,
+    Camera,
     Check,
     ChevronDown,
     Clock,
     Compass,
+    Heart,
     MapPin,
     MessageCircle,
     Mountain,
@@ -15,8 +18,10 @@
     Shield,
     Sparkles,
     Star,
+    Tag,
     Users,
     Utensils,
+    Waves,
     X
   } from '@lucide/svelte';
   import { onMount } from 'svelte';
@@ -277,6 +282,21 @@
     tour?.difficulty_level,
     ...(tour?.persona_tags ?? [])
   ]).slice(0, 5);
+
+  // Pick a fitting icon for each "best fit" tag from its wording — so the cards
+  // carry a meaningful icon instead of one generic mark.
+  const fitIcon = (tag: string) => {
+    const t = tag.toLowerCase();
+    if (/honeymoon|romanc|couple|anniversar/.test(t)) return Heart;
+    if (/family|kids|children|multigen/.test(t)) return Users;
+    if (/beach|zanzibar|coast|island|ocean|dhow/.test(t)) return Waves;
+    if (/photo/.test(t)) return Camera;
+    if (/adventure|active|trek|climb|hik|kilimanjaro|summit/.test(t)) return Mountain;
+    if (/wildlife|safari|big five|game|migration|birding/.test(t)) return Binoculars;
+    if (/luxury|ultra|premium|signature|exclusive|first.?class/.test(t)) return Star;
+    if (/budget|essential|value|classic/.test(t)) return Compass;
+    return Compass;
+  };
   $: planningCards = recentPosts.slice(0, 6);
   $: tourNavLinks = [
     { key: 'overview', label: 'Overview', show: true },
@@ -553,34 +573,42 @@
           <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-[#FAFAF7] sm:text-[56px]">
             Designed around what matters on safari.
           </h2>
+          <p class="mt-6 max-w-md text-[15px] font-medium leading-8 text-[#E8E0D2]/60">
+            Every detail crafted for comfort, connection and the moments you'll carry home.
+          </p>
           <div class="mt-7 h-px w-24 bg-goldfinch-gold"></div>
         </div>
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ selector: '.tour-design-card', y: 16, stagger: 0.05 }}>
           {#each fitTags as tag}
-            <div class="tour-design-card border border-[#C5A265]/20 bg-[#2E2820] p-5 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
-              <Sparkles class="text-goldfinch-gold" size={18} />
-              <p class="mt-5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#E8E0D2]/72">Best fit</p>
-              <p class="mt-2 font-serif text-[24px] leading-tight text-[#FAFAF7]">{tag}</p>
+            {@const Icon = fitIcon(tag)}
+            <div class="tour-design-card rounded-2xl border border-[#C5A265]/20 bg-[#221E18] p-5 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+              <span class="grid h-11 w-11 place-items-center rounded-full border border-goldfinch-gold/45 text-goldfinch-gold">
+                <Icon size={19} strokeWidth={1.6} />
+              </span>
+              <p class="mt-5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#E8E0D2]/58">Best fit</p>
+              <p class="mt-1.5 font-serif text-[24px] capitalize leading-tight text-[#FAFAF7]">{tag.replace(/_/g, ' ')}</p>
             </div>
           {/each}
           {#if tour.price_from}
-            <div class="tour-design-card border border-[#C5A265]/20 bg-[#2E2820] p-5 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
-              <Clock class="text-goldfinch-gold" size={18} />
-              <p class="mt-5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#E8E0D2]/72">Starts from</p>
-              <p class="mt-2 font-serif text-[24px] leading-tight text-[#FAFAF7]">{priceText}</p>
+            <div class="tour-design-card rounded-2xl border border-[#C5A265]/20 bg-[#221E18] p-5 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+              <span class="grid h-11 w-11 place-items-center rounded-full border border-goldfinch-gold/45 text-goldfinch-gold">
+                <Tag size={19} strokeWidth={1.6} />
+              </span>
+              <p class="mt-5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#E8E0D2]/58">Starts from</p>
+              <p class="mt-1.5 font-serif text-[24px] leading-tight text-[#FAFAF7]">{priceText}</p>
             </div>
           {/if}
         </div>
       </div>
 
       {#if highlights.length}
-        <div class="mt-14 grid border border-[#C5A265]/18 bg-[#24201A] md:grid-cols-3">
+        <div class="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {#each highlights as h}
-            <article class="border-b border-[#C5A265]/14 p-7 md:border-b-0 md:border-r">
-              <span class="grid h-9 w-9 place-items-center rounded-full bg-goldfinch-gold text-deep-green">
-                <Check size={16} strokeWidth={2.8} />
+            <article class="flex items-start gap-4 rounded-2xl border border-[#C5A265]/16 bg-[#1C1813] p-6 transition-colors duration-300 hover:border-goldfinch-gold/40">
+              <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-goldfinch-gold text-deep-green shadow-[0_6px_16px_rgba(197,162,101,0.28)]">
+                <Check size={15} strokeWidth={3} />
               </span>
-              <p class="mt-7 text-[15px] font-medium leading-8 text-[#E8E0D2]/84">{h}</p>
+              <p class="text-[15px] font-medium leading-7 text-[#E8E0D2]/85">{h}</p>
             </article>
           {/each}
         </div>
