@@ -1,5 +1,6 @@
 import { browser } from '$app/environment';
 import { API_URL } from '$lib/config/env';
+import type { CurrencyApiState } from '$lib/types';
 import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, Lodge, Paginated, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
 
 type QueryValue = string | number | boolean | undefined | null;
@@ -165,6 +166,13 @@ export const streamAdvisorChat = async (body: AdvisorStreamBody, handlers: Advis
 
 export const api = {
   health: () => apiRequest('/health'),
+  currencies: {
+    get: () => apiRequest<CurrencyApiState>('/currencies')
+  },
+  exchangeRates: {
+    status: () => apiRequest<CurrencyApiState & Record<string, unknown>>('/internal/exchange-rates'),
+    refresh: () => apiRequest<CurrencyApiState & Record<string, unknown>>('/internal/exchange-rates/refresh', { method: 'POST' })
+  },
   auth: {
     login: (body: { email: string; password: string }) =>
       apiRequest<{ token: string; user: { name: string; email: string; role: string }; expiresIn: string }>('/auth/login', {

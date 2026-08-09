@@ -4,6 +4,7 @@
   import { thumbUrl } from '$lib/img';
   import ShortlistButton from './ShortlistButton.svelte';
   import ResponsiveImage from './ResponsiveImage.svelte';
+  import { currency, formatUsd } from '$lib/currency';
   import type { Tour } from '$lib/types';
 
   export let tour: Tour;
@@ -73,7 +74,7 @@
     <div class="mt-auto flex items-center justify-between gap-3 border-t border-ink/[0.08] pt-4">
       <p class="leading-tight">
         <span class="block text-[11px] font-medium uppercase tracking-wide text-ink/65">From</span>
-        <span class="text-lg font-extrabold text-heading">{tour.currency ?? 'USD'} {(tour.price_from ?? 0).toLocaleString()}</span>
+        <span class="text-lg font-extrabold text-heading">{formatUsd(tour.price_from ?? 0, $currency)}</span>
         <span class="text-xs font-semibold text-ink/65"> pp</span>
       </p>
       <a

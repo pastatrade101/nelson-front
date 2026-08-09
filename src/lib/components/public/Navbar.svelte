@@ -6,6 +6,7 @@
   import { ArrowDownToLine, ArrowRight, BadgeCheck, BedDouble, Binoculars, Camera, ChevronDown, CircleHelp, Compass, Gem, Handshake, Headphones, Heart, Home, MapPin, Menu, MessageCircle, Mountain, Plane, Route, Search, ShieldCheck, Sparkles, Tent, Users, Wallet, Waves, X } from '@lucide/svelte';
   import { fade, fly } from 'svelte/transition';
   import MegaMenu from './MegaMenu.svelte';
+  import CurrencySelector from './CurrencySelector.svelte';
   import { api } from '$lib/api/client';
   import { openAiAdvisor } from '$lib/aiAdvisor';
   import { openEnquiry } from '$lib/enquiry';
@@ -143,8 +144,7 @@
     { href: '/destinations', label: 'Destinations', dropdown: 'destinations' },
     { href: '/accommodation', label: 'Accommodation', dropdown: 'accommodation' },
     { href: '/safari-styles', label: 'Safari Styles', dropdown: 'safari-styles' },
-    { href: '/about', label: 'About' },
-    { href: '/blog', label: 'Journal' }
+    { href: '/about', label: 'About' }
   ];
 
   // Sub-links for the mobile accordion, per dropdown (label + href only are read).
@@ -481,6 +481,8 @@
           {/if}
         {/each}
         </nav>
+
+        <CurrencySelector compact />
 
         <!-- Begin Your Journey CTA — opens the enquiry modal -->
         <button

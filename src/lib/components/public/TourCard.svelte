@@ -4,6 +4,7 @@
   import { tilt } from '$lib/animations';
   import ShortlistButton from './ShortlistButton.svelte';
   import ResponsiveImage from './ResponsiveImage.svelte';
+  import { currency, formatUsd } from '$lib/currency';
   import type { Tour } from '$lib/types';
 
   export let tour: Tour;
@@ -41,7 +42,7 @@
       <h3 class="mt-2 text-xl font-bold tracking-normal text-ink">{tour.title}</h3>
       <p class="mt-2 line-clamp-3 text-sm leading-6 text-ink/70">{tour.short_description}</p>
       <div class="mt-auto flex items-center justify-between pt-5 text-sm">
-        <span class="font-semibold text-forest">From {tour.currency ?? 'USD'} {tour.price_from ?? 0}</span>
+        <span class="font-semibold text-forest">From {formatUsd(tour.price_from ?? 0, $currency)}</span>
         <span class="font-semibold text-ink">View</span>
       </div>
     </div>

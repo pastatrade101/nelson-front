@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { ArrowLeft, ArrowRight, Check, MessageCircle, Sparkles } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { currency, formatUsd, type CurrencyStoreState } from '$lib/currency';
   import { revealHeading } from '$lib/animations';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import type { Tour } from '$lib/types';
@@ -177,8 +178,8 @@
 
   const planHref = (slug: string) =>
     `/plan-my-trip?tour=${slug}${answers.persona ? `&persona=${answers.persona}` : ''}`;
-  const fmtPrice = (t: Tour) =>
-    t.price_from ? `${t.currency ?? 'USD'} ${t.price_from.toLocaleString()}` : 'On request';
+  const fmtPrice = (t: Tour, cur: CurrencyStoreState) =>
+    t.price_from ? formatUsd(t.price_from, cur) : 'On request';
 </script>
 
 <section class="bg-sand/40">
@@ -259,7 +260,7 @@
                   <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
                     {#if destName(rec.tour)}<span class="text-clay">{destName(rec.tour)}</span>{/if}
                     {#if rec.tour.duration_days}<span class="text-ink/70">{rec.tour.duration_days} days</span>{/if}
-                    <span class="text-ink/70">from <span class="text-heading">{fmtPrice(rec.tour)}</span></span>
+                    <span class="text-ink/70">from <span class="text-heading">{fmtPrice(rec.tour, $currency)}</span></span>
                   </div>
                   <h3 class="mt-1 text-lg font-serif font-normal leading-snug text-heading">{rec.tour.title}</h3>
                   <p class="mt-1.5 inline-flex items-start gap-1.5 text-sm font-medium text-forest">

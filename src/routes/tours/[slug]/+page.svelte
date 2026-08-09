@@ -30,6 +30,7 @@
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
+  import { currency, formatUsd } from '$lib/currency';
   import { staggeredCardReveal } from '$lib/animations/motion';
   import { origUrl, thumbUrl } from '$lib/img';
   import { publicSettings, settingText } from '$lib/settings';
@@ -157,7 +158,6 @@
     discount: 'Discount'
   };
   const priceTypeLabel = (value?: string | null) => (value ? priceTypeLabels[value] ?? value : 'Per person');
-  const formatPrice = (amount: number, currency?: string | null) => `${currency ?? 'USD'} ${Number(amount).toLocaleString()}`;
 
   // Day-by-day itinerary + what's included (embedded in the tour detail response).
   $: itineraryDays = [...(tour?.itinerary_days ?? [])].sort((a, b) => (a.day_number ?? 0) - (b.day_number ?? 0));
@@ -272,7 +272,7 @@
   $: durationText = tour?.duration_days
     ? `${tour.duration_days} days${tour.duration_nights ? ` / ${tour.duration_nights} nights` : ''}`
     : 'Tailor-made timing';
-  $: priceText = tour?.price_from ? `${tour.currency ?? 'USD'} ${tour.price_from.toLocaleString()}` : 'On request';
+  $: priceText = tour?.price_from ? formatUsd(tour.price_from, $currency) : 'On request';
   $: routeLabel = tour?.start_location || tour?.end_location
     ? `${tour.start_location ?? destinationName} to ${tour.end_location ?? destinationName}`
     : `${destinationName} route`;
@@ -761,7 +761,7 @@
                   {priceTypeLabel(option.price_type)}
                 </span>
               </div>
-              <p class="font-serif text-[34px] leading-none text-goldfinch-gold">{formatPrice(option.price, option.currency)}</p>
+              <p class="font-serif text-[34px] leading-none text-goldfinch-gold">{formatUsd(option.price, $currency)}</p>
               {#if option.description}
                 <p class="text-[14px] font-medium leading-7 text-white/62">{option.description}</p>
               {/if}
@@ -795,7 +795,7 @@
                   <ResponsiveImage imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={origUrl(item as unknown as Record<string, unknown>, 'main_image_url', 'banner_image_url')} fallbackSrc={tourCardImage(item)} width={800} alt={item.title} sizes="(min-width:768px) 33vw, 100vw" />
                 </div>
                 <div class="p-7">
-                  <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/38">{item.duration_days ?? 1} days · {item.currency ?? 'USD'} {item.price_from?.toLocaleString() ?? 'on request'}</p>
+                  <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/38">{item.duration_days ?? 1} days · {item.price_from ? formatUsd(item.price_from, $currency) : 'on request'}</p>
                   <h3 class="mt-5 font-serif text-[28px] font-light leading-tight text-white">{item.title}</h3>
                   <p class="mt-4 line-clamp-3 text-[14px] font-medium leading-7 text-white/58">{item.short_description}</p>
                   <span class="mt-7 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">

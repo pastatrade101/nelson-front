@@ -3,6 +3,7 @@
   import { origUrl, thumbUrl } from '$lib/img';
   import ScoreBars from '$lib/components/public/ScoreBars.svelte';
   import ResponsiveImage from './ResponsiveImage.svelte';
+  import { currency, formatUsd } from '$lib/currency';
   import type { Destination } from '$lib/types';
   import type { DestinationScores } from '$lib/data/destination-scores';
 
@@ -12,7 +13,7 @@
   // client hasn't filled the data, so nothing ever renders empty or broken.
   $: heroImage = destination.banner_image_url || destination.main_image_url || destination.image_url || '';
   $: regionLine = [destination.region, destination.country].filter(Boolean).join(' · ') || 'Tanzania';
-  $: budgetFrom = destination.score_budget_from ? `From USD ${destination.score_budget_from.toLocaleString()}` : '';
+  $: budgetFrom = destination.score_budget_from ? `From ${formatUsd(destination.score_budget_from, $currency)}` : '';
 
   $: destScores = ((): DestinationScores | undefined => {
     const raw = [

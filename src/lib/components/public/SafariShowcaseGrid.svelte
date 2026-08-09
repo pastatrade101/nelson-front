@@ -3,6 +3,7 @@
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
   import ResponsiveImage from './ResponsiveImage.svelte';
   import { isHtml } from '$lib/richtext';
+  import { currency, formatUsd, type CurrencyStoreState } from '$lib/currency';
   import type { Tour } from '$lib/types';
 
   type ShowcaseCard = {
@@ -96,12 +97,12 @@
 
   const imageFallbacks = fallbackCards.map((card) => card.image);
 
-  const money = (tour: Tour) => {
+  const money = (tour: Tour, cur: CurrencyStoreState) => {
     if (!tour.price_from) return undefined;
-    return `From ${tour.currency ?? 'USD'} ${tour.price_from.toLocaleString()}`;
+    return `From ${formatUsd(tour.price_from, cur)}`;
   };
 
-  const toCard = (tour: Tour, index: number): ShowcaseCard => {
+  const toCard = (tour: Tour, index: number, cur: CurrencyStoreState): ShowcaseCard => {
     const destination = tour.destinations?.name ?? tour.tour_categories?.name ?? tour.experience_type ?? 'Private safari';
     const duration = tour.duration_days ? `${tour.duration_days} day${tour.duration_days === 1 ? '' : 's'}` : 'Tailor-made';
     const tags = [
@@ -119,12 +120,12 @@
       href: `/tours/${tour.slug}`,
       image: tour.main_image_url || tour.banner_image_url || imageFallbacks[index % imageFallbacks.length],
       meta: duration,
-      price: money(tour),
+      price: money(tour, cur),
       tags: tags.length ? tags : ['Private safari', 'Local planning']
     };
   };
 
-  $: tourCards = tours.map(toCard).filter((card) => card.title && card.href);
+  $: tourCards = tours.map((tour, i) => toCard(tour, i, $currency)).filter((card) => card.title && card.href);
   $: cards = [...tourCards, ...fallbackCards].slice(0, 6);
 
   const layout = [

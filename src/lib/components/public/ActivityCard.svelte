@@ -3,6 +3,7 @@
   import { tilt } from '$lib/animations';
   import { thumbUrl } from '$lib/img';
   import ResponsiveImage from './ResponsiveImage.svelte';
+  import { currency, formatUsd } from '$lib/currency';
   import type { Activity } from '$lib/types';
 
   export let activity: Activity;
@@ -26,7 +27,7 @@
   $: location = activity.location_label || activity.destinations?.name || '';
   $: priceLabel =
     activity.price_from != null
-      ? `${activity.currency ?? 'USD'} ${Math.round(activity.price_from).toLocaleString()}`
+      ? formatUsd(activity.price_from, $currency)
       : '';
 </script>
 

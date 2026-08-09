@@ -3,6 +3,7 @@
   import { origUrl, thumbUrl } from '$lib/img';
   import ResponsiveImage from './ResponsiveImage.svelte';
   import { destinationChips, destinationFacts, luxuryStars } from '$lib/destination-facts';
+  import { currency, formatUsd } from '$lib/currency';
   import type { Destination, Tour } from '$lib/types';
 
   export let destination: Destination;
@@ -13,7 +14,6 @@
   $: chips = destinationChips(destination);
   $: facts = destinationFacts(destination);
   $: stars = luxuryStars(destination);
-  $: currency = stat?.currency || 'USD';
 
   const clip = (s: string, n = 46) => (s.length > n ? s.slice(0, n - 1).replace(/[\s,;–-]+\S*$/, '') + '…' : s);
 
@@ -90,7 +90,7 @@
           {#if stat && stat.count}
             <span class="text-sm text-ink/70">
               <span class="font-bold text-heading">{stat.count}</span> safari itinerar{stat.count === 1 ? 'y' : 'ies'}
-              {#if stat.from}<span class="text-ink/40"> · </span>from <span class="font-bold text-heading">{currency} {stat.from.toLocaleString()}</span> pp{/if}
+              {#if stat.from}<span class="text-ink/40"> · </span>from <span class="font-bold text-heading">{formatUsd(stat.from, $currency)}</span> pp{/if}
             </span>
           {/if}
         </div>
@@ -122,7 +122,7 @@
             <span class="min-w-0">
               <span class="block truncate font-serif text-[16px] font-normal text-heading">{tour.title}</span>
               <span class="mt-0.5 block text-[12px] text-ink/55">
-                {#if tour.duration_days}{tour.duration_days}-day{/if}{#if tour.price_from} · from {currency} {tour.price_from.toLocaleString()}{/if}
+                {#if tour.duration_days}{tour.duration_days}-day{/if}{#if tour.price_from} · from {formatUsd(tour.price_from, $currency)}{/if}
               </span>
             </span>
             <ArrowRight size={15} strokeWidth={2.4} class="shrink-0 text-forest transition group-hover:translate-x-0.5" />

@@ -30,6 +30,7 @@
   // Inline the palette during SSR so first paint matches the saved brand.
   $: brandStyleTag = brandColorStyleTag($branding.colors);
   import { aiAdvisorEnabled, loadPublicSettings, publicSettings } from '$lib/settings';
+  import { initCurrency } from '$lib/currency';
   import { trackPageView } from '$lib/analytics';
   import { loadClarity } from '$lib/clarity';
 
@@ -124,6 +125,7 @@
     applyBranding(data.branding);
     void loadBranding();
     void loadPublicSettings().then(() => (settingsReady = true));
+    void initCurrency();
     setupPwaInstall();
     return () => {
       smoothScrollCleanup?.();

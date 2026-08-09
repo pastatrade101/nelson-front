@@ -4,6 +4,7 @@
   import { fadeUpOnScroll, revealHeading, staggeredCardReveal, tilt } from '$lib/animations';
   import { api } from '$lib/api/client';
   import ResponsiveImage from './ResponsiveImage.svelte';
+  import { currency, formatUsd } from '$lib/currency';
   import type { Activity as ActivityRecord } from '$lib/types';
 
   type ActivityCard = {
@@ -177,7 +178,7 @@
               {#if activity.price != null}
                 <div class="text-right leading-tight">
                   <p class="text-[11px] font-medium uppercase tracking-wide text-ink/65">{activity.priceLabel}</p>
-                  <p class="text-lg font-extrabold text-heading">${activity.price.toLocaleString()}</p>
+                  <p class="text-lg font-extrabold text-heading">{formatUsd(activity.price, $currency)}</p>
                 </div>
               {/if}
             </div>

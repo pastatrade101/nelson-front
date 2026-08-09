@@ -1,7 +1,8 @@
 <script lang="ts">
   import { ArrowRight, MapPin, Sparkles, Star, Tent } from '@lucide/svelte';
   import { origUrl } from '$lib/img';
-  import { lodgeBestForLabel, lodgeImage, lodgePriceLabel, lodgeRating, levelLabel, typeLabel } from '$lib/lodge';
+  import { lodgeBestForLabel, lodgeImage, lodgeRating, levelLabel, typeLabel } from '$lib/lodge';
+  import { currency, formatUsd } from '$lib/currency';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { Lodge } from '$lib/types';
@@ -12,7 +13,7 @@
 
   $: imageUrl = lodgeImage(lodge);
   $: originalImage = origUrl(lodge, 'hero_image_url', 'image_url');
-  $: priceLabel = lodgePriceLabel(lodge);
+  $: priceLabel = lodge.price_per_night_from != null ? formatUsd(lodge.price_per_night_from, $currency) : '';
   $: rating = lodgeRating(lodge);
   $: bestForLabel = lodgeBestForLabel(lodge);
   $: isLux = ['luxury', 'ultra_luxury'].includes(normalizeTier(lodge.accommodation_level));

@@ -3,6 +3,7 @@
   import { page } from '$app/stores';
   import { CalendarClock, MapPin, Users } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { currency, formatUsd } from '$lib/currency';
   import { revealHeading } from '$lib/animations';
   import BookingForm from '$lib/components/public/BookingForm.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
@@ -80,7 +81,7 @@
         {#if tour.price_from}
           <div class="mt-1 flex items-end justify-between border-t border-ink/10 pt-4">
             <span class="text-sm font-medium text-ink/70">From</span>
-            <span class="text-2xl font-extrabold text-heading">{tour.currency || 'USD'} {Number(tour.price_from).toLocaleString()}</span>
+            <span class="text-2xl font-extrabold text-heading">{formatUsd(tour.price_from, $currency)}</span>
           </div>
         {/if}
       </div>

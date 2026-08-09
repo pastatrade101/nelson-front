@@ -5,6 +5,7 @@
   import ResponsiveImage from './ResponsiveImage.svelte';
   import { tilt } from '$lib/animations';
   import ShortlistButton from './ShortlistButton.svelte';
+  import { currency, formatUsd } from '$lib/currency';
   import type { Tour } from '$lib/types';
   import { tierLabel } from '$lib/tiers';
 
@@ -127,7 +128,7 @@
       <div class="mt-auto flex items-end justify-between gap-3 border-t border-ink/[0.08] pt-4">
         <div>
           <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink/45">From</p>
-          <p class="font-serif text-[26px] font-light leading-none text-heading">{tour.currency ?? 'USD'} {(tour.price_from ?? 0).toLocaleString()}<span class="ml-1 text-[13px] font-sans font-semibold text-ink/55">pp</span></p>
+          <p class="font-serif text-[26px] font-light leading-none text-heading">{formatUsd(tour.price_from ?? 0, $currency)}<span class="ml-1 text-[13px] font-sans font-semibold text-ink/55">pp</span></p>
           {#if durationLabel}<p class="mt-1 inline-flex items-center gap-1 text-[12px] font-semibold text-clay"><Clock size={12} /> {durationLabel}</p>{/if}
         </div>
         <span class="inline-flex shrink-0 items-center gap-1.5 bg-deep-green px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition group-hover:bg-goldfinch-gold group-hover:text-deep-green">
