@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import { ArrowRight, Clock, Compass, MapPin } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { thumbUrl } from '$lib/img';
+  import ResponsiveImage from './ResponsiveImage.svelte';
   import type { Destination } from '$lib/types';
 
   // Fallbacks (shown until live images load, or if the API is empty).
@@ -10,9 +12,10 @@
   const FB_ZNZ = 'https://images.unsplash.com/photo-1605731414532-6b26976cc153?auto=format&fit=crop&w=400&q=80';
 
   let heroImage = FB_HERO;
-  let previews: { src: string; label: string }[] = [
-    { src: FB_KILI, label: 'Kilimanjaro' },
-    { src: FB_ZNZ, label: 'Zanzibar' }
+  let heroThumb = FB_HERO;
+  let previews: { src: string; thumb: string; label: string }[] = [
+    { src: FB_KILI, thumb: FB_KILI, label: 'Kilimanjaro' },
+    { src: FB_ZNZ, thumb: FB_ZNZ, label: 'Zanzibar' }
   ];
 
   onMount(async () => {
@@ -31,11 +34,21 @@
       const c = cats.find((x) => x.slug === slug);
       return c?.image_url ? String(c.image_url) : '';
     };
+    const destThumb = (slug: string) => {
+      const d = dests.find((x) => x.slug === slug);
+      return d ? thumbUrl(d, 'banner_image_url', 'main_image_url', 'image_url') : '';
+    };
+    const catThumb = (slug: string) => {
+      const c = cats.find((x) => x.slug === slug);
+      return c ? thumbUrl(c, 'image_url') : '';
+    };
 
     heroImage = destImg('tanzania') || (dests[0]?.banner_image_url || dests[0]?.main_image_url || dests[0]?.image_url) || FB_HERO;
+    const heroDest = dests.find((x) => x.slug === 'tanzania') ?? dests[0];
+    heroThumb = (heroDest ? thumbUrl(heroDest, 'banner_image_url', 'main_image_url', 'image_url') : '') || FB_HERO;
     previews = [
-      { src: catImg('kilimanjaro') || FB_KILI, label: 'Kilimanjaro' },
-      { src: destImg('zanzibar') || catImg('zanzibar-beach') || FB_ZNZ, label: 'Zanzibar' }
+      { src: catImg('kilimanjaro') || FB_KILI, thumb: catThumb('kilimanjaro') || FB_KILI, label: 'Kilimanjaro' },
+      { src: destImg('zanzibar') || catImg('zanzibar-beach') || FB_ZNZ, thumb: destThumb('zanzibar') || catThumb('zanzibar-beach') || FB_ZNZ, label: 'Zanzibar' }
     ];
   });
 </script>
@@ -87,11 +100,13 @@
 
     <!-- ── visual collage ────────────────────────────────────────── -->
     <div class="relative min-h-[280px] overflow-hidden bg-forest lg:min-h-full">
-      <img
-        class="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105"
+      <ResponsiveImage
         src={heroImage}
+        fallbackSrc={heroThumb}
         alt="Tanzania safari"
-        loading="lazy"
+        imgClass="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105"
+        width={900}
+        sizes="(min-width:1024px) 45vw, 100vw"
       />
       <!-- blend toward the green panel + bottom depth -->
       <span class="pointer-events-none absolute inset-0 bg-gradient-to-r from-deep-green/70 via-deep-green/10 to-transparent" aria-hidden="true"></span>
@@ -107,7 +122,7 @@
         {#each previews as p (p.label)}
           <div class="overflow-hidden rounded-none border border-white/50 bg-surface/90 p-1.5 shadow-[0_10px_26px_rgba(28,26,22,0.28)] backdrop-blur transition-transform duration-300 hover:-translate-y-0.5">
             <div class="relative h-20 overflow-hidden rounded-none">
-              <img class="h-full w-full object-cover" src={p.src} alt={p.label} loading="lazy" />
+              <ResponsiveImage src={p.src} fallbackSrc={p.thumb} alt={p.label} imgClass="h-full w-full object-cover" width={288} sizes="144px" />
               <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-deep-green/80 to-transparent px-2 py-1 text-[11px] font-bold text-white">
                 {p.label}
               </span>

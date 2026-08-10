@@ -3,7 +3,8 @@
   import { ArrowRight, ChevronDown, Star } from '@lucide/svelte';
   import { revealHeading } from '$lib/animations';
   import { brand } from '$lib/brand';
-  import { imgUrl } from '$lib/img';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import { cdnUrl } from '$lib/img';
 
   export let title = 'Where the wild speaks, we know how to listen.';
   export let description = 'Private Tanzania safaris, Kilimanjaro climbs and Zanzibar extensions planned by local experts in Arusha.';
@@ -56,7 +57,7 @@
   // client's video plays.
   $: providedImage =
     imageUrl && /^(https?:\/\/|\/\/|\/|data:)/i.test(imageUrl.trim()) ? imageUrl.trim() : '';
-  $: posterImage = providedImage ? imgUrl(providedImage, 1800) : '';
+  $: posterImage = providedImage;
 
   // Background video can be either a direct, browser-playable file OR a
   // YouTube/Vimeo link. A raw <video> element can only play a file — pasting a
@@ -82,14 +83,15 @@
 <section class="relative min-h-[100svh] overflow-hidden bg-deep-green text-white">
   <!-- Base layer: the image always renders (and is the fallback for any video). -->
   {#if providedImage}
-    <img
-      class="absolute inset-0 h-full w-full object-cover"
-      style={`object-position:${imagePosition}`}
-      src={imgUrl(providedImage, 1800)}
+    <ResponsiveImage
+      src={providedImage}
+      imgClass="absolute inset-0 h-full w-full object-cover"
+      imgStyle={`object-position:${imagePosition}`}
       alt="Private Tanzania safari"
-      loading="eager"
-      decoding="async"
-      fetchpriority="high"
+      sizes="100vw"
+      width={1900}
+      eager
+      priority
     />
   {/if}
   <!-- A direct video file plays over the image. -->
@@ -98,8 +100,8 @@
     <video
       class="absolute inset-0 h-full w-full object-cover"
       style={`object-position:${imagePosition}`}
-      src={fileVideo}
-      poster={posterImage || undefined}
+      src={cdnUrl(fileVideo)}
+      poster={cdnUrl(posterImage) || undefined}
       autoplay
       muted
       loop

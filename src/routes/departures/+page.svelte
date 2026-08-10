@@ -10,6 +10,8 @@
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import { origUrl, thumbUrl } from '$lib/img';
 
   type Departure = {
     available_slots: number | null;
@@ -216,7 +218,7 @@
             <article class="group flex flex-col overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]" use:tilt={{ max: 5 }}>
               <div class="relative aspect-[16/10] overflow-hidden bg-skywash">
                 {#if g.tour.main_image_url}
-                  <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={g.tour.main_image_url} alt={g.tour.tour_title} loading="lazy" />
+                  <ResponsiveImage src={origUrl(g.tour, 'main_image_url', 'banner_image_url')} fallbackSrc={thumbUrl(g.tour, 'main_image_url', 'banner_image_url')} imgClass="h-full w-full object-cover transition duration-300 group-hover:scale-105" alt={g.tour.tour_title} width={800} sizes="(min-width:1280px) 33vw, (min-width:768px) 50vw, 100vw" />
                 {:else}
                   <div class="grid h-full w-full place-items-center text-forest/30"><Compass size={36} /></div>
                 {/if}

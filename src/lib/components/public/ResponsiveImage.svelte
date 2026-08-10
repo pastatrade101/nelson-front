@@ -14,6 +14,7 @@
   export let eager = false; // above-the-fold → loading="eager"
   export let priority = false; // LCP candidate → fetchpriority="high"
   export let imgClass = '';
+  export let imgStyle = ''; // extra inline style forwarded to the <img> (e.g. object-position)
   export let width = 1280; // render width for the fallback <img>
 
   $: base = variantBase(src);
@@ -24,6 +25,9 @@
   // Responsive AVIF/WebP <source>s always derive from the original `src`.
   $: fallback = imgUrl((fallbackSrc || src) ?? '', width);
   $: bg = meta?.dominantColor ?? undefined;
+  // Merge the dominant-colour placeholder with any caller-supplied inline style
+  // (e.g. object-position for a hero focal point) into one style attribute.
+  $: combinedStyle = [bg ? `background-color:${bg}` : '', imgStyle].filter(Boolean).join(';') || undefined;
 </script>
 
 <picture class="contents">
@@ -42,6 +46,6 @@
     fetchpriority={priority ? 'high' : undefined}
     width={meta?.width ?? undefined}
     height={meta?.height ?? undefined}
-    style={bg ? `background-color:${bg}` : undefined}
+    style={combinedStyle}
   />
 </picture>

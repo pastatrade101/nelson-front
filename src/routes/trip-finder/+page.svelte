@@ -5,6 +5,8 @@
   import { currency, formatUsd, type CurrencyStoreState } from '$lib/currency';
   import { revealHeading } from '$lib/animations';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import { origUrl, thumbUrl } from '$lib/img';
   import type { Tour } from '$lib/types';
 
   type Opt = { value: string; label: string; hint?: string };
@@ -253,7 +255,7 @@
               <article class="flex flex-col overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] sm:flex-row">
                 <div class="aspect-[16/10] w-full shrink-0 overflow-hidden bg-skywash sm:aspect-auto sm:w-44">
                   {#if rec.tour.main_image_url}
-                    <img class="h-full w-full object-cover" src={rec.tour.main_image_url} alt={rec.tour.title} loading="lazy" />
+                    <ResponsiveImage src={origUrl(rec.tour, 'main_image_url', 'banner_image_url')} fallbackSrc={thumbUrl(rec.tour, 'main_image_url', 'banner_image_url')} imgClass="h-full w-full object-cover" alt={rec.tour.title} width={420} sizes="(min-width:640px) 176px, 100vw" />
                   {/if}
                 </div>
                 <div class="flex flex-1 flex-col p-5">

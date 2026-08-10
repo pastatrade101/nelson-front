@@ -61,7 +61,7 @@
 <!-- header -->
 <section class="relative isolate overflow-hidden bg-deep-green text-white">
   {#if images[0]}
-    <img class="absolute inset-0 h-full w-full object-cover opacity-60" src={origUrl(images[0], 'image_url')} alt="" aria-hidden="true" />
+    <img class="absolute inset-0 h-full w-full object-cover opacity-60" src={thumbUrl(images[0], 'image_url')} alt="" aria-hidden="true" loading="eager" />
   {/if}
   <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.35)_0%,transparent_45%,rgba(20,18,15,0.72)_100%)]"></div>
   <div class="container-shell relative py-16 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-20">
@@ -181,14 +181,18 @@
         </button>
       {/if}
       {#key index}
-        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-        <img
-          class="max-h-full max-w-full object-contain"
-          src={origUrl(active, 'image_url')}
-          alt={String(active.alt_text ?? active.title ?? 'Safari gallery image')}
-          on:click|stopPropagation
-          transition:scale={{ duration: 180, start: 0.98 }}
-        />
+        <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+        <div transition:scale={{ duration: 180, start: 0.98 }} on:click|stopPropagation class="flex max-h-full max-w-full items-center justify-center">
+          <ResponsiveImage
+            src={origUrl(active, 'image_url')}
+            fallbackSrc={thumbUrl(active, 'image_url')}
+            alt={String(active.alt_text ?? active.title ?? 'Safari gallery image')}
+            width={1600}
+            sizes="100vw"
+            imgClass="max-h-full max-w-full object-contain"
+            eager
+          />
+        </div>
       {/key}
       {#if filtered.length > 1}
         <button type="button" class="absolute right-2 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:right-4" on:click|stopPropagation={next} aria-label="Next">

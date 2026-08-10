@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ArrowRight, ShieldCheck } from '@lucide/svelte';
+  import { thumbUrl } from '$lib/img';
 
   // Honest "typical cost" band (spec §4.1 F / §6). Rows come ONLY from the CMS
   // (cost_ranges section → extra_data.ranges); the block renders nothing when empty
@@ -9,13 +10,13 @@
   export let ranges: Array<{ label: string; from: string; note?: string; image?: string }> = [];
 
   // Keyword → image fallback so CMS-provided rows still get a fitting backdrop.
-  const FALLBACK_IMG = 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
+  const FALLBACK_IMG = 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&w=600';
   const imageFor = (row: { label: string; image?: string }) => {
-    if (row.image) return row.image;
+    if (row.image) return thumbUrl(row, 'image');
     const s = row.label.toLowerCase();
-    if (/kilimanjaro|trek|climb|mountain/.test(s)) return 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b';
-    if (/beach|zanzibar|coast|island/.test(s)) return 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e';
-    if (/migration|safari|wildlife|game/.test(s)) return 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
+    if (/kilimanjaro|trek|climb|mountain/.test(s)) return 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&w=600';
+    if (/beach|zanzibar|coast|island/.test(s)) return 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&w=600';
+    if (/migration|safari|wildlife|game/.test(s)) return 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&w=600';
     return FALLBACK_IMG;
   };
 

@@ -4,7 +4,9 @@
   import { CalendarClock, MapPin, Users } from '@lucide/svelte';
   import { api } from '$lib/api/client';
   import { currency, formatUsd } from '$lib/currency';
+  import { origUrl, thumbUrl } from '$lib/img';
   import { revealHeading } from '$lib/animations';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import BookingForm from '$lib/components/public/BookingForm.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
@@ -58,7 +60,15 @@
     <div class="mt-6 overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-soft">
       <div class="aspect-[16/10] bg-skywash">
         {#if heroImage}
-          <img class="h-full w-full object-cover" src={heroImage} alt={tour.title} />
+          <ResponsiveImage
+            src={origUrl(tour, 'main_image_url', 'banner_image_url')}
+            fallbackSrc={thumbUrl(tour, 'main_image_url', 'banner_image_url')}
+            alt={tour.title}
+            imgClass="h-full w-full object-cover"
+            width={900}
+            sizes="(min-width:1024px) 40vw, 100vw"
+            eager
+          />
         {/if}
       </div>
       <div class="grid gap-3 p-5">

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
+  import { cdnUrl } from '$lib/img';
 
   type Slide = { image_url: string; title?: string; subtitle?: string };
 
@@ -39,7 +40,7 @@
       style:opacity={i === current ? '1' : '0'}
       aria-hidden={i === current ? undefined : 'true'}
     >
-      <img class="h-full w-full object-cover" src={slide.image_url} alt={slide.title || brandName} />
+      <img class="h-full w-full object-cover" src={cdnUrl(slide.image_url)} alt={slide.title || brandName} />
       <div class="absolute inset-0 bg-gradient-to-t from-deep-green/95 via-deep-green/45 to-deep-green/20"></div>
       <div class="absolute inset-x-0 bottom-0 p-9 md:p-12">
         {#if slide.title}

@@ -71,7 +71,7 @@
       const res = await api.destinations.list({ status: 'published', limit: 12 });
       destinations = ((res.data.items ?? []) as Destination[]).filter((d) => d.slug && imgOf(d));
       const tz = destinations.find((d) => d.slug === 'tanzania');
-      promoImage = imgOf(tz ?? destinations[0]) || FALLBACK_PROMO;
+      promoImage = thumbUrl(tz ?? destinations[0], 'main_image_url', 'banner_image_url', 'image_url') || FALLBACK_PROMO;
     } catch {
       destinations = [];
     }

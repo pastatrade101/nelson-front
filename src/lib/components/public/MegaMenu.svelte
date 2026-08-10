@@ -2,6 +2,7 @@
   import { ArrowRight, LayoutGrid, MessageCircle, Search, Star } from '@lucide/svelte';
   import { fly } from 'svelte/transition';
   import { goto } from '$app/navigation';
+  import { cdnUrl } from '$lib/img';
 
   // Lucide icons are functional components; `typeof ArrowRight` is their type.
   type IconC = typeof ArrowRight;
@@ -141,7 +142,7 @@
       {#each featuredItems as exp (exp.href)}
         <a class="group/exp flex items-start gap-4 rounded-none p-2.5 transition duration-300 ease-out hover:-translate-y-px hover:bg-white hover:shadow-[0_14px_34px_-18px_rgba(28,26,22,0.5)]" href={exp.href}>
           <span class="relative h-[76px] w-[96px] shrink-0 overflow-hidden rounded-none bg-deep-green">
-            {#if exp.image}<img class="absolute inset-0 h-full w-full object-cover transition duration-[900ms] ease-out group-hover/exp:scale-[1.08]" src={exp.image} alt={exp.label} loading="lazy" />{/if}
+            {#if exp.image}<img class="absolute inset-0 h-full w-full object-cover transition duration-[900ms] ease-out group-hover/exp:scale-[1.08]" src={cdnUrl(exp.image)} alt={exp.label} loading="lazy" />{/if}
           </span>
           <span class="min-w-0 flex-1 pt-0.5">
             <span class="line-clamp-1 text-[14.5px] font-bold leading-snug text-heading transition group-hover/exp:text-forest">{exp.label}</span>
@@ -166,7 +167,7 @@
   <!-- Column 3 · concierge CTA over a real cinematic photo, content anchored low -->
   <div class="mm-col relative col-start-3 row-start-1 row-span-2 flex flex-col justify-end overflow-hidden bg-deep-green p-6 text-white" style="--d:180ms">
     {#if cta.image}
-      <img class="absolute inset-0 h-full w-full object-cover" src={cta.image} alt="" loading="lazy" aria-hidden="true" />
+      <img class="absolute inset-0 h-full w-full object-cover" src={cdnUrl(cta.image)} alt="" loading="lazy" aria-hidden="true" />
     {/if}
     <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.1)_0%,rgba(20,18,15,0.24)_38%,rgba(20,18,15,0.78)_74%,rgba(20,18,15,0.96)_100%)]"></div>
     <div class="relative">

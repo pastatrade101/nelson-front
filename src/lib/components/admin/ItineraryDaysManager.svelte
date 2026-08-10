@@ -3,6 +3,7 @@
   import { browser } from '$app/environment';
   import { Edit, Image as ImageIcon, Plus, Route, Save, Sparkles, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { cdnUrl } from '$lib/img';
   import AdminButton from './AdminButton.svelte';
   import AdminEmptyState from './AdminEmptyState.svelte';
   import AdminFormInput from './AdminFormInput.svelte';
@@ -330,7 +331,7 @@
           </div>
           <div class="flex items-center gap-2 lg:flex-col lg:items-end">
             {#if day.image_url}
-              <img class="h-16 w-24 rounded-2xl object-cover ring-1 ring-ink/10 lg:h-20 lg:w-28" src={day.image_url} alt={day.title} />
+              <img class="h-16 w-24 rounded-2xl object-cover ring-1 ring-ink/10 lg:h-20 lg:w-28" src={cdnUrl(day.image_url)} alt={day.title} />
             {:else}
               <div class="grid h-16 w-24 place-items-center rounded-2xl bg-sand/50 text-ink/35 ring-1 ring-ink/10 lg:h-20 lg:w-28"><ImageIcon size={20} /></div>
             {/if}

@@ -20,6 +20,7 @@
     X
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { cdnUrl } from '$lib/img';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
   import AdminPageHeader from '$lib/components/admin/AdminPageHeader.svelte';
@@ -321,7 +322,7 @@
                   <span>{field.label}</span>
                   <div class="flex items-center gap-3">
                     <div class="grid h-14 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-ink/10 bg-sand/40">
-                      {#if values[field.key]}<img class="h-full w-full object-cover" src={String(values[field.key])} alt={field.label} />{:else}<ImageIcon size={18} class="text-ink/30" />{/if}
+                      {#if values[field.key]}<img class="h-full w-full object-cover" src={cdnUrl(String(values[field.key]))} alt={field.label} />{:else}<ImageIcon size={18} class="text-ink/30" />{/if}
                     </div>
                     <input class="h-11 min-w-0 flex-1 rounded-2xl border border-ink/10 bg-surface px-3 text-sm shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" bind:value={values[field.key]} placeholder="https://..." />
                     <button class="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-2xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:bg-sand/60" type="button" on:click={() => openMediaPicker(field.key)}><ImageIcon size={14} />Media</button>
@@ -371,7 +372,7 @@
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {#each mediaItems as m (m.id)}
               <button class="group overflow-hidden rounded-xl border border-ink/10 bg-sand/30 transition hover:border-goldfinch-gold/50" type="button" on:click={() => pickMedia(m.file_url)}>
-                <div class="aspect-square"><img class="h-full w-full object-cover transition group-hover:scale-105" src={m.file_url} alt={m.file_name} loading="lazy" /></div>
+                <div class="aspect-square"><img class="h-full w-full object-cover transition group-hover:scale-105" src={cdnUrl(m.file_url)} alt={m.file_name} loading="lazy" /></div>
               </button>
             {/each}
           </div>

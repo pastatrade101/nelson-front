@@ -3,6 +3,7 @@
   import { fade, scale } from 'svelte/transition';
   import { Copy, Edit, Grid2X2, Image as ImageIcon, List, Plus, Search, Trash2, Upload, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { cdnUrl } from '$lib/img';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -331,10 +332,10 @@
       <article class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_18px_50px_rgba(28,26,22,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(28,26,22,0.1)]">
         <div class="aspect-[4/3] bg-sand/60">
           {#if media.file_type === 'image'}
-            <img class="h-full w-full object-cover" src={media.file_url} alt={media.alt_text || media.file_name} />
+            <img class="h-full w-full object-cover" src={cdnUrl(media.file_url)} alt={media.alt_text || media.file_name} />
           {:else if media.file_type === 'video'}
             <!-- svelte-ignore a11y-media-has-caption -->
-            <video class="h-full w-full object-cover" src={media.file_url} muted playsinline preload="metadata"></video>
+            <video class="h-full w-full object-cover" src={cdnUrl(media.file_url)} muted playsinline preload="metadata"></video>
           {:else}
             <div class="grid h-full place-items-center text-ink/40">
               <ImageIcon size={34} />
@@ -393,10 +394,10 @@
               <td class="px-4 py-3">
                 <div class="h-12 w-16 overflow-hidden rounded-md bg-sand/60">
                   {#if media.file_type === 'image'}
-                    <img class="h-full w-full object-cover" src={media.file_url} alt={media.alt_text || media.file_name} />
+                    <img class="h-full w-full object-cover" src={cdnUrl(media.file_url)} alt={media.alt_text || media.file_name} />
                   {:else if media.file_type === 'video'}
                     <!-- svelte-ignore a11y-media-has-caption -->
-                    <video class="h-full w-full object-cover" src={media.file_url} muted playsinline preload="metadata"></video>
+                    <video class="h-full w-full object-cover" src={cdnUrl(media.file_url)} muted playsinline preload="metadata"></video>
                   {:else}
                     <div class="grid h-full place-items-center text-ink/35"><ImageIcon size={18} /></div>
                   {/if}

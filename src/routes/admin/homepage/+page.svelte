@@ -13,7 +13,7 @@
     X
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
-  import { imgUrl } from '$lib/img';
+  import { cdnUrl, imgUrl } from '$lib/img';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -595,7 +595,7 @@
           <!-- thumb -->
           <div class="aspect-video overflow-hidden rounded-xl bg-sand/40 ring-1 ring-ink/10">
             {#if section.image_url}
-              <img class="h-full w-full object-cover" src={section.image_url} alt={section.title || section.section_key} />
+              <img class="h-full w-full object-cover" src={cdnUrl(section.image_url)} alt={section.title || section.section_key} />
             {:else}
               <div class="grid h-full w-full place-items-center text-ink/25"><ImageIcon size={22} /></div>
             {/if}
@@ -743,7 +743,7 @@
               <div class="grid gap-2 rounded-xl border border-ink/10 bg-surface p-3 sm:grid-cols-[64px_1fr_auto] sm:items-start">
                 <div class="grid h-12 w-16 place-items-center overflow-hidden rounded-lg bg-sand/40 ring-1 ring-ink/10">
                   {#if logo.image_url}
-                    <img class="max-h-10 max-w-[56px] object-contain" src={logo.image_url} alt={logo.name || 'Logo'} />
+                    <img class="max-h-10 max-w-[56px] object-contain" src={cdnUrl(logo.image_url)} alt={logo.name || 'Logo'} />
                   {:else}
                     <ImageIcon size={16} class="text-ink/30" />
                   {/if}
@@ -783,7 +783,7 @@
               <div class="grid gap-2 rounded-xl border border-ink/10 bg-surface p-3 sm:grid-cols-[96px_1fr_auto] sm:items-start">
                 <div class="grid aspect-[4/3] w-full place-items-center overflow-hidden rounded-lg bg-sand/40 ring-1 ring-ink/10 sm:w-24">
                   {#if slide.image_url}
-                    <img class="h-full w-full object-cover" src={slide.image_url} alt={slide.title || 'Slide'} />
+                    <img class="h-full w-full object-cover" src={cdnUrl(slide.image_url)} alt={slide.title || 'Slide'} />
                   {:else}
                     <ImageIcon size={16} class="text-ink/30" />
                   {/if}
@@ -936,9 +936,9 @@
           <div class="relative grid min-h-[180px] place-items-center overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green p-6 text-center text-white">
             {#if bg.video}
               <!-- svelte-ignore a11y-media-has-caption -->
-              <video class="absolute inset-0 h-full w-full object-cover" style={`object-position:${bg.media_position}`} src={bg.video} autoplay muted loop playsinline></video>
+              <video class="absolute inset-0 h-full w-full object-cover" style={`object-position:${bg.media_position}`} src={cdnUrl(bg.video)} autoplay muted loop playsinline></video>
             {:else if form.image_url}
-              <img class="absolute inset-0 h-full w-full object-cover" style={`object-position:${bg.media_position}`} src={form.image_url} alt="" />
+              <img class="absolute inset-0 h-full w-full object-cover" style={`object-position:${bg.media_position}`} src={cdnUrl(form.image_url)} alt="" />
             {/if}
             {#if bgHasMedia}
               <div class="absolute inset-0" style={overlayStyle}></div>

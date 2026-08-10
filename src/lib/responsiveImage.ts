@@ -1,5 +1,6 @@
 import { browser } from '$app/environment';
 import { writable, get } from 'svelte/store';
+import { cdnUrl, isManagedMediaUrl } from './img';
 
 // Responsive image support that consumes the backend AVIF/WebP pipeline.
 //
@@ -23,11 +24,15 @@ export type ImageVariantMeta = {
 };
 
 // Turn an original upload URL into the base path of its responsive variants.
-// Returns null for anything that isn't a Supabase upload (e.g. Unsplash) — those
-// fall back to the existing imgUrl() handling.
+// The URL is CDN-rewritten first, so variant srcsets are served from R2 when
+// enabled (and from Supabase otherwise). Returns null for anything that isn't a
+// managed upload (e.g. Unsplash) — those fall back to the existing imgUrl()
+// handling. The variant objects share the original's key, so /responsive/<stem>/
+// resolves on whichever host serves the original.
 export const variantBase = (url: string | null | undefined): string | null => {
-  if (!url || !url.includes('/storage/v1/object/public/')) return null;
-  const m = url.match(/^(.*\/)([^/?#]+)\.(jpe?g|png|webp)(?:[?#].*)?$/i);
+  const rewritten = cdnUrl(url);
+  if (!rewritten || !isManagedMediaUrl(rewritten)) return null;
+  const m = rewritten.match(/^(.*\/)([^/?#]+)\.(jpe?g|png|webp)(?:[?#].*)?$/i);
   if (!m) return null;
   return `${m[1]}responsive/${m[2]}/`;
 };

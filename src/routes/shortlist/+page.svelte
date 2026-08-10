@@ -2,6 +2,8 @@
   import { ArrowRight, Heart, Trash2 } from '@lucide/svelte';
   import { revealHeading } from '$lib/animations';
   import { clearShortlist, removeShortlist, shortlist } from '$lib/shortlist';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import { thumbUrl } from '$lib/img';
 
   $: items = $shortlist;
 </script>
@@ -27,7 +29,7 @@
       {#each items as item (item.slug)}
         <article class="flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-soft sm:flex-row">
           <a href={`/tours/${item.slug}`} class="aspect-[16/10] w-full shrink-0 overflow-hidden bg-skywash sm:aspect-auto sm:w-48">
-            {#if item.image_url}<img class="h-full w-full object-cover" src={item.image_url} alt={item.title} loading="lazy" />{/if}
+            {#if item.image_url}<ResponsiveImage src={item.image_url} fallbackSrc={thumbUrl(item, 'image_url')} imgClass="h-full w-full object-cover" alt={item.title} width={420} sizes="192px" />{/if}
           </a>
           <div class="flex flex-1 flex-col p-5">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">

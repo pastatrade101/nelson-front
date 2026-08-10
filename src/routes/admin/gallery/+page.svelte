@@ -18,6 +18,7 @@
     X
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { cdnUrl } from '$lib/img';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -352,7 +353,7 @@
         {@const meta = mediaTypeMeta(item.media_type)}
         <article class="group overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_12px_36px_rgba(28,26,22,0.06)]" transition:fade={{ duration: 120 }}>
           <div class="relative aspect-[4/3] overflow-hidden bg-sand/40">
-            <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={item.image_url} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
+            <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={cdnUrl(item.image_url)} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
             <span class={`absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ${meta.classes}`}>
               <svelte:component this={meta.icon} size={10} />{item.media_type}
             </span>
@@ -414,7 +415,7 @@
             {#each sorted as item (item.id)}
               <tr class="transition hover:bg-sand/25">
                 <td class="px-4 py-3">
-                  <img class="h-12 w-16 rounded-lg object-cover ring-1 ring-ink/10" src={item.image_url} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
+                  <img class="h-12 w-16 rounded-lg object-cover ring-1 ring-ink/10" src={cdnUrl(item.image_url)} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
                 </td>
                 <td class="px-4 py-3">
                   <div class="font-semibold text-ink">{item.title || 'Untitled'}</div>

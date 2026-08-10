@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { Palette, RotateCcw, Save, Star } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { cdnUrl } from '$lib/img';
   import {
     applyBrandColors,
     branding,
@@ -218,7 +219,7 @@
           <!-- mock hero -->
           <div class="relative grid min-h-[170px] place-items-center bg-deep-green p-6 text-center text-white">
             {#if form.logo_url}
-              <img class="absolute left-4 top-4 h-7 object-contain" src={form.logo_url} alt="" />
+              <img class="absolute left-4 top-4 h-7 object-contain" src={cdnUrl(form.logo_url)} alt="" />
             {/if}
             <div>
               <h3 class="text-xl font-extrabold">{form.site_name || 'Site name'}</h3>

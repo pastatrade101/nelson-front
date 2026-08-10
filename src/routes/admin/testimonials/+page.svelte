@@ -3,6 +3,7 @@
   import { fade, scale } from 'svelte/transition';
   import { Edit, MapPin, MessageCircleHeart, Plus, Search, Star, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { cdnUrl } from '$lib/img';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -292,7 +293,7 @@
         <article class="flex flex-col gap-4 rounded-none border border-ink/10 bg-surface p-5 shadow-[0_14px_44px_rgba(28,26,22,0.06)]" transition:fade={{ duration: 120 }}>
           <div class="flex items-start gap-3">
             {#if t.client_image_url}
-              <img class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-ink/10" src={t.client_image_url} alt={t.client_name} />
+              <img class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-ink/10" src={cdnUrl(t.client_image_url)} alt={t.client_name} />
             {:else}
               <div class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-forest/10 text-sm font-bold text-forest ring-1 ring-forest/15">
                 {initials(t.client_name)}

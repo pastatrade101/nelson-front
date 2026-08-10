@@ -1,6 +1,7 @@
 <script lang="ts">
   import { MessageCircle } from '@lucide/svelte';
   import { publicSettings, settingText } from '$lib/settings';
+  import { thumbUrl } from '$lib/img';
   import type { Specialist } from '$lib/types';
 
   export let specialist: Specialist;
@@ -23,7 +24,7 @@
   {#if heading}<p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{heading}</p>{/if}
   <div class="mt-3 flex items-center gap-3">
     {#if specialist.photo_url || specialist.photo}
-      <img class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm" src={specialist.photo_url || specialist.photo} alt={specialist.name} />
+      <img class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm" src={thumbUrl(specialist, 'photo_url', 'photo')} alt={specialist.name} />
     {:else}
       <span class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-forest/10 text-base font-bold text-forest">{initials}</span>
     {/if}

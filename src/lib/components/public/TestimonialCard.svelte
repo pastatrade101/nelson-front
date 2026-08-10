@@ -1,5 +1,6 @@
 <script lang="ts">
   import { MapPin, Star } from '@lucide/svelte';
+  import { thumbUrl } from '$lib/img';
   import type { Testimonial } from '$lib/types';
 
   export let testimonial: Testimonial;
@@ -20,7 +21,7 @@
   <!-- header -->
   <div class="flex items-start gap-3">
     {#if testimonial.client_image_url}
-      <img class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-ink/10" src={testimonial.client_image_url} alt={testimonial.client_name} loading="lazy" />
+      <img class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-ink/10" src={thumbUrl(testimonial, 'client_image_url')} alt={testimonial.client_name} loading="lazy" />
     {:else}
       <div class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-forest/10 text-sm font-bold text-forest ring-1 ring-forest/15">
         {initials}

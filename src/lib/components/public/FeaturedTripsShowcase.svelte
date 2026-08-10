@@ -178,7 +178,7 @@
               <div class="mt-auto flex items-center gap-3 pt-8">
                 <span class="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-forest/10 text-sm font-bold text-forest">
                   {#if specialist.photo_url || specialist.photo}
-                    <img class="h-full w-full object-cover" src={specialist.photo_url || specialist.photo} alt={specialist.name} />
+                    <img class="h-full w-full object-cover" src={thumbUrl(specialist, 'photo_url', 'photo')} alt={specialist.name} />
                   {:else}{initials}{/if}
                 </span>
                 <div class="leading-tight">

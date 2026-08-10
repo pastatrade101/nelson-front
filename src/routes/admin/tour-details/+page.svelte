@@ -16,6 +16,7 @@
     X
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { cdnUrl } from '$lib/img';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -596,7 +597,7 @@
             <article class="overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_10px_30px_rgba(28,26,22,0.05)]" transition:fade={{ duration: 120 }}>
               <div class="relative aspect-video bg-sand/40">
                 {#if img.image_url}
-                  <img class="h-full w-full object-cover" src={img.image_url} alt={img.alt_text || img.caption || 'Tour image'} />
+                  <img class="h-full w-full object-cover" src={cdnUrl(img.image_url)} alt={img.alt_text || img.caption || 'Tour image'} />
                 {:else}
                   <div class="grid h-full w-full place-items-center text-ink/25">
                     <ImageIcon size={32} />

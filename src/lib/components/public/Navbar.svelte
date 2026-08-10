@@ -14,6 +14,7 @@
   import { navbarEntrance } from '$lib/animations';
   import { brand } from '$lib/brand';
   import { branding } from '$lib/branding';
+  import { cdnUrl } from '$lib/img';
   import { aiAdvisorEnabled, publicSettings, settingText } from '$lib/settings';
   import { canInstall, promptInstall } from '$lib/pwa';
 
@@ -156,7 +157,7 @@
   } as Record<DropdownKey, NavLink[]>;
 
   // Background photo for a CTA panel: the first genuine http image from real data.
-  $: ctaImage = [...popularTours, ...destinations].map((x) => x.image).find((u) => typeof u === 'string' && u.startsWith('http')) ?? '';
+  $: ctaImage = [...popularTours, ...featuredDestinations].map((x) => x.image).find((u) => typeof u === 'string' && u.startsWith('http')) ?? '';
 
   // Left "browse" columns: real records mapped to labelled, icon'd links.
   // Tours = a concise, curated set with an editorial one-line subtitle (from the
@@ -238,7 +239,7 @@
   }
 
   // Navbar logo: the Emnel wordmark, overridable by an admin-set logo.
-  $: logoSrc = $branding.logo_url || '/emnel.avif';
+  $: logoSrc = cdnUrl($branding.logo_url) || '/emnel.avif';
 
   // ── WhatsApp CTA (from public settings, with safe fallback) ─────────────────
   $: s = $publicSettings;
@@ -338,7 +339,7 @@
         popularTours = withImage.slice(0, 5).map((t) => ({
           label: String(t.title ?? t.slug),
           href: `/tours/${t.slug}`,
-          image: t.main_image_url as string,
+          image: (t.main_image_url_thumbnail || t.main_image_url) as string,
           description: t.short_description ? String(t.short_description) : undefined,
           badge: t.is_popular ? 'Best Seller' : t.is_featured ? 'Recommended' : undefined,
           tier: tierLabel(t.budget_tier),
@@ -349,7 +350,7 @@
         const byStyle: Record<string, string> = {};
         for (const t of withImage) {
           const slug = (t.tour_categories as { slug?: string } | null)?.slug;
-          const img = t.main_image_url as string;
+          const img = (t.main_image_url_thumbnail || t.main_image_url) as string;
           if (slug && !byStyle[slug]) byStyle[slug] = img;
         }
         styleImageBySlug = byStyle;
@@ -365,7 +366,7 @@
         featuredLodges = withImage.slice(0, 5).map((l) => ({
           label: String(l.name ?? l.slug),
           href: `/accommodation/${l.slug}`,
-          image: l.hero_image_url as string,
+          image: (l.hero_image_url_thumbnail || l.hero_image_url) as string,
           description: l.why_we_recommend ? String(l.why_we_recommend) : undefined,
           badge: l.is_featured ? 'Recommended' : undefined,
           tier: tierLabel(l.accommodation_level),

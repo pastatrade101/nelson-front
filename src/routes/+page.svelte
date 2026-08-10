@@ -20,7 +20,8 @@
   import DealCard from '$lib/components/public/DealCard.svelte';
   import GallerySection from '$lib/components/public/GallerySection.svelte';
   import { fadeUpOnScroll, sectionReveal, staggeredCardReveal } from '$lib/animations';
-  import { imgUrl } from '$lib/img';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import { cdnUrl } from '$lib/img';
   import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
   import type { PageData } from './$types';
 
@@ -94,8 +95,6 @@
 
   $: heroExtra = (sections.hero?.extra_data ?? {}) as Record<string, unknown>;
   $: heroVideo = typeof heroExtra.background_video === 'string' ? heroExtra.background_video : '';
-  // The hero image (SSR-known) is the LCP element — preload it at high priority.
-  $: heroImage = cms('hero', 'image_url', '');
   $: showcaseExtra = (sections.safari_showcase?.extra_data ?? {}) as Record<string, unknown>;
   $: faqExtra = (sections.faq?.extra_data ?? {}) as Record<string, unknown>;
   $: parksExtra = (sections.safari_parks_intro?.extra_data ?? {}) as Record<string, unknown>;
@@ -169,12 +168,6 @@
     if (galRes.status === 'fulfilled' && galRes.value.data.items.length) gallery = galRes.value.data.items;
   });
 </script>
-
-<svelte:head>
-  {#if heroImage}
-    <link rel="preload" as="image" href={imgUrl(heroImage, 1800)} fetchpriority="high" />
-  {/if}
-</svelte:head>
 
 <HeroSection
   title={cms('hero', 'title', 'Where the wild speaks, we know how to listen.')}
@@ -349,9 +342,9 @@
     <!-- background media layer (admin-configurable: video > image > brand gradient) -->
     {#if ctaVideo}
       <!-- svelte-ignore a11y-media-has-caption -->
-      <video class="absolute inset-0 h-full w-full object-cover" style={`object-position:${ctaPosition}`} src={ctaVideo} poster={ctaImageResolved} autoplay muted loop playsinline></video>
+      <video class="absolute inset-0 h-full w-full object-cover" style={`object-position:${ctaPosition}`} src={cdnUrl(ctaVideo)} poster={cdnUrl(ctaImageResolved)} autoplay muted loop playsinline></video>
     {:else}
-      <img class="absolute inset-0 h-full w-full object-cover" style={`object-position:${ctaPosition}`} src={ctaImageResolved} alt="" loading="lazy" decoding="async" />
+      <ResponsiveImage src={ctaImageResolved} imgClass="absolute inset-0 h-full w-full object-cover" imgStyle={`object-position:${ctaPosition}`} sizes="100vw" width={1600} alt="" />
     {/if}
 
     <!-- green overlay so the photo shows through but the text stays crisp -->

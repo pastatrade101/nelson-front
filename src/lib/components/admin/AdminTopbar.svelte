@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { scale } from 'svelte/transition';
   import { Bell, ChevronDown, LogOut, Mail, Menu, PanelLeftClose, PanelLeftOpen, ShieldCheck } from '@lucide/svelte';
+  import { cdnUrl } from '$lib/img';
 
   type AdminUser = {
     avatar_url?: string;
@@ -81,7 +82,7 @@
         >
           <span class="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-forest to-deep-green text-xs font-bold uppercase text-white ring-2 ring-goldfinch-gold/35">
             {#if user?.avatar_url}
-              <img class="h-full w-full object-cover" src={user.avatar_url} alt={displayName} />
+              <img class="h-full w-full object-cover" src={cdnUrl(user.avatar_url)} alt={displayName} />
             {:else}
               {initials}
             {/if}
@@ -99,7 +100,7 @@
               <div class="flex items-center gap-3">
                 <div class="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-surface/12 text-sm font-bold uppercase ring-1 ring-goldfinch-gold/50">
                   {#if user?.avatar_url}
-                    <img class="h-full w-full object-cover" src={user.avatar_url} alt={displayName} />
+                    <img class="h-full w-full object-cover" src={cdnUrl(user.avatar_url)} alt={displayName} />
                   {:else}
                     {initials}
                   {/if}

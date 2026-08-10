@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { brand } from '$lib/brand';
+import { cdnUrl } from '$lib/img';
 
 export type BrandColors = {
   clay: string;
@@ -143,6 +144,6 @@ export const applyBranding = (data: Partial<Branding> | null | undefined) => {
   const merged = mergeBranding(data);
   branding.set(merged);
   applyBrandColors(merged.colors);
-  if (merged.favicon_url) setFavicon(merged.favicon_url);
+  if (merged.favicon_url) setFavicon(cdnUrl(merged.favicon_url));
   return merged;
 };

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { ArrowRight } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { thumbUrl } from '$lib/img';
   import { revealHeading, staggeredCardReveal } from '$lib/animations';
   import { DESTINATION_SCORES, getDestinationScores, topDimension, type DestinationScores } from '$lib/data/destination-scores';
   import ScoreBars from '$lib/components/public/ScoreBars.svelte';
@@ -34,7 +35,7 @@
       rows = (res.data.items as Destination[])
         .map((d) => ({ d, scores: scoresFor(d) }))
         .filter((x): x is { d: Destination; scores: DestinationScores } => Boolean(x.d.slug && x.scores))
-        .map(({ d, scores }) => ({ slug: d.slug, name: d.name, image: d.main_image_url || d.image_url || d.banner_image_url || '', scores }));
+        .map(({ d, scores }) => ({ slug: d.slug, name: d.name, image: thumbUrl(d, 'main_image_url', 'image_url', 'banner_image_url'), scores }));
     } catch {
       rows = [];
     }

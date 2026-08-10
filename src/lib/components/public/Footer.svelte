@@ -3,6 +3,7 @@
   import { trackEvent } from '$lib/analytics';
   import { brand } from '$lib/brand';
   import { branding } from '$lib/branding';
+  import { cdnUrl } from '$lib/img';
   import { publicSettings, settingText } from '$lib/settings';
   import SocialIcon from './SocialIcon.svelte';
 
@@ -36,7 +37,7 @@
     <div>
       {#if $branding.logo_url}
         <a href="/" class="inline-block" aria-label={siteName}>
-          <img src={$branding.logo_url} alt={siteName} class="h-11 w-auto object-contain" />
+          <img src={cdnUrl($branding.logo_url)} alt={siteName} class="h-11 w-auto object-contain" />
         </a>
       {:else}
         <p class="text-lg font-bold">{siteName}</p>

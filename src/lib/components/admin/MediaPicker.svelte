@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy } from 'svelte';
   import { ChevronLeft, ChevronRight, Film, Image as ImageIcon, Link as LinkIcon, Search, Trash2, Upload, X } from '@lucide/svelte';
-  import { imgUrl } from '$lib/img';
+  import { cdnUrl, imgUrl } from '$lib/img';
   import { api } from '$lib/api/client';
   import type { Pagination } from '$lib/types';
 
@@ -185,7 +185,7 @@
     <div class={`relative overflow-hidden rounded-[8px] border border-ink/10 bg-sand/30 ${aspect}`}>
       {#if isVideo}
         <!-- svelte-ignore a11y-media-has-caption -->
-        <video class={`absolute inset-0 h-full w-full ${fit}`} src={value} muted playsinline preload="metadata"></video>
+        <video class={`absolute inset-0 h-full w-full ${fit}`} src={cdnUrl(value)} muted playsinline preload="metadata"></video>
       {:else}
         <img class={`absolute inset-0 h-full w-full ${fit}`} src={imgUrl(value, 800)} alt={label} loading="lazy" decoding="async" />
       {/if}
@@ -302,7 +302,7 @@
                 <span class="relative block aspect-[4/3] w-full overflow-hidden bg-sand/35">
                   {#if isVideo}
                     <!-- svelte-ignore a11y-media-has-caption -->
-                    <video class="absolute inset-0 h-full w-full object-cover" src={m.file_url} muted playsinline preload="metadata"></video>
+                    <video class="absolute inset-0 h-full w-full object-cover" src={cdnUrl(m.file_url)} muted playsinline preload="metadata"></video>
                   {:else}
                     <img
                       class="absolute inset-0 h-full w-full object-cover opacity-0 transition duration-300 group-hover:scale-105"

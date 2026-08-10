@@ -17,6 +17,7 @@
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
   import { api } from '$lib/api/client';
   import { applyBranding, branding, brandColorStyleTag } from '$lib/branding';
+  import { cdnUrl } from '$lib/img';
   import { SITE_URL } from '$lib/config/env';
   import type { LayoutData } from './$types';
 
@@ -149,7 +150,7 @@
   <meta name="twitter:image" content={`${siteOrigin}/emnel-icon.png`} />
   <link rel="canonical" href={canonicalUrl} />
   {#if $branding.favicon_url}
-    <link rel="icon" href={$branding.favicon_url} />
+    <link rel="icon" href={cdnUrl($branding.favicon_url)} />
   {/if}
   <!-- Inlined brand palette for a flash-free, already-branded first paint. -->
   {@html brandStyleTag}
