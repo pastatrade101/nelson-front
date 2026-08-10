@@ -423,9 +423,12 @@
       <img src={logoSrc} alt={$branding.site_name} class="h-12 w-auto object-contain" />
     </a>
 
-    <a class="grid h-11 w-11 place-items-center rounded-full bg-[#25D366] text-white shadow-sm" href={waHref} target="_blank" rel="noopener noreferrer" aria-label={waButtonText} on:click={() => trackEvent('whatsapp_click')}>
-      <MessageCircle size={20} strokeWidth={2.6} />
-    </a>
+    <div class="flex items-center gap-2">
+      <CurrencySelector compact />
+      <a class="grid h-11 w-11 place-items-center rounded-full bg-[#25D366] text-white shadow-sm" href={waHref} target="_blank" rel="noopener noreferrer" aria-label={waButtonText} on:click={() => trackEvent('whatsapp_click')}>
+        <MessageCircle size={20} strokeWidth={2.6} />
+      </a>
+    </div>
   </div>
 
   <!-- ── desktop nav row (single bar: huge logo left · nav + CTA right) ───── -->

@@ -158,8 +158,13 @@
   <button
     type="button"
     bind:this={trigger}
-    class={`inline-flex min-w-0 items-center gap-2 rounded-none border bg-surface pl-2.5 pr-2 text-heading shadow-sm transition
-      ${open ? 'border-goldfinch-gold ring-2 ring-goldfinch-gold/25' : 'border-ink/12 hover:border-goldfinch-gold/60'}
+    class={`inline-flex min-w-0 items-center gap-2 rounded-none border pl-2.5 pr-2 transition
+      ${mobile ? 'bg-surface text-heading shadow-sm' : 'bg-transparent text-white'}
+      ${open
+        ? 'border-goldfinch-gold ring-2 ring-goldfinch-gold/25'
+        : mobile
+          ? 'border-ink/12 hover:border-goldfinch-gold/60'
+          : 'border-white/30 hover:border-goldfinch-gold/70'}
       ${compact ? 'h-10' : 'h-11'} ${mobile ? 'w-full justify-between' : ''}`}
     aria-haspopup="listbox"
     aria-expanded={open}
@@ -178,7 +183,7 @@
     {#if mobile && selected?.name}
       <span class="ml-1 min-w-0 flex-1 truncate text-left text-sm font-medium text-ink/50">{selected.name}</span>
     {/if}
-    <span class="ml-auto shrink-0 text-ink/40">
+    <span class={`ml-auto shrink-0 ${mobile ? 'text-ink/40' : 'text-white/70'}`}>
       {#if $currency.loading}
         <RefreshCw size={14} class="animate-spin" />
       {:else}
