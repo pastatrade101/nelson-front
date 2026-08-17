@@ -1,31 +1,25 @@
 <script lang="ts">
   import {
+    ArrowLeft,
     ArrowRight,
     BedDouble,
-    Binoculars,
     CalendarDays,
-    Camera,
     Check,
     ChevronDown,
-    Clock,
     Compass,
-    Heart,
     MapPin,
     MessageCircle,
+    Minus,
     Mountain,
-    Plane,
     Route,
-    Shield,
     Sparkles,
-    Star,
-    Tag,
     Users,
     Utensils,
-    Waves,
+    Wallet,
     X
   } from '@lucide/svelte';
   import { onMount } from 'svelte';
-  import { fade, scale, slide } from 'svelte/transition';
+  import { fade, fly } from 'svelte/transition';
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
@@ -33,13 +27,18 @@
   import { currency, formatUsd } from '$lib/currency';
   import { staggeredCardReveal } from '$lib/animations/motion';
   import { origUrl, thumbUrl } from '$lib/img';
+  import { hasRichContent } from '$lib/richtext';
   import { publicSettings, settingText } from '$lib/settings';
   import { tierLabel } from '$lib/tiers';
   import BookingForm from '$lib/components/public/BookingForm.svelte';
+  import BlogCard from '$lib/components/public/BlogCard.svelte';
   import EmailItineraryCapture from '$lib/components/public/EmailItineraryCapture.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
+  import RichText from '$lib/components/public/RichText.svelte';
+  import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import type { BlogPost, FAQ, ItineraryDay, Tour } from '$lib/types';
@@ -47,15 +46,6 @@
   type DisplayDay = ItineraryDay;
 
   const DEFAULT_TOUR_IMAGE = 'https://images.unsplash.com/photo-1516426122078-c23e76319801';
-
-  const uniqueStrings = (items: Array<string | null | undefined>) => {
-    const seen = new Set<string>();
-    return items.filter((item): item is string => {
-      if (!item || seen.has(item)) return false;
-      seen.add(item);
-      return true;
-    });
-  };
 
   const sampleItineraryToDays = (value: unknown): DisplayDay[] => {
     let raw = value;
@@ -88,9 +78,6 @@
       .filter(Boolean) as DisplayDay[];
   };
 
-  const tourCardImage = (item: Tour) =>
-    thumbUrl(item as unknown as Record<string, unknown>, 'main_image_url', 'banner_image_url') || item.main_image_url || DEFAULT_TOUR_IMAGE;
-
   const postCardImage = (post: BlogPost) =>
     thumbUrl(post as unknown as Record<string, unknown>, 'featured_image_url') || post.featured_image_url || DEFAULT_TOUR_IMAGE;
 
@@ -98,11 +85,27 @@
   let loading = true;
   let error = '';
 
-  // Booking form opens in a modal on request.
-  let formOpen = false;
-  const openForm = () => (formOpen = true);
-  const closeForm = () => (formOpen = false);
-  $: if (browser) document.body.style.overflow = formOpen ? 'hidden' : '';
+  // Every "Plan this trip" / "Start a conversation" CTA opens the stepper booking
+  // form in an overlay — a centered modal on desktop, a bottom sheet on mobile.
+  // (The desktop sticky sidebar still shows the same form inline.)
+  let sheetOpen = false;
+  const closeSheet = () => (sheetOpen = false);
+  $: if (browser) document.body.style.overflow = sheetOpen ? 'hidden' : '';
+
+  const openPlanner = (source = '') => {
+    trackEvent('request_trip_opened', { tour_id: tour?.id, metadata: { source } });
+    sheetOpen = true;
+  };
+
+  // "About this safari" prose is clamped to ~4 lines with a Read more toggle;
+  // the button only appears when the text actually overflows the clamp.
+  let overviewEl: HTMLElement;
+  let overviewExpanded = false;
+  let overviewOverflows = false;
+  const measureOverview = () => {
+    if (!overviewEl) return;
+    overviewOverflows = overviewEl.scrollHeight > 118;
+  };
 
   // Shortlist item for the save button.
   $: shortlistItem = tour
@@ -163,20 +166,8 @@
   $: itineraryDays = [...(tour?.itinerary_days ?? [])].sort((a, b) => (a.day_number ?? 0) - (b.day_number ?? 0));
   $: inclusions = [...(tour?.tour_inclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: exclusions = [...(tour?.tour_exclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-  // Pricing options + gallery images (embedded in the tour detail response).
   $: priceOptions = [...(tour?.tour_price_options ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
-  // Elegant hero chips — from the tour's own real data (+ facts true of every
-  // Emnel safari: private & tailor-made). No invented ratings or numbers.
-  const HERO_PERSONA: Record<string, string> = { honeymoon: 'honeymoon', couple: 'couples', family: 'families', 'first-time-visitor': 'first-timers', 'first-time-safari': 'first-timers', 'luxury-traveller': 'luxury travellers', photographer: 'photographers', 'wildlife-enthusiast': 'wildlife lovers', 'wildlife-focused': 'wildlife lovers', 'multi-generational': 'multi-gen families', solo: 'solo travellers' };
-  $: heroPerfectFor = [...new Set((tour?.persona_tags ?? []).map((p) => HERO_PERSONA[p]).filter(Boolean))].slice(0, 2) as string[];
-  $: heroChips = [
-    tierLabel(tour?.budget_tier) || null,
-    'Private & tailor-made',
-    tour?.experience_type === 'safari-beach' ? 'Safari + beach' : null,
-    tour?.difficulty_level ? `${tour.difficulty_level} pace` : null,
-    ...heroPerfectFor.map((p) => `Perfect for ${p}`)
-  ].filter(Boolean) as string[];
   $: galleryImages = [...(tour?.tour_images ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: highlights = tour?.highlights ?? [];
   $: groupSize = tour
@@ -191,7 +182,6 @@
   let relatedTours: Tour[] = [];
   let recentPosts: BlogPost[] = [];
   let faqs: FAQ[] = [];
-  let openFaqId = '';
 
   const loadRelated = async (current: Tour) => {
     const destId = (current as unknown as { destination_id?: string | null }).destination_id ?? null;
@@ -206,7 +196,6 @@
       let items = (tourRes.value.data.items ?? []).filter(
         (item) => item.id !== current.id && item.slug !== current.slug
       );
-      // If this destination only has the current tour, fall back to any tours.
       if (!items.length && destId) {
         const fallback = await api.tours.list({ limit: 7 }).catch(() => null);
         items = (fallback?.data.items ?? []).filter(
@@ -231,7 +220,9 @@
     relatedTours = [];
     recentPosts = [];
     faqs = [];
-    openFaqId = '';
+    sheetOpen = false;
+    overviewExpanded = false;
+    overviewOverflows = false;
     try {
       const response = await api.tours.get(slug);
       tour = response.data;
@@ -253,6 +244,7 @@
         price_from: tour.price_from ?? undefined,
         currency: tour.currency ?? undefined
       });
+      if (browser) requestAnimationFrame(() => requestAnimationFrame(measureOverview));
     }
   };
 
@@ -276,49 +268,32 @@
   $: routeLabel = tour?.start_location || tour?.end_location
     ? `${tour.start_location ?? destinationName} to ${tour.end_location ?? destinationName}`
     : `${destinationName} route`;
-  $: fitTags = uniqueStrings([
-    tour?.experience_type,
-    tour?.budget_tier,
-    tour?.difficulty_level,
-    ...(tour?.persona_tags ?? [])
-  ]).slice(0, 5);
+  // Compact trip facts for the overview grid — only the ones we actually have.
+  $: tripFacts = [
+    tour?.duration_days ? { icon: CalendarDays, label: 'Duration', value: durationText } : null,
+    groupSize ? { icon: Users, label: 'Group size', value: groupSize } : null,
+    tierLabel(tour?.budget_tier) ? { icon: Sparkles, label: 'Style', value: tierLabel(tour?.budget_tier) } : null,
+    tour?.difficulty_level ? { icon: Mountain, label: 'Pace', value: `${tour.difficulty_level}` } : null,
+    { icon: Route, label: 'Route', value: routeLabel },
+    tour?.minimum_age ? { icon: Check, label: 'Minimum age', value: `${tour.minimum_age}+` } : null
+  ].filter(Boolean) as Array<{ icon: typeof CalendarDays; label: string; value: string }>;
 
-  // Pick a fitting icon for each "best fit" tag from its wording — so the cards
-  // carry a meaningful icon instead of one generic mark.
-  const fitIcon = (tag: string) => {
-    const t = tag.toLowerCase();
-    if (/honeymoon|romanc|couple|anniversar/.test(t)) return Heart;
-    if (/family|kids|children|multigen/.test(t)) return Users;
-    if (/beach|zanzibar|coast|island|ocean|dhow/.test(t)) return Waves;
-    if (/photo/.test(t)) return Camera;
-    if (/adventure|active|trek|climb|hik|kilimanjaro|summit/.test(t)) return Mountain;
-    if (/wildlife|safari|big five|game|migration|birding/.test(t)) return Binoculars;
-    if (/luxury|ultra|premium|signature|exclusive|first.?class/.test(t)) return Star;
-    if (/budget|essential|value|classic/.test(t)) return Compass;
-    return Compass;
-  };
   $: planningCards = recentPosts.slice(0, 6);
   $: tourNavLinks = [
     { key: 'overview', label: 'Overview', show: true },
-    { key: 'highlights', label: 'Highlights', show: highlights.length > 0 || fitTags.length > 0 },
-    { key: 'itinerary', label: 'Itinerary', show: displayDays.length > 0 },
+    { key: 'itinerary', label: 'Day by Day', show: displayDays.length > 0 },
     { key: 'gallery', label: 'Gallery', show: galleryImages.length > 0 },
-    { key: 'included', label: 'Included', show: inclusions.length > 0 || exclusions.length > 0 },
-    { key: 'pricing', label: 'Pricing', show: priceOptions.length > 0 },
+    { key: 'included', label: 'Inclusions', show: inclusions.length > 0 || exclusions.length > 0 },
+    { key: 'pricing', label: 'Prices', show: priceOptions.length > 0 },
     { key: 'related', label: 'More Trips', show: relatedTours.length > 0 },
-    { key: 'planning', label: 'Planning', show: planningCards.length > 0 },
-    { key: 'faqs', label: 'FAQs', show: faqs.length > 0 }
+    { key: 'planning', label: 'Journal', show: planningCards.length > 0 },
+    { key: 'faqs', label: 'Good to Know', show: faqs.length > 0 }
   ].filter((link) => link.show);
 
-  // Content sections are stacked and scrollable; the sticky tab bar is a
-  // scroll-spy nav — the active tab follows the section in view (so a visitor who
-  // never clicks a tab still stays oriented), and clicking a tab scrolls to it.
+  // Sticky scroll-spy tab bar (mirrors the previous behaviour).
   let activeTab = 'overview';
   $: if (tourNavLinks.length && !tourNavLinks.some((l) => l.key === activeTab)) activeTab = tourNavLinks[0].key;
 
-  // The global navbar is a sticky bar (top:0, z-40) on inner pages, so the tab
-  // bar must pin *below* it — pinning it at top:0 too just hides it behind the
-  // navbar. Measure the navbar's live height and use it as the tab bar's offset.
   const navHeight = () => document.querySelector('header')?.getBoundingClientRect().height ?? 0;
   function stickBelowNav(node: HTMLElement) {
     const apply = () => { node.style.top = `${Math.round(navHeight())}px`; };
@@ -328,14 +303,20 @@
     return { destroy() { window.removeEventListener('resize', apply); } };
   }
 
-  // Combined height of the sticky navbar + tab bar — the line a section lands on.
   const stickyOffset = () => {
     const tabBar = document.getElementById('tour-tabs');
     return navHeight() + (tabBar ? tabBar.getBoundingClientRect().height : 56);
   };
 
-  // Click a tab → smooth-scroll to its section (up or down). The scroll-spy is
-  // suppressed briefly so it doesn't flicker through intermediate sections.
+  // Keep the booking sidebar pinned just below the sticky nav + tab bar.
+  function stickBelowTabs(node: HTMLElement) {
+    const apply = () => { node.style.top = `${Math.round(stickyOffset()) + 16}px`; };
+    apply();
+    requestAnimationFrame(apply);
+    window.addEventListener('resize', apply);
+    return { destroy() { window.removeEventListener('resize', apply); } };
+  }
+
   let spySuppressedUntil = 0;
   const selectTab = (key: string) => {
     activeTab = key;
@@ -346,8 +327,6 @@
     window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
   };
 
-  // Scroll-spy: the active tab is the last section whose top has passed under the
-  // tab bar. Wired on mount (once the tour has rendered its sections).
   const updateSpy = () => {
     if (typeof window === 'undefined' || Date.now() < spySuppressedUntil) return;
     const trigger = stickyOffset() + 12;
@@ -358,65 +337,98 @@
     }
     if (current && current !== activeTab) activeTab = current;
   };
+
+  // FAQ progress rail: mark items complete/active as they scroll past centre.
+  let faqStates: Record<string, 'upcoming' | 'active' | 'complete'> = {};
+  const updateFaqTimeline = () => {
+    if (typeof window === 'undefined') return;
+    const items = [...document.querySelectorAll<HTMLElement>('[data-faq-item]')];
+    if (!items.length) return;
+    const mid = window.innerHeight * 0.5;
+    let lastPassed = -1;
+    items.forEach((el, i) => { if (el.getBoundingClientRect().top <= mid) lastPassed = i; });
+    const next: Record<string, 'upcoming' | 'active' | 'complete'> = {};
+    items.forEach((el, i) => {
+      const id = el.dataset.faqId ?? String(i);
+      next[id] = i < lastPassed ? 'complete' : i === lastPassed ? 'active' : 'upcoming';
+    });
+    faqStates = next;
+  };
+
+  const onScroll = () => { updateSpy(); updateFaqTimeline(); };
+  const onResize = () => { onScroll(); measureOverview(); };
   onMount(() => {
-    window.addEventListener('scroll', updateSpy, { passive: true });
-    window.addEventListener('resize', updateSpy);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+    requestAnimationFrame(() => { updateFaqTimeline(); measureOverview(); });
     return () => {
-      window.removeEventListener('scroll', updateSpy);
-      window.removeEventListener('resize', updateSpy);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
     };
   });
 </script>
 
 {#if loading}
   <section class="container-shell py-20">
-    <LoadingState message="Loading tour..." />
+    <LoadingState message="Loading itinerary..." />
   </section>
 {:else if !tour}
   <section class="container-shell py-20">
     <ErrorState message={error || 'Tour not found.'} />
   </section>
 {:else}
-  <section class="relative isolate min-h-[82vh] overflow-hidden bg-midnight text-white">
+  <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+  <section class="relative isolate min-h-[78vh] overflow-hidden bg-deep-green text-white">
     <ResponsiveImage imgClass="absolute inset-0 h-full w-full object-cover" src={heroImage} fallbackSrc={thumbUrl(tour, 'banner_image_url', 'main_image_url')} width={1900} alt={tour.title} sizes="100vw" eager priority />
-    <!-- cinematic overlays: darker on the left, plus a top + bottom vignette so
-         the image reads clean in the centre-right and the text stays legible -->
-    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,18,15,0.5)_0%,rgba(20,18,15,0.22)_44%,transparent_100%)]"></div>
-    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.18)_0%,transparent_30%,transparent_56%,rgba(20,18,15,0.82)_100%)]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,18,15,0.82)_0%,rgba(20,18,15,0.45)_46%,rgba(20,18,15,0.12)_100%)]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.28)_0%,transparent_32%,transparent_54%,rgba(20,18,15,0.72)_100%)]"></div>
 
-    <div class="container-shell relative flex min-h-[82vh] flex-col justify-end pb-10 pt-28 [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] md:pb-14">
-      <nav class="mb-8 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-white/58">
-        <a class="transition hover:text-goldfinch-gold" href="/">Home</a>
-        <span>/</span>
-        <a class="transition hover:text-goldfinch-gold" href="/tours">Itineraries</a>
-        <span>/</span>
-        <span class="text-white/78">{tour.title}</span>
-      </nav>
+    <div class="container-shell relative flex min-h-[78vh] flex-col justify-end pb-11 pt-28 [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] md:pb-16">
+      <a class="mb-8 hidden w-fit items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/60 transition hover:text-goldfinch-gold md:inline-flex" href="/tours">
+        <ArrowLeft size={15} strokeWidth={2.4} /> Back to itineraries
+      </a>
 
-      <div class="max-w-[660px]">
+      <div class="max-w-4xl">
         <p class="brand-eyebrow text-goldfinch-gold">{categoryName} · {destinationName}</p>
-        <h1 class="mt-4 max-w-[620px] font-serif text-[34px] font-light leading-[1.05] tracking-normal text-white sm:text-[44px] lg:text-[54px]">
+        <h1 class="mt-4 max-w-[760px] font-serif text-[36px] font-light leading-[1.04] tracking-normal text-white sm:text-[46px] lg:text-[56px]">
           {tour.title}
         </h1>
-        <p class="mt-5 line-clamp-3 max-w-[540px] text-[15px] font-medium leading-7 text-white/72 md:text-base">
+        <p class="mt-5 line-clamp-3 max-w-[560px] text-[15px] font-medium leading-7 text-white/72 md:text-base">
           {tour.short_description ?? tour.full_description}
         </p>
 
-        {#if heroChips.length}
-          <div class="mt-6 flex flex-wrap gap-2">
-            {#each heroChips as chip}
-              <span class="border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/85 backdrop-blur">{chip}</span>
-            {/each}
+        <!-- key-facts stat chips -->
+        <div class="mt-8 grid max-w-2xl grid-cols-1 gap-2 sm:grid-cols-3">
+          <div class="flex items-center gap-3 border-l-2 border-goldfinch-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
+            <CalendarDays class="shrink-0 text-goldfinch-gold" size={19} strokeWidth={1.7} />
+            <div class="min-w-0">
+              <p class="text-[9.5px] font-bold uppercase tracking-[0.16em] text-white/50">Duration</p>
+              <p class="truncate text-[13px] font-extrabold text-white">{durationText}</p>
+            </div>
           </div>
-        {/if}
+          <div class="flex items-center gap-3 border-l-2 border-goldfinch-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
+            <MapPin class="shrink-0 text-goldfinch-gold" size={19} strokeWidth={1.7} />
+            <div class="min-w-0">
+              <p class="text-[9.5px] font-bold uppercase tracking-[0.16em] text-white/50">Destination</p>
+              <p class="truncate text-[13px] font-extrabold text-white">{destinationName}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 border-l-2 border-goldfinch-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
+            <Wallet class="shrink-0 text-goldfinch-gold" size={19} strokeWidth={1.7} />
+            <div class="min-w-0">
+              <p class="text-[9.5px] font-bold uppercase tracking-[0.16em] text-white/50">Starting from</p>
+              <p class="truncate text-[13px] font-extrabold text-white">{priceText}</p>
+            </div>
+          </div>
+        </div>
 
         <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
           <button
             class="inline-flex h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna"
             type="button"
-            on:click={openForm}
+            on:click={() => openPlanner('hero')}
           >
-            Plan this safari <ArrowRight size={16} strokeWidth={2.5} />
+            Plan this trip <ArrowRight size={16} strokeWidth={2.5} />
           </button>
           <a
             class="inline-flex h-[52px] items-center justify-center gap-3 border border-white/25 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold"
@@ -427,442 +439,297 @@
             <MessageCircle size={16} strokeWidth={2.4} /> WhatsApp
           </a>
           {#if shortlistItem}
-            <div class="sm:min-w-[190px]">
+            <div class="sm:min-w-[180px]">
               <ShortlistButton item={shortlistItem} variant="full" />
             </div>
           {/if}
         </div>
       </div>
-
     </div>
   </section>
 
-  <!-- quick-facts stripe: a solid band beneath the hero, not overlaid on the image -->
-  <div class="border-b border-white/10 bg-deep-green text-white">
-    <div class="container-shell grid md:grid-cols-4">
-      <div class="border-b border-white/[0.12] py-5 md:border-b-0 md:border-r md:px-6 md:first:pl-0">
-        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Duration</p>
-        <p class="mt-2 font-serif text-2xl font-light text-white">{durationText}</p>
-      </div>
-      <div class="border-b border-white/[0.12] py-5 md:border-b-0 md:border-r md:px-6">
-        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">From</p>
-        <p class="mt-2 font-serif text-2xl font-light text-white">{priceText}</p>
-      </div>
-      <div class="border-b border-white/[0.12] py-5 md:border-b-0 md:border-r md:px-6">
-        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Route</p>
-        <p class="mt-2 font-serif text-2xl font-light text-white">{routeLabel}</p>
-      </div>
-      <div class="py-5 md:px-6">
-        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Style</p>
-        <p class="mt-2 font-serif text-2xl font-light text-white">{tierLabel(tour.budget_tier) || categoryName}</p>
-      </div>
-    </div>
-  </div>
-
-  <div id="tour-tabs" use:stickBelowNav class="sticky top-0 z-30 border-y border-white/[0.08] bg-deep-green/95 text-white shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur">
-    <div class="container-shell flex min-h-[64px] items-center justify-between gap-4">
-      <div class="hide-scroll flex min-w-0 flex-1 gap-1 overflow-x-auto" role="tablist" aria-label="Itinerary sections">
+  <!-- ── Sticky section-tab bar ───────────────────────────────────────────── -->
+  <div id="tour-tabs" use:stickBelowNav class="sticky top-0 z-30 border-b border-ink/10 bg-canvas/95 backdrop-blur">
+    <div class="container-shell flex min-h-[60px] items-center justify-between gap-4">
+      <div class="hide-scroll flex min-w-0 flex-1 gap-6 overflow-x-auto" role="tablist" aria-label="Itinerary sections">
         {#each tourNavLinks as link}
           <button
             type="button"
             role="tab"
             aria-selected={activeTab === link.key}
-            class={`shrink-0 border-b-2 px-3.5 py-4 text-[11px] font-bold uppercase tracking-[0.16em] transition ${activeTab === link.key ? 'border-goldfinch-gold text-goldfinch-gold' : 'border-transparent text-white/62 hover:text-white'}`}
+            class={`relative shrink-0 whitespace-nowrap py-4 text-[13px] font-semibold transition ${activeTab === link.key ? 'text-heading' : 'text-ink/55 hover:text-heading'}`}
             on:click={() => selectTab(link.key)}
           >
             {link.label}
+            <span class={`absolute inset-x-0 -bottom-px h-0.5 bg-clay transition-opacity ${activeTab === link.key ? 'opacity-100' : 'opacity-0'}`}></span>
           </button>
         {/each}
       </div>
-      <button class="hidden h-10 shrink-0 items-center gap-2 border border-goldfinch-gold px-4 text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green md:inline-flex" type="button" on:click={openForm}>
-        Enquire <ArrowRight size={14} />
+      <button class="hidden h-9 shrink-0 items-center gap-2 bg-deep-green px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition hover:bg-forest md:inline-flex" type="button" on:click={() => openPlanner('tabbar')}>
+        Plan this trip <ArrowRight size={13} />
       </button>
     </div>
   </div>
 
-  <section id="overview" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
-    <div class="container-shell grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
-      <div>
-        <p class="brand-eyebrow text-goldfinch-gold">Private safari design</p>
-        <h2 class="mt-5 font-serif text-[42px] font-light leading-[1.08] tracking-normal text-white sm:text-[58px]">
-          Your {destinationName.toLowerCase()}.
-          <span class="block italic text-goldfinch-gold">Your timeline.</span>
-          <span class="block">Your private vehicle.</span>
-        </h2>
-        {#if tour.full_description}
-          {@const paras = tour.full_description.split(/\n\n+/).map((p) => p.trim()).filter(Boolean)}
-          <div class="mt-7 grid max-w-[600px] gap-4 text-[15px] font-medium leading-8 text-white/64 md:text-base">
-            {#each paras as para}
-              <p>{para}</p>
+  <!-- ── Two-column content: main + sticky booking sidebar ────────────────── -->
+  <div class="container-shell grid gap-10 py-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-14">
+    <main class="min-w-0 space-y-12 md:space-y-16">
+      <!-- Overview -->
+      <section id="overview" class="scroll-mt-32">
+        <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> Overview</span>
+        <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">About this safari</h2>
+
+        <div class="relative mt-6 max-w-[680px]">
+          <div bind:this={overviewEl} class={`overflow-hidden ${overviewExpanded ? '' : 'max-h-[7.25rem]'}`}>
+            {#if hasRichContent(tour.full_description)}
+              <RichText value={tour.full_description} className="text-[15px] leading-7 text-ink/70" />
+            {:else if hasRichContent(tour.short_description)}
+              <RichText value={tour.short_description} className="text-[15px] leading-7 text-ink/70" />
+            {:else}
+              <p class="text-[15px] leading-7 text-ink/70">
+                This itinerary is a starting point. The route, pace, lodges, activities and final cost can all be adjusted by the Emnel team around your dates and travel style.
+              </p>
+            {/if}
+          </div>
+          {#if overviewOverflows && !overviewExpanded}
+            <div class="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-canvas to-transparent"></div>
+          {/if}
+        </div>
+        {#if overviewOverflows}
+          <button type="button" class="mt-2.5 inline-flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-[0.12em] text-clay transition hover:text-heading" on:click={() => (overviewExpanded = !overviewExpanded)}>
+            {overviewExpanded ? 'Read less' : 'Read more'}
+            <ChevronDown size={14} class={`transition-transform ${overviewExpanded ? 'rotate-180' : ''}`} />
+          </button>
+        {/if}
+
+        {#if tripFacts.length}
+          <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {#each tripFacts as fact}
+              <div class="border border-ink/10 bg-savanna/40 p-3.5">
+                <p class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-ink/60">
+                  <svelte:component this={fact.icon} size={13} class="text-clay" /> {fact.label}
+                </p>
+                <p class="mt-1 text-[14px] font-bold leading-snug text-heading">{fact.value}</p>
+              </div>
             {/each}
           </div>
-        {:else}
-          <p class="mt-7 max-w-[560px] text-[15px] font-medium leading-8 text-white/64 md:text-base">
-            This tour is a starting point shaped by the live CMS record. The route, pace, lodges, activities, and final cost can be adjusted by the Emnel team around your dates and travel style.
-          </p>
         {/if}
-      </div>
 
-      <div class="grid gap-5">
-        <div class="border border-white/[0.08] bg-white/[0.06] p-7 md:p-8">
-          <p class="font-serif text-[28px] font-light leading-tight text-white">What this safari gives you</p>
-          <div class="mt-7 grid gap-5">
-            <div class="flex gap-4">
-              <span class="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-goldfinch-gold text-deep-green"><Compass size={17} /></span>
-              <div>
-                <h3 class="font-semibold text-white">Local route logic</h3>
-                <p class="mt-1 text-sm leading-6 text-white/58">{tour.short_description ?? 'A route planned around real wildlife timing, travel distance, and lodge fit.'}</p>
-              </div>
-            </div>
-            <div class="flex gap-4">
-              <span class="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-goldfinch-gold text-deep-green"><Shield size={17} /></span>
-              <div>
-                <h3 class="font-semibold text-white">Private and adjustable</h3>
-                <p class="mt-1 text-sm leading-6 text-white/58">The itinerary is not a fixed package. It can be changed around your interests, budget tier, group size, and comfort level.</p>
-              </div>
-            </div>
-            <div class="flex gap-4">
-              <span class="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-goldfinch-gold text-deep-green"><Plane size={17} /></span>
-              <div>
-                <h3 class="font-semibold text-white">One point of contact</h3>
-                <p class="mt-1 text-sm leading-6 text-white/58">Start with a request or WhatsApp. You get direct help from the same team that operates the safari in Tanzania.</p>
-              </div>
-            </div>
+        {#if highlights.length}
+          <div class="mt-9">
+            <h3 class="font-serif text-[21px] font-light text-heading">Trip highlights</h3>
+            <ul class="mt-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+              {#each highlights as h}
+                <li class="flex items-start gap-2.5 text-[14.5px] leading-7 text-heading">
+                  <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-goldfinch-gold"></span>
+                  {h}
+                </li>
+              {/each}
+            </ul>
           </div>
-        </div>
+        {/if}
 
-        <div class="grid gap-3 sm:grid-cols-2">
-          {#if tour.duration_days}
-            <div class="border border-white/[0.08] bg-midnight p-5">
-              <CalendarDays class="text-goldfinch-gold" size={19} />
-              <p class="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Trip length</p>
-              <p class="mt-1 font-serif text-2xl text-white">{durationText}</p>
-            </div>
-          {/if}
-          {#if groupSize}
-            <div class="border border-white/[0.08] bg-midnight p-5">
-              <Users class="text-goldfinch-gold" size={19} />
-              <p class="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Group size</p>
-              <p class="mt-1 font-serif text-2xl text-white">{groupSize}</p>
-            </div>
-          {/if}
-          {#if tour.difficulty_level}
-            <div class="border border-white/[0.08] bg-midnight p-5">
-              <Mountain class="text-goldfinch-gold" size={19} />
-              <p class="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Difficulty</p>
-              <p class="mt-1 font-serif text-2xl text-white">{tour.difficulty_level}</p>
-            </div>
-          {/if}
-          {#if tour.minimum_age}
-            <div class="border border-white/[0.08] bg-midnight p-5">
-              <Check class="text-goldfinch-gold" size={19} />
-              <p class="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-white/38">Minimum age</p>
-              <p class="mt-1 font-serif text-2xl text-white">{tour.minimum_age}+</p>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
-  </section>
+        <button class="mt-8 inline-flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.12em] text-clay transition hover:text-heading" type="button" on:click={() => openPlanner('overview')}>
+          Customize this route <ArrowRight size={14} />
+        </button>
+      </section>
 
-  <section id="highlights" class="scroll-mt-28 border-y border-[#C5A265]/16 bg-[#16130F] py-16 text-[#FAFAF7] md:py-24">
-    <div class="container-shell">
-      <div class="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
-        <div class="max-w-[650px]">
-          <p class="brand-eyebrow text-goldfinch-gold">Trip character</p>
-          <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-[#FAFAF7] sm:text-[56px]">
-            Designed around what matters on safari.
-          </h2>
-          <p class="mt-6 max-w-md text-[15px] font-medium leading-8 text-[#E8E0D2]/60">
-            Every detail crafted for comfort, connection and the moments you'll carry home.
+      <!-- Day by Day -->
+      {#if displayDays.length}
+        <section id="itinerary" class="scroll-mt-32">
+          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> The route</span>
+          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">Day by day</h2>
+          <p class="mt-4 max-w-[640px] text-[15px] leading-7 text-ink/70">
+            The itinerary stored for this trip. The Emnel team can adjust each day around your dates, lodge preference, flight timing and pace.
           </p>
-          <div class="mt-7 h-px w-24 bg-goldfinch-gold"></div>
-        </div>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ selector: '.tour-design-card', y: 16, stagger: 0.05 }}>
-          {#each fitTags as tag}
-            {@const Icon = fitIcon(tag)}
-            <div class="tour-design-card rounded-2xl border border-[#C5A265]/20 bg-[#221E18] p-5 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
-              <span class="grid h-11 w-11 place-items-center rounded-full border border-goldfinch-gold/45 text-goldfinch-gold">
-                <Icon size={19} strokeWidth={1.6} />
-              </span>
-              <p class="mt-5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#E8E0D2]/58">Best fit</p>
-              <p class="mt-1.5 font-serif text-[24px] capitalize leading-tight text-[#FAFAF7]">{tag.replace(/_/g, ' ')}</p>
-            </div>
-          {/each}
-          {#if tour.price_from}
-            <div class="tour-design-card rounded-2xl border border-[#C5A265]/20 bg-[#221E18] p-5 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
-              <span class="grid h-11 w-11 place-items-center rounded-full border border-goldfinch-gold/45 text-goldfinch-gold">
-                <Tag size={19} strokeWidth={1.6} />
-              </span>
-              <p class="mt-5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#E8E0D2]/58">Starts from</p>
-              <p class="mt-1.5 font-serif text-[24px] leading-tight text-[#FAFAF7]">{priceText}</p>
-            </div>
-          {/if}
-        </div>
-      </div>
 
-      {#if highlights.length}
-        <div class="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {#each highlights as h}
-            <article class="flex items-start gap-4 rounded-2xl border border-[#C5A265]/16 bg-[#1C1813] p-6 transition-colors duration-300 hover:border-goldfinch-gold/40">
-              <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-goldfinch-gold text-deep-green shadow-[0_6px_16px_rgba(197,162,101,0.28)]">
-                <Check size={15} strokeWidth={3} />
-              </span>
-              <p class="text-[15px] font-medium leading-7 text-[#E8E0D2]/85">{h}</p>
-            </article>
-          {/each}
-        </div>
-      {/if}
-
-    </div>
-  </section>
-
-  {#if displayDays.length}
-    <section id="itinerary" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
-      <div class="container-shell">
-        <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div class="max-w-[720px]">
-            <p class="brand-eyebrow text-goldfinch-gold">Day by day</p>
-            <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-white sm:text-[56px]">
-              How the route unfolds.
-            </h2>
-            <p class="mt-5 text-[15px] font-medium leading-8 text-white/62">
-              This is the itinerary stored for this tour. The Emnel team can adjust each day around your dates, lodge preference, flight timing, and pace.
-            </p>
-          </div>
-          <button class="inline-flex h-[52px] items-center justify-center gap-3 border border-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green" type="button" on:click={openForm}>
-            Tailor this route <ArrowRight size={16} />
-          </button>
-        </div>
-
-        <ol class="mt-14 grid gap-8">
-          {#each displayDays as day (day.day_number)}
-            <li class="grid gap-6 border-t border-white/[0.1] pt-8 md:grid-cols-[0.22fr_1fr_220px] md:gap-10">
-              <div>
-                <p class="font-serif text-[44px] leading-none text-goldfinch-gold">{day.day_number}</p>
-                <p class="mt-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/36">Day</p>
-              </div>
-              <div>
-                <h3 class="font-serif text-[30px] font-light leading-tight text-white">{day.title}</h3>
-                {#if day.description}
-                  <p class="mt-4 max-w-[760px] text-[15px] font-medium leading-8 text-white/62">{day.description}</p>
-                {/if}
-                {#if day.accommodation || day.meals || day.activities}
-                  <div class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold uppercase tracking-[0.12em] text-white/52">
-                    {#if day.activities}<span class="inline-flex items-center gap-2"><MapPin size={14} class="text-goldfinch-gold" /> {day.activities}</span>{/if}
-                    {#if day.accommodation}<span class="inline-flex items-center gap-2"><BedDouble size={14} class="text-goldfinch-gold" /> {day.accommodation}</span>{/if}
-                    {#if day.meals}<span class="inline-flex items-center gap-2"><Utensils size={14} class="text-goldfinch-gold" /> {day.meals}</span>{/if}
+          <div class="mt-8 grid gap-2.5">
+            {#each displayDays as day, i (day.day_number)}
+              <details class="tour-day group overflow-hidden border border-ink/10 bg-surface" open={i === 0}>
+                <summary class="tour-day-summary flex cursor-pointer list-none items-center gap-4 p-4">
+                  <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-deep-green text-[13px] font-bold text-white">{day.day_number}</span>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-[10.5px] font-bold uppercase tracking-[0.16em] text-clay">Day {day.day_number}</p>
+                    <h3 class="mt-0.5 font-serif text-[18px] font-light leading-tight text-heading">{day.title}</h3>
+                    {#if day.accommodation || day.meals}
+                      <p class="mt-0.5 truncate text-[12.5px] text-ink/55">{[day.accommodation, day.meals].filter(Boolean).join(' · ')}</p>
+                    {/if}
                   </div>
-                {/if}
-              </div>
-              <div class="hidden overflow-hidden bg-midnight md:block">
-                {#if day.image_url}
-                  <ResponsiveImage imgClass="h-full min-h-[150px] w-full object-cover" src={day.image_url} width={420} alt={day.title} sizes="220px" />
-                {:else}
-                  <ResponsiveImage imgClass="h-full min-h-[150px] w-full object-cover" src={heroImage} fallbackSrc={thumbUrl(tour, 'banner_image_url', 'main_image_url')} width={420} alt={day.title} sizes="220px" />
-                {/if}
-              </div>
-            </li>
-          {/each}
-        </ol>
-      </div>
-    </section>
-  {/if}
-
-  {#if galleryImages.length}
-    <section id="gallery" class="scroll-mt-28 bg-linen py-16 text-ink md:py-24">
-      <div class="container-shell">
-        <div class="max-w-[760px]">
-          <p class="brand-eyebrow">From the field</p>
-          <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-heading sm:text-[56px]">
-            A closer look at this safari.
-          </h2>
-        </div>
-        <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ selector: '.tour-gallery-card', y: 16, stagger: 0.05 }}>
-          {#each galleryImages as image (image.id)}
-            <figure class="tour-gallery-card group overflow-hidden border border-ink/10 bg-surface">
-              <div class="aspect-[4/3] overflow-hidden bg-deep-green">
-                <ResponsiveImage imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={image.image_url} fallbackSrc={thumbUrl(image, 'image_url')} width={800} alt={image.alt_text ?? tour.title} sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" />
-              </div>
-              {#if image.caption}
-                <figcaption class="px-5 py-4 text-[13px] font-medium leading-6 text-ink/64">{image.caption}</figcaption>
-              {/if}
-            </figure>
-          {/each}
-        </div>
-      </div>
-    </section>
-  {/if}
-
-  {#if inclusions.length || exclusions.length}
-    <section id="included" class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
-      <div class="container-shell">
-        <div class="max-w-[760px]">
-          <p class="brand-eyebrow">What is covered</p>
-          <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-heading sm:text-[56px]">
-            Clear inclusions before you enquire.
-          </h2>
-        </div>
-        <div class="mt-12 grid gap-8 lg:grid-cols-2">
-          {#if inclusions.length}
-            <div class="border border-ink/10 bg-surface p-8">
-              <h3 class="font-serif text-[30px] font-light text-heading">Included</h3>
-              <ul class="mt-7 grid gap-4">
-                {#each inclusions as inc}
-                  <li class="flex gap-3 text-[15px] font-medium leading-7 text-ink/70">
-                    <span class="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-goldfinch-gold text-deep-green"><Check size={12} strokeWidth={3} /></span>
-                    {inc.title}
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          {/if}
-          {#if exclusions.length}
-            <div class="border border-ink/10 bg-surface p-8">
-              <h3 class="font-serif text-[30px] font-light text-heading">Not Included</h3>
-              <ul class="mt-7 grid gap-4">
-                {#each exclusions as exc}
-                  <li class="flex gap-3 text-[15px] font-medium leading-7 text-ink/70">
-                    <span class="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-ink/8 text-ink/45"><X size={12} strokeWidth={3} /></span>
-                    {exc.title}
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </section>
-  {/if}
-
-  {#if priceOptions.length}
-    <section id="pricing" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
-      <div class="container-shell">
-        <div class="max-w-[760px]">
-          <p class="brand-eyebrow text-goldfinch-gold">Pricing</p>
-          <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-white sm:text-[56px]">
-            Ways this safari is priced.
-          </h2>
-          <p class="mt-5 text-[15px] font-medium leading-8 text-white/62">
-            Indicative rates from the live CMS record. Final pricing is confirmed by the Emnel team around your dates, group size, and chosen lodges.
-          </p>
-        </div>
-        <div class="mt-12 grid gap-4 md:grid-cols-2">
-          {#each priceOptions as option (option.id)}
-            <div class="flex flex-col gap-4 border border-white/[0.1] bg-white/[0.04] p-7">
-              <div class="flex items-start justify-between gap-4">
-                <div>
-                  <h3 class="font-serif text-[26px] font-light leading-tight text-white">{option.title}</h3>
-                  {#if option.label && option.label !== option.title}
-                    <p class="mt-1 text-sm font-medium text-white/58">{option.label}</p>
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-ink/12 text-ink/50 transition duration-300 group-open:rotate-180">
+                    <ChevronDown size={16} />
+                  </span>
+                </summary>
+                <div class="tour-day-body border-t border-ink/[0.08] px-4 pb-8 pt-6">
+                  {#if day.image_url}
+                    <ResponsiveImage imgClass="mb-6 h-[220px] w-full object-cover sm:h-[300px]" src={day.image_url} fallbackSrc={thumbUrl(day, 'image_url')} width={900} alt={day.title} sizes="(min-width:1024px) 60vw, 100vw" />
+                  {/if}
+                  {#if hasRichContent(day.description)}
+                    <RichText value={day.description} className="text-[15px] leading-[1.7] text-ink/70" />
+                  {/if}
+                  {#if day.activities || day.accommodation || day.meals}
+                    <ul class="mt-6 grid gap-3 border border-ink/10 bg-savanna/45 p-5">
+                      {#if day.activities}
+                        <li class="flex gap-2.5 text-[14px] leading-6 text-ink/70"><Compass size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Activities:</span> {day.activities}</span></li>
+                      {/if}
+                      {#if day.accommodation}
+                        <li class="flex gap-2.5 text-[14px] leading-6 text-ink/70"><BedDouble size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Accommodation:</span> {day.accommodation}</span></li>
+                      {/if}
+                      {#if day.meals}
+                        <li class="flex gap-2.5 text-[14px] leading-6 text-ink/70"><Utensils size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Meals:</span> {day.meals}</span></li>
+                      {/if}
+                    </ul>
                   {/if}
                 </div>
-                <span class="shrink-0 rounded-full border border-goldfinch-gold/30 bg-goldfinch-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">
-                  {priceTypeLabel(option.price_type)}
-                </span>
-              </div>
-              <p class="font-serif text-[34px] leading-none text-goldfinch-gold">{formatUsd(option.price, $currency)}</p>
-              {#if option.description}
-                <p class="text-[14px] font-medium leading-7 text-white/62">{option.description}</p>
+              </details>
+            {/each}
+          </div>
+        </section>
+      {/if}
+
+      <!-- Gallery -->
+      {#if galleryImages.length}
+        <section id="gallery" class="scroll-mt-32">
+          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> From the field</span>
+          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">A closer look</h2>
+          <div class="mt-8 grid gap-3 sm:grid-cols-2" use:staggeredCardReveal={{ selector: '.tour-gallery-card', y: 16, stagger: 0.05 }}>
+            {#each galleryImages as image (image.id)}
+              <figure class="tour-gallery-card group overflow-hidden border border-ink/10 bg-surface">
+                <div class="aspect-[4/3] overflow-hidden bg-deep-green">
+                  <ResponsiveImage imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={image.image_url} fallbackSrc={thumbUrl(image, 'image_url')} width={800} alt={image.alt_text ?? tour.title} sizes="(min-width:1024px) 40vw, (min-width:640px) 50vw, 100vw" />
+                </div>
+                {#if image.caption}
+                  <figcaption class="px-5 py-4 text-[13px] leading-6 text-ink/64">{image.caption}</figcaption>
+                {/if}
+              </figure>
+            {/each}
+          </div>
+        </section>
+      {/if}
+
+      <!-- Inclusions -->
+      {#if inclusions.length || exclusions.length}
+        <section id="included" class="scroll-mt-32">
+          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> What is covered</span>
+          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">What's included</h2>
+          <div class="mt-8 grid gap-4 md:grid-cols-2">
+            <div class="border border-ink/10 bg-surface p-5">
+              <h3 class="font-serif text-[18px] font-light text-heading">Included</h3>
+              {#if inclusions.length}
+                <ul class="mt-5 grid gap-3.5">
+                  {#each inclusions as inc}
+                    <li class="flex gap-3 text-[14.5px] leading-6 text-heading">
+                      <Check size={17} class="mt-0.5 shrink-0 text-clay" strokeWidth={2.4} />
+                      {inc.title}
+                    </li>
+                  {/each}
+                </ul>
+              {:else}
+                <p class="mt-4 text-[14px] text-ink/55">Inclusions are confirmed with your final quote.</p>
               {/if}
             </div>
-          {/each}
-        </div>
-      </div>
-    </section>
-  {/if}
-
-  {#if relatedTours.length}
-    <section id="related" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
-      <div class="container-shell">
-        <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div class="max-w-[720px]">
-            <p class="brand-eyebrow text-goldfinch-gold">Every safari is private</p>
-            <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-white sm:text-[56px]">
-              More routes you can compare.
-            </h2>
+            <div class="border border-ink/10 bg-savanna/45 p-5">
+              <h3 class="font-serif text-[18px] font-light text-heading">Not included</h3>
+              {#if exclusions.length}
+                <ul class="mt-5 grid gap-3.5">
+                  {#each exclusions as exc}
+                    <li class="flex gap-3 text-[14.5px] leading-6 text-ink/70">
+                      <Minus size={17} class="mt-0.5 shrink-0 text-ink/40" strokeWidth={2.4} />
+                      {exc.title}
+                    </li>
+                  {/each}
+                </ul>
+              {:else}
+                <p class="mt-4 text-[14px] text-ink/55">Ask us what falls outside the quoted price.</p>
+              {/if}
+            </div>
           </div>
-          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold transition hover:text-white" href="/tours">
-            View all itineraries <ArrowRight size={15} />
+        </section>
+      {/if}
+
+      <!-- Prices -->
+      {#if priceOptions.length}
+        <section id="pricing" class="scroll-mt-32">
+          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> Pricing</span>
+          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">Tour rates</h2>
+          <p class="mt-4 max-w-[640px] text-[15px] leading-7 text-ink/70">
+            Indicative rates from the live record. Final pricing is confirmed by the Emnel team around your dates, group size and chosen lodges.
+          </p>
+
+          <!-- desktop table -->
+          <div class="mt-8 hidden overflow-hidden border border-ink/10 md:block">
+            <table class="w-full border-collapse text-left">
+              <thead>
+                <tr class="bg-deep-green text-white">
+                  <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em]">Option</th>
+                  <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em]">Basis</th>
+                  <th class="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-[0.14em]">From</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each priceOptions as option, i (option.id)}
+                  <tr class={i % 2 === 0 ? 'bg-surface' : 'bg-savanna/35'}>
+                    <td class="border-t border-ink/[0.06] px-5 py-4 align-top">
+                      <p class="font-semibold text-heading">{option.title}</p>
+                      {#if option.label && option.label !== option.title}<p class="mt-0.5 text-[13px] text-ink/60">{option.label}</p>{/if}
+                      {#if option.description}<p class="mt-1.5 text-[13px] leading-6 text-ink/60">{option.description}</p>{/if}
+                    </td>
+                    <td class="border-t border-ink/[0.06] px-5 py-4 align-top text-[13.5px] text-ink/70">{priceTypeLabel(option.price_type)}</td>
+                    <td class="border-t border-ink/[0.06] px-5 py-4 text-right align-top font-serif text-[22px] font-light text-heading">{option.price ? formatUsd(option.price, $currency) : 'On request'}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- mobile cards -->
+          <div class="mt-8 grid gap-2.5 md:hidden">
+            {#each priceOptions as option (option.id)}
+              <div class="border border-ink/10 bg-surface p-5">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="font-semibold text-heading">{option.title}</p>
+                    {#if option.label && option.label !== option.title}<p class="mt-0.5 text-[13px] text-ink/60">{option.label}</p>{/if}
+                  </div>
+                  <span class="shrink-0 border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-clay">{priceTypeLabel(option.price_type)}</span>
+                </div>
+                <p class="mt-3 font-serif text-[26px] font-light text-heading">{option.price ? formatUsd(option.price, $currency) : 'On request'}</p>
+                {#if option.description}<p class="mt-2 text-[13.5px] leading-6 text-ink/62">{option.description}</p>{/if}
+              </div>
+            {/each}
+          </div>
+
+          <button class="mt-7 inline-flex h-12 items-center justify-center gap-2 bg-goldfinch-gold px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('pricing')}>
+            Get my exact quote <ArrowRight size={15} />
+          </button>
+        </section>
+      {/if}
+    </main>
+
+    <!-- sticky booking sidebar (desktop) -->
+    <aside id="plan-this-trip" class="hidden self-stretch lg:block">
+      <div use:stickBelowTabs class="sticky">
+        <BookingForm {tour} />
+        <a class="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 border border-forest/25 bg-surface text-[12px] font-bold uppercase tracking-[0.12em] text-forest transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={waHref} target="_blank" rel="noopener noreferrer">
+          <MessageCircle size={15} /> Prefer to talk? WhatsApp
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ── Related tours ────────────────────────────────────────────────────── -->
+  {#if relatedTours.length}
+    <section id="related" class="scroll-mt-32 border-t border-ink/[0.07] bg-savanna/30 py-14 md:py-20">
+      <div class="container-shell">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <SectionHeader eyebrow="You might also like" title="More itineraries" description="Other private routes you can compare and combine." />
+          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-goldfinch-gold" href="/tours">
+            Browse all tours <ArrowRight size={14} />
           </a>
         </div>
-
-        <div class="mt-12 grid border border-white/[0.08] md:grid-cols-3" use:staggeredCardReveal={{ selector: '.related-tour-card', y: 16, stagger: 0.06 }}>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ selector: '.related-tour-card', y: 16, stagger: 0.06 }}>
           {#each relatedTours as item (item.id)}
-            <article class="related-tour-card border-b border-white/[0.08] bg-[#242118] md:border-b-0 md:border-r">
-              <a class="group block h-full" href={`/tours/${item.slug}`}>
-                <div class="aspect-[16/10] overflow-hidden bg-midnight">
-                  <ResponsiveImage imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={origUrl(item as unknown as Record<string, unknown>, 'main_image_url', 'banner_image_url')} fallbackSrc={tourCardImage(item)} width={800} alt={item.title} sizes="(min-width:768px) 33vw, 100vw" />
-                </div>
-                <div class="p-7">
-                  <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/38">{item.duration_days ?? 1} days · {item.price_from ? formatUsd(item.price_from, $currency) : 'on request'}</p>
-                  <h3 class="mt-5 font-serif text-[28px] font-light leading-tight text-white">{item.title}</h3>
-                  <p class="mt-4 line-clamp-3 text-[14px] font-medium leading-7 text-white/58">{item.short_description}</p>
-                  <span class="mt-7 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">
-                    Open route <ArrowRight size={14} />
-                  </span>
-                </div>
-              </a>
-            </article>
-          {/each}
-        </div>
-      </div>
-    </section>
-  {/if}
-
-  {#if planningCards.length}
-    <section id="planning" class="scroll-mt-28 bg-ivory py-16 text-ink md:py-24">
-      <div class="container-shell">
-        <div class="mx-auto max-w-[760px] text-center">
-          <p class="brand-eyebrow">Planning hub</p>
-          <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-heading sm:text-[56px]">
-            Plan with context before you enquire.
-          </h2>
-        </div>
-
-        <div class="mt-12 grid gap-4 md:grid-cols-4" use:staggeredCardReveal={{ selector: '.planning-card', y: 16, stagger: 0.05 }}>
-          {#each planningCards as post, i (post.id)}
-            <article class={`planning-card group overflow-hidden border border-ink/10 bg-surface ${i < 2 ? 'md:col-span-2' : ''}`}>
-              <a class="block h-full" href={`/blog/${post.slug}`}>
-                <div class={i < 2 ? 'aspect-[16/8]' : 'aspect-[16/10]'}>
-                  <ResponsiveImage imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={origUrl(post as unknown as Record<string, unknown>, 'featured_image_url')} fallbackSrc={postCardImage(post)} width={i < 2 ? 1000 : 620} alt={post.title} sizes={i < 2 ? '(min-width:768px) 50vw, 100vw' : '(min-width:768px) 25vw, 100vw'} />
-                </div>
-                <div class="p-6">
-                  <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">{post.author_name ?? 'Emnel Journal'}</p>
-                  <h3 class="mt-4 font-serif text-[25px] font-light leading-tight text-heading">{post.title}</h3>
-                  {#if post.excerpt}<p class="mt-3 line-clamp-3 text-sm font-medium leading-7 text-ink/62">{post.excerpt}</p>{/if}
-                  <span class="mt-5 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">Explore guide <ArrowRight size={13} /></span>
-                </div>
-              </a>
-            </article>
-          {/each}
-        </div>
-      </div>
-    </section>
-  {/if}
-
-  {#if faqs.length}
-    <section id="faqs" class="scroll-mt-28 bg-deep-green py-16 text-white md:py-24">
-      <div class="container-shell grid gap-12 lg:grid-cols-[0.65fr_1.35fr]">
-        <div>
-          <p class="brand-eyebrow text-goldfinch-gold">Safari FAQs</p>
-          <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-white sm:text-[56px]">
-            Questions we hear most often.
-          </h2>
-          <p class="mt-6 text-[15px] font-medium leading-8 text-white/58">
-            These answers come from the existing FAQ schema and help guests understand the planning process before speaking with us.
-          </p>
-        </div>
-        <div class="border-y border-white/[0.1]">
-          {#each faqs as faq}
-            <div class="border-b border-white/[0.1]">
-              <button class="flex w-full items-center justify-between gap-5 py-5 text-left font-serif text-xl font-light text-white transition hover:text-goldfinch-gold" type="button" on:click={() => (openFaqId = openFaqId === faq.id ? '' : faq.id)}>
-                <span>{faq.question}</span>
-                <ChevronDown class={`shrink-0 text-goldfinch-gold transition ${openFaqId === faq.id ? 'rotate-180' : ''}`} size={18} />
-              </button>
-              {#if openFaqId === faq.id}
-                <p class="pb-6 text-[15px] font-medium leading-8 text-white/62" transition:slide={{ duration: 180 }}>{faq.answer}</p>
-              {/if}
+            <div class="related-tour-card">
+              <TourCardRich tour={item} />
             </div>
           {/each}
         </div>
@@ -870,19 +737,68 @@
     </section>
   {/if}
 
-  <!-- enquiry (always visible, after the active tab) -->
-  <section class="bg-linen py-16 text-ink md:py-24">
-    <div class="container-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+  <!-- ── From the journal ─────────────────────────────────────────────────── -->
+  {#if planningCards.length}
+    <section id="planning" class="scroll-mt-32 py-14 md:py-20">
+      <div class="container-shell">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <SectionHeader eyebrow="Stories & guides" title="From the journal" description="Read up on the region before you enquire." />
+          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-goldfinch-gold" href="/blog">
+            Read the blog <ArrowRight size={14} />
+          </a>
+        </div>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ selector: '.planning-card', y: 16, stagger: 0.05 }}>
+          {#each planningCards.slice(0, 3) as post (post.id)}
+            <div class="planning-card">
+              <BlogCard {post} />
+            </div>
+          {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
+
+  <!-- ── FAQ timeline ─────────────────────────────────────────────────────── -->
+  {#if faqs.length}
+    <section id="faqs" class="scroll-mt-32 border-t border-ink/10 bg-savanna/25 py-14 md:py-20">
+      <div class="container-shell">
+        <div class="mx-auto max-w-4xl">
+          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> Good to know</span>
+          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">Frequently asked questions</h2>
+
+          <ol class="relative mt-10">
+            {#each faqs as faq, i (faq.id)}
+              {@const state = faqStates[faq.id] ?? (i === 0 ? 'active' : 'upcoming')}
+              <li data-faq-item data-faq-id={faq.id} class="relative pb-9 pl-16 last:pb-0 md:pl-20">
+                <span
+                  class={`absolute left-0 top-0 grid h-10 w-10 place-items-center rounded-full border font-serif text-[15px] transition-colors duration-300 ${state === 'upcoming' ? 'border-ink/15 bg-surface text-ink/45' : 'border-clay bg-clay text-white'}`}
+                >{String(i + 1).padStart(2, '0')}</span>
+                {#if i < faqs.length - 1}
+                  <span class={`absolute left-[19px] top-11 bottom-1 w-px transition-colors duration-300 ${state === 'complete' ? 'bg-clay' : 'bg-ink/12'}`}></span>
+                {/if}
+                <h3 class="font-serif text-[19px] font-light leading-snug text-heading md:text-[22px]">{faq.question}</h3>
+                <RichText value={faq.answer} className="mt-2.5 text-[15px] leading-[1.7] text-ink/70" />
+              </li>
+            {/each}
+          </ol>
+        </div>
+      </div>
+    </section>
+  {/if}
+
+  <!-- ── Enquiry / email capture ──────────────────────────────────────────── -->
+  <section class="border-t border-ink/[0.07] bg-canvas py-14 md:py-20">
+    <div class="container-shell grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
       <div>
-        <p class="brand-eyebrow">Ask for this route</p>
-        <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-heading sm:text-[56px]">
-          Tell us what you are imagining and we will build it around you.
+        <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> Ask for this route</span>
+        <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[40px]">
+          Tell us what you're imagining and we'll build it around you.
         </h2>
-        <p class="mt-6 text-[15px] font-medium leading-8 text-ink/68">
-          No payment is required to start. Share your email for the itinerary or speak directly on WhatsApp if you want a faster answer.
+        <p class="mt-5 max-w-[540px] text-[15px] leading-7 text-ink/68">
+          No payment is required to start. Share your email for the full itinerary, or speak directly on WhatsApp for a faster answer.
         </p>
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          <button class="inline-flex h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" type="button" on:click={openForm}>
+          <button class="inline-flex h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('enquiry')}>
             Start a conversation <ArrowRight size={16} />
           </button>
           <a class="inline-flex h-[52px] items-center justify-center gap-3 border border-ink/20 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-heading transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={waHref} target="_blank" rel="noopener noreferrer">
@@ -890,45 +806,33 @@
           </a>
         </div>
       </div>
-      <div class="border border-ink/10 bg-surface p-6 md:p-8">
+      <div class="border border-ink/10 bg-surface p-6 shadow-soft md:p-8">
         <EmailItineraryCapture tourTitle={tour.title} />
       </div>
     </div>
   </section>
 
-  <section class="bg-linen py-16 text-ink md:py-20">
-    <div class="container-shell">
-      <div class="grid gap-8 bg-deep-green p-8 text-white md:grid-cols-[1fr_auto] md:items-center md:p-10">
-        <div>
-          <p class="brand-eyebrow text-goldfinch-gold">Still deciding?</p>
-          <h2 class="mt-4 font-serif text-[34px] font-light leading-tight text-white md:text-[44px]">
-            Speak directly with our Arusha team.
-          </h2>
-          <div class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/58">
-            <span class="inline-flex items-center gap-2"><Star size={15} class="text-goldfinch-gold" /> Private advice</span>
-            <span class="inline-flex items-center gap-2"><Route size={15} class="text-goldfinch-gold" /> Route adjustments</span>
-            <span class="inline-flex items-center gap-2"><Shield size={15} class="text-goldfinch-gold" /> No payment to enquire</span>
-          </div>
-        </div>
-        <button class="inline-flex h-[52px] items-center justify-center gap-3 border border-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green" type="button" on:click={openForm}>
-          Start a conversation <ArrowRight size={16} />
-        </button>
+  <!-- ── Fixed mobile CTA bar ─────────────────────────────────────────────── -->
+  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-surface px-4 py-3 shadow-[0_-6px_20px_rgba(28,26,22,0.1)] lg:hidden" style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));">
+    <div class="flex items-center gap-3">
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-[13px] font-bold text-heading">{priceText === 'On request' ? 'Price on request' : `From ${priceText}`}</p>
+        <p class="truncate text-[11.5px] text-ink/55">{durationText} · {destinationName}</p>
       </div>
+      <button class="inline-flex h-11 shrink-0 items-center gap-2 bg-goldfinch-gold px-5 text-[12px] font-bold uppercase tracking-[0.12em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('mobile-bar')}>
+        Plan this trip <ArrowRight size={14} />
+      </button>
     </div>
-  </section>
+  </div>
+  <div class="h-20 lg:hidden"></div>
 {/if}
 
-<!-- booking request modal -->
-{#if formOpen && tour}
-  <div class="fixed inset-0 z-[60] grid place-items-center overflow-y-auto p-4" role="dialog" aria-modal="true" aria-label="Booking request">
-    <button class="fixed inset-0 cursor-default bg-black/55 backdrop-blur-sm" type="button" aria-label="Close" on:click={closeForm} transition:fade={{ duration: 150 }}></button>
-    <div class="relative my-auto w-full max-w-xl" transition:scale={{ duration: 180, start: 0.97 }}>
-      <button
-        class="absolute -top-3 right-0 z-10 grid h-9 w-9 place-items-center rounded-full bg-surface text-ink shadow-md transition hover:bg-sand sm:-right-3"
-        type="button"
-        aria-label="Close"
-        on:click={closeForm}
-      >
+<!-- ── Planner overlay: bottom sheet on mobile, centered modal on desktop ──── -->
+{#if sheetOpen && tour}
+  <div class="fixed inset-0 z-[80] flex items-end justify-center overflow-y-auto sm:p-4 lg:items-center" role="dialog" aria-modal="true" aria-label="Plan this trip">
+    <button class="fixed inset-0 cursor-default bg-black/60 backdrop-blur-sm" type="button" aria-label="Close" on:click={closeSheet} transition:fade={{ duration: 150 }}></button>
+    <div class="relative z-10 w-full max-w-lg" transition:fly={{ y: 340, duration: 260 }}>
+      <button class="absolute -top-3 right-2 z-20 grid h-9 w-9 place-items-center rounded-full bg-surface text-ink shadow-md transition hover:bg-sand sm:right-0" type="button" aria-label="Close" on:click={closeSheet}>
         <X size={18} />
       </button>
       <BookingForm {tour} />
@@ -936,7 +840,32 @@
   </div>
 {/if}
 
-<svelte:window on:keydown={(e) => e.key === 'Escape' && closeForm()} />
+<svelte:window on:keydown={(e) => e.key === 'Escape' && closeSheet()} />
 
 {#if touristTripLd}<JsonLd data={touristTripLd} />{/if}
 {#if breadcrumbLd}<JsonLd data={breadcrumbLd} />{/if}
+
+<style>
+  /* Day accordion: hide the native marker; reveal the body with a soft slide. */
+  .tour-day-summary::-webkit-details-marker {
+    display: none;
+  }
+  details.tour-day > .tour-day-body {
+    animation: tourDayReveal 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes tourDayReveal {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    details.tour-day > .tour-day-body {
+      animation: none;
+    }
+  }
+</style>

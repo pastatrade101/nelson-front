@@ -15,6 +15,41 @@
   let activeIndex = 0;
   let container: HTMLDivElement;
   let listEl: HTMLUListElement;
+  // The dropdown is portalled to <body> with fixed positioning so it escapes any
+  // clipping ancestor (e.g. the booking modal's overflow-hidden/scroll body).
+  let panelEl: HTMLUListElement | null = null;
+
+  const place = () => {
+    if (!container || !panelEl) return;
+    const r = container.getBoundingClientRect();
+    const gap = 6;
+    const below = window.innerHeight - r.bottom - 8;
+    const above = r.top - 8;
+    const openUp = below < 180 && above > below;
+    const maxH = Math.max(140, Math.min(288, (openUp ? above : below) - gap));
+    panelEl.style.left = `${Math.max(8, r.left)}px`;
+    panelEl.style.width = `${r.width}px`;
+    panelEl.style.maxHeight = `${maxH}px`;
+    panelEl.style.top = openUp ? `${Math.max(8, r.top - gap - maxH)}px` : `${r.bottom + gap}px`;
+  };
+
+  const portal = (node: HTMLUListElement) => {
+    document.body.appendChild(node);
+    panelEl = node;
+    place();
+    const reposition = () => place();
+    // capture:true so scrolling inside the modal body (not just window) repositions.
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return {
+      destroy() {
+        window.removeEventListener('scroll', reposition, true);
+        window.removeEventListener('resize', reposition);
+        panelEl = null;
+        node.remove();
+      }
+    };
+  };
 
   // Mirror the committed value into the input whenever the menu is closed
   // (covers parent resets like "Submit another request").
@@ -92,12 +127,15 @@
     }
   };
 
+  const inWidget = (node: Node | null) =>
+    Boolean((container && node && container.contains(node)) || (panelEl && node && panelEl.contains(node)));
+
   const onFocusOut = (e: FocusEvent) => {
-    if (container && !container.contains(e.relatedTarget as Node)) reconcileAndClose();
+    if (!inWidget(e.relatedTarget as Node)) reconcileAndClose();
   };
 
   const onWindowClick = (e: MouseEvent) => {
-    if (open && container && !container.contains(e.target as Node)) reconcileAndClose();
+    if (open && !inWidget(e.target as Node)) reconcileAndClose();
   };
 </script>
 
@@ -129,7 +167,8 @@
       id="country-listbox"
       role="listbox"
       bind:this={listEl}
-      class="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-md border border-ink/12 bg-surface py-1 shadow-lg"
+      use:portal
+      class="fixed z-[200] overflow-y-auto rounded-md border border-ink/12 bg-surface py-1 shadow-lg"
     >
       {#if filtered.length === 0}
         <li class="px-3 py-2 text-sm text-ink/70">No match. Try another spelling.</li>
@@ -141,6 +180,7 @@
               class={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition ${
                 i === activeIndex ? 'bg-forest/[0.08] text-heading' : 'text-ink/80 hover:bg-sand/60'
               }`}
+              on:mousedown|preventDefault
               on:mouseenter={() => (activeIndex = i)}
               on:click={() => commit(c.name)}
             >
