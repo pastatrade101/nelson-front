@@ -85,7 +85,7 @@
   <meta name="description" content={seoDescription} />
 </svelte:head>
 
-<!-- ── Hero + stats (one screen, not two) ────────────────────────────────── -->
+<!-- ── Hero (original design, now CMS-driven) ────────────────────────────── -->
 {#if on('about_hero')}
   <section class="relative overflow-hidden bg-deep-green text-white">
     {#if cms('about_hero', 'image_url')}
@@ -99,29 +99,46 @@
         eager
         priority
       />
-      <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.7)_0%,rgba(28,26,22,0.38)_46%,rgba(28,26,22,0.12)_100%)]"></div>
+      <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.52)_0%,rgba(28,26,22,0.28)_38%,transparent_100%)]"></div>
+      <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.12)_0%,transparent_32%,rgba(28,26,22,0.4)_100%)]"></div>
     {/if}
 
-    <!-- Taller so the photograph actually reads. The section is in normal flow,
-         so it always starts below the sticky navbar — never under it. -->
-    <div class="container-shell relative z-10 flex min-h-[58vh] flex-col justify-end py-16 md:min-h-[68vh] md:py-20">
-      <div class="max-w-[760px] [text-shadow:0_2px_18px_rgba(0,0,0,0.5)]">
+    <div class="relative z-10 mx-auto flex min-h-[560px] w-full max-w-[1500px] items-center px-5 py-24 md:min-h-[660px] md:px-8 md:py-28">
+      <div class="max-w-[840px] [text-shadow:0_2px_18px_rgba(0,0,0,0.5)]">
         {#if ex('about_hero', 'eyebrow')}
-          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">{ex('about_hero', 'eyebrow')}</p>
+          <p class="brand-eyebrow">{ex('about_hero', 'eyebrow')}</p>
         {/if}
-        <h1 class="mt-5 font-serif text-[34px] font-light leading-[1.06] tracking-normal sm:text-[46px] lg:text-[54px]">
+        <h1 class="mt-6 font-serif text-[44px] font-light leading-[1.04] tracking-normal sm:text-[60px] lg:text-[74px]">
           {cms('about_hero', 'title')}
         </h1>
         {#if cms('about_hero', 'subtitle')}
-          <p class="mt-5 max-w-[620px] text-[15px] leading-7 text-white/80">{cms('about_hero', 'subtitle')}</p>
+          <p class="mt-7 max-w-[680px] text-[15px] leading-8 text-white/85 md:text-lg">{cms('about_hero', 'subtitle')}</p>
         {/if}
-        {#if cms('about_hero', 'button_text') && cms('about_hero', 'button_url')}
-          <a
-            class="mt-7 inline-flex h-12 items-center justify-center gap-2 bg-goldfinch-gold px-7 text-[12px] font-bold uppercase tracking-[0.12em] text-deep-green transition hover:bg-savanna"
-            href={cms('about_hero', 'button_url')}
-          >
-            {cms('about_hero', 'button_text')} <ArrowRight size={16} strokeWidth={2.4} />
-          </a>
+
+        <div class="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
+          {#if cms('about_hero', 'button_text') && cms('about_hero', 'button_url')}
+            <a
+              class="inline-flex h-12 items-center justify-center gap-2 bg-goldfinch-gold px-7 text-[13px] font-semibold uppercase tracking-[0.08em] text-deep-green transition hover:bg-savanna"
+              href={cms('about_hero', 'button_url')}
+            >
+              {cms('about_hero', 'button_text')} <ArrowRight size={17} strokeWidth={2.4} />
+            </a>
+          {/if}
+          {#if ex('about_hero', 'secondary_cta') && ex('about_hero', 'secondary_href')}
+            <a
+              class="inline-flex h-12 items-center justify-center gap-2 border border-goldfinch-gold px-7 text-[13px] font-semibold uppercase tracking-[0.08em] text-white transition hover:bg-goldfinch-gold hover:text-deep-green"
+              href={ex('about_hero', 'secondary_href')}
+            >
+              {ex('about_hero', 'secondary_cta')}
+            </a>
+          {/if}
+        </div>
+
+        {#if cms('about_hero', 'content')}
+          <p class="mt-9 text-sm font-medium text-white/70">
+            {#if ex('about_hero', 'trust_stars')}<span class="text-goldfinch-gold">{ex('about_hero', 'trust_stars')}</span>{/if}
+            {cms('about_hero', 'content')}
+          </p>
         {/if}
       </div>
     </div>
@@ -371,7 +388,7 @@
                   </summary>
                   <div class="border-t border-white/10 px-4 pb-5 pt-4">
                     {#if block.body}
-                      <div class="grid gap-3.5 text-[14.5px] leading-7 text-white/72">
+                      <div class="grid gap-3.5 text-[14.5px] leading-7 text-goldfinch-gold/90">
                         {#each paras(block.body) as p}
                           <p>{p}</p>
                         {/each}
@@ -380,7 +397,7 @@
                     {#if block.items?.length}
                       <ul class="mt-4 grid gap-2 sm:grid-cols-2">
                         {#each block.items as item}
-                          <li class="flex items-start gap-2.5 text-[14px] leading-6 text-white/80">
+                          <li class="flex items-start gap-2.5 text-[14px] leading-6 text-goldfinch-gold/90">
                             <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-goldfinch-gold"></span>{item}
                           </li>
                         {/each}
