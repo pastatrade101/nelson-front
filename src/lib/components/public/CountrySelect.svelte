@@ -145,7 +145,7 @@
   <div class="relative">
     <input
       {id}
-      class={`w-full rounded-md border bg-surface px-3 py-3 pr-9 text-sm text-ink outline-none transition focus:ring-2 ${
+      class={`w-full min-w-0 rounded-md border bg-surface px-3 py-3 pr-9 text-base text-ink outline-none transition focus:ring-2 ${
         invalid ? 'border-red-300 focus:border-red-400 focus:ring-red-200' : 'border-ink/15 focus:border-forest focus:ring-forest/15'
       }`}
       role="combobox"

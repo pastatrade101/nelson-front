@@ -24,6 +24,7 @@
     '/admin/specialists': 'Specialists',
     '/admin/faqs': 'FAQs',
     '/admin/homepage': 'Homepage',
+    '/admin/about': 'About Page',
     '/admin/messages': 'Messages',
     '/admin/branding': 'Branding',
     '/admin/settings': 'Settings',

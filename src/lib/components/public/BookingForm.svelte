@@ -13,7 +13,23 @@
   export let tour: Tour | null = null;
 
   // This form mounts when the "Request this trip" planner opens.
-  onMount(() => trackEvent('request_trip_opened', { tour_id: tour?.id, tour_title: tour?.title }));
+  onMount(() => {
+    trackEvent('request_trip_opened', { tour_id: tour?.id, tour_title: tour?.title });
+
+    // iOS keeps the page scrolled/offset after the on-screen keyboard closes.
+    // When the last focused field blurs and nothing else takes focus, nudge the
+    // window back to the top so the layout is restored. (The 16px input font
+    // above is what stops the zoom-in happening in the first place.)
+    const onFocusOut = () => {
+      window.setTimeout(() => {
+        const el = document.activeElement;
+        const stillTyping = el instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+        if (!stillTyping) window.scrollTo({ top: window.scrollY });
+      }, 60);
+    };
+    window.addEventListener('focusout', onFocusOut);
+    return () => window.removeEventListener('focusout', onFocusOut);
+  });
 
   // ── Options ────────────────────────────────────────────────────────────────
   const BUDGET_OPTIONS = ['Budget', 'Mid-range', 'Luxury', 'Not sure yet'];
@@ -115,8 +131,10 @@
       : [...travel_interests, interest];
   };
 
+  // text-base (16px) keeps iOS from auto-zooming on focus (and never restoring the
+  // viewport); min-w-0 lets date/number inputs shrink instead of overflowing the grid.
   const inputBase =
-    'w-full rounded-md border bg-surface px-3 py-3 text-sm text-ink outline-none transition focus:ring-2';
+    'w-full min-w-0 rounded-md border bg-surface px-3 py-3 text-base text-ink outline-none transition focus:ring-2';
   $: cls = (field: string) =>
     `${inputBase} ${errors[field] ? 'border-red-300 focus:border-red-400 focus:ring-red-200' : 'border-ink/15 focus:border-forest focus:ring-forest/15'}`;
 
@@ -345,25 +363,25 @@
         <!-- ── Contact details ─────────────────────────────────────────────── -->
         <fieldset class="grid gap-4">
           <legend class="sr-only">Contact details</legend>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
+          <div class="grid min-w-0 gap-4 sm:grid-cols-2">
+            <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Full name</span>
               <input class={cls('full_name')} bind:value={full_name} on:input={() => clearErr('full_name')} placeholder="Your name" autocomplete="name" />
               {#if errors.full_name}<span class="text-xs text-red-600">{errors.full_name}</span>{/if}
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
+            <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Email</span>
               <input class={cls('email')} type="email" bind:value={email} on:input={() => clearErr('email')} placeholder="you@example.com" autocomplete="email" />
               {#if errors.email}<span class="text-xs text-red-600">{errors.email}</span>{/if}
             </label>
           </div>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
+          <div class="grid min-w-0 gap-4 sm:grid-cols-2">
+            <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Phone / WhatsApp</span>
               <input class={cls('phone')} type="tel" bind:value={phone} on:input={() => clearErr('phone')} placeholder="+255 ..." autocomplete="tel" />
               {#if errors.phone}<span class="text-xs text-red-600">{errors.phone}</span>{/if}
             </label>
-            <div class="grid gap-1.5 text-sm font-medium text-ink">
+            <div class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Country</span>
               <CountrySelect bind:value={country} invalid={Boolean(errors.country)} on:change={() => clearErr('country')} placeholder="Search your country..." />
               {#if errors.country}<span class="text-xs text-red-600">{errors.country}</span>{/if}
@@ -374,13 +392,13 @@
         <!-- ── Trip details ────────────────────────────────────────────────── -->
         <fieldset class="grid gap-4">
           <legend class="sr-only">Trip details</legend>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
+          <div class="grid min-w-0 gap-4 sm:grid-cols-2">
+            <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Preferred travel date</span>
               <input class={cls('travel_date')} type="date" min={todayStr} bind:value={travel_date} on:input={() => clearErr('travel_date')} />
               {#if errors.travel_date}<span class="text-xs text-red-600">{errors.travel_date}</span>{/if}
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
+            <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Are your dates flexible?</span>
               <select class={cls('date_flexibility')} bind:value={date_flexibility} on:change={() => clearErr('date_flexibility')}>
                 <option value="" disabled>Select…</option>
@@ -389,12 +407,12 @@
               {#if errors.date_flexibility}<span class="text-xs text-red-600">{errors.date_flexibility}</span>{/if}
             </label>
           </div>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
+          <div class="grid min-w-0 gap-4 sm:grid-cols-2">
+            <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Trip duration</span>
               <input class={cls('trip_duration')} bind:value={trip_duration} placeholder="e.g. 5 days / 4 nights" />
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
+            <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Estimated budget per person</span>
               <select class={cls('budget_range')} bind:value={budget_range} on:change={() => clearErr('budget_range')}>
                 <option value="" disabled>Select budget…</option>
@@ -403,13 +421,13 @@
               {#if errors.budget_range}<span class="text-xs text-red-600">{errors.budget_range}</span>{/if}
             </label>
           </div>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
+          <div class="grid min-w-0 gap-4 sm:grid-cols-2">
+            <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Adults</span>
               <input class={cls('number_of_adults')} type="number" min="1" bind:value={number_of_adults} on:input={() => clearErr('number_of_adults')} />
               {#if errors.number_of_adults}<span class="text-xs text-red-600">{errors.number_of_adults}</span>{/if}
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
+            <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
               <span>Children</span>
               <input class={cls('number_of_children')} type="number" min="0" bind:value={number_of_children} on:input={() => clearErr('number_of_children')} />
               {#if errors.number_of_children}<span class="text-xs text-red-600">{errors.number_of_children}</span>{/if}
@@ -450,18 +468,18 @@
               </div>
             {/if}
           </div>
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
+          <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
             <span>Accommodation preference</span>
             <select class={cls('accommodation_preference')} bind:value={accommodation_preference}>
               <option value="">No preference</option>
               {#each ACCOMMODATION_OPTIONS as opt}<option value={opt}>{opt}</option>{/each}
             </select>
           </label>
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
+          <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
             <span>Special requests</span>
             <textarea class={inputBase + ' border-ink/15 focus:border-forest focus:ring-forest/15'} rows={2} bind:value={special_requests} placeholder="Dietary needs, accessibility, celebrations, room preferences..."></textarea>
           </label>
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
+          <label class="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
             <span>Anything else we should know?</span>
             <textarea class={inputBase + ' border-ink/15 focus:border-forest focus:ring-forest/15'} rows={3} bind:value={message} placeholder="Must-see places, special occasions, group details..."></textarea>
           </label>

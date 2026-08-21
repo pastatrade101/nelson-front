@@ -16,6 +16,7 @@
     CreditCard,
     FolderTree,
     Home,
+    LayoutTemplate,
     Hotel,
     Image,
     Images,
@@ -99,7 +100,8 @@
         { href: '/admin/safety', label: 'Safety Guide', icon: ShieldCheck },
         { href: '/admin/travel-styles', label: 'Travel Styles', icon: Heart },
         { href: '/admin/comparisons', label: 'Comparisons', icon: GitCompare },
-        { href: '/admin/homepage', label: 'Homepage', icon: Home }
+        { href: '/admin/homepage', label: 'Homepage', icon: Home },
+        { href: '/admin/about', label: 'About Page', icon: LayoutTemplate }
       ]
     },
     {
