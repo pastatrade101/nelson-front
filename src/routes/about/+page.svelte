@@ -177,7 +177,7 @@
         {/if}
         {#if cms('about_founder', 'image_url')}
           <figure class="mt-7">
-            <div class="aspect-[4/3] overflow-hidden bg-deep-green">
+            <div class="aspect-[4/5] overflow-hidden bg-deep-green">
               <ResponsiveImage
                 imgClass="h-full w-full object-cover"
                 src={cms('about_founder', 'image_url')}
