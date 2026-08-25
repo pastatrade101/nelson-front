@@ -20,33 +20,6 @@
   export let ctaHref = '/plan-my-trip';
   export let testimonials: Testimonial[] = [];
 
-  const fallbackReviews: Review[] = [
-    {
-      name: 'Melanie W.',
-      country: 'Germany',
-      message:
-        'Nelson arranged a private bush dinner for our anniversary that I will never forget. The table was set in the middle of the Serengeti with candles, flowers and a chef. I felt like the only person on earth.',
-      label: 'Anniversary Safari - Serengeti',
-      rating: 5
-    },
-    {
-      name: 'The Vandenberghe Family',
-      country: 'Belgium',
-      message:
-        'Gabriel turned every game drive into a lesson in ecology. Our children learned more in 7 days than in a year of school. We are already planning to come back.',
-      label: 'Family Safari - Serengeti',
-      rating: 5
-    },
-    {
-      name: 'Cornelia L.',
-      country: 'Germany',
-      message:
-        'I felt like a princess. The personal photographer made this the most special experience of my life. I came home with images I had only ever dreamed of.',
-      label: 'Photography Safari',
-      rating: 5
-    }
-  ];
-
   const toReview = (testimonial: Testimonial): Review => ({
     name: testimonial.client_name,
     country: testimonial.client_country ?? 'Guest',
@@ -55,9 +28,15 @@
     rating: testimonial.rating ?? 5
   });
 
-  $: reviews = [...testimonials.map(toReview), ...fallbackReviews].slice(0, 3);
+  // Only ever real, approved testimonials. This used to top up with three
+  // hardcoded example reviews whenever fewer than three real ones were passed,
+  // which published invented guest quotes; the section now simply hides when
+  // there is nothing genuine to show.
+  $: reviews = testimonials.map(toReview).slice(0, 3);
+  $: gridCols = reviews.length >= 3 ? 'lg:grid-cols-3' : reviews.length === 2 ? 'lg:grid-cols-2' : '';
 </script>
 
+{#if reviews.length}
 <section class="bg-ivory py-16 text-ink md:py-24" use:fadeUpOnScroll={{ y: 14 }}>
   <div class="container-shell">
     <div class="max-w-[900px]">
@@ -70,7 +49,7 @@
     </div>
 
     <div class="mt-14 border border-ink/10 bg-surface" use:staggeredCardReveal={{ selector: '.review-card', y: 16, stagger: 0.06 }}>
-      <div class="grid lg:grid-cols-3">
+      <div class={`grid ${gridCols}`}>
         {#each reviews as review}
           <article class="review-card min-h-[430px] border-b border-ink/10 p-8 lg:border-b-0 lg:border-r lg:p-10">
             <div class="flex gap-1 text-goldfinch-gold" aria-label={`${review.rating} star review`}>
@@ -97,3 +76,4 @@
     </div>
   </div>
 </section>
+{/if}

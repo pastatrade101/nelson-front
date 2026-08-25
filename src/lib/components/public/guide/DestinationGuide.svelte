@@ -2,6 +2,7 @@
   import { onDestroy, tick } from 'svelte';
   import { browser } from '$app/environment';
   import { Compass, Lightbulb, ShieldCheck, Sparkles } from '@lucide/svelte';
+  import ComparisonTable from '$lib/components/public/ComparisonTable.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
@@ -32,6 +33,12 @@
 
   const toAccordion = (items: { q: string; a: string }[] = []) =>
     items.map((it, i) => ({ id: `${(it.q ?? '').slice(0, 48)}-${i}`, question: it.q, answer: it.a }));
+
+  // Guide tables store rows as flat string arrays. ComparisonTable takes plain
+  // data with the leading cell as the row label (it repeats the column headers
+  // per cell when the table reflows into cards on mobile).
+  const toComparisonRows = (rows: string[][] = []) =>
+    (rows ?? []).map((r) => ({ label: r?.[0] ?? '', cells: (r ?? []).slice(1) }));
 
   // Internal build artifacts that leaked into a few guides — never shown.
   const ARTIFACT = /end of (the )?(master )?guide|developer|implementation notes?|ready for extract|schematic (map|driving|diagram|route)/i;
@@ -242,29 +249,11 @@
               </div>
             {:else if block.type === 'table'}
               <div class="mt-8">
-                {#if block.title}
-                  <h3 class="mb-3 font-serif text-lg font-normal text-heading">{block.title}</h3>
-                {/if}
-                <div class="overflow-x-auto rounded-2xl border border-ink/10 bg-surface shadow-soft">
-                  <table class="w-full min-w-[560px] text-left text-sm">
-                    <thead>
-                      <tr class="border-b border-ink/10 bg-sand/40">
-                        {#each block.columns ?? [] as col}
-                          <th class="px-4 py-3 font-bold text-heading">{col}</th>
-                        {/each}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {#each block.rows ?? [] as row}
-                        <tr class="border-b border-ink/[0.06] last:border-0">
-                          {#each row as cell}
-                            <td class="px-4 py-3 align-top text-ink/75">{cell}</td>
-                          {/each}
-                        </tr>
-                      {/each}
-                    </tbody>
-                  </table>
-                </div>
+                <ComparisonTable
+                  columns={block.columns ?? []}
+                  rows={toComparisonRows(block.rows)}
+                  caption={block.title ?? ''}
+                />
               </div>
             {:else if block.type === 'photo'}
               <figure class="mt-8">

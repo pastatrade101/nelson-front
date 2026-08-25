@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { ArrowRight, Check, MessageCircle } from '@lucide/svelte';
+  import { ArrowRight } from '@lucide/svelte';
   import { api } from '$lib/api/client';
   import DestinationFeatureCard from '$lib/components/public/DestinationFeatureCard.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import { faqLd } from '$lib/seo';
   import StatsCounter from '$lib/components/public/StatsCounter.svelte';
+  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import FounderStorySection from '$lib/components/public/FounderStorySection.svelte';
   import GuestReviewsSection from '$lib/components/public/GuestReviewsSection.svelte';
   import HeroSection from '$lib/components/public/HeroSection.svelte';
@@ -20,8 +21,6 @@
   import DealCard from '$lib/components/public/DealCard.svelte';
   import GallerySection from '$lib/components/public/GallerySection.svelte';
   import { fadeUpOnScroll, sectionReveal, staggeredCardReveal } from '$lib/animations';
-  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
-  import { cdnUrl } from '$lib/img';
   import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
   import type { PageData } from './$types';
 
@@ -103,13 +102,6 @@
   $: blogExtra = (sections.blog_preview?.extra_data ?? {}) as Record<string, unknown>;
   $: testimonialExtra = (sections.testimonials?.extra_data ?? {}) as Record<string, unknown>;
 
-  const hexToRgba = (hex: string, alpha: number) => {
-    const match = /^#?([0-9a-fA-F]{6})$/.exec(hex);
-    if (!match) return `rgba(28,26,22,${alpha})`;
-    const n = parseInt(match[1], 16);
-    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
-  };
-
   // Final CTA background (image/video + overlay), all editable from Admin → Homepage.
   $: ctaExtra = (sections.final_cta?.extra_data ?? {}) as Record<string, unknown>;
   $: ctaImage = typeof sections.final_cta?.image_url === 'string' ? sections.final_cta.image_url : '';
@@ -123,10 +115,7 @@
   $: ctaImageResolved = ctaImage || DEFAULT_CTA_IMAGE;
   $: ctaOverlayColor = typeof ctaExtra.overlay_color === 'string' ? ctaExtra.overlay_color : '#1C1A16';
   $: ctaOverlayOpacity = typeof ctaExtra.overlay_opacity === 'number' ? ctaExtra.overlay_opacity : 0.7;
-  $: ctaOverlayStyle =
-    ctaExtra.overlay_gradient !== false
-      ? `background:linear-gradient(135deg, ${hexToRgba(ctaOverlayColor, ctaOverlayOpacity)}, ${hexToRgba(ctaOverlayColor, ctaOverlayOpacity * 0.55)})`
-      : `background:${hexToRgba(ctaOverlayColor, ctaOverlayOpacity)}`;
+  $: ctaOverlayGradient = ctaExtra.overlay_gradient !== false;
 
   // Partner / company logo strip (managed in Admin → Homepage → "partners").
   $: partnersExtra = (sections.partners?.extra_data ?? {}) as Record<string, unknown>;
@@ -338,68 +327,22 @@
 {/if}
 
 {#if sections.final_cta?.is_active !== false && (sections.final_cta?.title || sections.final_cta?.button_text)}
-  <section class="relative w-full overflow-hidden text-white" use:sectionReveal>
-    <!-- background media layer (admin-configurable: video > image > brand gradient) -->
-    {#if ctaVideo}
-      <!-- svelte-ignore a11y-media-has-caption -->
-      <video class="absolute inset-0 h-full w-full object-cover" style={`object-position:${ctaPosition}`} src={cdnUrl(ctaVideo)} poster={cdnUrl(ctaImageResolved)} autoplay muted loop playsinline></video>
-    {:else}
-      <ResponsiveImage src={ctaImageResolved} imgClass="absolute inset-0 h-full w-full object-cover" imgStyle={`object-position:${ctaPosition}`} sizes="100vw" width={1600} alt="" />
-    {/if}
-
-    <!-- green overlay so the photo shows through but the text stays crisp -->
-    <div class="absolute inset-0" style={ctaOverlayStyle}></div>
-
-    <!-- decorative depth -->
-    <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
-    <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
-    <div
-      class="pointer-events-none absolute inset-0 opacity-[0.06]"
-      style="background-image: radial-gradient(circle, #ffffff 1px, transparent 1.6px); background-size: 26px 26px;"
-    ></div>
-
-    <div class="container-shell relative py-16 text-center md:py-24" use:fadeUpOnScroll={{ y: 18 }}>
-      <div class="mx-auto max-w-3xl">
-        <p class="brand-eyebrow">Start Your Journey</p>
-
-        <h2 class="mt-5 text-3xl font-normal leading-[1.12] tracking-normal md:text-[44px]">
-          {cms('final_cta', 'title', 'Ready to plan your private Tanzania safari?')}
-        </h2>
-
-        <p class="mx-auto mt-4 max-w-xl text-[15px] font-medium leading-7 text-white/75 md:text-lg">
-          {cms('final_cta', 'subtitle', 'Talk to a local expert in Arusha and travel with confidence — no payment needed to start planning.')}
-        </p>
-
-        <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a
-            class="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-goldfinch-gold px-7 text-sm font-semibold text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-deep-green sm:w-auto md:h-[52px] md:text-base"
-            href={cms('final_cta', 'button_url', '/plan-my-trip')}
-          >
-            {cms('final_cta', 'button_text', 'Plan My Safari')}
-            <ArrowRight size={18} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
-          </a>
-          <a
-            class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-surface/5 px-7 text-sm font-bold text-white backdrop-blur transition hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:w-auto md:h-[52px] md:text-base"
-            href="/contact"
-          >
-            <MessageCircle size={17} strokeWidth={2.4} />
-            Talk to a Safari Advisor
-          </a>
-        </div>
-
-        <div class="mt-10 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-sm font-medium text-white/70">
-          {#each ['Local experts', 'No payment to plan', 'Honest, tailored advice'] as point}
-            <span class="inline-flex items-center gap-2">
-              <span class="grid h-5 w-5 place-items-center rounded-full bg-goldfinch-gold/20 text-goldfinch-gold">
-                <Check size={12} strokeWidth={3} />
-              </span>
-              {point}
-            </span>
-          {/each}
-        </div>
-      </div>
-    </div>
-  </section>
+  <FinalCtaSection
+    eyebrow="Start Your Journey"
+    title={cms('final_cta', 'title', 'Ready to plan your private Tanzania safari?')}
+    subtitle={cms('final_cta', 'subtitle', 'Talk to a local expert in Arusha and travel with confidence — no payment needed to start planning.')}
+    primaryLabel={cms('final_cta', 'button_text', 'Plan My Safari')}
+    primaryHref={cms('final_cta', 'button_url', '/plan-my-trip')}
+    secondaryLabel="Talk to a Safari Advisor"
+    secondaryHref="/contact"
+    imageUrl={ctaImageResolved}
+    videoUrl={ctaVideo}
+    imagePosition={ctaPosition}
+    points={['Local experts', 'No payment to plan', 'Honest, tailored advice']}
+    overlayColor={ctaOverlayColor}
+    overlayOpacity={ctaOverlayOpacity}
+    overlayGradient={ctaOverlayGradient}
+  />
 {/if}
 
 {#if partnersActive}

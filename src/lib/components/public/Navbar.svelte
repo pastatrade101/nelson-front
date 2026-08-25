@@ -7,10 +7,10 @@
   import { fade, fly } from 'svelte/transition';
   import MegaMenu from './MegaMenu.svelte';
   import CurrencySelector from './CurrencySelector.svelte';
+  import WhatsAppCta from './WhatsAppCta.svelte';
   import { api } from '$lib/api/client';
   import { openAiAdvisor } from '$lib/aiAdvisor';
   import { openEnquiry } from '$lib/enquiry';
-  import { trackEvent } from '$lib/analytics';
   import { navbarEntrance } from '$lib/animations';
   import { brand } from '$lib/brand';
   import { branding } from '$lib/branding';
@@ -425,9 +425,7 @@
 
     <div class="flex items-center gap-2">
       <CurrencySelector compact />
-      <a class="grid h-11 w-11 place-items-center rounded-full bg-[#25D366] text-white shadow-sm" href={waHref} target="_blank" rel="noopener noreferrer" aria-label={waButtonText} on:click={() => trackEvent('whatsapp_click')}>
-        <MessageCircle size={20} strokeWidth={2.6} />
-      </a>
+      <WhatsAppCta variant="icon" message={waMessage} context="navbar" ariaLabel={waButtonText} />
     </div>
   </div>
 
@@ -571,13 +569,13 @@
               <ArrowDownToLine size={18} strokeWidth={2.6} /> Install app
             </button>
           {/if}
-          <a class="flex items-center gap-3 rounded-2xl bg-[#25D366]/10 px-4 py-3" href={waHref} target="_blank" rel="noopener noreferrer" on:click={() => { trackEvent('whatsapp_click'); menuOpen = false; }}>
+          <WhatsAppCta variant="ghost" message={waMessage} context="navbar_menu" className="flex items-center gap-3 rounded-2xl bg-[#25D366]/10 px-4 py-3" on:click={() => (menuOpen = false)}>
             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#25D366] text-white"><MessageCircle size={20} strokeWidth={2.6} /></span>
             <span class="grid leading-tight">
               <span class="text-xs font-medium text-ink/70">{waButtonText}</span>
               <span class="text-[15px] font-bold text-ink">{waNumber}</span>
             </span>
-          </a>
+          </WhatsAppCta>
         </div>
       </aside>
     </div>

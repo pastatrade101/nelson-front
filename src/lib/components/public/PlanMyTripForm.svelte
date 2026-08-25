@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { get } from 'svelte/store';
-  import { AlertCircle, CheckCircle2, Copy, MapPin, MessageCircle, Scale, ShieldCheck } from '@lucide/svelte';
+  import { AlertCircle, CheckCircle2, Copy, MapPin, Scale, ShieldCheck } from '@lucide/svelte';
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
@@ -11,6 +11,7 @@
   import Button from './Button.svelte';
   import CountrySelect from './CountrySelect.svelte';
   import SpecialistCard from './SpecialistCard.svelte';
+  import WhatsAppCta from './WhatsAppCta.svelte';
 
   $: bookCallUrl = settingText($publicSettings, 'booking_call_url');
 
@@ -75,7 +76,6 @@
 
   // WhatsApp handoff — carry the submitted request into a prefilled chat so the
   // guest can continue on the same details.
-  $: waDigits = (settingText($publicSettings, 'whatsapp_number') || '+255 700 000 000').replace(/[^0-9]/g, '');
   $: waText = [
     "Hi Emnel Adventures, I've just submitted a trip request and would like to continue here.",
     bookingCode ? `Reference: ${bookingCode}` : '',
@@ -90,7 +90,6 @@
   ]
     .filter(Boolean)
     .join('\n');
-  $: waHref = `https://wa.me/${waDigits}?text=${encodeURIComponent(waText)}`;
 
   const inputBase = 'w-full rounded-md border bg-surface px-3 py-3 text-sm text-ink outline-none transition focus:ring-2';
   $: cls = (field: string) =>
@@ -400,15 +399,12 @@
         </a>
       {/if}
       <div class="grid gap-3">
-        <a
-          href={waHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          on:click={() => trackEvent('whatsapp_click')}
-          class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#20bd5a]"
-        >
-          <MessageCircle size={18} /> Continue on WhatsApp
-        </a>
+        <WhatsAppCta
+          message={waText}
+          label="Continue on WhatsApp"
+          context="plan_my_trip_success"
+          className="w-full"
+        />
         <Button type="button" variant="secondary" on:click={resetForm}>Start another request</Button>
       </div>
     </div>

@@ -3,6 +3,7 @@
   import { trackEvent } from '$lib/analytics';
   import { brand } from '$lib/brand';
   import { publicSettings, settingText } from '$lib/settings';
+  import WhatsAppCta from './WhatsAppCta.svelte';
 
   // Same social keys the footer uses — shown only when an admin has set the URL.
   const SOCIAL = [
@@ -21,8 +22,6 @@
   $: waMessage =
     settingText(s, 'whatsapp_default_message') ||
     'Hello Emnel Adventures, I would like help planning a private Tanzania safari.';
-  $: waDigits = waNumber.replace(/[^0-9]/g, '');
-  $: waHref = `https://wa.me/${waDigits}?text=${encodeURIComponent(waMessage)}`;
   $: waButtonText = settingText(s, 'whatsapp_button_text') || brand.whatsappCta;
 
   $: contactEmail = settingText(s, 'contact_email') || 'hello@emneladventures.com';
@@ -36,13 +35,12 @@
 
 <div class="grid gap-4">
   <!-- Primary channel: WhatsApp -->
-  <a
-    href={waHref}
-    target="_blank"
-    rel="noopener noreferrer"
-    on:click={() => trackEvent('whatsapp_click')}
-    class="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-[#25D366]/35 bg-[#25D366]/[0.07] p-5 shadow-soft transition hover:border-[#25D366]/60 hover:bg-[#25D366]/[0.12]"
-    aria-label={`${waButtonText} ${waNumber}`}
+  <WhatsAppCta
+    variant="ghost"
+    message={waMessage}
+    context="contact_channels"
+    ariaLabel={`${waButtonText} ${waNumber}`}
+    className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-[#25D366]/35 bg-[#25D366]/[0.07] p-5 shadow-soft transition hover:border-[#25D366]/60 hover:bg-[#25D366]/[0.12]"
   >
     <span class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-[#25D366] text-white shadow-[0_10px_26px_rgba(37,211,102,0.38)] ring-8 ring-[#25D366]/10">
       <MessageCircle size={26} strokeWidth={2.4} />
@@ -53,7 +51,7 @@
       <span class="block truncate text-sm text-ink/60">{waNumber} — talk to a real safari specialist</span>
     </span>
     <ArrowRight size={20} strokeWidth={2.6} class="shrink-0 text-[#25D366] transition group-hover:translate-x-0.5" />
-  </a>
+  </WhatsAppCta>
 
   <!-- Email + Phone -->
   <div class="grid gap-4 sm:grid-cols-2">

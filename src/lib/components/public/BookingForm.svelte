@@ -1,13 +1,13 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { AlertCircle, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronDown, Copy, MapPin, MessageCircle, ShieldCheck } from '@lucide/svelte';
+  import { AlertCircle, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronDown, Copy, MapPin, ShieldCheck } from '@lucide/svelte';
   import { slide } from 'svelte/transition';
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
-  import { publicSettings, settingText } from '$lib/settings';
   import Button from './Button.svelte';
   import CountrySelect from './CountrySelect.svelte';
+  import WhatsAppCta from './WhatsAppCta.svelte';
   import type { Tour } from '$lib/types';
 
   export let tour: Tour | null = null;
@@ -101,7 +101,6 @@
   const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   // WhatsApp handoff — carry the submitted request into a prefilled chat.
-  $: waDigits = (settingText($publicSettings, 'whatsapp_number') || '+255 700 000 000').replace(/[^0-9]/g, '');
   $: waText = [
     "Hi Emnel Adventures, I've just submitted a trip request and would like to continue here.",
     bookingCode ? `Reference: ${bookingCode}` : '',
@@ -116,7 +115,6 @@
   ]
     .filter(Boolean)
     .join('\n');
-  $: waHref = `https://wa.me/${waDigits}?text=${encodeURIComponent(waText)}`;
 
   const clearErr = (key: string) => {
     if (errors[key]) {
@@ -302,15 +300,13 @@
     {/if}
 
     <div class="grid gap-3">
-      <a
-        href={waHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        on:click={() => trackEvent('whatsapp_click', { tour_id: tour?.id })}
-        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#20bd5a]"
-      >
-        <MessageCircle size={18} /> Continue on WhatsApp
-      </a>
+      <WhatsAppCta
+        message={waText}
+        label="Continue on WhatsApp"
+        context="booking_form_success"
+        meta={{ tour_id: tour?.id }}
+        className="w-full"
+      />
       <Button type="button" variant="secondary" on:click={resetForm}>Submit another request</Button>
     </div>
   </div>

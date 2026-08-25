@@ -4,22 +4,31 @@
 
   // Mobile bottom CTA: a single, primary action (Plan My Safari). WhatsApp is NOT
   // duplicated here — it's permanently in the navbar — so the bottom area stays
-  // uncluttered. Hidden on admin routes (layout) and on the plan page itself.
-  $: onPlanPage = $page.url.pathname.startsWith('/plan-my-trip');
+  // uncluttered. Hidden on admin routes (layout) and on its own destination page.
+  //
+  // Configurable so a campaign / landing page can point the bar at its own
+  // destination and copy. The defaults reproduce the original behaviour exactly,
+  // so the global mount needs no change.
+  export let href = '/plan-my-trip';
+  export let label = 'Plan My Safari';
+  export let hideOn: string[] = ['/plan-my-trip'];
+
+  // Same startsWith semantics as before, now over every suppressed prefix.
+  $: suppressed = hideOn.some((p) => p && $page.url.pathname.startsWith(p));
 </script>
 
-{#if !onPlanPage}
+{#if !suppressed}
   <div
     class="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-surface/95 backdrop-blur lg:hidden"
     style="padding-bottom: env(safe-area-inset-bottom);"
   >
     <div class="px-3 py-2.5">
       <a
-        href="/plan-my-trip"
+        {href}
         class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-4 text-[15px] font-bold text-heading shadow-sm transition active:brightness-95"
       >
         <Sparkles size={18} strokeWidth={2.4} />
-        Plan My Safari
+        {label}
       </a>
     </div>
   </div>

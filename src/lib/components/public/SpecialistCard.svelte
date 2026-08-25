@@ -1,15 +1,15 @@
 <script lang="ts">
   import { MessageCircle } from '@lucide/svelte';
-  import { publicSettings, settingText } from '$lib/settings';
   import { thumbUrl } from '$lib/img';
   import type { Specialist } from '$lib/types';
+  import WhatsAppCta from './WhatsAppCta.svelte';
 
   export let specialist: Specialist;
   export let heading = 'Your trip specialist';
 
-  // Prefer the specialist's own WhatsApp number; fall back to the site number from settings.
-  $: waDigits = (specialist.whatsapp_number || settingText($publicSettings, 'whatsapp_number') || '+255 700 000 000').replace(/\D/g, '');
-  $: waHref = `https://wa.me/${waDigits}?text=${encodeURIComponent(`Hi ${specialist.name}, I'd like help planning a trip.`)}`;
+  // Prefer the specialist's own WhatsApp number; WhatsAppCta falls back to the
+  // site number from settings when the specialist has none.
+  $: waMessage = `Hi ${specialist.name}, I'd like help planning a trip.`;
   $: initials =
     specialist.name
       .split(/\s+/)
@@ -34,12 +34,13 @@
     </div>
   </div>
   {#if specialist.blurb}<p class="mt-3 text-sm leading-6 text-ink/65">{specialist.blurb}</p>{/if}
-  <a
-    class="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 text-sm font-bold text-white transition hover:brightness-105"
-    href={waHref}
-    target="_blank"
-    rel="noopener noreferrer"
+  <WhatsAppCta
+    variant="ghost"
+    className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 text-sm font-bold text-white transition hover:brightness-105"
+    message={waMessage}
+    number={specialist.whatsapp_number}
+    context="specialist_card"
   >
     <MessageCircle size={16} /> Message {firstName}
-  </a>
+  </WhatsAppCta>
 </div>

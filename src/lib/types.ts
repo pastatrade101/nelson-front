@@ -416,3 +416,121 @@ export type AdvisorPageContext = {
   destination_id?: string;
   departure_id?: string;
 };
+
+// ── Market landing pages (`market_pages`) ────────────────────────────────────
+// A template engine for Google Ads market pages ("Tanzania Safari from Dubai").
+// ONE public route — /safaris/[slug] — renders N pages from the database, so
+// marketing can launch a new market from the admin with no code deploy.
+//
+// `sections` is an ORDERED array of blocks. Every block carries a `type`, and
+// each field is optional because the admin saves partial blocks while editing:
+// the renderer draws only what is actually populated and skips a type it does
+// not know, so an older frontend never breaks on a newer block.
+
+export type MarketPageRelevanceBlock = {
+  type: 'relevance';
+  title?: string;
+  intro?: string;
+  items?: Array<{ label?: string; value?: string }>;
+};
+
+export type MarketPageBenefitsBlock = {
+  type: 'benefits';
+  title?: string;
+  items?: Array<{ title?: string; body?: string }>;
+};
+
+/** Real tours, referenced by id — never invented cards. */
+export type MarketPagePackagesBlock = {
+  type: 'packages';
+  title?: string;
+  intro?: string;
+  tour_ids?: string[];
+};
+
+export type MarketPageComparisonBlock = {
+  type: 'comparison';
+  title?: string;
+  /** Every header cell, INCLUDING the leading row-label column. */
+  columns?: string[];
+  rows?: Array<{ label?: string; cells?: string[] }>;
+};
+
+export type MarketPageInclusionsBlock = {
+  type: 'inclusions';
+  title?: string;
+  included?: string[];
+  excluded?: string[];
+};
+
+export type MarketPageProseBlock = {
+  type: 'prose';
+  title?: string;
+  /** Plain text or TipTap HTML — rendered through RichText. */
+  body?: string;
+};
+
+export type MarketPageFaqBlock = {
+  type: 'faq';
+  title?: string;
+  items?: Array<{ question?: string; answer?: string }>;
+};
+
+/** Pulls the site's real, published testimonials; hides itself when there are none. */
+export type MarketPageReviewsBlock = {
+  type: 'reviews';
+  title?: string;
+};
+
+export type MarketPageCtaBlock = {
+  type: 'cta';
+  title?: string;
+  subtitle?: string;
+  label?: string;
+  href?: string;
+  points?: string[];
+};
+
+export type MarketPageBlock =
+  | MarketPageRelevanceBlock
+  | MarketPageBenefitsBlock
+  | MarketPagePackagesBlock
+  | MarketPageComparisonBlock
+  | MarketPageInclusionsBlock
+  | MarketPageProseBlock
+  | MarketPageFaqBlock
+  | MarketPageReviewsBlock
+  | MarketPageCtaBlock;
+
+export type MarketPageBlockType = MarketPageBlock['type'];
+
+export type MarketPage = {
+  id: string;
+  /** e.g. 'tanzania-safari-from-dubai' → /safaris/tanzania-safari-from-dubai */
+  slug: string;
+  /** Admin list label, e.g. 'Dubai'. */
+  name: string;
+  /** 'AE' | 'GB' | 'US' … (nullable). */
+  market_code?: string | null;
+  currency: string;
+  hero_eyebrow?: string | null;
+  hero_title?: string | null;
+  hero_subtitle?: string | null;
+  hero_image_url?: string | null;
+  hero_cta_label?: string | null;
+  hero_cta_href?: string | null;
+  sections: MarketPageBlock[];
+  featured_tour_ids: string[];
+  meta_title?: string | null;
+  meta_description?: string | null;
+  og_image_url?: string | null;
+  /** Defaults to TRUE in the database — a market page is hidden from search until marketing opts in. */
+  noindex: boolean;
+  status?: 'draft' | 'published' | 'archived';
+  sort_order?: number;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+  created_by?: string | null;
+  updated_by?: string | null;
+};

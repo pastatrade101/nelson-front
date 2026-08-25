@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { ArrowLeft, ArrowRight, CheckCircle2, Check, Copy, MessageCircle, ShieldCheck, X } from '@lucide/svelte';
+  import { ArrowLeft, ArrowRight, CheckCircle2, Check, Copy, ShieldCheck, X } from '@lucide/svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
   import Button from './Button.svelte';
-  import { publicSettings, settingText } from '$lib/settings';
+  import WhatsAppCta from './WhatsAppCta.svelte';
 
   // ── options ────────────────────────────────────────────────────────────────
   const flexibilityOptions = ['Fixed', '± 3 days', 'About a week', 'Very flexible'];
@@ -60,7 +60,6 @@
   let bookingCode = '';
 
   // WhatsApp handoff — carry the submitted enquiry into a prefilled chat.
-  $: waDigits = (settingText($publicSettings, 'whatsapp_number') || '+255 700 000 000').replace(/[^0-9]/g, '');
   $: waText = [
     "Hi Emnel Adventures, I've just submitted a safari enquiry and would like to continue here.",
     bookingCode ? `Reference: ${bookingCode}` : '',
@@ -71,7 +70,6 @@
   ]
     .filter(Boolean)
     .join('\n');
-  $: waHref = `https://wa.me/${waDigits}?text=${encodeURIComponent(waText)}`;
   let errorMessage = '';
   let copied = false;
   let cardEl: HTMLDivElement;
@@ -261,15 +259,13 @@
         </div>
       {/if}
       <div class="grid gap-3">
-        <a
-          href={waHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          on:click={() => trackEvent('whatsapp_click')}
-          class="inline-flex h-11 items-center justify-center gap-2 bg-[#25D366] px-5 font-bold text-white transition hover:bg-[#20bd5a]"
-        >
-          <MessageCircle size={18} /> Continue on WhatsApp
-        </a>
+        <WhatsAppCta
+          variant="ghost"
+          message={waText}
+          label="Continue on WhatsApp"
+          context="begin_journey_success"
+          className="inline-flex h-11 items-center justify-center gap-2 bg-[#25D366] px-5 font-bold text-white transition hover:bg-[#20bd5a]"
+        />
         <div class="flex flex-col gap-3 sm:flex-row">
           <button type="button" class="inline-flex h-11 flex-1 items-center justify-center gap-2 bg-deep-green px-5 font-bold text-white transition hover:bg-forest" on:click={onClose}>Done</button>
           <a class="inline-flex h-11 flex-1 items-center justify-center gap-2 border border-ink/15 px-5 font-semibold text-ink transition hover:bg-sand" href="/blog" on:click={onClose}>Read the journal</a>

@@ -9,7 +9,6 @@
     Compass,
     MapPin,
     MessageCircle,
-    Minus,
     Mountain,
     Route,
     Sparkles,
@@ -33,6 +32,7 @@
   import BookingForm from '$lib/components/public/BookingForm.svelte';
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import EmailItineraryCapture from '$lib/components/public/EmailItineraryCapture.svelte';
+  import InclusionsGrid from '$lib/components/public/InclusionsGrid.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import RichText from '$lib/components/public/RichText.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
@@ -166,6 +166,9 @@
   $: itineraryDays = [...(tour?.itinerary_days ?? [])].sort((a, b) => (a.day_number ?? 0) - (b.day_number ?? 0));
   $: inclusions = [...(tour?.tour_inclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: exclusions = [...(tour?.tour_exclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  // InclusionsGrid is driven by plain strings; map the sorted records here.
+  $: inclusionTitles = inclusions.map((inc) => inc.title);
+  $: exclusionTitles = exclusions.map((exc) => exc.title);
   $: priceOptions = [...(tour?.tour_price_options ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
   $: galleryImages = [...(tour?.tour_images ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
@@ -611,38 +614,7 @@
         <section id="included" class="scroll-mt-32">
           <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> What is covered</span>
           <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">What's included</h2>
-          <div class="mt-8 grid gap-4 md:grid-cols-2">
-            <div class="border border-ink/10 bg-surface p-5">
-              <h3 class="font-serif text-[18px] font-light text-heading">Included</h3>
-              {#if inclusions.length}
-                <ul class="mt-5 grid gap-3.5">
-                  {#each inclusions as inc}
-                    <li class="flex gap-3 text-[14.5px] leading-6 text-heading">
-                      <Check size={17} class="mt-0.5 shrink-0 text-clay" strokeWidth={2.4} />
-                      {inc.title}
-                    </li>
-                  {/each}
-                </ul>
-              {:else}
-                <p class="mt-4 text-[14px] text-ink/55">Inclusions are confirmed with your final quote.</p>
-              {/if}
-            </div>
-            <div class="border border-ink/10 bg-savanna/45 p-5">
-              <h3 class="font-serif text-[18px] font-light text-heading">Not included</h3>
-              {#if exclusions.length}
-                <ul class="mt-5 grid gap-3.5">
-                  {#each exclusions as exc}
-                    <li class="flex gap-3 text-[14.5px] leading-6 text-ink/70">
-                      <Minus size={17} class="mt-0.5 shrink-0 text-ink/40" strokeWidth={2.4} />
-                      {exc.title}
-                    </li>
-                  {/each}
-                </ul>
-              {:else}
-                <p class="mt-4 text-[14px] text-ink/55">Ask us what falls outside the quoted price.</p>
-              {/if}
-            </div>
-          </div>
+          <InclusionsGrid included={inclusionTitles} excluded={exclusionTitles} />
         </section>
       {/if}
 
