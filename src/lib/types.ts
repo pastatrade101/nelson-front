@@ -440,12 +440,48 @@ export type MarketPageBenefitsBlock = {
   items?: Array<{ title?: string; body?: string }>;
 };
 
+/**
+ * Per-package presentation overrides an admin typed in for ONE tour on ONE
+ * market page. Every field is optional and blank means "fall back to the tour's
+ * own data, or render nothing" — never a placeholder.
+ */
+export type MarketPackageOverride = {
+  /** Card kicker, e.g. "Short Escape" / "Wildlife Focus" / "Signature". */
+  kicker?: string;
+  /** Route stops, e.g. ["Tarangire","Ngorongoro","Lake Manyara","Zanzibar"]. */
+  route_stops?: string[];
+  safari_nights?: number;
+  zanzibar_nights?: number;
+  /** Written "Best for" line; overrides the persona_tags-derived one. */
+  best_for?: string;
+  /** Card image override; falls back to the tour's own image. */
+  image_url?: string;
+  cta_label?: string;
+  cta_href?: string;
+  /** Real per-person prices the admin typed: '2'…'7' → price. */
+  pax_pricing?: Record<string, number>;
+};
+
 /** Real tours, referenced by id — never invented cards. */
 export type MarketPagePackagesBlock = {
   type: 'packages';
+  eyebrow?: string;
   title?: string;
   intro?: string;
   tour_ids?: string[];
+  /** One of `tour_ids` — rendered with the flagship treatment. */
+  flagship_tour_id?: string;
+  /**
+   * OPTIONAL real per-person prices an admin typed in, keyed
+   * `tour id → party size ('2'…'7') → price`. Absent (or blank) means the card
+   * shows the tour's own `price_from` — an example price is never invented here.
+   */
+  pax_pricing?: Record<string, Record<string, number>>;
+  /**
+   * Per-card presentation overrides, keyed by TOUR ID. Each field wins over
+   * exactly one piece of the tour's own data and changes nothing else.
+   */
+  overrides?: Record<string, MarketPackageOverride>;
 };
 
 export type MarketPageComparisonBlock = {
@@ -454,6 +490,78 @@ export type MarketPageComparisonBlock = {
   /** Every header cell, INCLUDING the leading row-label column. */
   columns?: string[];
   rows?: Array<{ label?: string; cells?: string[] }>;
+  /**
+   * With no explicit `rows`, the table is derived from these tours (falling back
+   * to the page's featured tours): one column per tour, one row per field that
+   * at least one of them actually stores.
+   */
+  tour_ids?: string[];
+};
+
+/** Short reassurance line-up under the hero — labels only, no invented figures. */
+export type MarketPageTrustBlock = {
+  type: 'trust';
+  items?: Array<{ label?: string }>;
+};
+
+export type MarketPageNumberedBlock = {
+  type: 'numbered';
+  eyebrow?: string;
+  title?: string;
+  items?: Array<{ title?: string; body?: string }>;
+  /** Preferred column count for the grid (the component clamps it). */
+  columns?: number;
+};
+
+/** A route/circuit told as an ordered list of stops, plus optional side notes. */
+export type MarketPageRouteBlock = {
+  type: 'route';
+  eyebrow?: string;
+  title?: string;
+  intro?: string;
+  stops?: string[];
+  notes?: Array<{ title?: string; body?: string }>;
+};
+
+/** Comfort tiers described in the admin's own words (not derived from tours). */
+export type MarketPageTiersBlock = {
+  type: 'tiers';
+  eyebrow?: string;
+  title?: string;
+  intro?: string;
+  tiers?: Array<{ label?: string; title?: string; body?: string; image_url?: string }>;
+};
+
+export type MarketPagePanelsBlock = {
+  type: 'panels';
+  eyebrow?: string;
+  title?: string;
+  panels?: Array<{ title?: string; items?: string[]; image_url?: string }>;
+};
+
+export type MarketPageImageGridBlock = {
+  type: 'imagegrid';
+  eyebrow?: string;
+  title?: string;
+  images?: Array<{ image_url?: string; caption?: string }>;
+};
+
+export type MarketPageStepsBlock = {
+  type: 'steps';
+  eyebrow?: string;
+  title?: string;
+  steps?: Array<{ title?: string; body?: string }>;
+  cta_label?: string;
+  cta_href?: string;
+};
+
+export type MarketPageSeasonBlock = {
+  type: 'season';
+  eyebrow?: string;
+  title?: string;
+  intro?: string;
+  seasons?: Array<{ months?: string; label?: string; body?: string }>;
+  note?: string;
 };
 
 export type MarketPageInclusionsBlock = {
@@ -500,7 +608,15 @@ export type MarketPageBlock =
   | MarketPageProseBlock
   | MarketPageFaqBlock
   | MarketPageReviewsBlock
-  | MarketPageCtaBlock;
+  | MarketPageCtaBlock
+  | MarketPageTrustBlock
+  | MarketPageNumberedBlock
+  | MarketPageRouteBlock
+  | MarketPageTiersBlock
+  | MarketPagePanelsBlock
+  | MarketPageImageGridBlock
+  | MarketPageStepsBlock
+  | MarketPageSeasonBlock;
 
 export type MarketPageBlockType = MarketPageBlock['type'];
 

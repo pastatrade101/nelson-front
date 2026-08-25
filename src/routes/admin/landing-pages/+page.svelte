@@ -50,35 +50,97 @@
   // The stored JSON is exactly what the contract defines (one shape per type).
   // Editing uses a single superset object so every field binds cleanly; the
   // per-type `serializeBlock` below writes back only that type's keys.
-  type Item = { label: string; value: string; title: string; body: string; question: string; answer: string };
+  // One superset item covers every repeater on the screen: a fact (label/value),
+  // a benefit or step (title/body), a question, a tier card, a split panel
+  // (title + `lines` + image) a gallery tile (image + caption) and a season
+  // (months/label/body). Only the fields a block type uses are ever serialized.
+  type Item = {
+    label: string;
+    value: string;
+    title: string;
+    body: string;
+    question: string;
+    answer: string;
+    months: string;
+    caption: string;
+    image_url: string;
+    lines: string[];
+  };
   type CompareRow = { label: string; cells: string[] };
   type Block = {
     type: string;
+    eyebrow: string;
     title: string;
     intro: string;
     body: string;
     subtitle: string;
     label: string;
     href: string;
+    note: string;
+    /** 'numbered' — stored as a number, edited as a select. */
+    column_count: string;
+    /** 'steps' — closing button. */
+    cta_label: string;
+    cta_href: string;
     items: Item[];
     columns: string[];
     rows: CompareRow[];
     included: string[];
     excluded: string[];
     points: string[];
+    stops: string[];
     tour_ids: string[];
+    /** 'packages' — which of `tour_ids` gets the flagship treatment. */
+    flagship_tour_id: string;
+    /**
+     * 'packages' — OPTIONAL real prices, one row per tour slot in `tour_ids`,
+     * columns in PAX_SIZES order. Everything is a string so an untouched field
+     * stays genuinely EMPTY: a blank is never turned into an example price.
+     */
+    pax_rows: string[][];
+    /**
+     * 'packages' — OPTIONAL per-tour copy the tours schema cannot hold (kicker,
+     * route stops, nights split, best-for line, card image, CTA). One row per
+     * tour slot. Every field is a string so an untouched box stays genuinely
+     * EMPTY, and an empty box means "fall back to the tour's own data".
+     */
+    override_rows: OverrideRow[];
     // A block type this editor doesn't know (e.g. added later by another release)
     // is round-tripped untouched instead of being silently dropped on save.
     raw: Record<string, unknown>;
   };
-  type StringListKey = 'included' | 'excluded' | 'points' | 'tour_ids' | 'columns';
+  type StringListKey = 'included' | 'excluded' | 'points' | 'tour_ids' | 'columns' | 'stops';
+
+  /** Draft shape of one tour slot's per-package overrides (all strings; blank = unset). */
+  type OverrideRow = {
+    kicker: string;
+    /** One stop per line in the textarea; serialised to string[]. */
+    route_stops: string;
+    safari_nights: string;
+    zanzibar_nights: string;
+    best_for: string;
+    image_url: string;
+    cta_label: string;
+    cta_href: string;
+  };
+
+  /** Party sizes offered by the optional per-tour price grid. */
+  const PAX_SIZES = [2, 3, 4, 5, 6, 7];
 
   const BLOCK_TYPES: Array<{ hint: string; label: string; value: string }> = [
     { value: 'relevance', label: 'Market relevance', hint: 'Flights, visas, seasons — the facts that make this page genuinely market-specific.' },
+    { value: 'trust', label: 'Trust strip', hint: 'A short row of reassurance labels under the hero. Type only what is actually true.' },
     { value: 'benefits', label: 'Benefits', hint: 'Short reasons to book — a heading plus a line of body copy each.' },
-    { value: 'packages', label: 'Packages (tours)', hint: 'Feature existing tours. The cards render live tour data — nothing is retyped here.' },
-    { value: 'comparison', label: 'Comparison table', hint: 'Name the columns, then add one row per line item.' },
+    { value: 'numbered', label: 'Numbered grid', hint: 'Numbered points in a grid — a heading plus a line of body copy each.' },
+    { value: 'packages', label: 'Packages (tours)', hint: 'Feature existing tours. The cards render live tour data; per-party prices are optional and only appear once you type real figures.' },
+    { value: 'comparison', label: 'Comparison table', hint: 'Type the columns and rows, or leave them empty to build the table from the tours below.' },
+    { value: 'route', label: 'Route flow', hint: 'The journey as an ordered list of stops, with optional notes beside it.' },
+    { value: 'tiers', label: 'Comfort tiers', hint: 'Essential / Classic / Luxury style cards, each with an optional image.' },
+    { value: 'panels', label: 'Split panels', hint: 'Side-by-side panels, each a heading, a list of lines and an optional image.' },
     { value: 'inclusions', label: 'Included / excluded', hint: 'Two plain lists shown side by side.' },
+    { value: 'imagegrid', label: 'Image grid', hint: 'A gallery of real uploaded images. A caption without an image is not shown.' },
+    { value: 'season', label: 'Season strip', hint: 'Months, a short label and a line of detail per season.' },
+    { value: 'steps', label: 'How it works (steps)', hint: 'Numbered steps, with an optional button at the end.' },
     { value: 'prose', label: 'Prose', hint: 'A heading and free paragraphs — leave a blank line between paragraphs.' },
     { value: 'faq', label: 'FAQ', hint: 'Question and answer pairs.' },
     { value: 'reviews', label: 'Reviews', hint: 'Pulls published reviews from the site — only the heading is set here.' },
@@ -169,7 +231,18 @@
   };
 
   // ── blocks: hydrate / serialize ───────────────────────────────────────────
-  const blankItem = (): Item => ({ label: '', value: '', title: '', body: '', question: '', answer: '' });
+  const blankItem = (): Item => ({
+    label: '',
+    value: '',
+    title: '',
+    body: '',
+    question: '',
+    answer: '',
+    months: '',
+    caption: '',
+    image_url: '',
+    lines: []
+  });
 
   const hydrateItem = (raw: unknown): Item => {
     const r = record(raw);
@@ -179,23 +252,93 @@
       title: str(r.title),
       body: str(r.body),
       question: str(r.question),
-      answer: str(r.answer)
+      answer: str(r.answer),
+      months: str(r.months),
+      caption: str(r.caption),
+      image_url: str(r.image_url),
+      // Split panels nest their own list of lines under `items`.
+      lines: strList(r.items)
     };
+  };
+
+  // Which stored key holds this type's repeater — they all edit as `items`.
+  const ITEMS_KEY: Record<string, string> = {
+    route: 'notes',
+    steps: 'steps',
+    tiers: 'tiers',
+    panels: 'panels',
+    imagegrid: 'images',
+    season: 'seasons'
+  };
+
+  const blankPaxRow = (): string[] => PAX_SIZES.map(() => '');
+
+  const blankOverrideRow = (): OverrideRow => ({
+    kicker: '',
+    route_stops: '',
+    safari_nights: '',
+    zanzibar_nights: '',
+    best_for: '',
+    image_url: '',
+    cta_label: '',
+    cta_href: ''
+  });
+
+  /** Stored `overrides` (tour id → override) back into one row per tour slot. */
+  const hydrateOverrideRows = (raw: unknown, tourIds: string[]): OverrideRow[] => {
+    const all = record(raw);
+    return tourIds.map((id) => {
+      const o = record(all[id]);
+      const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? String(v) : '');
+      return {
+        kicker: str(o.kicker),
+        route_stops: strList(o.route_stops).join('\n'),
+        safari_nights: num(o.safari_nights),
+        zanzibar_nights: num(o.zanzibar_nights),
+        best_for: str(o.best_for),
+        image_url: str(o.image_url),
+        cta_label: str(o.cta_label),
+        cta_href: str(o.cta_href)
+      };
+    });
+  };
+
+  /** Stored `pax_pricing` (tour id → pax → price) back into one row per tour slot. */
+  const hydratePaxRows = (raw: unknown, tourIds: string[]): string[][] => {
+    const pricing = record(raw);
+    return tourIds.map((id) => {
+      const forTour = record(pricing[id]);
+      return PAX_SIZES.map((size) => {
+        const price = forTour[String(size)];
+        return typeof price === 'number' && Number.isFinite(price) && price > 0 ? String(price) : '';
+      });
+    });
   };
 
   const hydrateBlock = (raw: unknown): Block => {
     const r = record(raw);
+    const type = str(r.type);
     const columns = strList(r.columns);
+    const tourIds = strList(r.tour_ids);
+    const rawItems = r[ITEMS_KEY[type] ?? 'items'];
+    const columnCount = typeof r.columns === 'number' ? String(r.columns) : '';
     return {
-      type: str(r.type),
+      type,
+      eyebrow: str(r.eyebrow),
       title: str(r.title),
       intro: str(r.intro),
       body: str(r.body),
       subtitle: str(r.subtitle),
       label: str(r.label),
       href: str(r.href),
-      items: Array.isArray(r.items) ? (r.items as unknown[]).map(hydrateItem) : [],
-      columns,
+      note: str(r.note),
+      column_count: columnCount || '3',
+      cta_label: str(r.cta_label),
+      cta_href: str(r.cta_href),
+      items: Array.isArray(rawItems) ? (rawItems as unknown[]).map(hydrateItem) : [],
+      // `columns` is a string list on a comparison table and a number on a
+      // numbered grid — only the table shape belongs in this field.
+      columns: type === 'numbered' ? [] : columns,
       rows: Array.isArray(r.rows)
         ? (r.rows as unknown[]).map((row) => {
             const rr = record(row);
@@ -206,7 +349,11 @@
       included: strList(r.included),
       excluded: strList(r.excluded),
       points: strList(r.points),
-      tour_ids: strList(r.tour_ids),
+      stops: strList(r.stops),
+      tour_ids: tourIds,
+      flagship_tour_id: str(r.flagship_tour_id),
+      pax_rows: hydratePaxRows(r.pax_pricing, tourIds),
+      override_rows: hydrateOverrideRows(r.overrides, tourIds),
       raw: r
     };
   };
@@ -214,22 +361,32 @@
   const blankBlock = (type: string): Block => {
     const block: Block = {
       type,
+      eyebrow: '',
       title: '',
       intro: '',
       body: '',
       subtitle: '',
       label: '',
       href: '',
+      note: '',
+      column_count: '3',
+      cta_label: '',
+      cta_href: '',
       items: [],
       columns: [],
       rows: [],
       included: [],
       excluded: [],
       points: [],
+      stops: [],
       tour_ids: [],
+      flagship_tour_id: '',
+      pax_rows: [],
+      override_rows: [],
       raw: { type }
     };
-    if (type === 'relevance' || type === 'benefits' || type === 'faq') block.items = [blankItem()];
+    const startsWithOneItem = ['relevance', 'benefits', 'faq', 'trust', 'numbered', 'tiers', 'panels', 'imagegrid', 'steps', 'season'];
+    if (startsWithOneItem.includes(type)) block.items = [blankItem()];
     if (type === 'comparison') {
       block.columns = ['', ''];
       block.rows = [{ label: '', cells: ['', ''] }];
@@ -238,19 +395,87 @@
       block.included = [''];
       block.excluded = [''];
     }
-    if (type === 'packages') block.tour_ids = [''];
+    if (type === 'packages') {
+      block.tour_ids = [''];
+      block.pax_rows = [blankPaxRow()];
+      block.override_rows = [blankOverrideRow()];
+    }
+    if (type === 'route') {
+      block.stops = [''];
+      block.items = [blankItem()];
+    }
     if (type === 'cta') block.points = [''];
     return block;
   };
 
+  const cleanList = (values: string[]) => values.map((v) => v.trim()).filter(Boolean);
+  const titleBody = (items: Item[]) =>
+    items.map((i) => ({ title: i.title.trim(), body: i.body.trim() })).filter((i) => i.title || i.body);
+
+  /**
+   * The optional per-tour price grid. A field left blank is simply absent — no
+   * example figure is ever written — and a tour with nothing typed for it keeps
+   * showing its own "from" price on the public page.
+   */
+  /**
+   * Draft override rows → `overrides` keyed by tour id. A blank box is DELETED
+   * rather than saved as an empty string, so "blank" genuinely means "use the
+   * tour's own data"; a slot with nothing filled in is omitted entirely.
+   */
+  const serializeOverrides = (b: Block, slots: string[]): Record<string, Record<string, unknown>> => {
+    const out: Record<string, Record<string, unknown>> = {};
+    slots.forEach((tourId, slot) => {
+      if (!tourId) return;
+      const row = b.override_rows[slot];
+      if (!row) return;
+      const o: Record<string, unknown> = {};
+      const text = (v: string) => v.trim();
+      if (text(row.kicker)) o.kicker = text(row.kicker);
+      const stops = row.route_stops.split('\n').map((s) => s.trim()).filter(Boolean);
+      if (stops.length) o.route_stops = stops;
+      const nights = (v: string) => {
+        const n = Number(v.trim());
+        return v.trim() && Number.isFinite(n) && n > 0 ? n : null;
+      };
+      const safari = nights(row.safari_nights);
+      if (safari !== null) o.safari_nights = safari;
+      const zanzibar = nights(row.zanzibar_nights);
+      if (zanzibar !== null) o.zanzibar_nights = zanzibar;
+      if (text(row.best_for)) o.best_for = text(row.best_for);
+      if (text(row.image_url)) o.image_url = text(row.image_url);
+      if (text(row.cta_label)) o.cta_label = text(row.cta_label);
+      if (text(row.cta_href)) o.cta_href = text(row.cta_href);
+      if (Object.keys(o).length) out[tourId] = o;
+    });
+    return out;
+  };
+
+  const serializePaxPricing = (b: Block, tourIds: string[]): Record<string, Record<string, number>> => {
+    const pricing: Record<string, Record<string, number>> = {};
+    tourIds.forEach((id, slot) => {
+      if (!id) return;
+      const prices: Record<string, number> = {};
+      PAX_SIZES.forEach((size, column) => {
+        const raw = (b.pax_rows[slot]?.[column] ?? '').trim();
+        if (!raw) return;
+        const amount = Number(raw);
+        if (Number.isFinite(amount) && amount > 0) prices[String(size)] = amount;
+      });
+      if (Object.keys(prices).length) pricing[id] = prices;
+    });
+    return pricing;
+  };
+
   const serializeBlock = (b: Block): Record<string, unknown> => {
     const title = b.title.trim();
+    const eyebrow = b.eyebrow.trim();
+    const intro = b.intro.trim();
     switch (b.type) {
       case 'relevance':
         return {
           type: 'relevance',
           title,
-          intro: b.intro.trim(),
+          intro,
           items: b.items.map((i) => ({ label: i.label.trim(), value: i.value.trim() })).filter((i) => i.label || i.value)
         };
       case 'benefits':
@@ -259,8 +484,18 @@
           title,
           items: b.items.map((i) => ({ title: i.title.trim(), body: i.body.trim() })).filter((i) => i.title || i.body)
         };
-      case 'packages':
-        return { type: 'packages', title, intro: b.intro.trim(), tour_ids: b.tour_ids.map((t) => t.trim()).filter(Boolean) };
+      case 'packages': {
+        const slots = b.tour_ids.map((t) => t.trim());
+        const tourIds = slots.filter(Boolean);
+        const pricing = serializePaxPricing(b, slots);
+        const block: Record<string, unknown> = { type: 'packages', eyebrow, title, intro, tour_ids: tourIds };
+        // Both keys stay OFF the payload unless they carry real values.
+        if (b.flagship_tour_id && tourIds.includes(b.flagship_tour_id)) block.flagship_tour_id = b.flagship_tour_id;
+        if (Object.keys(pricing).length) block.pax_pricing = pricing;
+        const overrides = serializeOverrides(b, slots);
+        if (Object.keys(overrides).length) block.overrides = overrides;
+        return block;
+      }
       case 'comparison': {
         const columns = b.columns.map((c) => c.trim());
         return {
@@ -269,16 +504,12 @@
           columns,
           rows: b.rows
             .map((r) => ({ label: r.label.trim(), cells: columns.map((_, i) => (r.cells[i] ?? '').trim()) }))
-            .filter((r) => r.label || r.cells.some(Boolean))
+            .filter((r) => r.label || r.cells.some(Boolean)),
+          tour_ids: cleanList(b.tour_ids)
         };
       }
       case 'inclusions':
-        return {
-          type: 'inclusions',
-          title,
-          included: b.included.map((s) => s.trim()).filter(Boolean),
-          excluded: b.excluded.map((s) => s.trim()).filter(Boolean)
-        };
+        return { type: 'inclusions', title, included: cleanList(b.included), excluded: cleanList(b.excluded) };
       case 'prose':
         return { type: 'prose', title, body: b.body.trim() };
       case 'faq':
@@ -296,7 +527,73 @@
           subtitle: b.subtitle.trim(),
           label: b.label.trim(),
           href: b.href.trim(),
-          points: b.points.map((p) => p.trim()).filter(Boolean)
+          points: cleanList(b.points)
+        };
+      case 'trust':
+        return {
+          type: 'trust',
+          items: b.items.map((i) => ({ label: i.label.trim() })).filter((i) => i.label)
+        };
+      case 'numbered': {
+        const count = Number(b.column_count);
+        return {
+          type: 'numbered',
+          eyebrow,
+          title,
+          columns: Number.isFinite(count) && count > 0 ? count : 3,
+          items: titleBody(b.items)
+        };
+      }
+      case 'route':
+        return { type: 'route', eyebrow, title, intro, stops: cleanList(b.stops), notes: titleBody(b.items) };
+      case 'tiers':
+        return {
+          type: 'tiers',
+          eyebrow,
+          title,
+          intro,
+          tiers: b.items
+            .map((i) => ({ label: i.label.trim(), title: i.title.trim(), body: i.body.trim(), image_url: i.image_url.trim() }))
+            .filter((t) => t.label || t.title || t.body || t.image_url)
+        };
+      case 'panels':
+        return {
+          type: 'panels',
+          eyebrow,
+          title,
+          panels: b.items
+            .map((i) => ({ title: i.title.trim(), items: cleanList(i.lines), image_url: i.image_url.trim() }))
+            .filter((p) => p.title || p.items.length || p.image_url)
+        };
+      case 'imagegrid':
+        return {
+          type: 'imagegrid',
+          eyebrow,
+          title,
+          // A caption with no image is dropped — the public grid shows real images only.
+          images: b.items
+            .map((i) => ({ image_url: i.image_url.trim(), caption: i.caption.trim() }))
+            .filter((i) => i.image_url)
+        };
+      case 'steps':
+        return {
+          type: 'steps',
+          eyebrow,
+          title,
+          steps: titleBody(b.items),
+          cta_label: b.cta_label.trim(),
+          cta_href: b.cta_href.trim()
+        };
+      case 'season':
+        return {
+          type: 'season',
+          eyebrow,
+          title,
+          intro,
+          seasons: b.items
+            .map((i) => ({ months: i.months.trim(), label: i.label.trim(), body: i.body.trim() }))
+            .filter((s) => s.months || s.label || s.body),
+          note: b.note.trim()
         };
       default:
         return b.raw;
@@ -339,6 +636,52 @@
     blocks[i][key] = move(blocks[i][key], j, delta);
     blocks = blocks;
   };
+
+  // A split panel owns a nested list of lines.
+  const addLine = (i: number, j: number) => {
+    blocks[i].items[j].lines = [...blocks[i].items[j].lines, ''];
+    blocks = blocks;
+  };
+  const removeLine = (i: number, j: number, k: number) => {
+    blocks[i].items[j].lines = blocks[i].items[j].lines.filter((_, n) => n !== k);
+    blocks = blocks;
+  };
+  const moveLine = (i: number, j: number, k: number, delta: number) => {
+    blocks[i].items[j].lines = move(blocks[i].items[j].lines, k, delta);
+    blocks = blocks;
+  };
+
+  // A packages tour slot carries its own (optional) price row, so the two lists
+  // are always added, removed and reordered together.
+  const addTourSlot = (i: number) => {
+    blocks[i].tour_ids = [...blocks[i].tour_ids, ''];
+    blocks[i].pax_rows = [...blocks[i].pax_rows, blankPaxRow()];
+    blocks[i].override_rows = [...blocks[i].override_rows, blankOverrideRow()];
+    blocks = blocks;
+  };
+  const removeTourSlot = (i: number, j: number) => {
+    const removed = blocks[i].tour_ids[j];
+    blocks[i].tour_ids = blocks[i].tour_ids.filter((_, k) => k !== j);
+    blocks[i].pax_rows = blocks[i].pax_rows.filter((_, k) => k !== j);
+    blocks[i].override_rows = blocks[i].override_rows.filter((_, k) => k !== j);
+    if (removed && blocks[i].flagship_tour_id === removed) blocks[i].flagship_tour_id = '';
+    blocks = blocks;
+  };
+  const moveTourSlot = (i: number, j: number, delta: number) => {
+    if (j + delta < 0 || j + delta >= blocks[i].tour_ids.length) return;
+    blocks[i].tour_ids = move(blocks[i].tour_ids, j, delta);
+    blocks[i].pax_rows = move(blocks[i].pax_rows, j, delta);
+    blocks[i].override_rows = move(blocks[i].override_rows, j, delta);
+    blocks = blocks;
+  };
+  /** Only the tours actually chosen can be the flagship. */
+  const flagshipOptions = (block: Block, list: Array<{ id: string; title: string }>) => [
+    { label: 'No flagship', value: '' },
+    ...block.tour_ids
+      .map((id) => id.trim())
+      .filter(Boolean)
+      .map((id) => ({ value: id, label: list.find((t) => t.id === id)?.title ?? id }))
+  ];
 
   // Columns and row cells must stay the same length, so they change together.
   const addColumn = (i: number) => {
@@ -816,27 +1159,105 @@
               </div>
 
             {:else if block.type === 'packages'}
-              <AdminFormInput label="Title" name={`b${i}_title`} bind:value={block.title} placeholder="Safaris that fit a Dubai departure" />
+              <div class="grid gap-4 sm:grid-cols-2">
+                <AdminFormInput label="Eyebrow" name={`b${i}_eyebrow`} bind:value={block.eyebrow} placeholder="Our journeys" />
+                <AdminFormInput label="Title" name={`b${i}_title`} bind:value={block.title} placeholder="Safaris that fit a Dubai departure" />
+              </div>
               <AdminTextArea label="Intro" name={`b${i}_intro`} bind:value={block.intro} rows={2} />
               <div class="grid gap-3 border-t border-ink/10 pt-3">
                 <div class="flex items-center justify-between">
                   <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Tours</p>
-                  <AdminButton size="sm" variant="secondary" on:click={() => addString(i, 'tour_ids')}><Plus size={14} /> Add tour</AdminButton>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addTourSlot(i)}><Plus size={14} /> Add tour</AdminButton>
                 </div>
                 {#each block.tour_ids as _tourId, j}
-                  <div class="grid gap-3 border border-ink/10 bg-surface p-3 sm:grid-cols-[1fr_auto] sm:items-end">
-                    {#if tours.length}
-                      <AdminSelect label={`Tour ${j + 1}`} name={`b${i}_tour_${j}`} bind:value={block.tour_ids[j]} options={tourOptions} />
-                    {:else}
-                      <AdminFormInput label={`Tour ${j + 1} (ID)`} name={`b${i}_tour_${j}`} bind:value={block.tour_ids[j]} placeholder="Tour UUID" />
-                    {/if}
-                    <div class="flex gap-1 pb-1">
-                      <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveString(i, 'tour_ids', j, -1)}><ArrowUp size={14} /></AdminButton>
-                      <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveString(i, 'tour_ids', j, 1)}><ArrowDown size={14} /></AdminButton>
-                      <AdminButton size="sm" variant="danger" ariaLabel="Remove tour" on:click={() => removeString(i, 'tour_ids', j)}><Trash2 size={14} /></AdminButton>
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3">
+                    <div class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                      {#if tours.length}
+                        <AdminSelect label={`Tour ${j + 1}`} name={`b${i}_tour_${j}`} bind:value={block.tour_ids[j]} options={tourOptions} />
+                      {:else}
+                        <AdminFormInput label={`Tour ${j + 1} (ID)`} name={`b${i}_tour_${j}`} bind:value={block.tour_ids[j]} placeholder="Tour UUID" />
+                      {/if}
+                      <div class="flex gap-1 pb-1">
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveTourSlot(i, j, -1)}><ArrowUp size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveTourSlot(i, j, 1)}><ArrowDown size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="danger" ariaLabel="Remove tour" on:click={() => removeTourSlot(i, j)}><Trash2 size={14} /></AdminButton>
+                      </div>
                     </div>
+
+                    <!-- Per-package copy the tours schema cannot hold. Every box
+                         is optional: blank falls back to the tour's own data, so
+                         nothing here is ever invented on the visitor's behalf. -->
+                    {#if block.override_rows[j]}
+                      <details class="border border-dashed border-ink/15">
+                        <summary class="cursor-pointer list-none px-3 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">
+                          Card details for this package (optional)
+                        </summary>
+                        <div class="grid gap-3 border-t border-dashed border-ink/15 p-3">
+                          <div class="grid gap-3 sm:grid-cols-2">
+                            <AdminFormInput label="Kicker label" name={`b${i}_tour_${j}_kicker`} bind:value={block.override_rows[j].kicker} placeholder="e.g. Short Escape" />
+                            <AdminFormInput label="Best for" name={`b${i}_tour_${j}_bestfor`} bind:value={block.override_rows[j].best_for} placeholder="e.g. First-time visitors with limited time" />
+                          </div>
+                          <AdminTextArea
+                            label="Route stops — one per line"
+                            name={`b${i}_tour_${j}_route`}
+                            bind:value={block.override_rows[j].route_stops}
+                            rows={4}
+                          />
+                          <p class="-mt-1 text-xs text-ink/55">
+                            Shown as the route line on the card, and as a “Parks” row in the comparison table. Leave empty to use the tour's own
+                            start and end points.
+                          </p>
+                          <div class="grid gap-3 sm:grid-cols-2">
+                            <AdminFormInput label="Safari nights" name={`b${i}_tour_${j}_safnights`} type="number" bind:value={block.override_rows[j].safari_nights} />
+                            <AdminFormInput label="Zanzibar nights" name={`b${i}_tour_${j}_zannights`} type="number" bind:value={block.override_rows[j].zanzibar_nights} />
+                          </div>
+                          <MediaPicker label="Card image (optional)" uploadFolder="landing" bind:value={block.override_rows[j].image_url} />
+                          <p class="-mt-1 text-xs text-ink/55">Leave empty to use the tour's own photo.</p>
+                          <div class="grid gap-3 sm:grid-cols-2">
+                            <AdminFormInput label="Button label" name={`b${i}_tour_${j}_ctalabel`} bind:value={block.override_rows[j].cta_label} placeholder="View This Journey" />
+                            <AdminFormInput label="Button link" name={`b${i}_tour_${j}_ctahref`} bind:value={block.override_rows[j].cta_href} placeholder="Defaults to the tour page" />
+                          </div>
+                        </div>
+                      </details>
+                    {/if}
+
+                    <!-- Optional price grid. Blank means blank: the card keeps
+                         showing the tour's own "from" price. (Every slot has a
+                         row; the guard is belt-and-braces against odd data.) -->
+                    {#if block.pax_rows[j]}
+                    <div class="grid gap-2 border-t border-dashed border-ink/15 pt-3">
+                      <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Price per person by party size (optional)</p>
+                      <p class="text-xs leading-5 text-ink/55">
+                        Only fill these in with real, quoted figures — they are shown to visitors exactly as typed. Leave every box
+                        empty and this card simply shows the tour's normal “from” price instead.
+                      </p>
+                      <div class="grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+                        {#each PAX_SIZES as pax, p}
+                          <AdminFormInput
+                            label={`${pax} guests`}
+                            name={`b${i}_tour_${j}_pax_${pax}`}
+                            type="number"
+                            bind:value={block.pax_rows[j][p]}
+                            placeholder=""
+                          />
+                        {/each}
+                      </div>
+                    </div>
+                    {/if}
                   </div>
                 {/each}
+
+                {#if block.tour_ids.filter(Boolean).length}
+                  <div class="grid gap-2 border border-ink/10 bg-surface p-3">
+                    <AdminSelect
+                      label="Flagship tour (highlighted card)"
+                      name={`b${i}_flagship`}
+                      bind:value={block.flagship_tour_id}
+                      options={flagshipOptions(block, tours)}
+                    />
+                    <p class="text-xs text-ink/55">The flagship card gets the gold border. Leave it on “No flagship” to treat every tour equally.</p>
+                  </div>
+                {/if}
               </div>
 
             {:else if block.type === 'comparison'}
@@ -880,6 +1301,32 @@
                           bind:value={row.cells[c]}
                         />
                       {/each}
+                    </div>
+                  </div>
+                {/each}
+
+                <!-- With no rows typed above, the table is built from the tour
+                     records themselves — only from fields they actually store. -->
+                <div class="mt-1 flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Or compare these tours</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addString(i, 'tour_ids')}><Plus size={14} /> Add tour</AdminButton>
+                </div>
+                <p class="text-xs leading-5 text-ink/55">
+                  Leave the rows above empty and the table is generated from these tours — duration, nights, comfort level, group
+                  size and “from” price, using whatever each tour actually has. Pick no tours here and it uses the page's featured
+                  tours. Nothing is invented: a detail the tours don't store gets no row.
+                </p>
+                {#each block.tour_ids as _tourId, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                    {#if tours.length}
+                      <AdminSelect label={`Tour ${j + 1}`} name={`b${i}_cmp_tour_${j}`} bind:value={block.tour_ids[j]} options={tourOptions} />
+                    {:else}
+                      <AdminFormInput label={`Tour ${j + 1} (ID)`} name={`b${i}_cmp_tour_${j}`} bind:value={block.tour_ids[j]} placeholder="Tour UUID" />
+                    {/if}
+                    <div class="flex gap-1 pb-1">
+                      <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveString(i, 'tour_ids', j, -1)}><ArrowUp size={14} /></AdminButton>
+                      <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveString(i, 'tour_ids', j, 1)}><ArrowDown size={14} /></AdminButton>
+                      <AdminButton size="sm" variant="danger" ariaLabel="Remove tour" on:click={() => removeString(i, 'tour_ids', j)}><Trash2 size={14} /></AdminButton>
                     </div>
                   </div>
                 {/each}
@@ -977,6 +1424,263 @@
                     </div>
                   </div>
                 {/each}
+              </div>
+
+            {:else if block.type === 'trust'}
+              <p class="text-xs text-ink/55">
+                One short line each — the guarantees you can actually stand behind. An empty label is dropped.
+              </p>
+              <div class="grid gap-3 border-t border-ink/10 pt-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Labels</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addItem(i)}><Plus size={14} /> Add label</AdminButton>
+                </div>
+                {#each block.items as item, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                    <AdminFormInput label={`Label ${j + 1}`} name={`b${i}_i${j}_label`} bind:value={item.label} placeholder="Licensed Tanzanian operator" />
+                    <div class="flex gap-1 pb-1">
+                      <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveItem(i, j, -1)}><ArrowUp size={14} /></AdminButton>
+                      <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveItem(i, j, 1)}><ArrowDown size={14} /></AdminButton>
+                      <AdminButton size="sm" variant="danger" ariaLabel="Remove label" on:click={() => removeItem(i, j)}><Trash2 size={14} /></AdminButton>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+
+            {:else if block.type === 'numbered'}
+              <div class="grid gap-4 sm:grid-cols-[1fr_1fr_160px]">
+                <AdminFormInput label="Eyebrow" name={`b${i}_eyebrow`} bind:value={block.eyebrow} placeholder="Why us" />
+                <AdminFormInput label="Title" name={`b${i}_title`} bind:value={block.title} />
+                <AdminSelect
+                  label="Columns"
+                  name={`b${i}_columns`}
+                  bind:value={block.column_count}
+                  options={[{ label: '2 across', value: '2' }, { label: '3 across', value: '3' }, { label: '4 across', value: '4' }]}
+                />
+              </div>
+              <div class="grid gap-3 border-t border-ink/10 pt-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Points</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addItem(i)}><Plus size={14} /> Add point</AdminButton>
+                </div>
+                {#each block.items as item, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold uppercase tracking-[0.14em] text-ink/50">{item.title || `Point ${j + 1}`}</span>
+                      <div class="flex gap-1">
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveItem(i, j, -1)}><ArrowUp size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveItem(i, j, 1)}><ArrowDown size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="danger" ariaLabel="Remove point" on:click={() => removeItem(i, j)}><Trash2 size={14} /></AdminButton>
+                      </div>
+                    </div>
+                    <AdminFormInput label="Heading" name={`b${i}_i${j}_title`} bind:value={item.title} />
+                    <AdminTextArea label="Body" name={`b${i}_i${j}_body`} bind:value={item.body} rows={2} />
+                  </div>
+                {/each}
+              </div>
+
+            {:else if block.type === 'route'}
+              <div class="grid gap-4 sm:grid-cols-2">
+                <AdminFormInput label="Eyebrow" name={`b${i}_eyebrow`} bind:value={block.eyebrow} placeholder="The route" />
+                <AdminFormInput label="Title" name={`b${i}_title`} bind:value={block.title} />
+              </div>
+              <AdminTextArea label="Intro" name={`b${i}_intro`} bind:value={block.intro} rows={2} />
+              <div class="grid gap-3 border-t border-ink/10 pt-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Stops (in order)</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addString(i, 'stops')}><Plus size={14} /> Add stop</AdminButton>
+                </div>
+                {#each block.stops as _stop, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                    <AdminFormInput label={`Stop ${j + 1}`} name={`b${i}_stop_${j}`} bind:value={block.stops[j]} placeholder="Arusha" />
+                    <div class="flex gap-1 pb-1">
+                      <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveString(i, 'stops', j, -1)}><ArrowUp size={14} /></AdminButton>
+                      <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveString(i, 'stops', j, 1)}><ArrowDown size={14} /></AdminButton>
+                      <AdminButton size="sm" variant="danger" ariaLabel="Remove stop" on:click={() => removeString(i, 'stops', j)}><Trash2 size={14} /></AdminButton>
+                    </div>
+                  </div>
+                {/each}
+
+                <div class="mt-1 flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Notes (optional)</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addItem(i)}><Plus size={14} /> Add note</AdminButton>
+                </div>
+                {#each block.items as item, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold uppercase tracking-[0.14em] text-ink/50">{item.title || `Note ${j + 1}`}</span>
+                      <div class="flex gap-1">
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveItem(i, j, -1)}><ArrowUp size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveItem(i, j, 1)}><ArrowDown size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="danger" ariaLabel="Remove note" on:click={() => removeItem(i, j)}><Trash2 size={14} /></AdminButton>
+                      </div>
+                    </div>
+                    <AdminFormInput label="Heading" name={`b${i}_i${j}_title`} bind:value={item.title} />
+                    <AdminTextArea label="Body" name={`b${i}_i${j}_body`} bind:value={item.body} rows={2} />
+                  </div>
+                {/each}
+              </div>
+
+            {:else if block.type === 'tiers'}
+              <div class="grid gap-4 sm:grid-cols-2">
+                <AdminFormInput label="Eyebrow" name={`b${i}_eyebrow`} bind:value={block.eyebrow} placeholder="Comfort levels" />
+                <AdminFormInput label="Title" name={`b${i}_title`} bind:value={block.title} />
+              </div>
+              <AdminTextArea label="Intro" name={`b${i}_intro`} bind:value={block.intro} rows={2} />
+              <div class="grid gap-3 border-t border-ink/10 pt-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Tiers</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addItem(i)}><Plus size={14} /> Add tier</AdminButton>
+                </div>
+                {#each block.items as item, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold uppercase tracking-[0.14em] text-ink/50">{item.title || item.label || `Tier ${j + 1}`}</span>
+                      <div class="flex gap-1">
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveItem(i, j, -1)}><ArrowUp size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveItem(i, j, 1)}><ArrowDown size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="danger" ariaLabel="Remove tier" on:click={() => removeItem(i, j)}><Trash2 size={14} /></AdminButton>
+                      </div>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                      <AdminFormInput label="Label" name={`b${i}_i${j}_label`} bind:value={item.label} placeholder="Classic" />
+                      <AdminFormInput label="Heading" name={`b${i}_i${j}_title`} bind:value={item.title} />
+                    </div>
+                    <AdminTextArea label="Body" name={`b${i}_i${j}_body`} bind:value={item.body} rows={2} />
+                    <MediaPicker label="Image (optional)" uploadFolder="landing" bind:value={item.image_url} />
+                  </div>
+                {/each}
+              </div>
+
+            {:else if block.type === 'panels'}
+              <div class="grid gap-4 sm:grid-cols-2">
+                <AdminFormInput label="Eyebrow" name={`b${i}_eyebrow`} bind:value={block.eyebrow} />
+                <AdminFormInput label="Title" name={`b${i}_title`} bind:value={block.title} />
+              </div>
+              <div class="grid gap-3 border-t border-ink/10 pt-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Panels</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addItem(i)}><Plus size={14} /> Add panel</AdminButton>
+                </div>
+                {#each block.items as item, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold uppercase tracking-[0.14em] text-ink/50">{item.title || `Panel ${j + 1}`}</span>
+                      <div class="flex gap-1">
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveItem(i, j, -1)}><ArrowUp size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveItem(i, j, 1)}><ArrowDown size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="danger" ariaLabel="Remove panel" on:click={() => removeItem(i, j)}><Trash2 size={14} /></AdminButton>
+                      </div>
+                    </div>
+                    <AdminFormInput label="Panel heading" name={`b${i}_i${j}_title`} bind:value={item.title} />
+                    <div class="grid gap-2">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[13px] font-semibold text-ink/65">Lines</span>
+                        <AdminButton size="sm" variant="secondary" on:click={() => addLine(i, j)}><Plus size={14} /> Add line</AdminButton>
+                      </div>
+                      {#each item.lines as _line, k}
+                        <div class="grid gap-3 border border-ink/10 bg-sand/25 p-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                          <AdminFormInput label={`Line ${k + 1}`} name={`b${i}_i${j}_line_${k}`} bind:value={item.lines[k]} />
+                          <div class="flex gap-1 pb-1">
+                            <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveLine(i, j, k, -1)}><ArrowUp size={14} /></AdminButton>
+                            <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveLine(i, j, k, 1)}><ArrowDown size={14} /></AdminButton>
+                            <AdminButton size="sm" variant="danger" ariaLabel="Remove line" on:click={() => removeLine(i, j, k)}><Trash2 size={14} /></AdminButton>
+                          </div>
+                        </div>
+                      {/each}
+                    </div>
+                    <MediaPicker label="Panel image (optional)" uploadFolder="landing" bind:value={item.image_url} />
+                  </div>
+                {/each}
+              </div>
+
+            {:else if block.type === 'imagegrid'}
+              <div class="grid gap-4 sm:grid-cols-2">
+                <AdminFormInput label="Eyebrow" name={`b${i}_eyebrow`} bind:value={block.eyebrow} />
+                <AdminFormInput label="Title" name={`b${i}_title`} bind:value={block.title} />
+              </div>
+              <div class="grid gap-3 border-t border-ink/10 pt-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Images</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addItem(i)}><Plus size={14} /> Add image</AdminButton>
+                </div>
+                <p class="text-xs text-ink/55">A tile with no image is not shown — captions never appear on their own.</p>
+                {#each block.items as item, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold uppercase tracking-[0.14em] text-ink/50">{item.caption || `Image ${j + 1}`}</span>
+                      <div class="flex gap-1">
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveItem(i, j, -1)}><ArrowUp size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveItem(i, j, 1)}><ArrowDown size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="danger" ariaLabel="Remove image" on:click={() => removeItem(i, j)}><Trash2 size={14} /></AdminButton>
+                      </div>
+                    </div>
+                    <MediaPicker label="Image" uploadFolder="landing" bind:value={item.image_url} />
+                    <AdminFormInput label="Caption (optional)" name={`b${i}_i${j}_caption`} bind:value={item.caption} />
+                  </div>
+                {/each}
+              </div>
+
+            {:else if block.type === 'steps'}
+              <div class="grid gap-4 sm:grid-cols-2">
+                <AdminFormInput label="Eyebrow" name={`b${i}_eyebrow`} bind:value={block.eyebrow} placeholder="How it works" />
+                <AdminFormInput label="Title" name={`b${i}_title`} bind:value={block.title} />
+              </div>
+              <div class="grid gap-3 border-t border-ink/10 pt-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Steps</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addItem(i)}><Plus size={14} /> Add step</AdminButton>
+                </div>
+                {#each block.items as item, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold uppercase tracking-[0.14em] text-ink/50">{item.title || `Step ${j + 1}`}</span>
+                      <div class="flex gap-1">
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveItem(i, j, -1)}><ArrowUp size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveItem(i, j, 1)}><ArrowDown size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="danger" ariaLabel="Remove step" on:click={() => removeItem(i, j)}><Trash2 size={14} /></AdminButton>
+                      </div>
+                    </div>
+                    <AdminFormInput label="Heading" name={`b${i}_i${j}_title`} bind:value={item.title} />
+                    <AdminTextArea label="Body" name={`b${i}_i${j}_body`} bind:value={item.body} rows={2} />
+                  </div>
+                {/each}
+                <div class="grid gap-4 border-t border-ink/10 pt-3 sm:grid-cols-2">
+                  <AdminFormInput label="Button label (optional)" name={`b${i}_cta_label`} bind:value={block.cta_label} placeholder="Plan my safari" />
+                  <AdminFormInput label="Button link (optional)" name={`b${i}_cta_href`} bind:value={block.cta_href} placeholder="/plan-my-trip" />
+                </div>
+                <p class="text-xs text-ink/55">The button only appears when both a label and a link are set.</p>
+              </div>
+
+            {:else if block.type === 'season'}
+              <div class="grid gap-4 sm:grid-cols-2">
+                <AdminFormInput label="Eyebrow" name={`b${i}_eyebrow`} bind:value={block.eyebrow} placeholder="When to go" />
+                <AdminFormInput label="Title" name={`b${i}_title`} bind:value={block.title} />
+              </div>
+              <AdminTextArea label="Intro" name={`b${i}_intro`} bind:value={block.intro} rows={2} />
+              <div class="grid gap-3 border-t border-ink/10 pt-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Seasons</p>
+                  <AdminButton size="sm" variant="secondary" on:click={() => addItem(i)}><Plus size={14} /> Add season</AdminButton>
+                </div>
+                {#each block.items as item, j}
+                  <div class="grid gap-3 border border-ink/10 bg-surface p-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold uppercase tracking-[0.14em] text-ink/50">{item.months || item.label || `Season ${j + 1}`}</span>
+                      <div class="flex gap-1">
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move up" on:click={() => moveItem(i, j, -1)}><ArrowUp size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="ghost" ariaLabel="Move down" on:click={() => moveItem(i, j, 1)}><ArrowDown size={14} /></AdminButton>
+                        <AdminButton size="sm" variant="danger" ariaLabel="Remove season" on:click={() => removeItem(i, j)}><Trash2 size={14} /></AdminButton>
+                      </div>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                      <AdminFormInput label="Months" name={`b${i}_i${j}_months`} bind:value={item.months} placeholder="Jun – Oct" />
+                      <AdminFormInput label="Label" name={`b${i}_i${j}_label`} bind:value={item.label} placeholder="Dry season" />
+                    </div>
+                    <AdminTextArea label="Detail" name={`b${i}_i${j}_body`} bind:value={item.body} rows={2} />
+                  </div>
+                {/each}
+                <AdminTextArea label="Footnote (optional)" name={`b${i}_note`} bind:value={block.note} rows={2} />
               </div>
 
             {:else}
