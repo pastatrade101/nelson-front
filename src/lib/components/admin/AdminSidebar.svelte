@@ -12,6 +12,7 @@
     ClipboardList,
     Compass,
     GitCompare,
+    Globe,
     Heart,
     CreditCard,
     FolderTree,
@@ -101,7 +102,8 @@
         { href: '/admin/travel-styles', label: 'Travel Styles', icon: Heart },
         { href: '/admin/comparisons', label: 'Comparisons', icon: GitCompare },
         { href: '/admin/homepage', label: 'Homepage', icon: Home },
-        { href: '/admin/about', label: 'About Page', icon: LayoutTemplate }
+        { href: '/admin/about', label: 'About Page', icon: LayoutTemplate },
+        { href: '/admin/landing-pages', label: 'Landing Pages', icon: Globe }
       ]
     },
     {

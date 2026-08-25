@@ -460,6 +460,18 @@ export const api = {
     updateSection: (id: string, body: Record<string, unknown>) => apiRequest(`/homepage/sections/${id}`, { method: 'PUT', body }),
     removeSection: (id: string) => apiRequest(`/homepage/sections/${id}`, { method: 'DELETE' })
   },
+  // Google Ads market landing pages. `list` returns a bare array (published,
+  // non-deleted, sort_order) — pass { all: true } to include every status for
+  // the admin list. `get` takes the SLUG and 404s when the page is missing.
+  marketPages: {
+    // The backend list goes through the shared listRecords helper, so it returns
+    // the house { items, pagination } envelope — not a bare array.
+    list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<MarketPage>>(`/market-pages${queryString(params)}`),
+    get: (slug: string) => apiRequest<MarketPage>(`/market-pages/${slug}`),
+    create: (body: Record<string, unknown>) => apiRequest<MarketPage>('/market-pages', { method: 'POST', body }),
+    update: (id: string, body: Record<string, unknown>) => apiRequest<MarketPage>(`/market-pages/${id}`, { method: 'PUT', body }),
+    remove: (id: string) => apiRequest(`/market-pages/${id}`, { method: 'DELETE' })
+  },
   contact: {
     create: (body: Record<string, unknown>) => apiRequest('/contact', { method: 'POST', body }),
     messages: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Record<string, unknown>>>(`/contact/messages${queryString(params)}`),

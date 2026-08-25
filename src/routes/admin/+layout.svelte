@@ -25,6 +25,7 @@
     '/admin/faqs': 'FAQs',
     '/admin/homepage': 'Homepage',
     '/admin/about': 'About Page',
+    '/admin/landing-pages': 'Landing Pages',
     '/admin/messages': 'Messages',
     '/admin/branding': 'Branding',
     '/admin/settings': 'Settings',
