@@ -1,4 +1,15 @@
 <script lang="ts">
+  /**
+   * Country hubs to link, and whether the Safari Essentials hub has anything in
+   * it. Both come from the root layout and are data-derived, so a new country or
+   * the first published guide appears here without a code change — and neither
+   * links to an empty page.
+   */
+  export let countries: string[] = [];
+  export let essentialsLive = false;
+
+  const countryHref = (country: string) => `/${country.toLowerCase().replace(/\s+/g, '-')}-safaris`;
+
   import { Mail, Phone } from '@lucide/svelte';
   import { trackEvent } from '$lib/analytics';
   import { brand } from '$lib/brand';
@@ -81,12 +92,18 @@
       <p class="text-sm font-semibold">Safaris</p>
       <div class="mt-3 grid gap-2 text-sm text-white/70">
         <a class="w-fit transition hover:text-white" href="/tours">All Safaris</a>
+        {#each countries as country (country)}
+          <a class="w-fit transition hover:text-white" href={countryHref(country)}>{country} Safaris</a>
+        {/each}
         <a class="w-fit transition hover:text-white" href="/tours?category=great-migration">Great Migration</a>
         <a class="w-fit transition hover:text-white" href="/tours?category=family-safari">Family Safari</a>
         <a class="w-fit transition hover:text-white" href="/tours?category=honeymoon-safari">Honeymoon Safari</a>
         <a class="w-fit transition hover:text-white" href="/tours?category=photography-safari">Photography Safari</a>
         <a class="w-fit transition hover:text-white" href="/kilimanjaro">Kilimanjaro</a>
         <a class="w-fit transition hover:text-white" href="/destinations">Destinations</a>
+        {#if essentialsLive}
+          <a class="w-fit transition hover:text-white" href="/safari-essentials">Safari Essentials</a>
+        {/if}
         <a class="w-fit transition hover:text-white" href="/plan-my-trip">Tailor-Made</a>
       </div>
     </div>

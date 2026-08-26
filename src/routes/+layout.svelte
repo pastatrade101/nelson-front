@@ -171,7 +171,7 @@
   >
     Skip to content
   </a>
-  <Navbar />
+  <Navbar essentialsLive={data.essentialsLive ?? false} countries={data.countries ?? []} />
 {/if}
 
 <main id="main-content">
@@ -179,7 +179,7 @@
 </main>
 
 {#if !isAdmin}
-  <Footer />
+  <Footer countries={data.countries ?? []} essentialsLive={data.essentialsLive ?? false} />
   <ShortlistFab />
   <ConsentBanner />
   <EnquiryModal />

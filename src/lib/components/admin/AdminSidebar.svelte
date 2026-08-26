@@ -3,6 +3,7 @@
   import { onMount, type Component } from 'svelte';
   import { slide } from 'svelte/transition';
   import {
+	BookOpen,
 	Bot,
 	CalendarDays,
 	ChartColumnBig,
@@ -95,6 +96,7 @@
       label: 'Content Management',
       links: [
         { href: '/admin/blog', label: 'Blog', icon: Newspaper, exact: true },
+        { href: '/admin/safari-essentials', label: 'Safari Essentials', icon: BookOpen },
         { href: '/admin/blog/categories', label: 'Blog Categories', icon: FolderTree },
         { href: '/admin/gallery', label: 'Gallery', icon: Images },
         { href: '/admin/media', label: 'Media Library', icon: Image },

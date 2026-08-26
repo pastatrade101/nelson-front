@@ -139,14 +139,20 @@
 
   // Emnel primary nav. Tours, Destinations, Accommodation & Safari Styles each
   // open a rich mega-menu; the rest are plain links.
-  const NAV: NavItem[] = [
+  // `essentialsLive` comes from the root layout: the Safari Essentials hub is
+  // only linked once at least one guide is published, so the nav never points at
+  // an empty page. It appears by itself when the first guide goes live.
+  export let essentialsLive = false;
+
+  $: NAV = [
     { href: '/', label: 'Home' },
     { href: '/tours', label: 'Tours & Safaris', dropdown: 'tours' },
     { href: '/destinations', label: 'Destinations', dropdown: 'destinations' },
     { href: '/accommodation', label: 'Accommodation', dropdown: 'accommodation' },
     { href: '/safari-styles', label: 'Safari Styles', dropdown: 'safari-styles' },
+    ...(essentialsLive ? [{ href: '/safari-essentials', label: 'Safari Essentials' }] : []),
     { href: '/about', label: 'About' }
-  ];
+  ] as NavItem[];
 
   // Sub-links for the mobile accordion, per dropdown (label + href only are read).
   $: mobileSubLinks = {
@@ -169,7 +175,20 @@
     .slice(0, 8)
     .map((c) => ({ label: c.label, href: c.href, icon: catIcon(c.label), subtitle: c.subtitle }));
   $: browseStyles = categories.map((c) => ({ label: c.label, href: c.href, icon: catIcon(c.label) }));
-  $: browseDestinations = destinations.map((d) => ({ label: d.label, href: d.href, icon: catIcon(d.label) }));
+  // Country hubs sit at the head of the destinations menu, above the individual
+  // parks, so the menu reads country -> park. With one live country that is a
+  // single extra row; it is what makes the shape country-aware rather than
+  // Tanzania-shaped, so adding Kenya changes the data, not this component.
+  export let countries: string[] = [];
+  $: countryHubs = countries.map((c) => ({
+    label: `${c} Safaris`,
+    href: `/${c.toLowerCase().replace(/\s+/g, '-')}-safaris`,
+    icon: catIcon(c)
+  }));
+  $: browseDestinations = [
+    ...countryHubs,
+    ...destinations.map((d) => ({ label: d.label, href: d.href, icon: catIcon(d.label) }))
+  ];
   // Featured safari-style cards: category name + description (verbatim) over a
   // photo borrowed from that style's representative real tour; skip styles with
   // no real-image tour so no card is ever imageless/fabricated.

@@ -40,12 +40,21 @@ export const STATIC_PAGES: string[] = [
 
 // DB-backed collections, one sub-sitemap each. Adding a new content type is a
 // single entry here — its sub-sitemap and its slot in the index follow.
-export const DB_COLLECTIONS: { key: string; prefix: string; endpoint: string }[] = [
+// `hubPath` is the collection's own landing page. It is emitted ONLY when the
+// collection has published items, so an empty hub is never advertised to Google
+// as a real page — the thin-page trap the site map's principle 9 warns about.
+export const DB_COLLECTIONS: { key: string; prefix: string; endpoint: string; hubPath?: string }[] = [
   { key: 'tours', prefix: '/tours', endpoint: '/tours?status=published&limit=50000' },
   { key: 'destinations', prefix: '/destinations', endpoint: '/destinations?limit=50000' },
   { key: 'experiences', prefix: '/experiences', endpoint: '/categories?limit=50000' },
   { key: 'accommodation', prefix: '/accommodation', endpoint: '/lodges?limit=50000' },
-  { key: 'blog', prefix: '/blog', endpoint: '/blog?status=published&limit=50000' }
+  { key: 'blog', prefix: '/blog', endpoint: '/blog?status=published&limit=50000' },
+  {
+    key: 'safari-essentials',
+    prefix: '/safari-essentials',
+    endpoint: '/safari-essentials?status=published&limit=50000',
+    hubPath: '/safari-essentials'
+  }
 ];
 
 // Static-data collections (bundled at build; always available, no API needed).
@@ -54,9 +63,19 @@ export const LOCAL_COLLECTIONS: { key: string; prefix: string; items: ReadonlyAr
   { key: 'compare', prefix: '/compare', items: COMPARISONS }
 ];
 
+// Country hubs (/tanzania-safaris, later /kenya-safaris). Not a DB_COLLECTION
+// because the source returns country names rather than slugged records, and a
+// hub only exists for a country we actually sell — see the handler.
+export const COUNTRY_HUB_KEY = 'country-hubs';
+
+/** `Tanzania` -> `/tanzania-safaris`; `South Africa` -> `/south-africa-safaris`. */
+export const countryHubPath = (country: string): string =>
+  `/${country.trim().toLowerCase().replace(/\s+/g, '-')}-safaris`;
+
 // Every sub-sitemap the index advertises (order = index order).
 export const SITEMAP_KEYS: string[] = [
   'pages',
+  COUNTRY_HUB_KEY,
   ...DB_COLLECTIONS.map((c) => c.key),
   ...LOCAL_COLLECTIONS.map((c) => c.key)
 ];
@@ -101,9 +120,13 @@ export const collectDb = async (
     for (const it of items as Record<string, unknown>[]) {
       const slug = it?.slug;
       const status = it?.status;
-      // Only published/active records with a real slug (excludes drafts/noindex).
+      // Only published/active records with a real slug (excludes drafts).
       if (typeof slug !== 'string' || !slug) continue;
       if (status != null && status !== 'published' && status !== 'active') continue;
+      // A record the editor marked noindex must not be advertised here — the
+      // sitemap would be asking Google to crawl a page whose own meta tag tells
+      // it not to. No-op for collections without the column.
+      if (it?.noindex === true) continue;
       const path = `${prefix}/${slug}`;
       if (seen.has(path)) continue; // no duplicate URLs
       seen.add(path);

@@ -19,6 +19,7 @@
     '/admin/whatsapp': 'WhatsApp Inbox',
     '/admin/payments': 'Payments',
     '/admin/blog': 'Blog',
+    '/admin/safari-essentials': 'Safari Essentials',
     '/admin/blog/categories': 'Blog Categories',
     '/admin/gallery': 'Gallery',
     '/admin/media': 'Media Library',

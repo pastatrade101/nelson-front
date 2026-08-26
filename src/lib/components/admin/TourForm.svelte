@@ -64,6 +64,7 @@
     category_id: '',
     currency: 'USD',
     destination_id: '',
+    countries: 'Tanzania',
     difficulty_level: '',
     duration_days: '1',
     duration_nights: '0',
@@ -192,6 +193,7 @@
         category_id: String(tour.category_id ?? ''),
         currency: String(tour.currency ?? 'USD'),
         destination_id: String(tour.destination_id ?? ''),
+        countries: (Array.isArray(tour.countries) ? (tour.countries as string[]) : ['Tanzania']).join(', '),
         difficulty_level: String(tour.difficulty_level ?? ''),
         duration_days: String(tour.duration_days ?? '1'),
         duration_nights: String(tour.duration_nights ?? '0'),
@@ -232,6 +234,10 @@
     category_id: form.category_id || null,
     currency: String(form.currency ?? '').trim().toUpperCase() || 'USD',
     destination_id: form.destination_id || null,
+    countries: (() => {
+      const list = [...new Set(form.countries.split(',').map((c) => c.trim()).filter(Boolean))];
+      return list.length ? list : ['Tanzania'];
+    })(),
     difficulty_level: form.difficulty_level || null,
     duration_days: Number(form.duration_days || 1),
     duration_nights: Number(form.duration_nights || 0),
@@ -336,6 +342,20 @@
           <AdminSelect label="Status" name="status" bind:value={form.status} options={statusOptions} />
           <AdminSelect label="Destination" name="destination_id" bind:value={form.destination_id} options={destinationOptions} />
           <AdminSelect label="Category" name="category_id" bind:value={form.category_id} options={categoryOptions} />
+        </div>
+
+        <div class="mt-4 grid gap-4">
+          <AdminFormInput
+            label="Countries visited"
+            name="countries"
+            bind:value={form.countries}
+            placeholder="Tanzania"
+          />
+          <p class="-mt-2 text-xs text-ink/55">
+            Comma-separated. A trip that crosses borders lists each country — e.g.
+            <code class="font-mono">Kenya, Tanzania</code> — so it appears under every country hub it
+            visits. Typing a new country here is enough; it does not need a destination first.
+          </p>
         </div>
 
         <div class="mt-4 grid gap-4">

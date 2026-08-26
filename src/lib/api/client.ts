@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { API_URL } from '$lib/config/env';
 import type { CurrencyApiState } from '$lib/types';
-import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, Lodge, MarketPage, Paginated, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
+import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, Lodge, MarketPage, Paginated, SafariEssential, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
 
 type QueryValue = string | number | boolean | undefined | null;
 type RequestOptions = Omit<RequestInit, 'body'> & {
@@ -411,6 +411,16 @@ export const api = {
     create: (body: Record<string, unknown>) => apiRequest<BlogPost>('/blog', { method: 'POST', body }),
     update: (id: string, body: Record<string, unknown>) => apiRequest<BlogPost>(`/blog/${id}`, { method: 'PUT', body }),
     remove: (id: string) => apiRequest(`/blog/${id}`, { method: 'DELETE' })
+  },
+  safariEssentials: {
+    list: (params?: Record<string, QueryValue>) =>
+      apiRequest<Paginated<SafariEssential>>(`/safari-essentials${queryString(params)}`),
+    get: (slug: string) => apiRequest<SafariEssential>(`/safari-essentials/${slug}`),
+    create: (body: Record<string, unknown>) =>
+      apiRequest<SafariEssential>('/safari-essentials', { method: 'POST', body }),
+    update: (id: string, body: Record<string, unknown>) =>
+      apiRequest<SafariEssential>(`/safari-essentials/${id}`, { method: 'PUT', body }),
+    remove: (id: string) => apiRequest(`/safari-essentials/${id}`, { method: 'DELETE' })
   },
   blogCategories: {
     list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Record<string, unknown>>>(`/blog-categories${queryString(params)}`),

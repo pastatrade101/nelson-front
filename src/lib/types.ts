@@ -330,6 +330,32 @@ export type BlogPost = {
   author_name?: string;
 };
 
+/**
+ * An evergreen Safari Essentials guide (/safari-essentials/[slug]).
+ *
+ * Distinct from BlogPost: these are rewritten in place rather than superseded,
+ * ordered editorially by sort_order rather than by date, and scoped by `country`
+ * so a Kenya hub needs no schema change.
+ */
+export type SafariEssential = {
+  id: string;
+  title: string;
+  slug: string;
+  summary?: string;
+  content?: string;
+  hero_image_url?: string;
+  topic?: string;
+  country?: string;
+  meta_title?: string;
+  meta_description?: string;
+  og_image_url?: string;
+  noindex?: boolean;
+  status?: string;
+  sort_order?: number;
+  updated_at?: string;
+  created_at?: string;
+};
+
 export type Testimonial = {
   id: string;
   client_name: string;
