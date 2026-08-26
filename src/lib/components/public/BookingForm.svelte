@@ -5,10 +5,16 @@
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
+  import { currency } from '$lib/currency';
+  import { newIdempotencyKey } from '$lib/idempotency';
+
   import Button from './Button.svelte';
   import CountrySelect from './CountrySelect.svelte';
   import WhatsAppCta from './WhatsAppCta.svelte';
   import type { Tour } from '$lib/types';
+
+  // One key per attempt: retries and double-taps resolve to the same booking.
+  let idempotencyKey = newIdempotencyKey();
 
   export let tour: Tour | null = null;
 
@@ -220,6 +226,8 @@
     submitting = true;
     try {
       const res = await api.bookings.create({
+        idempotency_key: idempotencyKey,
+        selected_currency: $currency.selectedCurrency,
         tour_id: tour?.id ?? null,
         full_name: full_name.trim(),
         email: email.trim(),
@@ -261,6 +269,8 @@
     errors = {};
     errorMessage = '';
     step = 1;
+    // A genuinely new enquiry needs a new key, or it would dedupe into the last one.
+    idempotencyKey = newIdempotencyKey();
   };
 
   const copyCode = async () => {

@@ -6,11 +6,17 @@
   import { CheckCircle2 } from '@lucide/svelte';
   import { page } from '$app/stores';
   import { api } from '$lib/api/client';
+  import { currency } from '$lib/currency';
+  import { newIdempotencyKey } from '$lib/idempotency';
+
   import { trackEvent } from '$lib/analytics';
   import Button from './Button.svelte';
   import FormInput from './FormInput.svelte';
   import SelectInput from './SelectInput.svelte';
   import TextArea from './TextArea.svelte';
+
+  // One key per attempt: retries and double-taps resolve to the same booking.
+  let idempotencyKey = newIdempotencyKey();
 
   export let title = 'Plan your Tanzania safari';
   export let compact = false;
@@ -70,6 +76,8 @@
       if (budget_tier) lead_context.budget_range = budget_tier;
 
       await api.bookings.create({
+        idempotency_key: idempotencyKey,
+        selected_currency: $currency.selectedCurrency,
         full_name: full_name.trim(),
         email: email.trim(),
         message: message.trim() || null,

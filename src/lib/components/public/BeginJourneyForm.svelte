@@ -5,8 +5,14 @@
   import { goto } from '$app/navigation';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
+  import { currency } from '$lib/currency';
+  import { newIdempotencyKey } from '$lib/idempotency';
+
   import Button from './Button.svelte';
   import WhatsAppCta from './WhatsAppCta.svelte';
+
+  // One key per attempt: retries and double-taps resolve to the same booking.
+  let idempotencyKey = newIdempotencyKey();
 
   // ── options ────────────────────────────────────────────────────────────────
   const flexibilityOptions = ['Fixed', '± 3 days', 'About a week', 'Very flexible'];
@@ -190,6 +196,8 @@
     submitting = true;
     try {
       const res = await api.bookings.create({
+        idempotency_key: idempotencyKey,
+        selected_currency: $currency.selectedCurrency,
         full_name: first_name.trim(),
         email: email.trim(),
         phone: whatsapp.trim() || null,

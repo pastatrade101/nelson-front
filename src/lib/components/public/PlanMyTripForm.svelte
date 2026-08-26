@@ -5,6 +5,9 @@
   import { page } from '$app/stores';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
+  import { currency } from '$lib/currency';
+  import { newIdempotencyKey } from '$lib/idempotency';
+
   import type { Specialist } from '$lib/types';
   import { publicSettings, settingText } from '$lib/settings';
   import { shortlist } from '$lib/shortlist';
@@ -12,6 +15,9 @@
   import CountrySelect from './CountrySelect.svelte';
   import SpecialistCard from './SpecialistCard.svelte';
   import WhatsAppCta from './WhatsAppCta.svelte';
+
+  // One key per attempt: retries and double-taps resolve to the same booking.
+  let idempotencyKey = newIdempotencyKey();
 
   $: bookCallUrl = settingText($publicSettings, 'booking_call_url');
 
@@ -299,6 +305,8 @@
     submitting = true;
     try {
       const res = await api.bookings.create({
+        idempotency_key: idempotencyKey,
+        selected_currency: $currency.selectedCurrency,
         full_name: full_name.trim(),
         email: email.trim(),
         phone: phone.trim() || null,

@@ -1,6 +1,12 @@
 <script lang="ts">
   import { CheckCircle2, Mail, Send } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { currency } from '$lib/currency';
+  import { newIdempotencyKey } from '$lib/idempotency';
+
+  // One key per attempt: retries and double-taps resolve to the same booking.
+  let idempotencyKey = newIdempotencyKey();
+
 
   export let tourTitle = '';
 
@@ -29,6 +35,8 @@
     submitting = true;
     try {
       await api.bookings.create({
+        idempotency_key: idempotencyKey,
+        selected_currency: $currency.selectedCurrency,
         full_name: deriveName(email.trim()),
         email: email.trim(),
         source: 'email_itinerary',
