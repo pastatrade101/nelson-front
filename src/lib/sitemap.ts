@@ -54,6 +54,15 @@ export const DB_COLLECTIONS: { key: string; prefix: string; endpoint: string; hu
     prefix: '/safari-essentials',
     endpoint: '/safari-essentials?status=published&limit=50000',
     hubPath: '/safari-essentials'
+  },
+  {
+    // Ads landing pages. Only those an admin opted into search appear here —
+    // collectDb drops every noindex row — so the hub is advertised precisely
+    // when it has something Google is allowed to crawl.
+    key: 'market-pages',
+    prefix: '/safaris',
+    endpoint: '/market-pages?status=published&limit=50000',
+    hubPath: '/safaris'
   }
 ];
 

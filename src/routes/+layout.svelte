@@ -179,7 +179,11 @@
 </main>
 
 {#if !isAdmin}
-  <Footer countries={data.countries ?? []} essentialsLive={data.essentialsLive ?? false} />
+  <Footer
+    countries={data.countries ?? []}
+    essentialsLive={data.essentialsLive ?? false}
+    marketsLive={data.marketsLive ?? false}
+  />
   <ShortlistFab />
   <ConsentBanner />
   <EnquiryModal />

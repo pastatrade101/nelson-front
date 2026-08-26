@@ -47,8 +47,24 @@ const liveCountries = async (fetch: typeof globalThis.fetch): Promise<string[]> 
   }
 };
 
+/**
+ * Whether any market page is published, so the footer links the /safaris hub
+ * only when that hub is a real page. The hub itself 404s when empty, so an
+ * ungated link would eventually point at nothing.
+ */
+const hasMarketPages = async (fetch: typeof globalThis.fetch): Promise<boolean> => {
+  try {
+    const res = await fetch('/api/market-pages?status=published&limit=1');
+    if (!res.ok) return false;
+    const json = (await res.json()) as { data?: { items?: unknown[] } };
+    return (json?.data?.items?.length ?? 0) > 0;
+  } catch {
+    return false;
+  }
+};
+
 export const load: LayoutLoad = async ({ fetch }) => {
-  const [brandingResult, essentialsLive, countries] = await Promise.all([
+  const [brandingResult, essentialsLive, countries, marketsLive] = await Promise.all([
     (async () => {
       try {
         const res = await fetch('/api/branding');
@@ -60,8 +76,9 @@ export const load: LayoutLoad = async ({ fetch }) => {
       }
     })(),
     hasPublishedEssentials(fetch),
-    liveCountries(fetch)
+    liveCountries(fetch),
+    hasMarketPages(fetch)
   ]);
 
-  return { branding: brandingResult, essentialsLive, countries };
+  return { branding: brandingResult, essentialsLive, countries, marketsLive };
 };

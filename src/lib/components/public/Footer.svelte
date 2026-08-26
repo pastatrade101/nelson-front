@@ -7,6 +7,8 @@
    */
   export let countries: string[] = [];
   export let essentialsLive = false;
+  /** Whether the /safaris markets hub has anything published in it. */
+  export let marketsLive = false;
 
   const countryHref = (country: string) => `/${country.toLowerCase().replace(/\s+/g, '-')}-safaris`;
 
@@ -103,6 +105,9 @@
         <a class="w-fit transition hover:text-white" href="/destinations">Destinations</a>
         {#if essentialsLive}
           <a class="w-fit transition hover:text-white" href="/safari-essentials">Safari Essentials</a>
+        {/if}
+        {#if marketsLive}
+          <a class="w-fit transition hover:text-white" href="/safaris">Safaris by Departure</a>
         {/if}
         <a class="w-fit transition hover:text-white" href="/plan-my-trip">Tailor-Made</a>
       </div>
