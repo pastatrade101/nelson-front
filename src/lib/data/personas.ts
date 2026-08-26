@@ -7,7 +7,10 @@ export type Persona = {
   concerns: string[];
 };
 
-export const PERSONA_ORDER = ['family', 'couple', 'group', 'solo'] as const;
+// `honeymoon` was already the most-used tag in the catalogue (6 tours) and has
+// its own travel style, but was missing from the vocabulary — so the Honeymoon
+// style pointed at `couple` and the tag matched nothing.
+export const PERSONA_ORDER = ['family', 'couple', 'honeymoon', 'group', 'solo'] as const;
 export type PersonaKey = (typeof PERSONA_ORDER)[number];
 
 export const PERSONAS: Record<string, Persona> = {
@@ -28,6 +31,12 @@ export const PERSONAS: Record<string, Persona> = {
     headline: 'Group safaris for friends & celebrations',
     sub: 'Shared adventures with the logistics handled — one coordinated plan, fair group pricing, everyone looked after.',
     concerns: ['Group pricing & rooming', 'One coordinated itinerary', 'Mixed fitness levels', 'Celebration-ready']
+  },
+  honeymoon: {
+    label: 'Honeymooners',
+    headline: 'Honeymoon safaris & Zanzibar',
+    sub: 'A safari that feels like a celebration — private camps, unhurried mornings and barefoot beach time to finish.',
+    concerns: ['Privacy at camp', 'Safari paired with Zanzibar', 'Special-occasion touches', 'Unhurried, romantic pacing']
   },
   solo: {
     label: 'Solo travellers',

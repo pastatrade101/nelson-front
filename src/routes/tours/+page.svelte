@@ -96,10 +96,17 @@
       (selectedTiers.length === 0 || selectedTiers.includes(normTier(t.budget_tier))) &&
       (t.duration_days == null || (t.duration_days >= lengthLo && t.duration_days <= lengthHi)) &&
       ((t.price_from ?? 0) >= priceLo && (t.price_from ?? 0) <= priceHi) &&
-      (!popularOnly || Boolean(t.is_popular))
+      (!popularOnly || Boolean(t.is_popular)) &&
+      // A persona in the URL now narrows the list rather than just reordering it.
+      // It used to sort only, so arriving from a travel style showed the whole
+      // catalogue and the style link meant nothing. Falls back to showing
+      // everything when no tour carries the tag, which is more useful than an
+      // empty page while the catalogue is still being tagged.
+      (!persona || !personaHasMatches || (t.persona_tags ?? []).includes(persona))
   );
 
   const personaTags = (t: Tour) => t.persona_tags ?? [];
+  $: personaHasMatches = persona ? base.some((t) => personaTags(t).includes(persona)) : false;
   $: sorted = (() => {
     const r = [...result];
     if (sort === 'price_asc') return r.sort((a, b) => (a.price_from ?? 0) - (b.price_from ?? 0));

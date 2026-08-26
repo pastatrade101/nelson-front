@@ -4,6 +4,7 @@
   import { ArrowLeft, Save } from '@lucide/svelte';
   import { api } from '$lib/api/client';
   import { TIER_OPTIONS } from '$lib/tiers';
+  import { PERSONAS, PERSONA_ORDER } from '$lib/data/personas';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
   import AdminPageHeader from '$lib/components/admin/AdminPageHeader.svelte';
@@ -90,6 +91,20 @@
     status: 'draft' as PublishStatus,
     title: ''
   };
+
+  // persona_tags is stored as free text and has drifted (couple/couples,
+  // family/families). The checkboxes drive the canonical vocabulary; anything
+  // outside it is preserved rather than silently dropped on save, because those
+  // values are real data even when they are not personas.
+  $: allPersonaTags = (form.persona_tags ?? '').split(',').map((t) => t.trim()).filter(Boolean);
+  $: selectedPersonas = allPersonaTags.filter((t) => (PERSONA_ORDER as readonly string[]).includes(t));
+  $: extraPersonaTags = allPersonaTags.filter((t) => !(PERSONA_ORDER as readonly string[]).includes(t));
+
+  const togglePersona = (key: string) => {
+    const on = allPersonaTags.includes(key);
+    form.persona_tags = (on ? allPersonaTags.filter((t) => t !== key) : [...allPersonaTags, key]).join(', ');
+  };
+
 
   // Live context handed to the AI co-pilot so its drafts fit the trip.
   const aiContext = () => ({
@@ -404,7 +419,36 @@
         <div class="mt-5 grid gap-4 md:grid-cols-3">
           <AdminFormInput label="Experience type" name="experience_type" bind:value={form.experience_type} placeholder="safari, beach, trekking" />
           <AdminSelect label="Budget tier" name="budget_tier" bind:value={form.budget_tier} options={budgetTierOptions} />
-          <AdminFormInput label="Persona tags" name="persona_tags" bind:value={form.persona_tags} placeholder="family, luxury, adventure" />
+          <div class="grid gap-2">
+            <span class="text-[13px] font-semibold text-ink/65">Who this suits</span>
+            <div class="flex flex-wrap gap-2">
+              {#each PERSONA_ORDER as key (key)}
+                <label
+                  class="inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition {selectedPersonas.includes(key)
+                    ? 'border-forest bg-forest/10 text-forest'
+                    : 'border-ink/15 bg-surface text-ink/70 hover:border-ink/30'}"
+                >
+                  <input
+                    class="h-4 w-4 accent-forest"
+                    type="checkbox"
+                    checked={selectedPersonas.includes(key)}
+                    on:change={() => togglePersona(key)}
+                  />
+                  {PERSONAS[key].label}
+                </label>
+              {/each}
+            </div>
+            <p class="text-xs leading-5 text-ink/55">
+              Drives the “who is travelling” filter on /tours and the travel-style pages. A trip can
+              suit more than one.
+            </p>
+            {#if extraPersonaTags.length}
+              <p class="text-xs leading-5 text-ink/55">
+                Also tagged (older free-text values, kept as they are):
+                <span class="font-mono text-ink/70">{extraPersonaTags.join(', ')}</span>
+              </p>
+            {/if}
+          </div>
         </div>
 
         <div class="mt-4 grid gap-1.5">
