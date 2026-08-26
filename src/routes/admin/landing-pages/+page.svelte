@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { ArrowDown, ArrowUp, Edit, ExternalLink, Globe, Plus, Save, Search, Trash2 } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { assessMarketDifferentiation, type Assessment } from '$lib/marketDifferentiation';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -27,7 +28,6 @@
     slug: string;
     name: string;
     market_code?: string | null;
-    currency?: string | null;
     hero_eyebrow?: string | null;
     hero_title?: string | null;
     hero_subtitle?: string | null;
@@ -159,7 +159,6 @@
     name: '',
     slug: '',
     market_code: '',
-    currency: 'USD',
     hero_eyebrow: '',
     hero_title: '',
     hero_subtitle: '',
@@ -190,6 +189,43 @@
   let form = emptyForm();
   let blocks: Block[] = [];
   let featuredTourIds: string[] = [];
+
+  // ── Indexability guard ──────────────────────────────────────────────────────
+  // A market page is only worth indexing if it answers questions that are FALSE
+  // for other markets. The assessment runs whenever the editor turns noindex OFF;
+  // it never touches saving a noindex page, and never blocks outright — a weak
+  // result just has to be acknowledged first.
+  let ackWeak = false;
+
+  $: assessedPage = {
+    slug: form.slug,
+    name: form.name,
+    market_code: form.market_code,
+    hero_eyebrow: form.hero_eyebrow,
+    hero_title: form.hero_title,
+    hero_subtitle: form.hero_subtitle,
+    hero_cta_label: form.hero_cta_label,
+    meta_title: form.meta_title,
+    meta_description: form.meta_description,
+    featured_tour_ids: featuredTourIds,
+    sections: blocks.map(serializeBlock)
+  };
+
+  // Only pages that are already indexable compete with this one in search, so
+  // they are the only meaningful comparison set.
+  $: indexableRivals = rows.filter((r) => r.noindex === false && r.status === 'published' && r.id !== editingId);
+
+  $: assessment = form.noindex ? null : (assessMarketDifferentiation(assessedPage, indexableRivals) as Assessment);
+
+  // Any edit invalidates a previous acknowledgement — otherwise an editor could
+  // acknowledge a warning, then paste in a clone and save it unchallenged.
+  $: if (assessment?.verdict !== 'weak') ackWeak = false;
+  $: assessmentFingerprint = assessment ? `${assessment.verdict}|${assessment.gaps.join('|')}` : '';
+  let lastFingerprint = '';
+  $: if (assessmentFingerprint !== lastFingerprint) {
+    lastFingerprint = assessmentFingerprint;
+    ackWeak = false;
+  }
   let newBlockType = BLOCK_TYPES[0].value;
   let slugManuallyEdited = false;
   let baseline = '';
@@ -759,7 +795,6 @@
         name: page.name ?? '',
         slug: page.slug ?? '',
         market_code: page.market_code ?? '',
-        currency: page.currency ?? 'USD',
         hero_eyebrow: page.hero_eyebrow ?? '',
         hero_title: page.hero_title ?? '',
         hero_subtitle: page.hero_subtitle ?? '',
@@ -843,12 +878,19 @@
       return;
     }
 
+    // Going indexable with a weak assessment needs an explicit acknowledgement.
+    // Saving a noindex page is never obstructed — that is the whole point of the
+    // noindex default: unlimited ad pages, no SEO risk, no friction.
+    if (!form.noindex && assessment?.requiresAcknowledgement && !ackWeak) {
+      toast('This page looks too similar to an existing indexed page. Review the differentiation warning and confirm before making it indexable.', 'error');
+      return;
+    }
+
     const sort = Number(form.sort_order);
     const payload = {
       name,
       slug,
       market_code: form.market_code.trim().toUpperCase() || null,
-      currency: form.currency.trim().toUpperCase() || 'USD',
       hero_eyebrow: form.hero_eyebrow.trim() || null,
       hero_title: form.hero_title.trim() || null,
       hero_subtitle: form.hero_subtitle.trim() || null,
@@ -979,7 +1021,6 @@
                   </td>
                   <td class="px-4 py-4 text-ink/60">
                     {row.market_code || '-'}
-                    <span class="ml-1 text-xs text-ink/40">{row.currency || 'USD'}</span>
                   </td>
                   <td class="px-4 py-4 text-ink/60">{Array.isArray(row.sections) ? row.sections.length : '-'}</td>
                   <td class="px-4 py-4">
@@ -1044,9 +1085,15 @@
             />
           </label>
         </div>
-        <div class="grid gap-4 sm:grid-cols-4">
-          <AdminFormInput label="Market code" name="market_code" bind:value={form.market_code} placeholder="AE" />
-          <AdminFormInput label="Currency" name="currency" bind:value={form.currency} placeholder="USD" />
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div class="grid gap-1.5">
+            <AdminFormInput label="Market code" name="market_code" bind:value={form.market_code} placeholder="AE" />
+            <p class="text-xs leading-5 text-ink/55">
+              ISO country code for the departure market — AE, GB, US, DE, IN. The indexability
+              guard uses it to know which airports, holidays and place names count as
+              market-specific, so it is worth setting.
+            </p>
+          </div>
           <AdminSelect label="Status" name="status" bind:value={form.status} options={statusOptions} />
           <AdminFormInput label="Sort order" name="sort_order" type="number" bind:value={form.sort_order} />
         </div>
@@ -1751,6 +1798,67 @@
             </span>
           </label>
         </div>
+
+        <!-- Differentiation assessment: only shown when the page is going indexable. -->
+        {#if assessment}
+          {@const tone = assessment.verdict === 'strong'
+            ? 'border-forest/40 bg-forest/5'
+            : assessment.verdict === 'moderate'
+              ? 'border-goldfinch-gold/50 bg-goldfinch-gold/10'
+              : 'border-red-300 bg-red-50'}
+          <div class={`grid gap-3 border p-4 ${tone}`}>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-sm font-semibold text-ink">Market differentiation:</span>
+              <span
+                class="inline-flex rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 {assessment.verdict === 'strong'
+                  ? 'bg-forest/15 text-forest ring-forest/30'
+                  : assessment.verdict === 'moderate'
+                    ? 'bg-goldfinch-gold/20 text-heading ring-goldfinch-gold/30'
+                    : 'bg-red-100 text-red-800 ring-red-300'}"
+              >
+                {assessment.verdict}
+              </span>
+            </div>
+
+            {#if assessment.strengths.length}
+              <ul class="grid gap-1 text-xs leading-5 text-ink/75">
+                {#each assessment.strengths as line}
+                  <li class="flex gap-2"><span class="text-forest">✓</span><span>{line}</span></li>
+                {/each}
+              </ul>
+            {/if}
+
+            {#if assessment.gaps.length}
+              <ul class="grid gap-1 text-xs leading-5 text-ink/75">
+                {#each assessment.gaps as line}
+                  <li class="flex gap-2"><span class="text-red-600">•</span><span>{line}</span></li>
+                {/each}
+              </ul>
+            {/if}
+
+            {#if assessment.similar.length}
+              <p class="text-xs leading-5 text-ink/60">
+                Compared against {indexableRivals.length} indexed market page{indexableRivals.length === 1 ? '' : 's'};
+                closest match {Math.round(assessment.similar[0].overlap * 100)}% ({assessment.similar[0].name}).
+              </p>
+            {:else if indexableRivals.length}
+              <p class="text-xs leading-5 text-ink/60">
+                No substantial overlap with the {indexableRivals.length} page{indexableRivals.length === 1 ? '' : 's'} already indexed.
+              </p>
+            {/if}
+
+            {#if assessment.requiresAcknowledgement}
+              <label class="flex cursor-pointer items-start gap-3 border-t border-red-200 pt-3">
+                <input class="mt-0.5 h-4 w-4 accent-red-600" type="checkbox" bind:checked={ackWeak} />
+                <span class="text-xs leading-5 text-ink/80">
+                  I have reviewed this and want to make the page indexable anyway. Weak differentiation
+                  risks being treated as a doorway page, which can affect the whole domain — not just
+                  this URL.
+                </span>
+              </label>
+            {/if}
+          </div>
+        {/if}
       </div>
     </section>
 

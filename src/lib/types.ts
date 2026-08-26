@@ -654,7 +654,6 @@ export type MarketPage = {
   name: string;
   /** 'AE' | 'GB' | 'US' … (nullable). */
   market_code?: string | null;
-  currency: string;
   hero_eyebrow?: string | null;
   hero_title?: string | null;
   hero_subtitle?: string | null;
