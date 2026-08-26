@@ -54,8 +54,11 @@
     status: 'draft' | 'published' | 'archived';
   };
 
-  type IconAssetMode = 'none' | 'icon_url' | 'icon_upload' | 'lottie_url' | 'lottie_upload';
-  type ImageAssetMode = 'none' | 'image_url' | 'image_upload';
+  // The image needs no mode at all — MediaPicker is library, upload and paste-URL
+  // in one control. Only the badge needs a choice, because a Lottie is JSON
+  // rather than an image and cannot go through the picker.
+  type VisualType = 'none' | 'icon' | 'lottie';
+  type LottieSource = 'upload' | 'url';
 
   type Toast = {
     id: string;
@@ -85,18 +88,15 @@
     { label: 'Archived', value: 'archived' }
   ];
 
-  const iconAssetOptions = [
-    { label: 'No icon or animation', value: 'none' },
-    { label: 'Paste icon URL', value: 'icon_url' },
-    { label: 'Upload icon file', value: 'icon_upload' },
-    { label: 'Paste Lottie URL', value: 'lottie_url' },
-    { label: 'Upload Lottie file', value: 'lottie_upload' }
+  const visualTypeOptions = [
+    { label: 'None', value: 'none' },
+    { label: 'Icon', value: 'icon' },
+    { label: 'Lottie animation', value: 'lottie' }
   ];
 
-  const imageAssetOptions = [
-    { label: 'No category image', value: 'none' },
-    { label: 'Paste image URL', value: 'image_url' },
-    { label: 'Upload image file', value: 'image_upload' }
+  const lottieSourceOptions = [
+    { label: 'Upload Lottie JSON', value: 'upload' },
+    { label: 'Paste Lottie URL', value: 'url' }
   ];
 
   let rows: Category[] = [];
@@ -112,10 +112,9 @@
   let editingCategory: Category | null = null;
   let categoryToDelete: Category | null = null;
   let form = emptyForm();
-  let iconAssetMode: IconAssetMode = 'none';
-  let imageAssetMode: ImageAssetMode = 'none';
-  let lastIconAssetMode: IconAssetMode = 'none';
-  let lastImageAssetMode: ImageAssetMode = 'none';
+  let visualType: VisualType = 'none';
+  let lastVisualType: VisualType = 'none';
+  let lottieSource: LottieSource = 'upload';
   let toasts: Toast[] = [];
 
   const slugify = (value: string) =>
@@ -129,15 +128,13 @@
     form.slug = slugify(form.name);
   }
 
-  $: if (modalOpen && iconAssetMode !== lastIconAssetMode) {
+  // Switching the visual type discards the other type's value, so a category can
+  // never carry both an icon and a Lottie. The image is untouched by this — it
+  // has no modes to switch between, which is what used to wipe it.
+  $: if (modalOpen && visualType !== lastVisualType) {
     form.icon_url = '';
     form.lottie_url = '';
-    lastIconAssetMode = iconAssetMode;
-  }
-
-  $: if (modalOpen && imageAssetMode !== lastImageAssetMode) {
-    form.image_url = '';
-    lastImageAssetMode = imageAssetMode;
+    lastVisualType = visualType;
   }
 
   const showToast = (message: string, type: Toast['type'] = 'success') => {
@@ -173,10 +170,9 @@
   const openCreateModal = () => {
     editingCategory = null;
     form = emptyForm();
-    iconAssetMode = 'none';
-    imageAssetMode = 'none';
-    lastIconAssetMode = iconAssetMode;
-    lastImageAssetMode = imageAssetMode;
+    visualType = 'none';
+    lastVisualType = 'none';
+    lottieSource = 'upload';
     slugManuallyEdited = false;
     modalOpen = true;
   };
@@ -198,10 +194,9 @@
       sort_order: String(category.sort_order ?? 0),
       status: category.status ?? 'draft'
     };
-    iconAssetMode = category.lottie_url ? 'lottie_url' : category.icon_url ? 'icon_url' : 'none';
-    imageAssetMode = category.image_url ? 'image_url' : 'none';
-    lastIconAssetMode = iconAssetMode;
-    lastImageAssetMode = imageAssetMode;
+    visualType = category.lottie_url ? 'lottie' : category.icon_url ? 'icon' : 'none';
+    lastVisualType = visualType;
+    lottieSource = 'url';
     slugManuallyEdited = true;
     modalOpen = true;
   };
@@ -211,10 +206,9 @@
     editingCategory = null;
     slugManuallyEdited = false;
     form = emptyForm();
-    iconAssetMode = 'none';
-    imageAssetMode = 'none';
-    lastIconAssetMode = iconAssetMode;
-    lastImageAssetMode = imageAssetMode;
+    visualType = 'none';
+    lastVisualType = 'none';
+    lottieSource = 'upload';
   };
 
   const payload = () => ({
@@ -222,9 +216,9 @@
     who_its_for: form.who_its_for || null,
     fitness: form.fitness || null,
     highlights: form.highlights.split('\n').map((s) => s.trim()).filter(Boolean),
-    icon_url: iconAssetMode === 'icon_url' || iconAssetMode === 'icon_upload' ? form.icon_url || null : null,
-    image_url: imageAssetMode === 'image_url' || imageAssetMode === 'image_upload' ? form.image_url || null : null,
-    lottie_url: iconAssetMode === 'lottie_url' || iconAssetMode === 'lottie_upload' ? form.lottie_url || null : null,
+    icon_url: visualType === 'icon' ? form.icon_url || null : null,
+    image_url: form.image_url.trim() || null,
+    lottie_url: visualType === 'lottie' ? form.lottie_url || null : null,
     meta_description: form.meta_description || null,
     meta_title: form.meta_title || null,
     name: form.name.trim(),
@@ -416,71 +410,58 @@
         <div class="grid gap-4 lg:grid-cols-2">
           <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
             <div>
-              <h3 class="text-base font-semibold text-ink">Icon or animation</h3>
-              <p class="mt-1 text-sm text-ink/55">Choose one visual source for the category badge.</p>
+              <h3 class="text-base font-semibold text-ink">Category image</h3>
+              <p class="mt-1 text-sm text-ink/55">
+                Shown on category cards, headers and the Tours menu. Pick from the Media Library,
+                upload a new file, or paste a URL — the picker is all three.
+              </p>
             </div>
-
-            <AdminSelect label="Source" name="icon_asset_mode" bind:value={iconAssetMode} options={iconAssetOptions} />
-
-            {#if iconAssetMode === 'icon_url'}
-              <AdminFormInput label="Icon URL" name="icon_url" bind:value={form.icon_url} placeholder="https://..." />
-            {:else if iconAssetMode === 'icon_upload'}
-              <AdminFileUpload
-                label="Upload icon file"
-                folder="categories/icons"
-                value={form.icon_url}
-                helper="Use a png, jpg, or webp icon file."
-                on:uploaded={(event) => {
-                  form.icon_url = event.detail.url;
-                  showToast('Icon file uploaded successfully.');
-                }}
-                on:error={(event) => showToast(event.detail, 'error')}
-              />
-            {:else if iconAssetMode === 'lottie_url'}
-              <AdminFormInput label="Lottie URL" name="lottie_url" bind:value={form.lottie_url} placeholder="https://..." />
-            {:else if iconAssetMode === 'lottie_upload'}
-              <AdminFileUpload
-                label="Upload Lottie JSON"
-                accept="application/json,text/json,.json"
-                folder="categories/lottie"
-                kind="lottie"
-                value={form.lottie_url}
-                helper="Use a valid Lottie .json file."
-                on:uploaded={(event) => {
-                  form.lottie_url = event.detail.url;
-                  showToast('Lottie file uploaded successfully.');
-                }}
-                on:error={(event) => showToast(event.detail, 'error')}
-              />
-            {:else}
-              <p class="rounded-2xl border border-dashed border-ink/15 bg-surface px-3 py-3 text-sm text-ink/55">No icon or animation will be saved.</p>
-            {/if}
+            <MediaPicker
+              label="Category image"
+              media={$mediaLibrary}
+              uploadFolder="categories/images"
+              aspect="aspect-[16/9]"
+              bind:value={form.image_url}
+            />
           </section>
 
           <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
             <div>
-              <h3 class="text-base font-semibold text-ink">Category image</h3>
-              <p class="mt-1 text-sm text-ink/55">Choose one image source for category cards and headers.</p>
+              <h3 class="text-base font-semibold text-ink">Icon or animation</h3>
+              <p class="mt-1 text-sm text-ink/55">Optional badge visual. One type at a time.</p>
             </div>
 
-            <AdminSelect label="Source" name="image_asset_mode" bind:value={imageAssetMode} options={imageAssetOptions} />
+            <AdminSelect label="Visual type" name="visual_type" bind:value={visualType} options={visualTypeOptions} />
 
-            {#if imageAssetMode === 'image_url'}
-              <MediaPicker label="Image" media={$mediaLibrary} uploadFolder="categories" bind:value={form.image_url} />
-            {:else if imageAssetMode === 'image_upload'}
-              <AdminFileUpload
-                label="Upload image file"
-                folder="categories/images"
-                value={form.image_url}
-                helper="Use a local png, jpg, or webp category image."
-                on:uploaded={(event) => {
-                  form.image_url = event.detail.url;
-                  showToast('Category image uploaded successfully.');
-                }}
-                on:error={(event) => showToast(event.detail, 'error')}
+            {#if visualType === 'icon'}
+              <MediaPicker
+                label="Icon"
+                media={$mediaLibrary}
+                uploadFolder="categories/icons"
+                aspect="aspect-square"
+                fit="object-contain"
+                bind:value={form.icon_url}
               />
-            {:else}
-              <p class="rounded-2xl border border-dashed border-ink/15 bg-surface px-3 py-3 text-sm text-ink/55">No category image will be saved.</p>
+            {:else if visualType === 'lottie'}
+              <!-- A Lottie is JSON, so it cannot go through the image picker. -->
+              <AdminSelect label="Source" name="lottie_source" bind:value={lottieSource} options={lottieSourceOptions} />
+              {#if lottieSource === 'upload'}
+                <AdminFileUpload
+                  label="Upload Lottie JSON"
+                  accept="application/json,text/json,.json"
+                  folder="categories/lottie"
+                  kind="lottie"
+                  value={form.lottie_url}
+                  helper="Use a valid Lottie .json file."
+                  on:uploaded={(event) => {
+                    form.lottie_url = event.detail.url;
+                    showToast('Lottie file uploaded successfully.');
+                  }}
+                  on:error={(event) => showToast(event.detail, 'error')}
+                />
+              {:else}
+                <AdminFormInput label="Lottie URL" name="lottie_url" bind:value={form.lottie_url} placeholder="https://..." />
+              {/if}
             {/if}
           </section>
         </div>
