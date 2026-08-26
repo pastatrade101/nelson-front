@@ -6,6 +6,7 @@
     ClipboardList,
     Edit,
     Eye,
+    FileText,
     Link as LinkIcon,
     Mail,
     Phone,
@@ -18,6 +19,7 @@
     X
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import AdminQuotationEditor from '$lib/components/admin/AdminQuotationEditor.svelte';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -128,6 +130,32 @@
   });
   let form = emptyForm();
 
+  // ── Quoting a lead ──────────────────────────────────────────────────────────
+  // A quotation answers an enquiry, so it is raised from the enquiry rather than
+  // typed again from scratch. The prefill carries booking_request_id, which is
+  // what ties the two records together.
+  let quoteOpen = false;
+  let quotePrefill: Record<string, unknown> = {};
+  let tourRecords: Array<Record<string, unknown>> = [];
+
+  const openQuote = (b: Booking) => {
+    const tour = b.tours as Record<string, unknown> | null;
+    const prefill: Record<string, unknown> = { booking_request_id: b.id };
+    const put = (key: string, value: unknown) => {
+      if (value !== null && value !== undefined && value !== '') prefill[key] = value;
+    };
+    put('tour_id', b.tour_id);
+    put('customer_name', b.full_name);
+    put('customer_email', b.email);
+    put('customer_phone', b.phone);
+    put('travel_date', b.travel_date);
+    put('adults', b.number_of_adults);
+    put('children', b.number_of_children);
+    put('title', tour?.title);
+    quotePrefill = prefill;
+    quoteOpen = true;
+  };
+
   const showToast = (message: string, type: Toast['type'] = 'success') => {
     const id = crypto.randomUUID();
     toasts = [{ id, message, type }, ...toasts].slice(0, 4);
@@ -196,6 +224,7 @@
         api.tours.list({ status: 'all', limit: 200 }),
         api.users.list({ limit: 200 })
       ]);
+      tourRecords = tours.data.items as unknown as Array<Record<string, unknown>>;
       const tourOpts = tours.data.items.map((t) => ({ label: String(t.title ?? t.slug ?? 'Untitled'), value: String(t.id) }));
       tourOptions = [{ label: 'No tour (general request)', value: '' }, ...tourOpts];
       tourFilterOptions = [{ label: 'All tours', value: 'all' }, ...tourOpts];
@@ -512,6 +541,7 @@
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-1.5" role="presentation" on:click|stopPropagation>
                     <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="View" on:click={() => openView(b)}><Eye size={15} /></button>
+                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Create quotation" title="Create a quotation for this enquiry" on:click={() => openQuote(b)}><FileText size={15} /></button>
                     <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Edit" on:click={() => openEdit(b)}><Edit size={15} /></button>
                     <button class="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" type="button" aria-label="Delete" on:click={() => openDelete(b)}><Trash2 size={15} /></button>
                   </div>
@@ -689,3 +719,18 @@
 {#if deleting}
   <div class="fixed bottom-4 right-4 z-[70] rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(28,26,22,0.18)]">Archiving booking...</div>
 {/if}
+
+<!-- Raised from the enquiry it answers, so the quotation stays linked to it. -->
+<AdminQuotationEditor
+  open={quoteOpen}
+  quotation={null}
+  prefill={quotePrefill}
+  tours={tourRecords}
+  on:saved={() => showToast('Quotation created and linked to this enquiry.')}
+  on:sent={(e) => {
+    const outcome = e.detail?.outcome;
+    if (outcome?.status === 'sent') showToast('Quotation sent to the traveller.');
+    else showToast(outcome?.detail ?? 'The quotation was not sent.', 'error');
+  }}
+  on:close={() => { quoteOpen = false; quotePrefill = {}; }}
+/>
