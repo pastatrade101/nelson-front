@@ -136,7 +136,11 @@
 
 <svelte:head>
   <title>{$branding.site_name}</title>
-  <meta name="description" content={`${$branding.tagline}. ${$branding.positioning}`} />
+  <!-- No site-wide <meta name="description"> here. It used to be emitted
+       unconditionally, so every page that wrote its own ended up with TWO, and
+       Google picks one of those unpredictably or ignores both. Each page now owns
+       its description; the og:description below stays global because a single
+       social preview is the intent. -->
   <meta property="og:title" content={$branding.site_name} />
   <meta property="og:description" content={$branding.positioning} />
   <meta property="og:type" content="website" />

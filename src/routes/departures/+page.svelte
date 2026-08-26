@@ -157,6 +157,12 @@
   });
 </script>
 
+<svelte:head>
+  <title>Scheduled Departures | Emnel Adventures</title>
+  <meta name="description" content="Upcoming scheduled departure dates for Tanzania safaris. Every trip can also be run privately on dates that suit you." />
+</svelte:head>
+
+
 <!-- ── hero ─────────────────────────────────────────────────────────────── -->
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
   <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>

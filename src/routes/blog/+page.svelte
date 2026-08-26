@@ -14,6 +14,12 @@
   $: loadFailed = data.loadFailed;
 </script>
 
+<svelte:head>
+  <title>Travel Notes | Emnel Adventures</title>
+  <meta name="description" content="Field notes and planning writing from the Emnel team — what we have learned guiding safaris in Tanzania." />
+</svelte:head>
+
+
 <section class="container-shell py-14">
   <SectionHeader eyebrow="Blog" title="Travel Notes" description="CMS-managed blog index starter." />
   {#if loadFailed}

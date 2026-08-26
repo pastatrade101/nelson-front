@@ -184,6 +184,12 @@
     t.price_from ? formatUsd(t.price_from, cur) : 'On request';
 </script>
 
+<svelte:head>
+  <title>Find Your Tanzania Safari | Emnel Adventures</title>
+  <meta name="description" content="Answer a few questions and we will match you to a Tanzania safari that fits — or put you straight through to a specialist if nothing quite does." />
+</svelte:head>
+
+
 <section class="bg-sand/40">
   <div class="container-shell flex min-h-[70vh] flex-col items-center py-12 md:py-16">
     <div class="w-full max-w-2xl">

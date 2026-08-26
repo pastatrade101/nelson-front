@@ -20,6 +20,12 @@
     }));
 </script>
 
+<svelte:head>
+  <title>Safari Experiences in Tanzania | Emnel Adventures</title>
+  <meta name="description" content="Browse Tanzania safaris by what you want to experience — the Great Migration, big cats, walking safaris, culture and the Zanzibar coast." />
+</svelte:head>
+
+
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
   <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">

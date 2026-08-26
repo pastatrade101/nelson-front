@@ -8,6 +8,12 @@
   $: items = $shortlist;
 </script>
 
+<svelte:head>
+  <title>Your Shortlist | Emnel Adventures</title>
+  <meta name="description" content="The Tanzania safaris you have saved, kept in one place so you can compare them before you enquire." />
+</svelte:head>
+
+
 <section class="container-shell py-12 md:py-16">
   <div class="flex flex-wrap items-end justify-between gap-4">
     <div>

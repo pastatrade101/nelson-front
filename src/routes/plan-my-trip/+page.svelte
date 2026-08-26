@@ -23,6 +23,12 @@
   ];
 </script>
 
+<svelte:head>
+  <title>Plan Your Tanzania Safari | Emnel Adventures</title>
+  <meta name="description" content="Plan a private Tanzania safari with a local specialist. Tell us your dates and rough budget and we will come back with an honest plan." />
+</svelte:head>
+
+
 <section class="container-shell grid items-start gap-10 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:py-16">
   <aside class="lg:sticky lg:top-24">
     <p class="font-serif text-xl italic text-clay">Plan My Safari</p>

@@ -28,6 +28,12 @@
   });
 </script>
 
+<svelte:head>
+  <title>Compare Tanzania Safari Options | Emnel Adventures</title>
+  <meta name="description" content="Honest side-by-side comparisons of Tanzania parks, seasons and safari choices, so you can see the trade-offs rather than guess at them." />
+</svelte:head>
+
+
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
   <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">

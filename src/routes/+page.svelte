@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { branding } from '$lib/branding';
   import { onMount } from 'svelte';
   import { ArrowRight } from '@lucide/svelte';
   import { api } from '$lib/api/client';
@@ -157,6 +158,15 @@
     if (galRes.status === 'fulfilled' && galRes.value.data.items.length) gallery = galRes.value.data.items;
   });
 </script>
+
+<svelte:head>
+  <title>{$branding.site_name}</title>
+  <meta
+    name="description"
+    content={`${$branding.tagline.replace(/[.\s]+$/, '')}. ${$branding.positioning}`}
+  />
+</svelte:head>
+
 
 <HeroSection
   title={cms('hero', 'title', 'Where the wild speaks, we know how to listen.')}

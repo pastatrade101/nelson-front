@@ -51,6 +51,12 @@
   });
 </script>
 
+<svelte:head>
+  <title>How Tanzania’s Destinations Score | Emnel Adventures</title>
+  <meta name="description" content="Serengeti, Ngorongoro, Tarangire and the rest, scored for wildlife, luxury, families, photography and adventure — so you can match a park to what you actually want." />
+</svelte:head>
+
+
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
   <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
