@@ -3,6 +3,7 @@
   import { fade, scale } from 'svelte/transition';
   import { Edit, Heart, Plus, Search, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import ContentBlocksEditor from '$lib/components/admin/ContentBlocksEditor.svelte';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -32,6 +33,8 @@
     sort_order?: number | null;
     seo_title?: string | null;
     meta_description?: string | null;
+    /** Ordered content blocks — see ContentBlocksEditor. */
+    sections?: unknown;
     created_at?: string;
     updated_at?: string;
   };
@@ -67,6 +70,12 @@
     seo_title: '',
     meta_description: ''
   });
+
+  // Content blocks are edited as an array rather than a form field, so they sit
+  // alongside `form` and are hydrated and reset with it.
+  let blocks: Record<string, unknown>[] = [];
+  let mediaItems: { file_name: string; file_url: string; id: string; thumbnail_url?: string | null }[] = [];
+  let tourOptions: { id: string; title: string }[] = [];
 
   let rows: TravelStyle[] = [];
   let loading = true;
@@ -106,7 +115,7 @@
     }
   };
 
-  const openCreate = () => { editing = null; form = emptyForm(); slugManuallyEdited = false; modalOpen = true; };
+  const openCreate = () => { editing = null; form = emptyForm(); blocks = []; slugManuallyEdited = false; modalOpen = true; };
 
   const openEdit = (s: TravelStyle) => {
     editing = s;
@@ -126,11 +135,12 @@
       seo_title: s.seo_title ?? '',
       meta_description: s.meta_description ?? ''
     };
+    blocks = Array.isArray(s.sections) ? (s.sections as Record<string, unknown>[]) : [];
     slugManuallyEdited = true;
     modalOpen = true;
   };
 
-  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); slugManuallyEdited = false; };
+  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); blocks = []; slugManuallyEdited = false; };
   const lines = (v: string) => v.split('\n').map((x) => x.trim()).filter(Boolean);
 
   const save = async () => {
@@ -151,7 +161,8 @@
       is_featured: form.is_featured,
       sort_order: Number.isFinite(sort) ? sort : 0,
       seo_title: form.seo_title.trim() || null,
-      meta_description: form.meta_description.trim() || null
+      meta_description: form.meta_description.trim() || null,
+      sections: blocks
     };
     try {
       if (editing) { await api.travelStyles.update(editing.id, payload); showToast('Travel style updated.'); }
@@ -181,7 +192,24 @@
   };
 
   const fmt = (v?: string) => v ? new Intl.DateTimeFormat('en', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(v)) : '-';
-  onMount(load);
+  // The block editor needs the media library and the tour list. Both are
+  // non-critical: a failure costs the picker its library, not the screen.
+  const loadEditorPools = async () => {
+    try {
+      const [media, tours] = await Promise.all([
+        api.media.list({ file_type: 'image', limit: 200 }),
+        api.tours.list({ status: 'published', limit: 200 })
+      ]);
+      mediaItems = (media.data.items as typeof mediaItems).filter((m) => m.file_url);
+      tourOptions = (tours.data.items as { id: string; title: string }[]).map((t) => ({ id: t.id, title: t.title }));
+    } catch {
+      // non-critical
+    }
+  };
+
+  onMount(async () => {
+    await Promise.all([load(), loadEditorPools()]);
+  });
 </script>
 
 <ToastStack {toasts} on:dismiss={dismissToast} />
@@ -309,6 +337,20 @@
         <div class="grid gap-4 sm:grid-cols-2">
           <AdminFormInput label="SEO title" name="seo_title" bind:value={form.seo_title} />
           <AdminFormInput label="Meta description" name="meta_description" bind:value={form.meta_description} />
+        </div>
+
+        <!-- Page content. Everything above is the fixed shape every style has;
+             everything here is editorial and optional, so a richer page needs a
+             form entry rather than a schema change. -->
+        <div class="border-t border-ink/10 pt-6">
+          <div class="mb-4">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Page content</p>
+            <p class="mt-1 text-xs leading-5 text-ink/60">
+              Sections render in this order, below the hero. The same blocks the landing pages use — an
+              empty section renders nothing, so it is safe to leave one half-finished.
+            </p>
+          </div>
+          <ContentBlocksEditor bind:blocks media={mediaItems} tours={tourOptions} uploadFolder="travel-styles" />
         </div>
       </div>
 

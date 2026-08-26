@@ -18,6 +18,7 @@
     {name}
     {type}
     bind:value
+    on:input
     {placeholder}
     {required}
     {min}

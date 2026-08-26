@@ -1,5 +1,4 @@
 import { COMPARISONS } from '$lib/data/comparisons';
-import { TRAVEL_STYLES } from '$lib/data/travel-styles';
 
 // ---------------------------------------------------------------------------
 // Sitemap config + builders. Google's current guidance: <lastmod> is the only
@@ -21,7 +20,6 @@ export const STATIC_PAGES: string[] = [
   '/accommodation',
   '/plan-my-trip',
   '/departures',
-  '/travel-styles',
   '/trip-finder',
   '/kilimanjaro',
   '/blog',
@@ -56,6 +54,15 @@ export const DB_COLLECTIONS: { key: string; prefix: string; endpoint: string; hu
     hubPath: '/safari-essentials'
   },
   {
+    // Was a bundled static list, which meant the sitemap and the pages could
+    // disagree: a style added in the admin rendered but was never submitted, and
+    // an unpublished one stayed listed. Read from the DB like everything else.
+    key: 'travel-styles',
+    prefix: '/travel-styles',
+    endpoint: '/travel-styles?status=published&limit=50000',
+    hubPath: '/travel-styles'
+  },
+  {
     // Ads landing pages. Only those an admin opted into search appear here —
     // collectDb drops every noindex row — so the hub is advertised precisely
     // when it has something Google is allowed to crawl.
@@ -68,7 +75,6 @@ export const DB_COLLECTIONS: { key: string; prefix: string; endpoint: string; hu
 
 // Static-data collections (bundled at build; always available, no API needed).
 export const LOCAL_COLLECTIONS: { key: string; prefix: string; items: ReadonlyArray<{ slug: string }> }[] = [
-  { key: 'travel-styles', prefix: '/travel-styles', items: TRAVEL_STYLES },
   { key: 'compare', prefix: '/compare', items: COMPARISONS }
 ];
 

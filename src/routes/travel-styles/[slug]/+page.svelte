@@ -1,165 +1,184 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { ArrowRight, Check, Sparkles } from '@lucide/svelte';
-  import { browser } from '$app/environment';
+  import { ArrowRight, ArrowUpRight } from '@lucide/svelte';
   import { page } from '$app/stores';
-  import { api } from '$lib/api/client';
+  import { fadeUpOnScroll } from '$lib/animations';
+  import ContentBlocks from '$lib/components/public/ContentBlocks.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
-  import LoadingState from '$lib/components/public/LoadingState.svelte';
-  import ErrorState from '$lib/components/public/ErrorState.svelte';
-  import TourCard from '$lib/components/public/TourCard.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import TourCard from '$lib/components/public/TourCard.svelte';
   import { breadcrumbLd } from '$lib/seo';
-  import type { TravelStyle, Tour } from '$lib/types';
+  import type { Tour, TravelStyle } from '$lib/types';
+  import type { PageData } from './$types';
 
-  type NormStyle = {
-    slug: string;
-    name: string;
-    emotionalPromise: string;
-    description: string;
-    desires: string[];
-    concerns: string[];
-    persona?: string;
-    heroImage?: string;
-  };
+  export let data: PageData;
 
+  $: style = data.style as TravelStyle;
+  $: others = (data.others ?? []) as TravelStyle[];
+  $: tours = (data.tours ?? []) as Tour[];
   $: origin = $page.url.origin;
 
-  let style: NormStyle | null = null;
-  let others: { slug: string; name: string }[] = [];
-  let featured: Tour[] = [];
-  let loading = true;
-  let loadFailed = false;
+  $: blocks = (Array.isArray(style.sections) ? style.sections : []) as Record<string, unknown>[];
+  $: desires = (style.desires ?? []).filter((d) => d && d.trim());
+  $: concerns = (style.concerns ?? []).filter((c) => c && c.trim());
 
-  const fromApi = (s: TravelStyle): NormStyle => ({
-    slug: s.slug,
-    name: s.name,
-    emotionalPromise: s.emotional_promise ?? '',
-    description: s.description ?? '',
-    desires: s.desires ?? [],
-    concerns: s.concerns ?? [],
-    persona: s.persona ?? undefined,
-    heroImage: s.hero_image_url ?? undefined
-  });
+  $: toursHref = style.persona ? `/tours?persona=${style.persona}` : '/tours';
+  $: planHref = `/plan-my-trip${style.persona ? `?persona=${style.persona}` : ''}`;
 
-  $: toursHref = style?.persona ? `/tours?persona=${style.persona}` : '/tours';
-  $: planHref = `/plan-my-trip${style?.persona ? `?persona=${style.persona}` : ''}`;
+  // A curated tour block replaces the generic fallback; only show the fallback
+  // strip when the editor has not chosen tours themselves.
+  $: hasCuratedTours = blocks.some((b) => b.type === 'tours' && Array.isArray(b.tour_ids) && b.tour_ids.length);
+  $: fallbackTours = hasCuratedTours ? [] : tours.filter((t) => t.is_featured).slice(0, 3);
 
-  const loadStyle = async (slug: string) => {
-    loading = true;
-    loadFailed = false;
-    style = null;
-    try {
-      const res = await api.travelStyles.get(slug);
-      style = fromApi(res.data);
-    } catch {
-      // Unknown slug or fetch failure — show an honest error, never fabricate.
-      loadFailed = true;
-      style = null;
-    }
-    try {
-      const list = await api.travelStyles.list({ status: 'published', limit: 100 });
-      const items = list.data.items as TravelStyle[];
-      others = items
-        .map((s) => ({ slug: s.slug, name: s.name }))
-        .filter((s) => s.slug !== slug)
-        .slice(0, 3);
-    } catch {
-      others = [];
-    }
-    loading = false;
-  };
-
-  $: slug = $page.params.slug ?? '';
-  $: if (browser && slug) void loadStyle(slug);
-
-  onMount(async () => {
-    try {
-      const res = await api.tours.list({ is_featured: 'true', status: 'published', limit: 3 });
-      featured = res.data.items.length ? res.data.items : (await api.tours.list({ status: 'published', limit: 3 })).data.items;
-    } catch {
-      featured = [];
-    }
-  });
+  $: seoTitle = style.meta_title?.trim() || style.seo_title?.trim() || `${style.name} Safaris in Tanzania | Emnel Adventures`;
+  $: seoDescription = style.meta_description?.trim() || style.emotional_promise?.trim() || style.description?.trim() || '';
 </script>
 
-{#if loading}
-  <section class="container-shell py-20"><LoadingState message="Loading travel style..." /></section>
-{:else if loadFailed || !style}
-  <section class="container-shell py-20">
-    <ErrorState message="We couldn't load this travel style right now. It may have moved, or please refresh in a moment." />
-  </section>
-{:else}
-  <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Travel Styles', path: '/travel-styles' }, { name: style.name, path: `/travel-styles/${style.slug}` }])} />
-  <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
-    {#if style.heroImage}
-      <ResponsiveImage src={style.heroImage} alt="" sizes="100vw" imgClass="absolute inset-0 h-full w-full object-cover opacity-40" width={1920} eager priority />
-      <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/80 to-deep-green/40"></div>
+<svelte:head>
+  <title>{seoTitle}</title>
+  {#if seoDescription}<meta name="description" content={seoDescription} />{/if}
+  {#if style.hero_image_url}<meta property="og:image" content={style.hero_image_url} />{/if}
+</svelte:head>
+
+<JsonLd
+  data={breadcrumbLd(origin, [
+    { name: 'Home', path: '/' },
+    { name: 'Travel Styles', path: '/travel-styles' },
+    { name: style.name, path: `/travel-styles/${style.slug}` }
+  ])}
+/>
+
+<!-- ── Hero: full-bleed image, editorial type, restrained gold ───────────────── -->
+<section class="relative isolate overflow-hidden bg-deep-green text-white">
+  {#if style.hero_image_url}
+    <ResponsiveImage
+      src={style.hero_image_url}
+      alt=""
+      sizes="100vw"
+      width={1920}
+      eager
+      priority
+      imgClass="absolute inset-0 h-full w-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/55 to-ink/25"></div>
+  {/if}
+
+  <div class="container-shell relative py-20 md:py-32">
+    <nav class="text-[11px] uppercase tracking-[0.24em] text-white/55" aria-label="Breadcrumb">
+      <a class="transition hover:text-goldfinch-gold" href="/">Home</a>
+      <span class="px-2 text-white/25">/</span>
+      <a class="transition hover:text-goldfinch-gold" href="/travel-styles">Travel Styles</a>
+      <span class="px-2 text-white/25">/</span>
+      <span class="text-goldfinch-gold">{style.name}</span>
+    </nav>
+
+    <p class="mt-10 text-[11px] uppercase tracking-[0.28em] text-goldfinch-gold">{style.name}</p>
+
+    {#if style.emotional_promise}
+      <h1 class="mt-5 max-w-4xl font-serif text-[38px] font-light leading-[1.06] md:text-[68px]">
+        {style.emotional_promise}
+      </h1>
+    {:else}
+      <h1 class="mt-5 max-w-4xl font-serif text-[38px] font-light leading-[1.06] md:text-[68px]">
+        {style.name} Safaris
+      </h1>
     {/if}
-    <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
-    <div class="container-shell relative py-14 md:py-20">
-      <nav class="mb-5 flex items-center gap-2 text-sm text-white/70">
-        <a class="font-medium transition hover:text-white" href="/travel-styles">Travel Styles</a>
-        <span class="text-white/30">/</span>
-        <span class="font-medium text-white">{style.name}</span>
-      </nav>
-      <p class="font-serif text-xl italic text-savanna">{style.name}</p>
-      <h1 class="mt-2 max-w-3xl text-3xl font-serif font-light leading-[1.08] md:text-5xl">{style.emotionalPromise}</h1>
-      <p class="mt-4 max-w-2xl text-[15px] leading-7 text-white/85 md:text-base">{style.description}</p>
-      <div class="mt-6 flex flex-wrap gap-3">
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading transition hover:brightness-105" href={planHref}>
-          <Sparkles size={18} /> Plan a {style.name.toLowerCase()} trip
+
+    {#if style.description}
+      <p class="mt-7 max-w-2xl text-[15px] leading-8 text-white/80 md:text-[17px]">{style.description}</p>
+    {/if}
+
+    <div class="mt-11 flex flex-wrap gap-4">
+      <a
+        class="inline-flex h-12 items-center bg-goldfinch-gold px-8 text-sm font-semibold tracking-wide text-ink transition hover:brightness-95"
+        href={planHref}
+      >
+        Plan this trip
+      </a>
+      <a
+        class="inline-flex h-12 items-center gap-2 border border-white/25 px-8 text-sm font-semibold text-white transition hover:bg-white/10"
+        href={toursHref}
+      >
+        Browse itineraries
+        <ArrowRight class="h-4 w-4" />
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── The two-column read: what they want / what we plan around ─────────────── -->
+{#if desires.length || concerns.length}
+  <section class="bg-linen py-16 md:py-24">
+    <div class="container-shell grid gap-14 md:grid-cols-2 md:gap-20" use:fadeUpOnScroll={{ y: 16 }}>
+      {#if desires.length}
+        <div>
+          <p class="text-[11px] uppercase tracking-[0.24em] text-clay">What you are after</p>
+          <div class="mt-7 grid gap-0">
+            {#each desires as d, i (d)}
+              <div class="flex gap-5 border-t border-ink/10 py-4 {i === desires.length - 1 ? 'border-b' : ''}">
+                <span class="mt-1 font-serif text-lg font-light leading-none text-goldfinch-gold">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="text-[15px] leading-7 text-ink/80">{d}</span>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      {#if concerns.length}
+        <div>
+          <p class="text-[11px] uppercase tracking-[0.24em] text-clay">What we plan around</p>
+          <div class="mt-7 grid gap-6">
+            {#each concerns as c (c)}
+              <blockquote class="border-l-2 border-goldfinch-gold/60 pl-5">
+                <p class="font-serif text-[21px] font-light leading-[1.45] text-heading">“{c}”</p>
+              </blockquote>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
+  </section>
+{/if}
+
+<!-- ── Editor-authored blocks: the rich half of the page ─────────────────────── -->
+<ContentBlocks {blocks} {tours} />
+
+<!-- ── Fallback itineraries, only when the editor has not curated any ────────── -->
+{#if fallbackTours.length}
+  <section class="bg-canvas py-16 md:py-20">
+    <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="flex flex-wrap items-end justify-between gap-5">
+        <h2 class="font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">
+          Somewhere to start
+        </h2>
+        <a class="inline-flex items-center gap-2 text-sm font-medium text-deep-green" href={toursHref}>
+          Browse all itineraries
+          <ArrowRight class="h-4 w-4" />
         </a>
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10" href={toursHref}>
-          Browse trips <ArrowRight size={18} />
-        </a>
+      </div>
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        {#each fallbackTours as tour (tour.id)}
+          <TourCard {tour} />
+        {/each}
       </div>
     </div>
   </section>
+{/if}
 
-  <section class="container-shell py-12 md:py-16">
-    <div class="grid gap-6 md:grid-cols-2">
-      <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
-        <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">What you want</p>
-        <div class="mt-3 grid gap-2.5">
-          {#each style.desires as d}
-            <span class="inline-flex items-center gap-2 text-sm font-medium text-ink/75">
-              <span class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-forest/10 text-forest"><Check size={12} strokeWidth={3} /></span>{d}
-            </span>
-          {/each}
-        </div>
-      </div>
-      <div class="rounded-2xl border border-ink/10 bg-sand/30 p-6">
-        <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">What we plan around</p>
-        <div class="mt-3 grid gap-2.5">
-          {#each style.concerns as c}
-            <span class="text-sm leading-6 text-ink/70">“{c}” — handled, honestly.</span>
-          {/each}
-        </div>
-      </div>
-    </div>
-
-    {#if featured.length}
-      <div class="mt-12">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-          <h2 class="text-2xl font-serif font-light text-heading md:text-3xl">Trips to start from</h2>
-          <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href={toursHref}>Browse all <ArrowRight size={16} /></a>
-        </div>
-        <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {#each featured as tour (tour.slug)}
-            <TourCard {tour} />
-          {/each}
-        </div>
-      </div>
-    {/if}
-
-    <div class="mt-12">
-      <h2 class="text-xl font-serif font-normal text-heading">Other travel styles</h2>
-      <div class="mt-4 grid gap-4 sm:grid-cols-3">
-        {#each others as o (o.slug)}
-          <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-surface p-5 transition hover:border-goldfinch-gold/40" href={`/travel-styles/${o.slug}`}>
-            <span class="font-serif font-normal text-heading">{o.name}</span>
-            <ArrowRight size={18} class="shrink-0 text-ink/30 transition group-hover:text-forest" />
+<!-- ── Other styles ─────────────────────────────────────────────────────────── -->
+{#if others.length}
+  <section class="border-t border-ink/10 bg-surface py-16 md:py-20">
+    <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
+      <p class="text-[11px] uppercase tracking-[0.24em] text-clay">Other ways to travel</p>
+      <div class="mt-8 grid gap-px border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
+        {#each others.slice(0, 6) as o (o.slug)}
+          <a
+            class="group flex items-center justify-between gap-4 bg-surface px-6 py-6 transition hover:bg-linen"
+            href={`/travel-styles/${o.slug}`}
+          >
+            <span class="font-serif text-xl font-light text-heading">{o.name}</span>
+            <ArrowUpRight class="h-4 w-4 shrink-0 text-ink/30 transition group-hover:text-deep-green" />
           </a>
         {/each}
       </div>

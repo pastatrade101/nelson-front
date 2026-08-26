@@ -291,6 +291,13 @@ export type TravelStyle = {
   seo_title?: string;
   meta_title?: string;
   meta_description?: string;
+  /**
+   * Ordered editorial content blocks — the same shape market_pages.sections uses
+   * and drawn by the same ContentBlocks renderer. Loose by design: the block
+   * vocabulary grows without a migration and unknown types are skipped.
+   */
+  sections?: Record<string, unknown>[];
+  updated_at?: string;
 };
 
 export type ComparisonDimension = { label: string; a: string; b: string };

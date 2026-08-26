@@ -1,73 +1,78 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { ArrowRight } from '@lucide/svelte';
-  import { revealHeading, staggeredCardReveal, tilt } from '$lib/animations';
-  import { api } from '$lib/api/client';
-  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
-  import LoadingState from '$lib/components/public/LoadingState.svelte';
-  import ErrorState from '$lib/components/public/ErrorState.svelte';
+  import { ArrowUpRight } from '@lucide/svelte';
+  import { revealHeading, staggeredCardReveal } from '$lib/animations';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
+  import ErrorState from '$lib/components/public/ErrorState.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { TravelStyle } from '$lib/types';
+  import type { PageData } from './$types';
 
-  type Card = { slug: string; name: string; emotionalPromise: string; description: string; heroImage?: string };
+  export let data: PageData;
 
-  let styles: Card[] = [];
-  let loading = true;
-  let loadFailed = false;
+  $: styles = (data.styles ?? []) as TravelStyle[];
+  $: loadFailed = data.loadFailed;
 
-  onMount(async () => {
-    try {
-      const res = await api.travelStyles.list({ status: 'published', limit: 100 });
-      const items = res.data.items as TravelStyle[];
-      styles = items.map((s) => ({
-        slug: s.slug,
-        name: s.name,
-        emotionalPromise: s.emotional_promise ?? '',
-        description: s.description ?? '',
-        heroImage: s.hero_image_url ?? undefined
-      }));
-    } catch {
-      loadFailed = true;
-      styles = [];
-    } finally {
-      loading = false;
-    }
-  });
+  const title = 'Travel Styles | Emnel Adventures';
+  const description =
+    'Honeymoon, family, luxury, photography, group and solo — we shape a Tanzania safari around how you travel, not only where you go.';
 </script>
 
-<section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
-  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
-  <div class="container-shell relative py-16 text-center md:py-20">
-    <p class="font-serif text-xl italic text-savanna">Travel Styles</p>
-    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-serif font-light leading-[1.1] md:text-[44px]" use:revealHeading>How do you want to travel?</h1>
-    <p class="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">
-      Honeymoon, family, luxury, photography and more — we shape the trip around how you travel, not just where.
-    </p>
+<svelte:head>
+  <title>{title}</title>
+  <meta name="description" content={description} />
+</svelte:head>
+
+<section class="bg-deep-green text-white">
+  <div class="container-shell py-20 md:py-28">
+    <nav class="text-[11px] uppercase tracking-[0.24em] text-white/55" aria-label="Breadcrumb">
+      <a class="transition hover:text-goldfinch-gold" href="/">Home</a>
+      <span class="px-2 text-white/25">/</span>
+      <span class="text-goldfinch-gold">Travel Styles</span>
+    </nav>
+    <h1 class="mt-9 max-w-3xl font-serif text-[38px] font-light leading-[1.06] md:text-[64px]" use:revealHeading>
+      How do you want to travel?
+    </h1>
+    <p class="mt-7 max-w-2xl text-[15px] leading-8 text-white/80 md:text-[17px]">{description}</p>
   </div>
 </section>
 
-<section class="container-shell py-12 md:py-16">
-  {#if loading}
-    <LoadingState message="Loading travel styles..." />
-  {:else if loadFailed}
-    <ErrorState message="We couldn't load travel styles right now. Please refresh in a moment." />
-  {:else if styles.length === 0}
-    <EmptyState title="No travel styles yet" message="Our travel styles are being prepared. Please check back again soon." />
-  {:else}
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
-      {#each styles as style (style.slug)}
-        <a class="group flex flex-col rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]" href={`/travel-styles/${style.slug}`} use:tilt={{ max: 5 }}>
-          {#if style.heroImage}
-            <div class="-mx-6 -mt-6 mb-5 aspect-[16/9] overflow-hidden bg-skywash">
-              <ResponsiveImage src={style.heroImage} alt={style.name} imgClass="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105" sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" width={700} />
+<section class="bg-canvas py-16 md:py-24">
+  <div class="container-shell">
+    {#if loadFailed}
+      <ErrorState message="We couldn't load travel styles right now. Please refresh in a moment." />
+    {:else if styles.length === 0}
+      <EmptyState title="No travel styles yet" message="Our travel styles are being prepared. Please check back soon." />
+    {:else}
+      <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.05 }}>
+        {#each styles as style (style.slug)}
+          <a class="group flex flex-col bg-surface shadow-soft transition duration-300 hover:shadow-lg" href={`/travel-styles/${style.slug}`}>
+            {#if style.hero_image_url}
+              <div class="aspect-[4/3] overflow-hidden bg-linen">
+                <ResponsiveImage
+                  src={style.hero_image_url}
+                  alt={style.name}
+                  imgClass="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+                  sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
+                  width={760}
+                />
+              </div>
+            {/if}
+            <div class="flex flex-1 flex-col p-7">
+              <h2 class="font-serif text-[26px] font-light leading-tight text-heading">{style.name}</h2>
+              {#if style.emotional_promise}
+                <p class="mt-3 font-serif text-[17px] font-light italic leading-snug text-clay">{style.emotional_promise}</p>
+              {/if}
+              {#if style.description}
+                <p class="mt-4 flex-1 text-[14px] leading-7 text-ink/70">{style.description}</p>
+              {/if}
+              <span class="mt-7 inline-flex items-center gap-2 border-t border-ink/10 pt-5 text-sm font-medium text-deep-green">
+                Explore {style.name}
+                <ArrowUpRight class="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
             </div>
-          {/if}
-          <h2 class="text-xl font-serif font-normal text-heading">{style.name}</h2>
-          <p class="mt-1 text-sm font-semibold text-clay">{style.emotionalPromise}</p>
-          <p class="mt-2 flex-1 text-sm leading-6 text-ink/65">{style.description}</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition group-hover:text-heading">Explore {style.name} <ArrowRight size={15} /></span>
-        </a>
-      {/each}
-    </div>
-  {/if}
+          </a>
+        {/each}
+      </div>
+    {/if}
+  </div>
 </section>

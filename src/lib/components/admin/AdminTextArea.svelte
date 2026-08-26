@@ -12,6 +12,7 @@
     class="rounded-md border border-ink/15 bg-black/[0.02] px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink/35 hover:border-ink/25 focus:border-forest focus:bg-surface focus:ring-2 focus:ring-forest/20"
     {name}
     bind:value
+    on:input
     {rows}
     {placeholder}
   ></textarea>
