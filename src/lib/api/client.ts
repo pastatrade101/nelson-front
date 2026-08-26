@@ -566,6 +566,43 @@ export const api = {
         { method: 'POST', body }
       )
   },
+  quotations: {
+    list: (params?: Record<string, QueryValue>) => apiRequest<Record<string, unknown>[]>(`/quotations${queryString(params)}`),
+    get: (id: string) => apiRequest<Record<string, unknown>>(`/quotations/${id}`),
+    create: (body: Record<string, unknown>) => apiRequest<Record<string, unknown>>('/quotations', { method: 'POST', body }),
+    update: (id: string, body: Record<string, unknown>) => apiRequest<Record<string, unknown>>(`/quotations/${id}`, { method: 'PUT', body }),
+    send: (id: string, body: Record<string, unknown> = {}) => apiRequest<Record<string, unknown>>(`/quotations/${id}/send`, { method: 'POST', body }),
+    setStatus: (id: string, status: string) => apiRequest<Record<string, unknown>>(`/quotations/${id}/status`, { method: 'PATCH', body: { status } }),
+    remove: (id: string) => apiRequest(`/quotations/${id}`, { method: 'DELETE' })
+  },
+  whatsapp: {
+    status: () => apiRequest<Record<string, unknown>>('/whatsapp/status'),
+    /** Approved templates only — the registry decides, so a new one needs no deploy. */
+    templates: () => apiRequest<Record<string, unknown>[]>('/whatsapp/templates'),
+    conversations: (params?: Record<string, QueryValue>) =>
+      apiRequest<Record<string, unknown>[]>(`/whatsapp/conversations${queryString(params)}`),
+    conversation: (id: string) => apiRequest<Record<string, unknown>>(`/whatsapp/conversations/${id}`),
+    send: (body: Record<string, unknown>) => apiRequest<Record<string, unknown>>('/whatsapp/send', { method: 'POST', body }),
+    markRead: (id: string) => apiRequest(`/whatsapp/conversations/${id}/read`, { method: 'POST', body: {} }),
+    updateState: (id: string, body: Record<string, unknown>) =>
+      apiRequest<Record<string, unknown>>(`/whatsapp/conversations/${id}`, { method: 'PATCH', body }),
+    addNote: (id: string, body: string) =>
+      apiRequest<Record<string, unknown>>(`/whatsapp/conversations/${id}/notes`, { method: 'POST', body: { body } }),
+    agents: () => apiRequest<Array<{ id: string; full_name: string; email: string }>>('/whatsapp/agents'),
+
+    /**
+     * Which WhatsApp account this site sends from. The access token is never in
+     * any of these responses — the server holds it sealed and only ever sends
+     * back what a human needs to recognise the connection.
+     */
+    connection: () => apiRequest<Record<string, any>>('/whatsapp/connection'),
+    connect: (body: { code: string; waba_id: string; phone_number_id: string }) =>
+      apiRequest<Record<string, any>>('/whatsapp/connect', { method: 'POST', body }),
+    connectManual: (body: { waba_id: string; phone_number_id: string; access_token: string }) =>
+      apiRequest<Record<string, any>>('/whatsapp/connect/manual', { method: 'POST', body }),
+    disconnect: () => apiRequest<Record<string, any>>('/whatsapp/disconnect', { method: 'POST', body: {} }),
+    testConnection: () => apiRequest<Record<string, any>>('/whatsapp/connection/test', { method: 'POST', body: {} })
+  },
   hubspot: {
     syncLead: (body: Record<string, unknown>) => apiRequest('/hubspot/sync-lead', { method: 'POST', body }),
     syncBooking: (body: Record<string, unknown>) => apiRequest('/hubspot/sync-booking', { method: 'POST', body })

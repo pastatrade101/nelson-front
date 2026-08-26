@@ -15,6 +15,8 @@
     '/admin/categories': 'Tour Categories',
     '/admin/destinations': 'Destinations',
     '/admin/bookings': 'Bookings',
+    '/admin/quotations': 'Quotations',
+    '/admin/whatsapp': 'WhatsApp Inbox',
     '/admin/payments': 'Payments',
     '/admin/blog': 'Blog',
     '/admin/blog/categories': 'Blog Categories',
