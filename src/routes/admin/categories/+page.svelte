@@ -3,6 +3,8 @@
   import { fade, scale } from 'svelte/transition';
   import { Edit, Plus, Search, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { mediaLibrary } from '$lib/mediaLibrary';
+  import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -464,7 +466,7 @@
             <AdminSelect label="Source" name="image_asset_mode" bind:value={imageAssetMode} options={imageAssetOptions} />
 
             {#if imageAssetMode === 'image_url'}
-              <AdminFormInput label="Image URL" name="image_url" bind:value={form.image_url} placeholder="https://..." />
+              <MediaPicker label="Image" media={$mediaLibrary} uploadFolder="categories" bind:value={form.image_url} />
             {:else if imageAssetMode === 'image_upload'}
               <AdminFileUpload
                 label="Upload image file"

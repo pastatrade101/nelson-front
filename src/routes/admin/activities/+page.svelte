@@ -3,6 +3,8 @@
   import { fade, scale } from 'svelte/transition';
   import { Compass, Edit, Plus, Search, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { mediaLibrary } from '$lib/mediaLibrary';
+  import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -364,8 +366,8 @@
         <AdminFormInput label="Highlights (comma-separated)" name="highlights" bind:value={form.highlights} placeholder="Big Five, Picnic lunch, Photography" />
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <AdminFormInput label="Hero image URL" name="hero_image_url" bind:value={form.hero_image_url} placeholder="https://..." />
-          <AdminFormInput label="Card image URL" name="image_url" bind:value={form.image_url} placeholder="https://..." />
+          <MediaPicker label="Hero image" media={$mediaLibrary} uploadFolder="activities" bind:value={form.hero_image_url} />
+          <MediaPicker label="Card image" media={$mediaLibrary} uploadFolder="activities" bind:value={form.image_url} />
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">

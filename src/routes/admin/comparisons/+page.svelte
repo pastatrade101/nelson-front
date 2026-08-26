@@ -3,6 +3,8 @@
   import { fade, scale } from 'svelte/transition';
   import { Edit, GitCompare, Plus, Search, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { mediaLibrary } from '$lib/mediaLibrary';
+  import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -306,8 +308,8 @@
           <AdminFormInput label="Option B name" name="b_name" bind:value={form.b_name} required />
         </div>
         <div class="grid gap-4 sm:grid-cols-2">
-          <AdminFormInput label="Option A image URL" name="a_image_url" bind:value={form.a_image_url} placeholder="https://..." />
-          <AdminFormInput label="Option B image URL" name="b_image_url" bind:value={form.b_image_url} placeholder="https://..." />
+          <MediaPicker label="Option A image" media={$mediaLibrary} uploadFolder="comparisons" bind:value={form.a_image_url} />
+          <MediaPicker label="Option B image" media={$mediaLibrary} uploadFolder="comparisons" bind:value={form.b_image_url} />
         </div>
 
         <AdminTextArea label="Dimensions — one per line as: Label :: A side :: B side" name="dimensions" bind:value={form.dimensions} rows={5} placeholder={'Cost :: Higher park fees :: Often better value'} />

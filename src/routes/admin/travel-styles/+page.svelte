@@ -3,6 +3,8 @@
   import { fade, scale } from 'svelte/transition';
   import { Edit, Heart, Plus, Search, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { mediaLibrary } from '$lib/mediaLibrary';
+  import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
   import ContentBlocksEditor from '$lib/components/admin/ContentBlocksEditor.svelte';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
@@ -74,7 +76,6 @@
   // Content blocks are edited as an array rather than a form field, so they sit
   // alongside `form` and are hydrated and reset with it.
   let blocks: Record<string, unknown>[] = [];
-  let mediaItems: { file_name: string; file_url: string; id: string; thumbnail_url?: string | null }[] = [];
   let tourOptions: { id: string; title: string }[] = [];
 
   let rows: TravelStyle[] = [];
@@ -192,15 +193,11 @@
   };
 
   const fmt = (v?: string) => v ? new Intl.DateTimeFormat('en', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(v)) : '-';
-  // The block editor needs the media library and the tour list. Both are
-  // non-critical: a failure costs the picker its library, not the screen.
+  // The tour list for the block editor's `tours` block. The media library comes
+  // from the shared store. Non-critical: a failure costs the picker its options.
   const loadEditorPools = async () => {
     try {
-      const [media, tours] = await Promise.all([
-        api.media.list({ file_type: 'image', limit: 200 }),
-        api.tours.list({ status: 'published', limit: 200 })
-      ]);
-      mediaItems = (media.data.items as typeof mediaItems).filter((m) => m.file_url);
+      const tours = await api.tours.list({ status: 'published', limit: 200 });
       tourOptions = (tours.data.items as { id: string; title: string }[]).map((t) => ({ id: t.id, title: t.title }));
     } catch {
       // non-critical
@@ -322,7 +319,7 @@
 
         <div class="grid gap-4 sm:grid-cols-2">
           <AdminSelect label="Linked persona" name="persona" bind:value={form.persona} options={personaOptions} />
-          <AdminFormInput label="Hero image URL" name="hero_image_url" bind:value={form.hero_image_url} placeholder="https://..." />
+          <MediaPicker label="Hero image" media={$mediaLibrary} uploadFolder="travel-styles" bind:value={form.hero_image_url} />
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
@@ -350,7 +347,7 @@
               empty section renders nothing, so it is safe to leave one half-finished.
             </p>
           </div>
-          <ContentBlocksEditor bind:blocks media={mediaItems} tours={tourOptions} uploadFolder="travel-styles" />
+          <ContentBlocksEditor bind:blocks media={$mediaLibrary} tours={tourOptions} uploadFolder="travel-styles" />
         </div>
       </div>
 
