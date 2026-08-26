@@ -1,6 +1,15 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { env as publicEnv } from '$env/dynamic/public';
+
+/**
+ * Server-side calls go through the app's own `/api` proxy, which forwards to
+ * BACKEND_ORIGIN. PUBLIC_API_URL is a BROWSER value: inside the web container it
+ * resolves to localhost:5000, where nothing is listening — the API is a separate
+ * container — so using it here 404s every quotation link in production. A
+ * relative path is resolved by SvelteKit's server fetch against this request,
+ * which is how every other server-side loader in this app reaches the API.
+ */
+const API_BASE = '/api';
 
 /**
  * The traveller's quotation, fetched by its link token.
@@ -16,18 +25,10 @@ import { env as publicEnv } from '$env/dynamic/public';
  * token stays server-side, there is no CORS to negotiate, and the page still
  * works if the JavaScript never arrives.
  */
-const apiBase = (origin: string) => {
-  const raw = publicEnv.PUBLIC_API_URL?.trim().replace(/\/+$/, '');
-  if (!raw) return 'http://localhost:5000/api';
-  return raw.startsWith('/') ? `${origin}${raw}` : raw;
-};
-
-export const load: PageServerLoad = async ({ fetch, params, url }) => {
-  const base = apiBase(url.origin);
-
+export const load: PageServerLoad = async ({ fetch, params }) => {
   let quotation: Record<string, unknown> | null = null;
   try {
-    const res = await fetch(`${base}/quotations/public/${encodeURIComponent(params.token)}`);
+    const res = await fetch(`${API_BASE}/quotations/public/${encodeURIComponent(params.token)}`);
     if (res.ok) quotation = ((await res.json()) as { data?: Record<string, unknown> }).data ?? null;
   } catch {
     quotation = null;
@@ -43,13 +44,12 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
 /** POST the traveller's answer to the API, and surface its own words back. */
 const respond = async (
   fetchFn: typeof fetch,
-  origin: string,
   token: string,
   action: 'accept' | 'decline',
   body: Record<string, string | null>
 ) => {
   try {
-    const res = await fetchFn(`${apiBase(origin)}/quotations/public/${encodeURIComponent(token)}/${action}`, {
+    const res = await fetchFn(`${API_BASE}/quotations/public/${encodeURIComponent(token)}/${action}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -72,9 +72,9 @@ const field = (form: FormData, name: string) => {
 };
 
 export const actions: Actions = {
-  accept: async ({ fetch, params, request, url }) => {
+  accept: async ({ fetch, params, request }) => {
     const form = await request.formData();
-    return respond(fetch, url.origin, params.token, 'accept', {
+    return respond(fetch, params.token, 'accept', {
       lead_traveller: field(form, 'lead_traveller'),
       email: field(form, 'email'),
       phone: field(form, 'phone'),
@@ -82,8 +82,8 @@ export const actions: Actions = {
     });
   },
 
-  decline: async ({ fetch, params, request, url }) => {
+  decline: async ({ fetch, params, request }) => {
     const form = await request.formData();
-    return respond(fetch, url.origin, params.token, 'decline', { reason: field(form, 'reason') });
+    return respond(fetch, params.token, 'decline', { reason: field(form, 'reason') });
   }
 };
