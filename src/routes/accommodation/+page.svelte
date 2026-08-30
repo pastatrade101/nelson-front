@@ -220,17 +220,6 @@
   </a>
 </section>
 
-<!-- ── quiet trust band, as the goldfinch index has under its hero ─────────── -->
-{#if lodges.length}
-  <section class="border-b border-ink/10 bg-sand/35">
-    <div class="container-shell flex flex-wrap items-center justify-center gap-x-8 gap-y-3 py-5 text-xs font-semibold text-ink/65">
-      {#each ['Chosen for the route', 'Local specialist guidance', 'Every stay arranged for you', 'Private tailor-made safaris'] as point}
-        <span class="inline-flex items-center gap-2"><ShieldCheck size={14} class="text-forest" />{point}</span>
-      {/each}
-    </div>
-  </section>
-{/if}
-
 {#if loadFailed}
   <section class="container-shell py-20"><ErrorState message="We couldn't load our lodges right now. Please refresh in a moment." /></section>
 {:else if !lodges.length}
@@ -269,34 +258,40 @@
             type="search"
             bind:value={search}
             placeholder="Search stays, destinations, styles…"
-            class="h-11 w-full border border-ink/15 bg-surface pl-9 pr-3 text-sm text-heading placeholder:text-ink/40 focus:border-goldfinch-gold focus:outline-none"
+            class="h-12 w-full border-0 border-b border-ink/20 bg-transparent pl-9 pr-3 text-sm text-heading placeholder:text-ink/40 focus:border-goldfinch-gold focus:outline-none"
           />
         </label>
         <div class="flex flex-wrap items-center gap-2">
-          <select bind:value={activeDestination} class="h-11 min-w-0 border border-ink/15 bg-surface px-3 text-sm font-semibold text-heading focus:border-goldfinch-gold focus:outline-none">
+          <select bind:value={activeDestination} class="h-12 min-w-0 border-0 border-b border-ink/20 bg-transparent px-2 text-sm font-semibold text-heading focus:border-goldfinch-gold focus:outline-none">
             {#each destinations as d}<option value={d}>{d === 'All' ? 'All destinations' : d}</option>{/each}
           </select>
           {#if typesPresent.length > 1}
-            <select bind:value={activeType} class="h-11 min-w-0 border border-ink/15 bg-surface px-3 text-sm font-semibold text-heading focus:border-goldfinch-gold focus:outline-none">
+            <select bind:value={activeType} class="h-12 min-w-0 border-0 border-b border-ink/20 bg-transparent px-2 text-sm font-semibold text-heading focus:border-goldfinch-gold focus:outline-none">
               <option value="All">All types</option>
               {#each typesPresent as t}<option value={t}>{TYPES[t] ?? t}</option>{/each}
             </select>
           {/if}
-          <select bind:value={sortBy} class="h-11 min-w-0 border border-ink/15 bg-surface px-3 text-sm font-semibold text-heading focus:border-goldfinch-gold focus:outline-none">
+          <select bind:value={sortBy} class="h-12 min-w-0 border-0 border-b border-ink/20 bg-transparent px-2 text-sm font-semibold text-heading focus:border-goldfinch-gold focus:outline-none">
             {#each SORTS as s}<option value={s.value}>{s.label}</option>{/each}
           </select>
         </div>
       </div>
-      <div class="hide-scroll flex gap-2 overflow-x-auto">
+      <!-- Underline tabs rather than pills, matching the goldfinch stays index:
+           the row reads as navigation across a set, not as a strip of buttons. -->
+      <div class="hide-scroll flex gap-7 overflow-x-auto">
         {#each LEVELS as lvl}
           <button
             type="button"
-            class={`shrink-0 border px-3.5 py-1.5 text-[13px] font-semibold transition ${activeLevel === lvl.value ? 'border-goldfinch-gold bg-goldfinch-gold/10 text-heading' : 'border-ink/15 text-ink/55 hover:border-ink/30 hover:text-heading'}`}
+            class={`flex min-h-12 shrink-0 items-center gap-1.5 border-b-[3px] px-0.5 text-[13px] font-semibold transition ${
+              activeLevel === lvl.value
+                ? 'border-goldfinch-gold text-heading'
+                : 'border-transparent text-ink/55 hover:text-heading'
+            }`}
             aria-current={activeLevel === lvl.value ? 'true' : undefined}
             on:click={() => (activeLevel = lvl.value)}
           >
             {lvl.label}
-            <span class="ml-1.5 text-[11px] font-normal opacity-55">({levelCounts[lvl.value] ?? 0})</span>
+            <span class="text-[11px] font-normal text-ink/35">{levelCounts[lvl.value] ?? 0}</span>
           </button>
         {/each}
       </div>
@@ -353,20 +348,42 @@
     </div>
   </section>
 
-  <!-- ── premium final CTA ────────────────────────────────────────────────── -->
-  <section class="container-shell py-16 md:py-20">
-    <div class="relative overflow-hidden bg-deep-green px-6 py-14 text-center text-white md:px-12 md:py-20">
-      {#if heroImageSrc}<ResponsiveImage src={heroImageSrc} fallbackSrc={heroImageFallback} width={1920} alt="" imgClass="absolute inset-0 h-full w-full object-cover object-center opacity-25" sizes="100vw" />{/if}
-      <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
-      <div class="relative mx-auto max-w-2xl">
-        <p class="brand-eyebrow justify-center text-goldfinch-gold">Not sure where to stay?</p>
-        <h2 class="mt-3 font-serif text-3xl font-light leading-[1.1] md:text-[44px]">We'll match you to the right camps.</h2>
-        <p class="mx-auto mt-4 max-w-xl text-white/75">Tell us your dates and how you like to travel — a local specialist will pair you with the right lodges and handle every booking.</p>
-        <div class="mt-8 flex flex-wrap justify-center gap-3">
-          <a class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna" href="/plan-my-trip">Plan My Safari <ArrowRight size={16} strokeWidth={2.5} /></a>
-          <a class="inline-flex h-12 items-center gap-2 border border-white/30 px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href="/contact"><MessageCircle size={15} /> Talk to an Advisor</a>
+  <!-- ── closing band ───────────────────────────────────────────────────────
+       Full-bleed rather than a boxed panel, matching the goldfinch stays index so
+       this page and the property page end the same way. -->
+  <section class="relative overflow-hidden bg-deep-green text-white">
+    {#if heroImageSrc}
+      <ResponsiveImage
+        src={heroImageSrc}
+        fallbackSrc={heroImageFallback}
+        width={1600}
+        sizes="100vw"
+        alt=""
+        imgClass="absolute inset-0 h-full w-full object-cover opacity-25"
+      />
+    {/if}
+    <span class="absolute inset-0 bg-gradient-to-br from-deep-green/95 via-deep-green/85 to-forest/90" aria-hidden="true"></span>
+    <span class="pointer-events-none absolute inset-0 shadow-[inset_0_0_160px_50px_rgba(0,0,0,0.45)]" aria-hidden="true"></span>
+
+    <div class="container-shell relative z-10 py-20 md:py-28">
+      <div class="max-w-3xl" use:fadeUpOnScroll={{ y: 16 }}>
+        <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-goldfinch-gold">Planning together</p>
+        <h2 class="mt-5 font-serif text-3xl font-light leading-[1.12] md:text-[46px]">
+          We match the stay to the route,<br class="hidden sm:block" /> not the other way round.
+        </h2>
+        <p class="mt-5 max-w-xl text-base leading-8 text-white/70">
+          Tell us your dates and how you like to travel. A local specialist will pick the camps that suit the route —
+          and say so when a different property would serve you better.
+        </p>
+        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+          <a class="inline-flex h-12 w-full items-center justify-center gap-2 bg-goldfinch-gold px-8 text-sm font-semibold text-deep-green transition hover:brightness-95 sm:w-auto" href="/plan-my-trip">
+            Plan My Safari <ArrowRight size={16} />
+          </a>
+          <a class="inline-flex h-12 w-full items-center justify-center border border-white/30 px-8 text-sm font-semibold text-white transition hover:bg-white/10 sm:w-auto" href="/tours">
+            Browse itineraries
+          </a>
         </div>
-        <div class="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 border-t border-white/15 pt-6 text-[12px] font-medium text-white/70">
+        <div class="mt-9 flex flex-wrap gap-x-7 gap-y-2 border-t border-white/15 pt-6 text-[12px] font-medium text-white/60">
           {#each ['Personally chosen', 'Every booking handled', 'No obligation to book'] as t}
             <span class="inline-flex items-center gap-1.5"><MapPin size={13} class="text-goldfinch-gold" />{t}</span>
           {/each}
