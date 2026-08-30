@@ -6,6 +6,7 @@
   import { ArrowDownToLine, ArrowRight, BadgeCheck, BedDouble, Binoculars, Camera, ChevronDown, CircleHelp, Compass, Gem, Handshake, Headphones, Heart, Home, MapPin, Menu, MessageCircle, Mountain, Plane, Route, Search, ShieldCheck, Sparkles, Tent, Users, Wallet, Waves, X } from '@lucide/svelte';
   import { fade, fly } from 'svelte/transition';
   import MegaMenu from './MegaMenu.svelte';
+  import { TIER_KEYS, TIER_LABELS, tierLabel } from '$lib/tiers';
   import CurrencySelector from './CurrencySelector.svelte';
   import WhatsAppCta from './WhatsAppCta.svelte';
   import { api } from '$lib/api/client';
@@ -90,11 +91,24 @@
   };
 
   // Accommodation "browse by style" — ONLY enum values that exist in published
-  // lodges (types: tented_camp, lodge · levels: luxury, mid_range, budget).
+  // Comfort tiers come from the shared vocabulary rather than being retyped here.
+  // They used to read Luxury / Mid-range / Comfortable and link to ?level=mid_range
+  // and ?level=budget — values no lodge carries, so two of the three links landed
+  // on an empty page. Sourcing them from TIER_KEYS means the menu cannot drift
+  // from the filter again.
+  const TIER_ICON: Record<string, typeof Compass> = {
+    ultra_luxury: Gem,
+    luxury: Gem,
+    classic: Sparkles,
+    essential: BedDouble
+  };
+
   const ACCOMMODATION_BROWSE: { label: string; href: string; icon: typeof Compass }[] = [
-    { label: 'Luxury', href: '/accommodation?level=luxury', icon: Gem },
-    { label: 'Mid-range', href: '/accommodation?level=mid_range', icon: Sparkles },
-    { label: 'Comfortable', href: '/accommodation?level=budget', icon: BedDouble },
+    ...[...TIER_KEYS].reverse().map((key) => ({
+      label: TIER_LABELS[key],
+      href: `/accommodation?level=${key}`,
+      icon: TIER_ICON[key] ?? BedDouble
+    })),
     { label: 'Tented camp', href: '/accommodation?type=tented_camp', icon: Tent },
     { label: 'Lodge', href: '/accommodation?type=lodge', icon: Home }
   ];
@@ -102,15 +116,11 @@
   const closeAndEnquire = () => { openDropdown = ''; openEnquiry(); };
 
   // ── Real-data formatters for the rich editorial cards ─────────────────────
-  const TIER_LABELS: Record<string, string> = {
-    budget: 'Comfortable', mid_range: 'Mid-range', 'mid-range': 'Mid-range', midrange: 'Mid-range',
-    luxury: 'Luxury', luxury_plus: 'Luxury+', 'luxury-plus': 'Luxury+', ultra_luxury: 'Ultra-luxury'
-  };
-  const tierLabel = (t?: unknown): string | undefined => {
-    if (!t) return undefined;
-    const k = String(t).toLowerCase();
-    return TIER_LABELS[k] ?? String(t);
-  };
+  // Tier wording comes from $lib/tiers. A local copy here had drifted to
+  // "Comfortable" / "Mid-range" / "Luxury+" while the rest of the site said
+  // Essential / Classic / Luxury / Ultra Luxury, so the same lodge was labelled
+  // two different ways depending on whether you saw it in the menu or on a page.
+  const cardTier = (t?: unknown): string | undefined => tierLabel(t as string) || undefined;
   const durationLabel = (days?: unknown): string | undefined => {
     const n = Number(days);
     return Number.isFinite(n) && n > 0 ? `${n} day${n === 1 ? '' : 's'}` : undefined;
@@ -361,7 +371,7 @@
           image: (t.main_image_url_thumbnail || t.main_image_url) as string,
           description: t.short_description ? String(t.short_description) : undefined,
           badge: t.is_popular ? 'Best Seller' : t.is_featured ? 'Recommended' : undefined,
-          tier: tierLabel(t.budget_tier),
+          tier: cardTier(t.budget_tier),
           duration: durationLabel(t.duration_days),
           price: priceLabel(t.price_from, t.currency)
         }));
@@ -388,7 +398,7 @@
           image: (l.hero_image_url_thumbnail || l.hero_image_url) as string,
           description: l.why_we_recommend ? String(l.why_we_recommend) : undefined,
           badge: l.is_featured ? 'Recommended' : undefined,
-          tier: tierLabel(l.accommodation_level),
+          tier: cardTier(l.accommodation_level),
           price: priceLabel(l.price_per_night_from, l.currency, ' / night')
         }));
       } catch {

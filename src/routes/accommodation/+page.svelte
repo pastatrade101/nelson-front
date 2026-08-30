@@ -35,7 +35,9 @@
     const typ = sp.get('type');
     const dst = sp.get('destination');
     const q = sp.get('search');
-    if (lvl) activeLevel = lvl;
+      // Normalised, so historical links (?level=mid_range, ?level=budget) and any
+      // bookmark or live ad still land on the right tier rather than an empty page.
+      if (lvl) activeLevel = normalizeTier(lvl) || lvl;
     if (typ) activeType = typ;
     if (dst) activeDestination = dst;
     if (q) search = q;
@@ -43,6 +45,16 @@
 
   // Premium-first (Ultra Luxury → Essential), from the shared tier vocabulary.
   const LEVELS = [{ value: 'All', label: 'All styles' }, ...[...TIER_OPTIONS].reverse()];
+
+  // How many properties sit in each tier, so a filter never looks like a dead
+  // end before it is clicked — the same read the tours filter gives.
+  $: levelCounts = LEVELS.reduce<Record<string, number>>((acc, lvl) => {
+    acc[lvl.value] =
+      lvl.value === 'All'
+        ? lodges.length
+        : lodges.filter((l) => normalizeTier(l.accommodation_level) === lvl.value).length;
+    return acc;
+  }, {});
   const TYPES: Record<string, string> = {
     tented_camp: 'Tented camp',
     lodge: 'Lodge',
@@ -249,6 +261,7 @@
             on:click={() => (activeLevel = lvl.value)}
           >
             {lvl.label}
+            <span class="ml-1.5 text-[11px] font-normal opacity-55">({levelCounts[lvl.value] ?? 0})</span>
           </button>
         {/each}
       </div>
