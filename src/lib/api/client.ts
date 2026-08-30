@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { API_URL } from '$lib/config/env';
 import type { CurrencyApiState } from '$lib/types';
-import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, GalleryItem, Lodge, LodgeImage, MarketPage, Paginated, SafariEssential, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
+import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, GalleryItem, LodgeDetails, Lodge, LodgeImage, MarketPage, Paginated, SafariEssential, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
 
 type QueryValue = string | number | boolean | undefined | null;
 type RequestOptions = Omit<RequestInit, 'body'> & {
@@ -321,7 +321,12 @@ export const api = {
     get: (slug: string) => apiRequest<Lodge>(`/lodges/${slug}`),
     create: (body: Record<string, unknown>) => apiRequest<Lodge>('/lodges', { method: 'POST', body }),
     update: (id: string, body: Record<string, unknown>) => apiRequest<Lodge>(`/lodges/${id}`, { method: 'PUT', body }),
-    remove: (id: string) => apiRequest(`/lodges/${id}`, { method: 'DELETE' })
+    remove: (id: string) => apiRequest(`/lodges/${id}`, { method: 'DELETE' }),
+    // Rooms, rates, highlights and inclusions are read and written as one
+    // document — see lodge-details.controller.ts for why.
+    details: (id: string) => apiRequest<LodgeDetails>(`/lodges/${id}/details`),
+    saveDetails: (id: string, body: Record<string, unknown>) =>
+      apiRequest<LodgeDetails>(`/lodges/${id}/details`, { method: 'PUT', body })
   },
   activities: {
     list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Activity>>(`/activities${queryString(params)}`),

@@ -79,6 +79,80 @@ export type Tour = {
   is_popular?: boolean;
 };
 
+/**
+ * A property's rooms, seasonal rates, highlights and inclusions.
+ *
+ * Read and written as one document rather than four resources, matching the
+ * admin editor and the `/lodges/:id/details` endpoint behind it.
+ */
+export type LodgeRoomImage = {
+  id?: string;
+  image_url: string;
+  alt_text?: string | null;
+  caption?: string | null;
+  sort_order?: number;
+  is_cover?: boolean;
+};
+
+export type LodgeRoom = {
+  id?: string;
+  name: string;
+  room_type?: string | null;
+  short_description?: string | null;
+  max_adults?: number | null;
+  max_children?: number | null;
+  max_guests?: number | null;
+  bed_types?: string[];
+  unit_count?: number | null;
+  views?: string[];
+  amenities?: string[];
+  sort_order?: number;
+  lodge_room_images?: LodgeRoomImage[];
+};
+
+/**
+ * A seasonal rate as the PUBLIC detail endpoint serves it.
+ *
+ * `net_rate` (the contracted trade rate) and `notes` (free text, where terms and
+ * commissions get typed) are deliberately absent — they are not selected by the
+ * public endpoint at all, and keeping them off this type means no public
+ * component can reference them by accident. The admin shape below adds them.
+ */
+export type LodgeSeasonalRate = {
+  id?: string;
+  season_type?: string | null;
+  season_name?: string | null;
+  valid_from?: string | null;
+  valid_until?: string | null;
+  currency?: string;
+  rack_rate?: number | null;
+  single_rate?: number | null;
+  double_rate?: number | null;
+  triple_rate?: number | null;
+  child_rate?: number | null;
+  single_supplement?: number | null;
+  pricing_basis?: string | null;
+  meal_plan?: string | null;
+  sort_order?: number;
+};
+
+/** The full row, served only by the authenticated `/lodges/:id/details` read. */
+export type AdminLodgeSeasonalRate = LodgeSeasonalRate & {
+  net_rate?: number | null;
+  notes?: string | null;
+};
+
+export type LodgeHighlight = { id?: string; title: string; sort_order?: number };
+export type LodgeInclusion = { id?: string; title: string; is_included?: boolean; sort_order?: number };
+
+/** The admin editor's document — the authenticated read, so rates are full. */
+export type LodgeDetails = {
+  highlights: LodgeHighlight[];
+  rooms: LodgeRoom[];
+  rates: AdminLodgeSeasonalRate[];
+  inclusions: LodgeInclusion[];
+};
+
 /** One image from a property's gallery. */
 export type LodgeImage = {
   id?: string;
@@ -233,6 +307,62 @@ export type Lodge = {
   meta_description?: string;
   /** The property's photo gallery, embedded by the detail endpoint. */
   lodge_images?: LodgeImage[];
+
+  // ── The property model, as ported in 2026-08-27-lodge-property-detail.sql ──
+  // Every one of these is optional: the columns are new and mostly unpopulated,
+  // so anything reading them must treat absence as the normal case and hide the
+  // surrounding section rather than render an empty shell.
+  short_description?: string | null;
+
+  // Where it is
+  country?: string | null;
+  region?: string | null;
+  park_area?: string | null;
+  settings?: string[];
+  recommended_nights?: number | null;
+  best_months?: string[];
+
+  // Further imagery
+  mobile_hero_image_url?: string | null;
+  social_image_url?: string | null;
+
+  // Getting there
+  google_maps_url?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  nearest_airport?: string | null;
+  transfer_time?: string | null;
+  distance_airstrip?: string | null;
+  distance_park_gate?: string | null;
+  road_accessibility?: string | null;
+  fly_in_available?: boolean | null;
+  transfer_available?: boolean | null;
+
+  // Who it suits
+  children_allowed?: boolean | null;
+  minimum_child_age?: number | null;
+  family_friendly?: boolean | null;
+  honeymoon_friendly?: boolean | null;
+  accessibility?: string | null;
+  wheelchair_accessible?: boolean | null;
+
+  // Practicalities
+  electricity_availability?: string | null;
+  wifi_availability?: string | null;
+  mobile_networks?: string[];
+  arrival_instructions?: string | null;
+  traveler_notes?: string | null;
+
+  // Publishing
+  show_rates_publicly?: boolean | null;
+  /** False takes the property page out of the index — see the robots meta tag. */
+  indexable?: boolean | null;
+
+  // Child collections, embedded by the detail endpoint's select.
+  lodge_highlights?: LodgeHighlight[];
+  lodge_rooms?: LodgeRoom[];
+  lodge_seasonal_rates?: LodgeSeasonalRate[];
+  lodge_inclusions?: LodgeInclusion[];
 };
 
 export type Activity = {

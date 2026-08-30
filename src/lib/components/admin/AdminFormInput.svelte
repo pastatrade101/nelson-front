@@ -7,6 +7,9 @@
   export let required = false;
   /** Optional min for type="number" inputs. */
   export let min: number | undefined = undefined;
+  /** Granularity for type="number". Needed for decimals — the default is 1, which
+   *  silently rejects a latitude like -2.333333. */
+  export let step: string | number | undefined = undefined;
   export let maxLength: number | undefined = undefined;
   /** Show "n/target" under the field — a soft recommended length, no truncation. */
   export let counter: number | undefined = undefined;
@@ -23,6 +26,7 @@
     {placeholder}
     {required}
     {min}
+    {step}
     maxlength={maxLength}
   />
   {#if counter}
