@@ -142,6 +142,11 @@ export const collectDb = async (
       // sitemap would be asking Google to crawl a page whose own meta tag tells
       // it not to. No-op for collections without the column.
       if (it?.noindex === true) continue;
+      // Lodges invert that polarity — they store `indexable` (NOT NULL DEFAULT
+      // true) rather than `noindex`, so the check above never fires for them and
+      // a de-indexed property would still be submitted to Google. Same no-op for
+      // every collection without the column.
+      if (it?.indexable === false) continue;
       const path = `${prefix}/${slug}`;
       if (seen.has(path)) continue; // no duplicate URLs
       seen.add(path);

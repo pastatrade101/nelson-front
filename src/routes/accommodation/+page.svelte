@@ -65,8 +65,6 @@
   const SORTS = [
     { value: 'recommended', label: 'Recommended' },
     { value: 'luxury', label: 'Luxury first' },
-    { value: 'price_asc', label: 'Price: low to high' },
-    { value: 'price_desc', label: 'Price: high to low' },
     { value: 'rated', label: 'Highest rated' },
     { value: 'name', label: 'Name (A–Z)' }
   ];
@@ -107,14 +105,13 @@
       return `${l.name} ${l.destinations?.name ?? ''} ${(l.best_for ?? []).join(' ')} ${l.why_we_recommend ?? ''}`.toLowerCase().includes(q);
     });
 
+  // Sorting by price is deliberately absent. It is the defining interaction of a
+  // hotel search page, and we sell routes rather than room-nights — 'Recommended'
+  // and the comfort tiers are the honest way to order a hand-picked list.
   $: sorted = matched.slice().sort((a, b) => {
     switch (sortBy) {
       case 'luxury':
         return tierRank(b.accommodation_level) - tierRank(a.accommodation_level) || a.name.localeCompare(b.name);
-      case 'price_asc':
-        return (a.price_per_night_from ?? Infinity) - (b.price_per_night_from ?? Infinity);
-      case 'price_desc':
-        return (b.price_per_night_from ?? -1) - (a.price_per_night_from ?? -1);
       case 'rated':
         return (lodgeRating(b) ?? 0) - (lodgeRating(a) ?? 0);
       case 'name':

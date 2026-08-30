@@ -1,11 +1,12 @@
 <script lang="ts">
-  import {
-    ArrowRight, Award, Building2, ChevronRight, Compass, ExternalLink,
-    Heart, MapPin, MessageCircle, Sparkles, Star, Wallet
-  } from '@lucide/svelte';
+  import { ArrowRight, Award, Building2, ChevronRight, ExternalLink, MapPin, Sparkles, Star, Wallet } from '@lucide/svelte';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations/motion';
   import { imgUrl, origUrl, thumbUrl } from '$lib/img';
-  import { lodgeStars, levelLabel, lodgeBestForLabel, lodgeImage, lodgePriceLabel, lodgeRating, typeLabel } from '$lib/lodge';
+  import {
+    accessibilityLabel, electricityLabel, levelLabel, lodgeBestForLabel, lodgeImage,
+    lodgePriceLabel, lodgeRating, roadAccessLabel, settingLabels, typeLabel, wifiLabel
+  } from '$lib/lodge';
+  import InclusionsGrid from '$lib/components/public/InclusionsGrid.svelte';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import LodgeGallery from '$lib/components/public/LodgeGallery.svelte';
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
@@ -19,7 +20,6 @@
   $: heroImg = lodgeImage(l);
   $: secondImg = l.image_url && l.image_url !== l.hero_image_url ? l.image_url : '';
   $: rating = lodgeRating(l);
-  $: stars = lodgeStars(l);
   $: priceLabel = lodgePriceLabel(l);
   $: bestForLabel = lodgeBestForLabel(l);
   // The property's own photographs. Falls back to the hero and card images so a
@@ -34,6 +34,66 @@
       .filter((url) => url && !seen.has(url) && seen.add(url))
       .map((url, n) => ({ image_url: url, is_cover: n === 0 }));
   })();
+  // ── the ported property model ───────────────────────────────────────────
+  // Every collection is sorted here: the PostgREST embed returns child rows in
+  // no particular order, so sort_order only means anything once we apply it.
+  // Each block is gated on its own array being non-empty — this site hides a
+  // section rather than showing an empty one, and all of these fields are new
+  // and mostly unfilled.
+  $: highlights = [...(l.lodge_highlights ?? [])]
+    .filter((h) => (h.title ?? '').trim())
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+  $: inclusions = [...(l.lodge_inclusions ?? [])]
+    .filter((i) => (i.title ?? '').trim())
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  $: includedTitles = inclusions.filter((i) => i.is_included !== false).map((i) => i.title);
+  $: excludedTitles = inclusions.filter((i) => i.is_included === false).map((i) => i.title);
+
+  // How the property sits in a route. Booleans render only when TRUE and only
+  // as words: a yes/no grid over these is an amenity tick-list, which is the
+  // hotel-site idiom this page exists to avoid.
+  $: arrival = [l.fly_in_available === true ? 'Fly-in' : '', l.transfer_available === true ? 'Road transfer' : '']
+    .filter(Boolean)
+    .join(' \u00b7 ');
+  $: gettingThere = [
+    l.park_area ? { label: 'Area', value: l.park_area } : null,
+    settingLabels(l).length ? { label: 'Setting', value: settingLabels(l).join(' \u00b7 ') } : null,
+    l.recommended_nights ? { label: 'Suggested stay', value: `${l.recommended_nights} nights` } : null,
+    l.nearest_airport ? { label: 'Nearest airstrip', value: l.nearest_airport } : null,
+    l.transfer_time ? { label: 'Transfer time', value: l.transfer_time } : null,
+    l.distance_airstrip ? { label: 'From the airstrip', value: l.distance_airstrip } : null,
+    l.distance_park_gate ? { label: 'From the park gate', value: l.distance_park_gate } : null,
+    roadAccessLabel(l) ? { label: 'Road access', value: roadAccessLabel(l) } : null,
+    arrival ? { label: 'Getting in', value: arrival } : null
+  ].filter(Boolean) as { label: string; value: string }[];
+
+  // 'Adults only' is the one negative this page states outright: it is what a
+  // traveller needs in order to rule the property out, not an amenity score.
+  $: childPolicy =
+    l.children_allowed === false
+      ? 'Adults only'
+      : l.children_allowed === true
+        ? (l.minimum_child_age ? `Welcome from age ${l.minimum_child_age}` : 'Welcome')
+        : '';
+  $: suits = [
+    l.family_friendly === true ? { label: 'Families', value: 'Suited to families' } : null,
+    l.honeymoon_friendly === true ? { label: 'Couples', value: 'Works well for honeymoons' } : null,
+    childPolicy ? { label: 'Children', value: childPolicy } : null,
+    l.wheelchair_accessible === true ? { label: 'Wheelchair access', value: 'Step-free access available' } : null,
+    accessibilityLabel(l) ? { label: 'Accessibility', value: accessibilityLabel(l) } : null
+  ].filter(Boolean) as { label: string; value: string }[];
+
+  // 'Not available' and 'No reliable power' render on purpose. Saying so plainly
+  // is the point — no booking site tells you the wifi does not work.
+  $: practical = [
+    electricityLabel(l) ? { label: 'Power', value: electricityLabel(l) } : null,
+    wifiLabel(l) ? { label: 'Wifi', value: wifiLabel(l) } : null,
+    (l.mobile_networks ?? []).length ? { label: 'Mobile signal', value: (l.mobile_networks ?? []).join(' \u00b7 ') } : null
+  ].filter(Boolean) as { label: string; value: string }[];
+
+  $: hasGoodToKnow = suits.length || practical.length || l.arrival_instructions || l.traveler_notes;
+
   $: planHref = `/plan-my-trip?lodge=${encodeURIComponent(l.slug)}`;
   $: shortlistItem = {
     slug: l.slug, title: l.name, image_url: heroImg,
@@ -55,7 +115,7 @@
   ].filter(Boolean) as { label: string; value: number }[];
 
   $: title = l.seo_title || l.meta_title || `${l.name} — ${l.destinations?.name ?? 'Tanzania'} | Emnel Adventures`;
-  $: metaDesc = l.meta_description || l.why_we_recommend || l.description || `${l.name}, a hand-picked ${typeLabel(l).toLowerCase()} in ${l.destinations?.name ?? 'Tanzania'}, chosen and booked by Emnel Adventures.`;
+  $: metaDesc = l.meta_description || l.short_description || l.why_we_recommend || l.description || `${l.name}, a hand-picked ${typeLabel(l).toLowerCase()} in ${l.destinations?.name ?? 'Tanzania'}, chosen and booked by Emnel Adventures.`;
   $: canonical = `https://emneladventures.com/accommodation/${l.slug}`;
   $: schema = {
     '@context': 'https://schema.org',
@@ -73,10 +133,17 @@
   <title>{title}</title>
   <meta name="description" content={metaDesc} />
   <link rel="canonical" href={canonical} />
+  <!-- Lodges invert the site's polarity: other content stores `noindex`, these
+       store `indexable` (NOT NULL DEFAULT true). Test `=== false`, never
+       `!l.indexable` — the backend's fallback select can omit the column, and
+       that would de-index the whole catalogue. `follow` keeps the page's links
+       to its destination and itineraries working; `nofollow` is for the private
+       token pages only. -->
+  {#if l.indexable === false}<meta name="robots" content="noindex,follow" />{/if}
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={metaDesc} />
-  {#if heroImg}<meta property="og:image" content={imgUrl(heroImg, 1600)} />{/if}
+  {#if l.social_image_url || heroImg}<meta property="og:image" content={imgUrl(l.social_image_url || heroImg, 1600)} />{/if}
   {@html `<script type="application/ld+json">${JSON.stringify(schema)}<\/script>`}
 </svelte:head>
 
@@ -184,6 +251,21 @@
         </div>
       {/if}
 
+      {#if highlights.length}
+        <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
+          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
+          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">What stands out</p>
+          <ul class="mt-5 grid gap-3.5">
+            {#each highlights as h (h.id ?? h.title)}
+              <li class="flex gap-3 text-base leading-8 text-ink/70">
+                <span class="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-goldfinch-gold" aria-hidden="true"></span>
+                <span class="text-heading">{h.title}</span>
+              </li>
+            {/each}
+          </ul>
+        </div>
+      {/if}
+
       {#if gallery.length}
         <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
           <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
@@ -224,6 +306,52 @@
           {/if}
         </div>
       {/if}
+
+      {#if gettingThere.length}
+        <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
+          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
+          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">Getting there</p>
+          <p class="mt-4 text-base leading-8 text-ink/70">
+            Where you come in from and how long the transfer takes — the practical reasons this property sits
+            where it does in a route.
+          </p>
+          <dl class="mt-5 grid gap-px border border-ink/10 bg-ink/10 sm:grid-cols-2">
+            {#each gettingThere as item (item.label)}
+              <div class="bg-surface p-5">
+                <dt class="text-[10px] font-bold uppercase tracking-wider text-ink/45">{item.label}</dt>
+                <dd class="mt-1.5 text-[15px] leading-7 text-heading">{item.value}</dd>
+              </div>
+            {/each}
+          </dl>
+          {#if l.google_maps_url}
+            <!-- A link, never an iframe: an embedded map beside a price is the
+                 booking-site idiom, and a third-party tracker on a page with none. -->
+            <a class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-deep-green transition hover:underline"
+               href={l.google_maps_url} target="_blank" rel="noopener noreferrer">
+              Open in Google Maps <ExternalLink size={15} />
+            </a>
+          {/if}
+        </div>
+      {/if}
+
+      {#if includedTitles.length || excludedTitles.length}
+        <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
+          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
+          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">What is included</p>
+          <p class="mt-4 text-base leading-8 text-ink/70">
+            Meals, drinks and game activities differ from camp to camp — this is what the property covers before
+            we add anything.
+          </p>
+          <!-- The component's default empty copy is tour copy ("your final quote"),
+               which is wrong here: a one-sided list would print it in the other card. -->
+          <InclusionsGrid
+            included={includedTitles}
+            excluded={excludedTitles}
+            includedEmpty="Ask us what this property covers."
+            excludedEmpty="Ask us what falls outside a night here."
+          />
+        </div>
+      {/if}
     </div>
 
     <aside class="lg:sticky lg:top-28">
@@ -231,7 +359,6 @@
         <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">Build your safari</p>
         <p class="mt-2 font-serif text-2xl font-light leading-tight text-white">Stay at {l.name}</p>
         {#if l.destinations?.name}<p class="mt-1 text-sm text-white/55">{l.destinations.name}</p>{/if}
-        {#if priceLabel}<p class="mt-4 text-sm text-white/70">From <span class="font-serif text-xl font-light text-white">{priceLabel}</span> / night</p>{/if}
 
         <p class="mt-5 text-sm leading-7 text-white/70">
           This stay works best as part of a well-paced route. Start with an itinerary and we will confirm the right
@@ -259,6 +386,57 @@
     </aside>
   </div>
 </section>
+
+<!-- ── good to know ─────────────────────────────────────────────────────────
+     One new full-width band, not six. The narrative blocks stay ahead of every
+     fact grid in reading order, so the page still opens with a judgement rather
+     than a spec sheet. bg-savanna/30 because sand, canvas and surface are all
+     the same near-white — this is the only light token that reads as a band. -->
+{#if hasGoodToKnow}
+  <section class="border-t border-ink/10 bg-savanna/30 py-16 md:py-20">
+    <div class="container-shell" use:fadeUpOnScroll={{ y: 16 }}>
+      <p class="text-[11px] uppercase tracking-[0.22em] text-clay">Good to know</p>
+      <h2 class="mt-3 font-serif text-2xl font-light leading-tight text-heading md:text-[32px]">
+        What we would tell you first
+      </h2>
+      <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">
+        The practical detail we would give you on the phone before recommending a property — including the parts
+        that are not flattering.
+      </p>
+
+      {#if suits.length}
+        <h3 class="mt-10 font-serif text-[18px] font-light leading-tight text-heading">Who it suits</h3>
+        <dl class="mt-5 grid gap-px overflow-hidden border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
+          {#each suits as item (item.label)}
+            <div class="bg-surface p-6">
+              <dt class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{item.label}</dt>
+              <dd class="mt-2 text-[15px] leading-7 text-heading">{item.value}</dd>
+            </div>
+          {/each}
+        </dl>
+      {/if}
+
+      {#if practical.length}
+        <h3 class="mt-10 font-serif text-[18px] font-light leading-tight text-heading">Practicalities</h3>
+        <dl class="mt-5 grid gap-px overflow-hidden border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
+          {#each practical as item (item.label)}
+            <div class="bg-surface p-6">
+              <dt class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{item.label}</dt>
+              <dd class="mt-2 text-[15px] leading-7 text-heading">{item.value}</dd>
+            </div>
+          {/each}
+        </dl>
+      {/if}
+
+      {#if l.arrival_instructions}
+        <p class="mt-8 max-w-[68ch] text-base leading-8 text-ink/70">{l.arrival_instructions}</p>
+      {/if}
+      {#if l.traveler_notes}
+        <p class="mt-4 max-w-[68ch] text-base leading-8 text-ink/70">{l.traveler_notes}</p>
+      {/if}
+    </div>
+  </section>
+{/if}
 
 <!-- ── itineraries ─────────────────────────────────────────────────────────
      Trips that actually stay here take precedence over ones that merely cross
