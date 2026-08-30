@@ -13,7 +13,7 @@
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
-  import TourCard from '$lib/components/public/TourCard.svelte';
+  import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import DestinationGuide from '$lib/components/public/guide/DestinationGuide.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import { breadcrumbLd } from '$lib/seo';
@@ -152,7 +152,7 @@
         </div>
         <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
           {#each relatedTours as tour (tour.id)}
-            <TourCard {tour} />
+            <TourCardRich {tour} />
           {/each}
         </div>
       </div>

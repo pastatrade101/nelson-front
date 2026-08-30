@@ -18,7 +18,7 @@
   import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import InclusionsGrid from '$lib/components/public/InclusionsGrid.svelte';
   import RichText from '$lib/components/public/RichText.svelte';
-  import TourCard from '$lib/components/public/TourCard.svelte';
+  import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import MarketImageGrid from '$lib/components/public/market/MarketImageGrid.svelte';
   import MarketNumberedGrid from '$lib/components/public/market/MarketNumberedGrid.svelte';
   import MarketRouteFlow from '$lib/components/public/market/MarketRouteFlow.svelte';
@@ -191,7 +191,7 @@
           </div>
           <div class="mt-10 grid gap-6 md:grid-cols-3">
             {#each picked as tour (tour.id)}
-              <TourCard {tour} />
+              <TourCardRich {tour} />
             {/each}
           </div>
         </div>

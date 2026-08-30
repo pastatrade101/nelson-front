@@ -5,7 +5,7 @@
   import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
-  import TourCard from '$lib/components/public/TourCard.svelte';
+  import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import TrustStrip from '$lib/components/public/TrustStrip.svelte';
   import { SITE_URL } from '$lib/config/env';
   import type { Destination, SafariEssential, Tour } from '$lib/types';
@@ -119,7 +119,7 @@
       />
       <div class="mt-10 grid gap-6 md:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.06 }}>
         {#each featuredTours as tour (tour.id)}
-          <TourCard {tour} />
+          <TourCardRich {tour} />
         {/each}
       </div>
       <div class="mt-8">

@@ -7,7 +7,7 @@
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
-  import TourCard from '$lib/components/public/TourCard.svelte';
+  import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import { breadcrumbLd } from '$lib/seo';
   import type { Tour } from '$lib/types';
 
@@ -115,7 +115,7 @@
         </div>
         <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {#each tours as tour (tour.slug)}
-            <TourCard {tour} />
+            <TourCardRich {tour} />
           {/each}
         </div>
       </div>

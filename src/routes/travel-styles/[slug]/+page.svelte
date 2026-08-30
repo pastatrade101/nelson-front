@@ -5,7 +5,7 @@
   import ContentBlocks from '$lib/components/public/ContentBlocks.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
-  import TourCard from '$lib/components/public/TourCard.svelte';
+  import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import { breadcrumbLd } from '$lib/seo';
   import type { Tour, TravelStyle } from '$lib/types';
   import type { PageData } from './$types';
@@ -159,7 +159,7 @@
       </div>
       <div class="mt-10 grid gap-6 md:grid-cols-3">
         {#each fallbackTours as tour (tour.id)}
-          <TourCard {tour} />
+          <TourCardRich {tour} />
         {/each}
       </div>
     </div>
