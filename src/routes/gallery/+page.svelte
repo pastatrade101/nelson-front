@@ -1,24 +1,26 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
-  import { ArrowRight, Camera, ChevronLeft, ChevronRight, Compass, ImageOff, MapPin, Route, X } from '@lucide/svelte';
-  import { origUrl, thumbUrl } from '$lib/img';
+  import { ArrowRight, CalendarDays, Camera, ChevronLeft, ChevronRight, Compass, Film, ImageOff, MapPin, Quote, Route, X } from '@lucide/svelte';
+  import { cdnUrl, origUrl, thumbUrl } from '$lib/img';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import type { GalleryItem } from '$lib/types';
   import type { PageData } from './$types';
 
   export let data: PageData;
 
   // Only real, published images with a usable URL — never invented placeholders.
   // Ordered by sort_order, so images[0] (the lowest) is the "hero" set in admin.
-  $: images = ((data.images ?? []) as Record<string, unknown>[])
+  $: images = ((data.images ?? []) as GalleryItem[])
     .filter((im) => typeof im.image_url === 'string' && im.image_url)
     .sort((a, b) => (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0));
 
-  const destOf = (im: Record<string, unknown>) => (im.destinations as { name?: string; slug?: string } | null) ?? null;
-  const tourOf = (im: Record<string, unknown>) => (im.tours as { title?: string; slug?: string } | null) ?? null;
-  const cap = (im: Record<string, unknown>) =>
-    (typeof im.title === 'string' && im.title.trim()) || (typeof im.caption === 'string' && im.caption.trim()) || '';
+  const destOf = (im: GalleryItem) => im.destinations ?? null;
+  const tourOf = (im: GalleryItem) => im.tours ?? null;
+  const cap = (im: GalleryItem) => im.title?.trim() || im.caption?.trim() || '';
+  const quoteOf = (im: GalleryItem) => im.guest_quote?.trim() || '';
+  const monthOf = (im: GalleryItem) => im.travel_month?.trim() || '';
 
   // Explore by destination, built from the real links on each image.
   $: destinations = Array.from(
@@ -61,7 +63,12 @@
 <!-- header -->
 <section class="relative isolate overflow-hidden bg-deep-green text-white">
   {#if images[0]}
-    <img class="absolute inset-0 h-full w-full object-cover opacity-60" src={thumbUrl(images[0], 'image_url')} alt="" aria-hidden="true" loading="eager" />
+    {#if images[0].media_type === 'video'}
+      <!-- svelte-ignore a11y-media-has-caption -->
+      <video class="absolute inset-0 h-full w-full object-cover opacity-60" src={cdnUrl(images[0].image_url)} autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
+    {:else}
+      <img class="absolute inset-0 h-full w-full object-cover opacity-60" src={thumbUrl(images[0] as unknown as Record<string, unknown>, 'image_url')} alt="" aria-hidden="true" loading="eager" />
+    {/if}
   {/if}
   <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.35)_0%,transparent_45%,rgba(20,18,15,0.72)_100%)]"></div>
   <div class="container-shell relative py-16 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-20">
@@ -76,7 +83,7 @@
     {#if images.length}
       <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2.5">
         <span class="inline-flex items-center gap-2 text-sm font-bold text-white/90">
-          <Camera size={16} strokeWidth={2.2} class="text-goldfinch-gold" /> {images.length} Image{images.length === 1 ? '' : 's'}
+          <Camera size={16} strokeWidth={2.2} class="text-goldfinch-gold" /> {images.length} Safari moment{images.length === 1 ? '' : 's'}
         </span>
         {#if destinations.length}
           <span class="h-3.5 w-px bg-white/25" aria-hidden="true"></span>
@@ -109,31 +116,45 @@
       <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4" use:staggeredCardReveal>
         {#each filtered as im, i (im.id ?? i)}
           {@const c = cap(im)}
+          {@const q = quoteOf(im)}
+          {@const month = monthOf(im)}
           {@const d = destOf(im)}
           {@const t = tourOf(im)}
           <button
             type="button"
             class="group relative aspect-square overflow-hidden bg-deep-green"
             on:click={() => open(i)}
-            aria-label={c || 'View photo'}
+            aria-label={c || q || 'View safari moment'}
           >
-            <ResponsiveImage
-              src={origUrl(im, 'image_url')}
-              fallbackSrc={thumbUrl(im, 'image_url')}
-              alt={String(im.alt_text ?? im.title ?? 'Safari gallery image')}
-              width={560}
-              sizes="(min-width:1024px) 25vw, (min-width:640px) 33vw, 50vw"
-              imgClass="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
-            />
+            {#if im.media_type === 'video'}
+              <!-- svelte-ignore a11y-media-has-caption -->
+              <video class="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110" src={cdnUrl(im.image_url)} muted playsinline preload="metadata" aria-hidden="true"></video>
+              <span class="absolute right-2.5 top-2.5 grid h-7 w-7 place-items-center rounded-full bg-goldfinch-gold text-deep-green"><Film size={13} /></span>
+            {:else}
+              <ResponsiveImage
+                src={origUrl(im as unknown as Record<string, unknown>, 'image_url')}
+                fallbackSrc={thumbUrl(im as unknown as Record<string, unknown>, 'image_url')}
+                alt={String(im.alt_text ?? im.title ?? 'Safari gallery image')}
+                width={560}
+                sizes="(min-width:1024px) 25vw, (min-width:640px) 33vw, 50vw"
+                imgClass="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
+              />
+            {/if}
             <span class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(15,26,24,0.82))] opacity-80 transition group-hover:opacity-100"></span>
             {#if d?.name}
               <span class="absolute left-2.5 top-2.5 inline-flex items-center gap-1 bg-black/40 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-white backdrop-blur">
                 <MapPin size={9} strokeWidth={2.6} /> {d.name}
               </span>
             {/if}
+            {#if month}
+              <span class={`absolute top-2.5 inline-flex items-center gap-1 bg-black/40 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-white backdrop-blur ${d?.name ? 'left-2.5 mt-7' : 'left-2.5'}`}>
+                <CalendarDays size={9} strokeWidth={2.4} /> {month}
+              </span>
+            {/if}
             <!-- hover detail: caption + destination + itinerary the image belongs to -->
-            {#if c || d?.name || t?.title}
+            {#if c || q || d?.name || t?.title}
               <div class="absolute inset-x-0 bottom-0 translate-y-2 p-3 text-left opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+                {#if q}<p class="line-clamp-2 font-serif text-[13px] italic leading-snug text-white">“{q}”</p>{/if}
                 {#if c}<p class="line-clamp-2 text-[13px] font-bold leading-tight text-white">{c}</p>{/if}
                 <div class="mt-1.5 flex flex-col gap-0.5">
                   {#if d?.name}<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-white/75"><MapPin size={11} strokeWidth={2.4} /> {d.name}</span>{/if}
@@ -163,6 +184,8 @@
 <!-- lightbox -->
 {#if active}
   {@const c = cap(active)}
+  {@const q = quoteOf(active)}
+  {@const month = monthOf(active)}
   {@const d = destOf(active)}
   {@const t = tourOf(active)}
   <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
@@ -183,15 +206,20 @@
       {#key index}
         <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
         <div transition:scale={{ duration: 180, start: 0.98 }} on:click|stopPropagation class="flex max-h-full max-w-full items-center justify-center">
-          <ResponsiveImage
-            src={origUrl(active, 'image_url')}
-            fallbackSrc={thumbUrl(active, 'image_url')}
-            alt={String(active.alt_text ?? active.title ?? 'Safari gallery image')}
-            width={1600}
-            sizes="100vw"
-            imgClass="max-h-full max-w-full object-contain"
-            eager
-          />
+          {#if active.media_type === 'video'}
+            <!-- svelte-ignore a11y-media-has-caption -->
+            <video class="max-h-full max-w-full object-contain" src={cdnUrl(active.image_url)} controls autoplay playsinline preload="metadata"></video>
+          {:else}
+            <ResponsiveImage
+              src={origUrl(active as unknown as Record<string, unknown>, 'image_url')}
+              fallbackSrc={thumbUrl(active as unknown as Record<string, unknown>, 'image_url')}
+              alt={String(active.alt_text ?? active.title ?? 'Safari gallery image')}
+              width={1600}
+              sizes="100vw"
+              imgClass="max-h-full max-w-full object-contain"
+              eager
+            />
+          {/if}
         </div>
       {/key}
       {#if filtered.length > 1}
@@ -201,11 +229,13 @@
       {/if}
     </div>
 
-    {#if c || d?.name || t?.slug}
+    {#if c || q || month || d?.name || t?.slug}
       <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
       <div class="px-5 py-4 text-center text-white sm:px-6" on:click|stopPropagation>
-        {#if c}<p class="font-serif text-lg font-light md:text-xl">{c}</p>{/if}
+        {#if q}<p class="mx-auto max-w-2xl font-serif text-lg italic font-light md:text-xl"><Quote class="mr-1 inline text-goldfinch-gold" size={17} />{q}</p>{/if}
+        {#if c}<p class="mt-1 text-sm font-semibold text-white/80">{c}</p>{/if}
         <div class="mt-1.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[12px] font-semibold text-white/70">
+          {#if month}<span class="inline-flex items-center gap-1"><CalendarDays size={13} /> {month}</span>{/if}
           {#if d?.name}
             <a class="inline-flex items-center gap-1 transition hover:text-goldfinch-gold" href={d.slug ? `/destinations/${d.slug}` : '/destinations'}><MapPin size={13} /> {d.name}</a>
           {/if}

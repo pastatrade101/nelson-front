@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { API_URL } from '$lib/config/env';
 import type { CurrencyApiState } from '$lib/types';
-import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, Lodge, MarketPage, Paginated, SafariEssential, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
+import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, GalleryItem, Lodge, LodgeImage, MarketPage, Paginated, SafariEssential, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
 
 type QueryValue = string | number | boolean | undefined | null;
 type RequestOptions = Omit<RequestInit, 'body'> & {
@@ -412,6 +412,13 @@ export const api = {
     update: (id: string, body: Record<string, unknown>) => apiRequest<BlogPost>(`/blog/${id}`, { method: 'PUT', body }),
     remove: (id: string) => apiRequest(`/blog/${id}`, { method: 'DELETE' })
   },
+  lodgeImages: {
+    list: (lodgeId: string) =>
+      apiRequest<{ items: LodgeImage[] }>(`/lodge-images/${lodgeId}`),
+    /** Replaces the whole gallery — the admin edits it as one ordered list. */
+    replace: (lodgeId: string, images: Array<Record<string, unknown>>) =>
+      apiRequest<{ items: LodgeImage[] }>(`/lodge-images/${lodgeId}`, { method: 'PUT', body: { images } })
+  },
   safariEssentials: {
     list: (params?: Record<string, QueryValue>) =>
       apiRequest<Paginated<SafariEssential>>(`/safari-essentials${queryString(params)}`),
@@ -430,8 +437,8 @@ export const api = {
     remove: (id: string) => apiRequest(`/blog-categories/${id}`, { method: 'DELETE' })
   },
   gallery: {
-    list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Record<string, unknown>>>(`/gallery${queryString(params)}`),
-    get: (id: string) => apiRequest<Record<string, unknown>>(`/gallery/${id}`),
+    list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<GalleryItem>>(`/gallery${queryString(params)}`),
+    get: (id: string) => apiRequest<GalleryItem>(`/gallery/${id}`),
     create: (body: Record<string, unknown>) => apiRequest('/gallery', { method: 'POST', body }),
     update: (id: string, body: Record<string, unknown>) => apiRequest(`/gallery/${id}`, { method: 'PUT', body }),
     remove: (id: string) => apiRequest(`/gallery/${id}`, { method: 'DELETE' })

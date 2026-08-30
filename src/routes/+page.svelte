@@ -1,28 +1,21 @@
 <script lang="ts">
   import { branding } from '$lib/branding';
-  import { onMount } from 'svelte';
   import { ArrowRight } from '@lucide/svelte';
-  import { api } from '$lib/api/client';
   import DestinationFeatureCard from '$lib/components/public/DestinationFeatureCard.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import { faqLd } from '$lib/seo';
-  import StatsCounter from '$lib/components/public/StatsCounter.svelte';
   import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import FounderStorySection from '$lib/components/public/FounderStorySection.svelte';
-  import GuestReviewsSection from '$lib/components/public/GuestReviewsSection.svelte';
+  import HomeProofStrip from '$lib/components/public/HomeProofStrip.svelte';
   import HeroSection from '$lib/components/public/HeroSection.svelte';
-  import JournalFeatureSection from '$lib/components/public/JournalFeatureSection.svelte';
-  import PartnerStrip from '$lib/components/public/PartnerStrip.svelte';
-  import SafariParksIntroSection from '$lib/components/public/SafariParksIntroSection.svelte';
   import SafariProcessSection from '$lib/components/public/SafariProcessSection.svelte';
   import SafariShowcaseGrid from '$lib/components/public/SafariShowcaseGrid.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
-  import PriceRangeBlock from '$lib/components/public/PriceRangeBlock.svelte';
-  import DealCard from '$lib/components/public/DealCard.svelte';
   import GallerySection from '$lib/components/public/GallerySection.svelte';
-  import { fadeUpOnScroll, sectionReveal, staggeredCardReveal } from '$lib/animations';
-  import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
+  import WhyEmnelSection from '$lib/components/public/WhyEmnelSection.svelte';
+  import { sectionReveal, staggeredCardReveal } from '$lib/animations';
+  import type { Destination, FAQ, GalleryItem, Testimonial, Tour } from '$lib/types';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -39,31 +32,26 @@
     title?: string | null;
   };
 
-  let tours: Tour[] = [];
-  let destinations: Destination[] = [];
-  let posts: BlogPost[] = [];
-  let testimonials: Testimonial[] = [];
-  let faqs: FAQ[] = [];
-  let gallery: Record<string, unknown>[] = [];
-  // Sections arrive SSR-loaded from +page.ts so the hero renders in the initial
-  // HTML (and can be preloaded) rather than after a client-side fetch.
+  // All conversion-critical collections arrive SSR-loaded from +page.ts. The
+  // first commercial section therefore contains real products, prices and
+  // durations in the initial HTML instead of appearing after hydration.
+  $: tours = (data.tours ?? []) as Tour[];
+  $: destinations = (data.destinations ?? []) as Destination[];
+  $: faqs = (data.faqs ?? []) as FAQ[];
+  $: gallery = (data.gallery ?? []) as GalleryItem[];
+  $: testimonials = (data.testimonials ?? []) as Testimonial[];
   $: sections = (data.sections ?? {}) as unknown as Record<string, HomeSection>;
 
   // CMS lookup with a safe fallback so the existing design never breaks.
-  // Reactive ($:) so it re-reads `sections` after onMount loads them — otherwise
-  // every cms('…') in the markup would be computed once (with empty sections)
-  // and never update, so admin homepage edits (e.g. the hero image) never show.
   $: cms = (key: string, field: keyof HomeSection, fallback: string): string => {
     const value = sections[key]?.[field];
     return typeof value === 'string' && value.trim() ? value : fallback;
   };
 
   const DEFAULT_PARKS_CONTENT =
-    'From the endless Serengeti plains to the crater floor of Ngorongoro, the elephant woodlands of Tarangire, and the Indian Ocean coast of Zanzibar - Tanzania holds more extraordinary wildlife experiences within a single country than anywhere else on Earth.';
+    'Emnel Adventures was founded in Arusha by Tanzanians who know these parks, seasons and routes first-hand. You plan directly with the local team responsible for your safari.\n\nEvery itinerary is private and tailored around your dates, pace, interests and budget - never pulled from a shelf.';
   const DEFAULT_PARKS_QUOTE =
-    '"One country. Endless safari worlds - each one shaped around your season, pace, and reason for travel."';
-  const DEFAULT_PARKS_CLOSING =
-    'We design private routes across northern Tanzania, southern Tanzania, and the coast so every park has a reason to be in your itinerary.';
+    '“We are not resellers. We are the guides.”';
   const DEFAULT_FOUNDER_CONTENT =
     "Emnel Adventures started in Arusha in 2016 with a name, a story, and $200. The name carries weight: Emily, Nelson's daughter, and Nelson Kambo himself - two people, one vision, and one extraordinary country to share.\n\nNelson started Emnel with a belief that there was a better way to show Tanzania than through a reseller or fixed-package operator. He wanted guests to experience the country the way he knows it - from the inside, with someone who grew up in its shadow, reads its seasons, and understands that a great safari is built on specific knowledge, not generic itineraries.\n\nToday, Nelson and our team of certified Tanzanian guides handle every safari personally - from the first message through the last day in the field. That has not changed. It will not.";
   const DEFAULT_FOUNDER_QUOTE =
@@ -71,27 +59,9 @@
   const DEFAULT_FOUNDER_CAPTION =
     'Nelson Kambo - founder and head guide, Emnel Adventures, Arusha.';
   const DEFAULT_PROCESS_QUOTE = '"One conversation. One contact. One safari that is genuinely yours."';
-  const DEFAULT_REVIEWS_QUOTE = '"From first enquiry to last game drive - consistently extraordinary."';
-  // Stats band values/labels are CMS-overridable via the `stats` section's
-  // extra_data. Accept either a bare array or { items: [...] } (the shape the
-  // admin raw-JSON editor round-trips cleanly), else fall back to the defaults.
-  type StatItem = { value: number; decimals?: number; suffix?: string; label: string };
-  const DEFAULT_STATS: StatItem[] = [
-    { value: 9, suffix: '+', label: 'Years in Tanzania' },
-    { value: 20, suffix: '+', label: 'Tailor-made safaris designed' },
-    { value: 5, suffix: '', label: 'Destinations covered' },
-    { value: 4.9, decimals: 1, suffix: '★', label: 'Average traveller rating' }
-  ];
-  $: statsExtra = (sections.stats?.extra_data ?? null) as unknown;
-  $: homeStats = ((): StatItem[] => {
-    if (Array.isArray(statsExtra) && statsExtra.length) return statsExtra as StatItem[];
-    const items = (statsExtra as { items?: unknown } | null)?.items;
-    if (Array.isArray(items) && items.length) return items as StatItem[];
-    return DEFAULT_STATS;
-  })();
 
   const DEFAULT_SHOWCASE_CONTENT =
-    'Use these safari and climb ideas as starting points. Every route can be adjusted around your dates, pace, lodges, and the season you travel.';
+    'Compare real private safari routes with clear durations and starting prices. Every itinerary can be adjusted around your dates, pace, lodges and travel season.';
 
   $: heroExtra = (sections.hero?.extra_data ?? {}) as Record<string, unknown>;
   $: heroVideo = typeof heroExtra.background_video === 'string' ? heroExtra.background_video : '';
@@ -100,63 +70,25 @@
   $: parksExtra = (sections.safari_parks_intro?.extra_data ?? {}) as Record<string, unknown>;
   $: founderExtra = (sections.founder_story?.extra_data ?? {}) as Record<string, unknown>;
   $: processExtra = (sections.how_it_works?.extra_data ?? {}) as Record<string, unknown>;
-  $: blogExtra = (sections.blog_preview?.extra_data ?? {}) as Record<string, unknown>;
-  $: testimonialExtra = (sections.testimonials?.extra_data ?? {}) as Record<string, unknown>;
 
   // Final CTA background (image/video + overlay), all editable from Admin → Homepage.
   $: ctaExtra = (sections.final_cta?.extra_data ?? {}) as Record<string, unknown>;
   $: ctaImage = typeof sections.final_cta?.image_url === 'string' ? sections.final_cta.image_url : '';
   $: ctaVideo = typeof ctaExtra.background_video === 'string' ? ctaExtra.background_video : '';
   $: ctaPosition = typeof ctaExtra.media_position === 'string' ? ctaExtra.media_position : 'center';
-  // Fallback background image for the final CTA when no admin media is set, so
-  // the band is a photo with an overlay rather than a flat colour. Admin image
-  // (sections.final_cta.image_url) still overrides this.
-  const DEFAULT_CTA_IMAGE =
-    'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1600&q=70';
-  $: ctaImageResolved = ctaImage || DEFAULT_CTA_IMAGE;
+  // Prefer a real CMS gallery image over a stock fallback. If neither exists,
+  // FinalCtaSection uses its branded gradient.
+  $: galleryCtaImage = gallery.find((item) => item.media_type !== 'video' && item.media_type !== 'document')?.image_url ?? '';
+  $: ctaImageResolved = ctaImage || galleryCtaImage;
   $: ctaOverlayColor = typeof ctaExtra.overlay_color === 'string' ? ctaExtra.overlay_color : '#1C1A16';
   $: ctaOverlayOpacity = typeof ctaExtra.overlay_opacity === 'number' ? ctaExtra.overlay_opacity : 0.7;
   $: ctaOverlayGradient = ctaExtra.overlay_gradient !== false;
 
-  // Partner / company logo strip (managed in Admin → Homepage → "partners").
-  $: partnersExtra = (sections.partners?.extra_data ?? {}) as Record<string, unknown>;
-  $: partnerLogos = (Array.isArray(partnersExtra.logos) ? partnersExtra.logos : []) as Array<{
-    image_url: string;
-    name?: string;
-    url?: string;
-  }>;
-  $: partnersActive = sections.partners?.is_active !== false;
   // A homepage section renders only when its CMS "Active" toggle is on (absent /
   // undefined counts as active). This makes the admin Active switch actually
   // control what shows — previously most sections ignored it and always rendered.
   $: sectionOn = (key: string): boolean => sections[key]?.is_active !== false;
 
-  // Typical-cost rows, CMS-overridable (cost_ranges → extra_data.ranges).
-  $: costRanges = (() => {
-    const r = (sections.cost_ranges?.extra_data as Record<string, unknown> | undefined)?.ranges;
-    return Array.isArray(r) ? (r as Array<{ label: string; from: string; note?: string }>) : [];
-  })();
-
-  onMount(async () => {
-    // Each request is independent: a failure (or emptiness) in one collection
-    // must never blank the others — in particular, a hiccup in tours/blog/faqs
-    // should not wipe the CMS homepage sections and drop the hero to its default.
-    const [tourRes, destRes, postRes, testRes, faqRes, galRes] = await Promise.allSettled([
-      api.tours.list({ limit: 6 }),
-      api.destinations.list({ status: 'published', limit: 6 }),
-      api.blog.list({ limit: 3 }),
-      api.testimonials.list({ limit: 6 }),
-      api.faqs.list({ category: 'General', status: 'published', limit: 6 }),
-      api.gallery.list({ status: 'published', limit: 8 })
-    ]);
-
-    if (tourRes.status === 'fulfilled' && tourRes.value.data.items.length) tours = tourRes.value.data.items;
-    if (destRes.status === 'fulfilled' && destRes.value.data.items.length) destinations = destRes.value.data.items;
-    if (postRes.status === 'fulfilled' && postRes.value.data.items.length) posts = postRes.value.data.items;
-    if (testRes.status === 'fulfilled' && testRes.value.data.items.length) testimonials = testRes.value.data.items;
-    if (faqRes.status === 'fulfilled' && faqRes.value.data.items.length) faqs = faqRes.value.data.items;
-    if (galRes.status === 'fulfilled' && galRes.value.data.items.length) gallery = galRes.value.data.items;
-  });
 </script>
 
 <svelte:head>
@@ -177,136 +109,81 @@
   imagePosition={typeof heroExtra.media_position === 'string' ? heroExtra.media_position : 'center'}
   primaryCta={cms('hero', 'button_text', 'Plan My Safari')}
   primaryCtaUrl={cms('hero', 'button_url', '/plan-my-trip')}
-  secondaryCta={typeof heroExtra.secondary_cta_text === 'string' ? heroExtra.secondary_cta_text : 'Talk to a Safari Advisor'}
-  secondaryCtaUrl={typeof heroExtra.secondary_cta_url === 'string' ? heroExtra.secondary_cta_url : '/contact'}
-  trustLine={typeof heroExtra.trust_line === 'string' ? heroExtra.trust_line : 'TripAdvisor · TLTO Certified · Private vehicles only · Tanzania-born team · Dedicated safari specialist'}
+  secondaryCta={typeof heroExtra.secondary_cta_text === 'string' ? heroExtra.secondary_cta_text : 'Explore Safaris & Prices'}
+  secondaryCtaUrl={typeof heroExtra.secondary_cta_url === 'string' ? heroExtra.secondary_cta_url : '/tours'}
+  trustLine={typeof heroExtra.trust_line === 'string' ? heroExtra.trust_line : 'Real itineraries · Clear durations and starting prices · Planned in Arusha'}
   overlayColor={typeof heroExtra.overlay_color === 'string' ? heroExtra.overlay_color : '#1C1A16'}
   overlayOpacity={typeof heroExtra.overlay_opacity === 'number' ? heroExtra.overlay_opacity : 0.3}
   overlayGradient={heroExtra.overlay_gradient !== false}
 />
 
-{#if sectionOn('safari_parks_intro')}
-<SafariParksIntroSection
-  eyebrow={typeof parksExtra.eyebrow === 'string' ? parksExtra.eyebrow : "Tanzania's Greatest Safari Parks"}
-  title={cms('safari_parks_intro', 'title', 'The Best Safari Destinations')}
-  accentTitle={typeof parksExtra.accent_title === 'string' ? parksExtra.accent_title : 'in Tanzania'}
-  content={cms('safari_parks_intro', 'content', DEFAULT_PARKS_CONTENT)}
-  quote={typeof parksExtra.quote === 'string' ? parksExtra.quote : DEFAULT_PARKS_QUOTE}
-  closing={typeof parksExtra.closing === 'string' ? parksExtra.closing : DEFAULT_PARKS_CLOSING}
-  ctaLabel={cms('safari_parks_intro', 'button_text', 'Explore Destinations')}
-  ctaHref={cms('safari_parks_intro', 'button_url', '/destinations')}
-  stats={Array.isArray(parksExtra.stats) ? parksExtra.stats : undefined}
-  parks={Array.isArray(parksExtra.parks) ? parksExtra.parks : undefined}
-/>
-{/if}
+<HomeProofStrip />
 
 {#if sectionOn('safari_showcase') && tours.length}
-  <SafariShowcaseGrid
-    eyebrow={typeof showcaseExtra.eyebrow === 'string' ? showcaseExtra.eyebrow : 'Private Safari Itineraries'}
-    title={cms('safari_showcase', 'title', 'Six Routes')}
-    accentTitle={typeof showcaseExtra.accent_title === 'string' ? showcaseExtra.accent_title : 'to Start From'}
-    content={cms('safari_showcase', 'content', DEFAULT_SHOWCASE_CONTENT)}
-    ctaLabel={cms('safari_parks_intro', 'button_text', 'View Safari Itineraries')}
-    ctaHref={cms('safari_parks_intro', 'button_url', '/tours')}
-    {tours}
-  />
+  <div id="popular-safaris" class="scroll-mt-20">
+    <SafariShowcaseGrid
+      eyebrow={typeof showcaseExtra.eyebrow === 'string' ? showcaseExtra.eyebrow : 'Explore Real Itineraries'}
+      title={cms('safari_showcase', 'title', 'Popular Private')}
+      accentTitle={typeof showcaseExtra.accent_title === 'string' ? showcaseExtra.accent_title : 'Safaris'}
+      content={cms('safari_showcase', 'content', DEFAULT_SHOWCASE_CONTENT)}
+      ctaLabel={cms('safari_showcase', 'button_text', 'View All Safaris')}
+      ctaHref={cms('safari_showcase', 'button_url', '/tours')}
+      {tours}
+    />
+  </div>
 {/if}
 
-{#if sectionOn('founder_story')}
-<FounderStorySection
-  eyebrow={typeof founderExtra.eyebrow === 'string' ? founderExtra.eyebrow : "The Founder's Story"}
-  title={cms('founder_story', 'title', 'Built in Tanzania.')}
-  accentTitle={typeof founderExtra.accent_title === 'string' ? founderExtra.accent_title : 'For Those Who Want Africa Properly.'}
-  content={cms('founder_story', 'content', DEFAULT_FOUNDER_CONTENT)}
-  quote={typeof founderExtra.quote === 'string' ? founderExtra.quote : DEFAULT_FOUNDER_QUOTE}
-  imageUrl={cms('founder_story', 'image_url', 'https://images.unsplash.com/photo-1523805009345-7448845a9e53')}
-  imageCaption={typeof founderExtra.image_caption === 'string' ? founderExtra.image_caption : DEFAULT_FOUNDER_CAPTION}
-  primaryCta={cms('founder_story', 'button_text', 'Read the Full Story')}
-  primaryHref={cms('founder_story', 'button_url', '/about')}
-  secondaryCta={typeof founderExtra.secondary_cta_text === 'string' ? founderExtra.secondary_cta_text : 'Speak to Nelson'}
-  secondaryHref={typeof founderExtra.secondary_cta_url === 'string' ? founderExtra.secondary_cta_url : '/contact'}
-/>
+{#if sectionOn('safari_parks_intro')}
+  <div id="why-emnel" class="scroll-mt-20">
+    <WhyEmnelSection
+      eyebrow={typeof parksExtra.why_eyebrow === 'string' ? parksExtra.why_eyebrow : 'Why Emnel'}
+      title={cms('safari_parks_intro', 'title', 'Private Tanzania safaris,')}
+      accentTitle={typeof parksExtra.why_accent_title === 'string' ? parksExtra.why_accent_title : 'planned where they happen.'}
+      content={cms('safari_parks_intro', 'content', DEFAULT_PARKS_CONTENT)}
+      quote={typeof parksExtra.quote === 'string' ? parksExtra.quote : DEFAULT_PARKS_QUOTE}
+      ctaLabel={typeof parksExtra.why_cta_text === 'string' ? parksExtra.why_cta_text : 'Why Travel With Emnel'}
+      ctaHref={typeof parksExtra.why_cta_url === 'string' ? parksExtra.why_cta_url : '/about'}
+    />
+  </div>
 {/if}
 
 {#if sectionOn('how_it_works')}
-<SafariProcessSection
-  eyebrow={typeof processExtra.eyebrow === 'string' ? processExtra.eyebrow : 'Simple From the Start'}
-  title={cms('how_it_works', 'title', 'How a Private Tanzania Safari')}
-  accentTitle={typeof processExtra.accent_title === 'string' ? processExtra.accent_title : 'With Emnel Works'}
-  subtitle={cms('how_it_works', 'subtitle', "Custom safari booking can feel complicated. It is not - not when you work directly with the people who run the safaris. Here is how it works from first message to first game drive.")}
-  quote={typeof processExtra.quote === 'string' ? processExtra.quote : DEFAULT_PROCESS_QUOTE}
-  ctaLabel={cms('how_it_works', 'button_text', 'Begin Your Journey')}
-  ctaHref={cms('how_it_works', 'button_url', '/plan-my-trip')}
-  steps={Array.isArray(processExtra.steps) ? processExtra.steps : undefined}
-/>
+  <div id="how-it-works" class="scroll-mt-20">
+    <SafariProcessSection
+      eyebrow={typeof processExtra.eyebrow === 'string' ? processExtra.eyebrow : 'Simple From the Start'}
+      title={cms('how_it_works', 'title', 'How a Private Tanzania Safari')}
+      accentTitle={typeof processExtra.accent_title === 'string' ? processExtra.accent_title : 'With Emnel Works'}
+      subtitle={cms('how_it_works', 'subtitle', "Custom safari booking can feel complicated. It is not - not when you work directly with the people who run the safaris. Here is how it works from first message to first game drive.")}
+      quote={typeof processExtra.quote === 'string' ? processExtra.quote : DEFAULT_PROCESS_QUOTE}
+      ctaLabel="Plan My Safari"
+      ctaHref={cms('how_it_works', 'button_url', '/plan-my-trip')}
+      steps={Array.isArray(processExtra.steps) ? processExtra.steps : undefined}
+    />
+  </div>
 {/if}
 
-{#if sectionOn('blog_preview') && posts.length}
-  <JournalFeatureSection
-    eyebrow={typeof blogExtra.eyebrow === 'string' ? blogExtra.eyebrow : 'The Emnel Journal'}
-    title={cms('blog_preview', 'title', 'Field Notes From')}
-    accentTitle={typeof blogExtra.accent_title === 'string' ? blogExtra.accent_title : 'Tanzania'}
-    ctaLabel={cms('blog_preview', 'button_text', 'View All Articles')}
-    ctaHref={cms('blog_preview', 'button_url', '/blog')}
-    {posts}
-  />
-{/if}
-
-{#if sectionOn('testimonials') && testimonials.length}
-  <GuestReviewsSection
-    eyebrow={typeof testimonialExtra.eyebrow === 'string' ? testimonialExtra.eyebrow : 'Guest Experiences'}
-    title={cms('testimonials', 'title', 'What Guests Say About')}
-    accentTitle={typeof testimonialExtra.accent_title === 'string' ? testimonialExtra.accent_title : 'Their Tanzania Safari'}
-    subtitle={cms('testimonials', 'subtitle', 'Every review is from a guest who travelled with Emnel Adventures on a private, tailor-made safari.')}
-    quote={typeof testimonialExtra.quote === 'string' ? testimonialExtra.quote : DEFAULT_REVIEWS_QUOTE}
-    ctaLabel={cms('testimonials', 'button_text', 'Plan Your Safari')}
-    ctaHref={cms('testimonials', 'button_url', '/plan-my-trip')}
-    {testimonials}
-  />
-{/if}
-
-<StatsCounter stats={homeStats} />
-
-{#if sectionOn('featured_tours') && tours.length}
-  <section class="relative overflow-hidden bg-gradient-to-b from-sand/55 via-surface to-surface py-16 md:py-24" use:sectionReveal>
-    <span class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl" aria-hidden="true"></span>
-    <div class="container-shell relative">
-      <div class="max-w-2xl text-left" use:fadeUpOnScroll={{ y: 14 }}>
-        <p class="brand-eyebrow">Limited Time Offers</p>
-        <h2 class="mt-4 text-3xl font-normal tracking-normal text-heading md:text-[40px]">
-          {cms('featured_tours', 'title', 'Exclusive Safari Deals & Travel Offers')}
-        </h2>
-        <p class="mt-3 text-[15px] font-medium leading-7 text-ink/70 md:text-lg">
-          {cms('featured_tours', 'subtitle', 'Handpicked Tanzania safari, Kilimanjaro and Zanzibar experiences at our best seasonal prices — limited spots, big value.')}
-        </p>
-      </div>
-      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal>
-        {#each tours.slice(0, 3) as tour, i}
-          <DealCard {tour} index={i} />
-        {/each}
-      </div>
-    </div>
-  </section>
-{/if}
-
-<!-- typical cost band (spec §4.1 F / §6) — only shown when real ranges are set in the CMS -->
-{#if sectionOn('cost_ranges') && costRanges.length}
-  <section class="bg-canvas py-16 md:py-24" use:sectionReveal>
-    <div class="container-shell">
-      <PriceRangeBlock
-        title={cms('cost_ranges', 'title', 'What trips typically cost')}
-        subtitle={cms('cost_ranges', 'subtitle', 'A confident brand is upfront about price — here are honest starting points by trip type.')}
-        ranges={costRanges}
-      />
-    </div>
-  </section>
+{#if sectionOn('founder_story')}
+  <div id="founder-story" class="scroll-mt-20">
+    <FounderStorySection
+      eyebrow={typeof founderExtra.eyebrow === 'string' ? founderExtra.eyebrow : "The Founder's Story"}
+      title={cms('founder_story', 'title', 'Built in Tanzania.')}
+      accentTitle={typeof founderExtra.accent_title === 'string' ? founderExtra.accent_title : 'For Those Who Want Africa Properly.'}
+      content={cms('founder_story', 'content', DEFAULT_FOUNDER_CONTENT)}
+      quote={typeof founderExtra.quote === 'string' ? founderExtra.quote : DEFAULT_FOUNDER_QUOTE}
+      imageUrl={cms('founder_story', 'image_url', '')}
+      imageCaption={typeof founderExtra.image_caption === 'string' ? founderExtra.image_caption : DEFAULT_FOUNDER_CAPTION}
+      primaryCta={cms('founder_story', 'button_text', 'Read the Full Story')}
+      primaryHref={cms('founder_story', 'button_url', '/about')}
+      compact
+    />
+  </div>
 {/if}
 
 {#if sectionOn('featured_destinations') && destinations.length}
-  <section class="bg-sand/40 py-16 md:py-24" use:sectionReveal>
+  <section id="destinations" class="scroll-mt-20 bg-sand/40 py-16 md:py-24" use:sectionReveal>
     <div class="container-shell">
       <div class="flex flex-wrap items-end justify-between gap-4">
-        <SectionHeader eyebrow="Places" title={cms('featured_destinations', 'title', 'Destinations')} description={cms('featured_destinations', 'subtitle', 'Destination content can be managed from the CMS.')} />
+        <SectionHeader eyebrow="Places" title={cms('featured_destinations', 'title', 'Explore Tanzania')} description={cms('featured_destinations', 'subtitle', 'See what makes each safari region different, then explore the parks, wildlife and best travel seasons in detail.')} />
         <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href="/destinations">
           See all Destinations <ArrowRight size={16} />
         </a>
@@ -320,11 +197,19 @@
   </section>
 {/if}
 
-<GallerySection images={gallery} />
+<div id="recent-safaris" class="scroll-mt-20">
+  <GallerySection
+    images={gallery}
+    {testimonials}
+    eyebrow="Real Traveller Proof"
+    title="From Our Recent Safaris"
+    description="Real moments from Emnel journeys, labelled by the place and safari they belong to."
+  />
+</div>
 
 {#if sectionOn('faq') && faqs.length}
   <JsonLd data={faqLd(faqs.map((f) => ({ q: f.question, a: f.answer })))} />
-  <section class="bg-canvas py-16 md:py-24" use:sectionReveal>
+  <section id="faq" class="scroll-mt-20 bg-canvas py-16 md:py-24" use:sectionReveal>
     <div class="container-shell grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-12">
       <SectionHeader
         eyebrow={typeof faqExtra.eyebrow === 'string' ? faqExtra.eyebrow : 'Good to Know'}
@@ -336,7 +221,7 @@
   </section>
 {/if}
 
-{#if sections.final_cta?.is_active !== false && (sections.final_cta?.title || sections.final_cta?.button_text)}
+{#if sections.final_cta?.is_active !== false}
   <FinalCtaSection
     eyebrow="Start Your Journey"
     title={cms('final_cta', 'title', 'Ready to plan your private Tanzania safari?')}
@@ -353,8 +238,4 @@
     overlayOpacity={ctaOverlayOpacity}
     overlayGradient={ctaOverlayGradient}
   />
-{/if}
-
-{#if partnersActive}
-  <PartnerStrip logos={partnerLogos} title={cms('partners', 'title', 'Trusted by leading travel partners')} />
 {/if}

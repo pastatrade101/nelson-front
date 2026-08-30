@@ -164,6 +164,34 @@
 
   // Day-by-day itinerary + what's included (embedded in the tour detail response).
   $: itineraryDays = [...(tour?.itinerary_days ?? [])].sort((a, b) => (a.day_number ?? 0) - (b.day_number ?? 0));
+
+  /**
+   * Up to four photographs of the property a day stays at.
+   *
+   * Prefers the lodge's own ordered gallery, then falls back to its hero and card
+   * images, so a property with no gallery yet still shows something. Deduped,
+   * because the migration seeds hero/card into the gallery and a lodge edited
+   * since could hold the same URL twice. Empty for a day whose accommodation is
+   * still free text — there is no record to show, and inventing one would be
+   * worse than showing nothing.
+   */
+  const stayImages = (day: DisplayDay) => {
+    const lodge = day.lodge;
+    if (!lodge) return [] as { url: string; alt: string }[];
+    const gallery = [...(lodge.lodge_images ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    const seen = new Set<string>();
+    const out: { url: string; alt: string }[] = [];
+    const add = (url?: string | null, alt?: string | null) => {
+      const clean = (url ?? '').trim();
+      if (!clean || seen.has(clean) || out.length >= 4) return;
+      seen.add(clean);
+      out.push({ url: clean, alt: (alt ?? '').trim() || lodge.name });
+    };
+    for (const image of gallery) add(image.image_url, image.alt_text || image.caption);
+    add(lodge.hero_image_url);
+    add(lodge.image_url);
+    return out;
+  };
   $: inclusions = [...(tour?.tour_inclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: exclusions = [...(tour?.tour_exclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   // InclusionsGrid is driven by plain strings; map the sorted records here.
@@ -582,6 +610,38 @@
                       {/if}
                     </ul>
                   {/if}
+
+                    <!-- The property itself, shown when the day is linked to a
+                         real lodge record rather than free text. -->
+                    {#if day.lodge}
+                      {@const stay = stayImages(day)}
+                      {#if stay.length}
+                      <figure class="mt-5">
+                        <figcaption class="flex flex-wrap items-baseline justify-between gap-3">
+                          <span class="text-[11px] uppercase tracking-[0.2em] text-clay">{day.lodge?.name}</span>
+                          {#if day.lodge?.slug}
+                            <a
+                              class="text-[12.5px] font-medium text-deep-green transition hover:underline"
+                              href={`/accommodation/${day.lodge.slug}`}
+                            >
+                              About this property
+                            </a>
+                          {/if}
+                        </figcaption>
+                        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                          {#each stay as image (image.url)}
+                            <ResponsiveImage
+                              src={image.url}
+                              alt={image.alt}
+                              width={420}
+                              sizes="(min-width:640px) 22vw, 45vw"
+                              imgClass="aspect-[4/3] w-full object-cover"
+                            />
+                          {/each}
+                        </div>
+                      </figure>
+                      {/if}
+                    {/if}
                 </div>
               </details>
             {/each}

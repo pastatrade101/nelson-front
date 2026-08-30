@@ -134,15 +134,47 @@
     }
   };
 
+  // The property's photo gallery. Held separately from `form` because it is its
+  // own table, saved right after the lodge so a new lodge has an id to attach to.
+  let gallery: { image_url: string; alt_text: string }[] = [];
+
+  const loadGallery = async (lodgeId: string) => {
+    try {
+      const res = await api.lodgeImages.list(lodgeId);
+      gallery = (res.data.items ?? []).map((i) => ({
+        image_url: String(i.image_url ?? ''),
+        alt_text: String(i.alt_text ?? '')
+      }));
+    } catch {
+      gallery = [];
+    }
+  };
+
+  const addGalleryImage = () => { gallery = [...gallery, { image_url: '', alt_text: '' }]; };
+  const removeGalleryImage = (i: number) => { gallery = gallery.filter((_, n) => n !== i); };
+  const moveGalleryImage = (i: number, delta: number) => {
+    const j = i + delta;
+    if (j < 0 || j >= gallery.length) return;
+    const next = [...gallery];
+    [next[i], next[j]] = [next[j], next[i]];
+    gallery = next;
+  };
+  const setGalleryUrl = (i: number, url: string) => {
+    gallery = gallery.map((g, n) => (n === i ? { ...g, image_url: url } : g));
+  };
+
   const openCreate = () => {
     editing = null;
     form = emptyForm();
+    gallery = [];
     slugManuallyEdited = false;
     modalOpen = true;
   };
 
   const openEdit = (l: Lodge) => {
     editing = l;
+    gallery = [];
+    void loadGallery(l.id);
     form = {
       name: l.name,
       slug: l.slug,
@@ -197,12 +229,26 @@
       meta_description: form.meta_description.trim() || null
     };
     try {
+      // The gallery is a separate table, so it is written after the lodge — and a
+      // new lodge has no id until the create returns.
+      let lodgeId = editing?.id ?? '';
       if (editing) {
         await api.lodges.update(editing.id, payload);
         showToast('Lodge updated.');
       } else {
-        await api.lodges.create(payload);
+        const created = await api.lodges.create(payload);
+        lodgeId = String((created.data as { id?: string })?.id ?? '');
         showToast('Lodge created.');
+      }
+
+      if (lodgeId) {
+        const images = gallery.filter((g) => g.image_url.trim());
+        try {
+          await api.lodgeImages.replace(lodgeId, images);
+        } catch {
+          // The lodge itself saved; say so rather than implying nothing happened.
+          showToast('Lodge saved, but its gallery could not be updated.', 'error');
+        }
       }
       closeModal();
       await load();
@@ -350,6 +396,62 @@
 
         <div class="grid gap-4 sm:grid-cols-2">
           <MediaPicker label="Hero image" media={$mediaLibrary} uploadFolder="lodges" bind:value={form.hero_image_url} />
+
+          <div class="grid gap-3 border border-ink/10 bg-sand/20 p-4 md:col-span-2">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-semibold text-ink">Photo gallery</h3>
+                <p class="mt-1 text-sm text-ink/55">
+                  Shown as a row on every itinerary day that stays here — the first four appear.
+                  The first image is the cover.
+                </p>
+              </div>
+              <button
+                class="inline-flex h-10 items-center gap-2 bg-forest px-4 text-sm font-semibold text-white transition hover:brightness-110"
+                type="button"
+                on:click={addGalleryImage}
+              >
+                Add image
+              </button>
+            </div>
+
+            {#if !gallery.length}
+              <p class="border border-dashed border-ink/20 px-4 py-6 text-center text-sm text-ink/55">
+                No gallery yet. Itinerary days will fall back to the hero and card images above.
+              </p>
+            {/if}
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              {#each gallery as image, i (i)}
+                <div class="grid gap-2 border border-ink/10 bg-surface p-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wide text-ink/45">
+                      {i === 0 ? 'Cover' : `Image ${i + 1}`}
+                    </span>
+                    <div class="flex items-center gap-1">
+                      <button class="p-1 text-ink/40 transition hover:text-ink disabled:opacity-30" type="button" disabled={i === 0} on:click={() => moveGalleryImage(i, -1)} aria-label="Move earlier">↑</button>
+                      <button class="p-1 text-ink/40 transition hover:text-ink disabled:opacity-30" type="button" disabled={i === gallery.length - 1} on:click={() => moveGalleryImage(i, 1)} aria-label="Move later">↓</button>
+                      <button class="p-1 text-red-500 transition hover:text-red-700" type="button" on:click={() => removeGalleryImage(i)} aria-label="Remove">✕</button>
+                    </div>
+                  </div>
+                  <MediaPicker
+                    label=""
+                    media={$mediaLibrary}
+                    uploadFolder="lodges"
+                    aspect="aspect-[4/3]"
+                    value={image.image_url}
+                    on:change={(e) => setGalleryUrl(i, (e as CustomEvent<string>).detail)}
+                  />
+                  <AdminFormInput
+                    label="Alt text"
+                    name={`gallery_alt_${i}`}
+                    bind:value={image.alt_text}
+                    placeholder="What the photograph shows"
+                  />
+                </div>
+              {/each}
+            </div>
+          </div>
           <MediaPicker label="Card image" media={$mediaLibrary} uploadFolder="lodges" bind:value={form.image_url} />
         </div>
 

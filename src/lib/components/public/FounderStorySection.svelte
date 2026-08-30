@@ -18,17 +18,25 @@
   export let primaryHref = '/about';
   export let secondaryCta = 'Speak to Nelson';
   export let secondaryHref = '/contact';
+  export let compact = false;
 
+  const shortenHtml = (html: string): string => {
+    const htmlParagraphs = html.match(/<p\b[^>]*>[\s\S]*?<\/p>/gi);
+    return compact && htmlParagraphs?.length ? htmlParagraphs.slice(0, 2).join('') : html;
+  };
+
+  $: displayHtml = isHtml(content) ? shortenHtml(content) : '';
   $: paragraphs = content
     .replace(/\\n/g, '\n')
     .split(/\n{2,}/)
     .map((part) => part.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .slice(0, compact ? 2 : undefined);
 </script>
 
-<section class="bg-deep-green py-16 text-white md:py-24" use:fadeUpOnScroll={{ y: 14 }}>
-  <div class="container-shell grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
-    <figure class="relative min-h-[520px] overflow-hidden border border-white/[0.08] bg-midnight md:min-h-[680px]">
+<section class={`bg-deep-green py-16 text-white ${compact ? 'md:py-20' : 'md:py-24'}`} use:fadeUpOnScroll={{ y: 14 }}>
+  <div class={`container-shell grid gap-12 ${compact ? 'lg:grid-cols-[0.8fr_1.2fr]' : 'lg:grid-cols-[0.92fr_1.08fr]'} lg:gap-16`}>
+    <figure class={`relative overflow-hidden border border-white/[0.08] bg-midnight ${compact ? 'min-h-[440px] md:min-h-[560px]' : 'min-h-[520px] md:min-h-[680px]'}`}>
       <ResponsiveImage
         src={imageUrl}
         alt="Emnel Adventures founder story"
@@ -44,13 +52,13 @@
 
     <div class="max-w-[760px] self-center">
       <p class="brand-eyebrow">{eyebrow}</p>
-      <h2 class="mt-6 font-serif text-[42px] font-light leading-[1.08] tracking-normal text-white sm:text-[56px] lg:text-[68px]">
+      <h2 class={`mt-6 font-serif font-light leading-[1.08] tracking-normal text-white ${compact ? 'text-[38px] sm:text-[50px] lg:text-[58px]' : 'text-[42px] sm:text-[56px] lg:text-[68px]'}`}>
         {title}
         <span class="block italic text-goldfinch-gold">{accentTitle}</span>
       </h2>
 
-      {#if isHtml(content)}
-        <div class="cms-rich mt-8 text-[15px] font-medium leading-8 text-white/66 md:text-base">{@html content}</div>
+      {#if displayHtml}
+        <div class="cms-rich mt-8 text-[15px] font-medium leading-8 text-white/66 md:text-base">{@html displayHtml}</div>
       {:else}
         <div class="mt-8 space-y-6 text-[15px] font-medium leading-8 text-white/66 md:text-base">
           {#each paragraphs as paragraph}
@@ -68,9 +76,11 @@
           {primaryCta}
           <ArrowRight size={16} strokeWidth={2.5} />
         </a>
-        <a class="inline-flex h-[52px] items-center justify-center border border-white/22 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={secondaryHref}>
-          {secondaryCta}
-        </a>
+        {#if !compact}
+          <a class="inline-flex h-[52px] items-center justify-center border border-white/22 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={secondaryHref}>
+            {secondaryCta}
+          </a>
+        {/if}
       </div>
     </div>
   </div>

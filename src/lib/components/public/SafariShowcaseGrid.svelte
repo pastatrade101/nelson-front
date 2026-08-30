@@ -1,17 +1,19 @@
 <script lang="ts">
   import { ArrowRight, CalendarDays, MapPin } from '@lucide/svelte';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
+  import { trackEvent } from '$lib/analytics';
   import ResponsiveImage from './ResponsiveImage.svelte';
   import { isHtml } from '$lib/richtext';
   import { currency, formatUsd, type CurrencyStoreState } from '$lib/currency';
   import type { Tour } from '$lib/types';
 
   type ShowcaseCard = {
+    id: string;
     eyebrow: string;
     title: string;
     description: string;
     href: string;
-    image: string;
+    image?: string;
     meta: string;
     price?: string;
     tags: string[];
@@ -26,83 +28,12 @@
   export let ctaHref = '/tours';
   export let tours: Tour[] = [];
 
-  const fallbackCards: ShowcaseCard[] = [
-    {
-      eyebrow: 'Northern Tanzania',
-      title: 'Serengeti Migration Safari',
-      description:
-        "The world's most celebrated safari landscape, built around predator country, open plains, and seasonal migration timing.",
-      href: '/tours',
-      image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801',
-      meta: '5-8 days',
-      price: 'Private safari',
-      tags: ['Great Migration', 'Big cats', 'Classic safari']
-    },
-    {
-      eyebrow: 'Northern Tanzania',
-      title: 'Ngorongoro Crater Safari',
-      description:
-        'A dense wildlife amphitheatre with exceptional Big Five viewing, crater-floor scenery, and a compact safari rhythm.',
-      href: '/destinations/tanzania',
-      image: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e',
-      meta: '1-2 days',
-      price: 'Big Five focus',
-      tags: ['Black rhino', 'Crater floor']
-    },
-    {
-      eyebrow: 'Northern Tanzania',
-      title: 'Tarangire Elephant Route',
-      description:
-        'Baobab woodlands, large elephant herds, and quieter drives for travelers who want a slower private safari.',
-      href: '/destinations/tanzania',
-      image: 'https://images.unsplash.com/photo-1523805009345-7448845a9e53',
-      meta: '2-3 days',
-      price: 'Dry season',
-      tags: ['Elephants', 'Baobabs']
-    },
-    {
-      eyebrow: 'Kilimanjaro Region',
-      title: 'Kilimanjaro Confidence Climb',
-      description:
-        'Route guidance, preparation support, and mountain crew coordination for a carefully paced Tanzania climb.',
-      href: '/tours/kilimanjaro-confidence-climb',
-      image: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5',
-      meta: '6 days',
-      price: 'From USD 2,150',
-      tags: ['Mountain crew', 'Route advice']
-    },
-    {
-      eyebrow: 'Indian Ocean',
-      title: 'Zanzibar Safari Extension',
-      description:
-        'Stone Town, spice farms, reef-fringed beaches, and warm water after a private northern Tanzania safari.',
-      href: '/tours',
-      image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
-      meta: '3-5 days',
-      price: 'Beach finish',
-      tags: ['Beach', 'Culture']
-    },
-    {
-      eyebrow: 'Southern Tanzania',
-      title: 'Nyerere and Ruaha Wild South',
-      description:
-        'Remote game drives, walking possibilities, river landscapes, and a more expedition-style safari pace.',
-      href: '/destinations/tanzania',
-      image: 'https://images.unsplash.com/photo-1549366021-9f761d450615',
-      meta: '6-9 days',
-      price: 'Remote route',
-      tags: ['Wild south', 'Private guide']
-    }
-  ];
-
-  const imageFallbacks = fallbackCards.map((card) => card.image);
-
   const money = (tour: Tour, cur: CurrencyStoreState) => {
     if (!tour.price_from) return undefined;
     return `From ${formatUsd(tour.price_from, cur)}`;
   };
 
-  const toCard = (tour: Tour, index: number, cur: CurrencyStoreState): ShowcaseCard => {
+  const toCard = (tour: Tour, cur: CurrencyStoreState): ShowcaseCard => {
     const destination = tour.destinations?.name ?? tour.tour_categories?.name ?? tour.experience_type ?? 'Private safari';
     const duration = tour.duration_days ? `${tour.duration_days} day${tour.duration_days === 1 ? '' : 's'}` : 'Tailor-made';
     const tags = [
@@ -114,19 +45,22 @@
       .slice(0, 3);
 
     return {
+      id: tour.id,
       eyebrow: destination,
       title: tour.title,
       description: tour.short_description || tour.full_description || 'A private Tanzania itinerary shaped around your dates, pace, and travel style.',
       href: `/tours/${tour.slug}`,
-      image: tour.main_image_url || tour.banner_image_url || imageFallbacks[index % imageFallbacks.length],
+      image: tour.main_image_url || tour.banner_image_url,
       meta: duration,
       price: money(tour, cur),
       tags: tags.length ? tags : ['Private safari', 'Local planning']
     };
   };
 
-  $: tourCards = tours.map((tour, i) => toCard(tour, i, $currency)).filter((card) => card.title && card.href);
-  $: cards = [...tourCards, ...fallbackCards].slice(0, 6);
+  $: tourCards = tours.map((tour) => toCard(tour, $currency)).filter((card) => card.title && card.href);
+  // Only genuine published tours supplied by the API. Never fill empty slots
+  // with invented packages: fewer real routes is better than fabricated proof.
+  $: cards = tourCards.slice(0, 6);
 
   const layout = [
     'lg:col-span-2 lg:row-span-2',
@@ -170,17 +104,22 @@
         <a
           class={`showcase-card group relative isolate min-h-[360px] overflow-hidden bg-midnight md:min-h-[320px] lg:min-h-0 ${layout[i] ?? ''}`}
           href={card.href}
-          aria-label={`View ${card.title}`}
+          aria-label={`Explore ${card.title}`}
+          on:click={() => trackEvent('tour_card_click', { tour_id: card.id, tour_title: card.title })}
         >
-          <ResponsiveImage
-            imgClass="absolute inset-0 h-full w-full object-cover transition duration-[900ms] ease-out group-hover:scale-105"
-            src={card.image}
-            alt={card.title}
-            width={i === 0 ? 2000 : 1100}
-            sizes={isCompact(i) ? '(min-width:1024px) 25vw, (min-width:768px) 50vw, 100vw' : '(min-width:768px) 50vw, 100vw'}
-            eager={i < 2}
-            priority={i === 0}
-          />
+          {#if card.image}
+            <ResponsiveImage
+              imgClass="absolute inset-0 h-full w-full object-cover transition duration-[900ms] ease-out group-hover:scale-105"
+              src={card.image}
+              alt={card.title}
+              width={i === 0 ? 2000 : 1100}
+              sizes={isCompact(i) ? '(min-width:1024px) 25vw, (min-width:768px) 50vw, 100vw' : '(min-width:768px) 50vw, 100vw'}
+              eager={i < 2}
+              priority={i === 0}
+            />
+          {:else}
+            <span class="absolute inset-0 bg-[linear-gradient(145deg,#153733_0%,#0f2a2a_48%,#4a3728_100%)]"></span>
+          {/if}
           <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.38)_0%,rgba(28,26,22,0.62)_44%,rgba(28,26,22,0.95)_100%)]"></span>
           <span class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.66)_0%,rgba(28,26,22,0.18)_60%,rgba(28,26,22,0.30)_100%)]"></span>
 
@@ -221,7 +160,7 @@
                   <span class="text-[11px] font-bold uppercase tracking-[0.14em] text-white/85 xl:text-[12px]">{card.price}</span>
                 {/if}
                 <span class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold transition group-hover:text-white xl:text-[12px]">
-                  View itinerary
+                  Explore safari
                   <ArrowRight size={15} strokeWidth={2.5} class="transition group-hover:translate-x-1" />
                 </span>
               </div>

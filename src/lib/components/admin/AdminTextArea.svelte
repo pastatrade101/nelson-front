@@ -4,6 +4,9 @@
   export let value = '';
   export let rows = 5;
   export let placeholder = '';
+  export let maxLength: number | undefined = undefined;
+  /** Show a compact character count when editorial length matters. */
+  export let counter: number | undefined = undefined;
 </script>
 
 <label class="grid gap-1.5">
@@ -15,5 +18,11 @@
     on:input
     {rows}
     {placeholder}
+    maxlength={maxLength}
   ></textarea>
+  {#if counter}
+    <span class={`justify-self-end text-[11px] font-semibold ${String(value).length > counter ? 'text-clay' : 'text-ink/40'}`}>
+      {String(value).length}/{counter}
+    </span>
+  {/if}
 </label>

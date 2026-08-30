@@ -7,6 +7,7 @@
   export let required = false;
   /** Optional min for type="number" inputs. */
   export let min: number | undefined = undefined;
+  export let maxLength: number | undefined = undefined;
   /** Show "n/target" under the field — a soft recommended length, no truncation. */
   export let counter: number | undefined = undefined;
 </script>
@@ -22,6 +23,7 @@
     {placeholder}
     {required}
     {min}
+    maxlength={maxLength}
   />
   {#if counter}
     <span class={`justify-self-end text-[11px] font-semibold ${String(value).length > counter ? 'text-clay' : 'text-ink/40'}`}>

@@ -79,11 +79,35 @@ export type Tour = {
   is_popular?: boolean;
 };
 
+/** One image from a property's gallery. */
+export type LodgeImage = {
+  id?: string;
+  image_url?: string | null;
+  alt_text?: string | null;
+  caption?: string | null;
+  sort_order?: number;
+  is_cover?: boolean;
+};
+
 export type ItineraryDay = {
   day_number: number;
   title: string;
   description?: string | null;
+  /** Free text — still the fallback for any day with no linked property. */
   accommodation?: string | null;
+  accommodation_id?: string | null;
+  /** The linked property, joined by the API. Null when the day uses free text. */
+  lodge?: {
+    id: string;
+    name: string;
+    slug?: string | null;
+    lodge_type?: string | null;
+    accommodation_level?: string | null;
+    hero_image_url?: string | null;
+    image_url?: string | null;
+    lodge_images?: LodgeImage[];
+    destinations?: { name?: string | null } | null;
+  } | null;
   meals?: string | null;
   activities?: string | null;
   image_url?: string | null;
@@ -361,6 +385,26 @@ export type SafariEssential = {
   sort_order?: number;
   updated_at?: string;
   created_at?: string;
+};
+
+export type GalleryItem = {
+  id: string;
+  title?: string | null;
+  image_url: string;
+  image_url_thumbnail?: string | null;
+  alt_text?: string | null;
+  caption?: string | null;
+  travel_month?: string | null;
+  guest_quote?: string | null;
+  destination_id?: string | null;
+  destinations?: { id?: string; name?: string; slug?: string } | null;
+  tour_id?: string | null;
+  tours?: { id?: string; title?: string; slug?: string } | null;
+  media_type?: 'document' | 'image' | 'video';
+  status?: 'draft' | 'published' | 'archived';
+  sort_order?: number;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type Testimonial = {

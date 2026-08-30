@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import {
+    CalendarDays,
     Edit,
     FileText,
     Film,
@@ -12,6 +13,7 @@
     MapPin,
     Map as MapIcon,
     Plus,
+    Quote,
     Search,
     Star,
     Trash2,
@@ -38,6 +40,7 @@
   type GalleryItem = {
     alt_text?: string | null;
     caption?: string | null;
+    guest_quote?: string | null;
     created_at?: string;
     destination_id?: string | null;
     destinations?: Relation;
@@ -47,6 +50,7 @@
     sort_order: number;
     status: 'archived' | 'draft' | 'published';
     title?: string | null;
+    travel_month?: string | null;
     tour_id?: string | null;
     tours?: Relation;
   };
@@ -71,12 +75,14 @@
   const emptyForm = () => ({
     alt_text: '',
     caption: '',
+    guest_quote: '',
     destination_id: '',
     image_url: '',
     media_type: 'image' as GalleryItem['media_type'],
     sort_order: '0',
     status: 'draft' as GalleryItem['status'],
     title: '',
+    travel_month: '',
     tour_id: ''
   });
 
@@ -192,12 +198,14 @@
     form = {
       alt_text: item.alt_text ?? '',
       caption: item.caption ?? '',
+      guest_quote: item.guest_quote ?? '',
       destination_id: item.destination_id ?? '',
       image_url: item.image_url,
       media_type: item.media_type,
       sort_order: String(item.sort_order ?? 0),
       status: item.status,
       title: item.title ?? '',
+      travel_month: item.travel_month ?? '',
       tour_id: item.tour_id ?? ''
     };
     modalOpen = true;
@@ -209,17 +217,24 @@
   const payload = () => ({
     alt_text: form.alt_text.trim() || null,
     caption: form.caption.trim() || null,
+    guest_quote: form.guest_quote.trim() || null,
     destination_id: form.destination_id || null,
     image_url: form.image_url.trim(),
     media_type: form.media_type,
     sort_order: Number(form.sort_order || 0),
     status: form.status,
     title: form.title.trim() || null,
+    travel_month: form.travel_month.trim() || null,
     tour_id: form.tour_id || null
   });
 
   const save = async () => {
     if (!form.image_url.trim()) { showToast('Image URL is required. Select from Media Library or paste a URL.', 'error'); return; }
+    if (form.travel_month.trim() && !/^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}$/i.test(form.travel_month.trim())) {
+      showToast('Travel month must use the format Month YYYY, for example August 2026.', 'error');
+      return;
+    }
+    if (form.guest_quote.trim().length > 180) { showToast('Guest quote must be 180 characters or fewer.', 'error'); return; }
     saving = true;
     try {
       if (editing) {
@@ -300,7 +315,7 @@
   <AdminPageHeader
     eyebrow="Content Management"
     title="Gallery"
-    description="Curate published images for the gallery page, destination pages, and tour pages — separate from the Media Library."
+    description="Curate published images and videos for the gallery page, homepage proof, destinations, and tours — separate from the Media Library."
     actionLabel="New Gallery Item"
     actionIcon={Plus}
     on:action={openCreate}
@@ -353,7 +368,12 @@
         {@const meta = mediaTypeMeta(item.media_type)}
         <article class="group overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_12px_36px_rgba(28,26,22,0.06)]" transition:fade={{ duration: 120 }}>
           <div class="relative aspect-[4/3] overflow-hidden bg-sand/40">
-            <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={cdnUrl(item.image_url)} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
+            {#if item.media_type === 'video'}
+              <!-- svelte-ignore a11y-media-has-caption -->
+              <video class="h-full w-full object-cover" src={cdnUrl(item.image_url)} muted playsinline preload="metadata"></video>
+            {:else}
+              <img class="h-full w-full object-cover transition duration-300 group-hover:scale-105" src={cdnUrl(item.image_url)} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
+            {/if}
             <span class={`absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ${meta.classes}`}>
               <svelte:component this={meta.icon} size={10} />{item.media_type}
             </span>
@@ -365,8 +385,12 @@
           <div class="grid gap-2 p-4">
             <p class="truncate font-semibold text-ink">{item.title || 'Untitled'}</p>
             {#if item.caption}<p class="line-clamp-1 text-xs text-ink/55">{item.caption}</p>{/if}
+            {#if item.guest_quote}<p class="line-clamp-2 inline-flex items-start gap-1.5 text-xs italic leading-5 text-ink/65"><Quote class="mt-0.5 shrink-0 text-goldfinch-gold" size={12} />{item.guest_quote}</p>{/if}
             <div class="flex flex-wrap gap-1.5">
               <span class="rounded-full bg-sand/70 px-2 py-0.5 text-[11px] font-semibold text-ink/55">Sort {item.sort_order}</span>
+              {#if item.travel_month}
+                <span class="inline-flex items-center gap-1 rounded-full bg-clay/10 px-2 py-0.5 text-[11px] font-semibold text-clay"><CalendarDays size={10} />{item.travel_month}</span>
+              {/if}
               {#if relationLabel(item.destinations, 'name')}
                 <span class="inline-flex items-center gap-1 rounded-full bg-forest/10 px-2 py-0.5 text-[11px] font-semibold text-forest"><MapPin size={10} />{relationLabel(item.destinations, 'name')}</span>
               {/if}
@@ -415,11 +439,18 @@
             {#each sorted as item (item.id)}
               <tr class="transition hover:bg-sand/25">
                 <td class="px-4 py-3">
-                  <img class="h-12 w-16 rounded-lg object-cover ring-1 ring-ink/10" src={cdnUrl(item.image_url)} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
+                  {#if item.media_type === 'video'}
+                    <!-- svelte-ignore a11y-media-has-caption -->
+                    <video class="h-12 w-16 rounded-lg object-cover ring-1 ring-ink/10" src={cdnUrl(item.image_url)} muted playsinline preload="metadata"></video>
+                  {:else}
+                    <img class="h-12 w-16 rounded-lg object-cover ring-1 ring-ink/10" src={cdnUrl(item.image_url)} alt={item.alt_text || item.title || 'Gallery image'} loading="lazy" />
+                  {/if}
                 </td>
                 <td class="px-4 py-3">
                   <div class="font-semibold text-ink">{item.title || 'Untitled'}</div>
                   {#if item.caption}<p class="line-clamp-1 max-w-xs text-xs text-ink/50">{item.caption}</p>{/if}
+                  {#if item.travel_month}<p class="mt-0.5 text-xs font-semibold text-clay">{item.travel_month}</p>{/if}
+                  {#if item.guest_quote}<p class="line-clamp-1 max-w-xs text-xs italic text-ink/50">“{item.guest_quote}”</p>{/if}
                 </td>
                 <td class="px-4 py-3 capitalize text-ink/65">{item.media_type}</td>
                 <td class="px-4 py-3 text-ink/65">
@@ -481,7 +512,14 @@
       <div class="mt-6 grid gap-4 lg:grid-cols-[300px_1fr]">
         <!-- image picker + preview -->
         <div class="grid content-start gap-3 rounded-none border border-ink/10 bg-sand/25 p-4">
-          <MediaPicker label="Image" media={mediaItems} uploadFolder="gallery" aspect="aspect-[4/3]" bind:value={form.image_url} />
+          <MediaPicker
+            label={form.media_type === 'video' ? 'Video' : 'Image'}
+            media={form.media_type === 'video' ? [] : mediaItems}
+            uploadFolder="gallery"
+            aspect="aspect-[4/3]"
+            kind={form.media_type === 'video' ? 'video' : 'image'}
+            bind:value={form.image_url}
+          />
         </div>
 
         <!-- fields -->
@@ -489,6 +527,24 @@
           <AdminFormInput label="Title" name="title" bind:value={form.title} placeholder="e.g. Sunrise over the Serengeti" />
           <AdminFormInput label="Alt text" name="alt_text" bind:value={form.alt_text} placeholder="Describe the image for accessibility & SEO" />
           <AdminTextArea label="Caption" name="caption" bind:value={form.caption} rows={2} placeholder="Optional caption shown beneath the image" />
+          <div class="grid gap-4 sm:grid-cols-2">
+            <AdminFormInput
+              label="Travel month (optional)"
+              name="travel_month"
+              bind:value={form.travel_month}
+              placeholder="August 2026"
+              maxLength={30}
+            />
+            <AdminTextArea
+              label="Short guest quote (optional)"
+              name="guest_quote"
+              bind:value={form.guest_quote}
+              rows={2}
+              placeholder="One or two authentic lines from the guest"
+              maxLength={180}
+              counter={180}
+            />
+          </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
             <AdminSelect label="Media type" name="media_type" bind:value={form.media_type} options={mediaTypeOptions} />

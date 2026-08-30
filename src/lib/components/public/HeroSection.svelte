@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
-  import { ArrowRight, ChevronDown, Star } from '@lucide/svelte';
+  import { ArrowRight, BadgeCheck, ChevronDown } from '@lucide/svelte';
   import { revealHeading } from '$lib/animations';
   import { brand } from '$lib/brand';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
@@ -19,9 +19,9 @@
   export let videoUrl = '';
   export let primaryCta = brand.primaryCta;
   export let primaryCtaUrl = '/plan-my-trip';
-  export let secondaryCta = brand.secondaryCta;
-  export let secondaryCtaUrl = '/contact';
-  export let trustLine = 'TripAdvisor · TLTO Certified · Private vehicles only · Tanzania-born team · Dedicated safari specialist';
+  export let secondaryCta = 'Explore Safaris & Prices';
+  export let secondaryCtaUrl = '/tours';
+  export let trustLine = 'Real itineraries · Clear durations and starting prices · Planned in Arusha';
   // Crop / focus — the admin "Crop / focus" control (extra_data.media_position),
   // applied as object-position so the chosen part of the image stays in frame.
   export let imagePosition = 'center';
@@ -145,12 +145,8 @@
         </a>
       </div>
 
-      <div class="mt-10 flex max-w-[620px] flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-white/82">
-        <span class="inline-flex items-center gap-0.5 text-goldfinch-gold" aria-label="Five star rating">
-          {#each Array(5) as _}
-            <Star size={17} fill="currentColor" strokeWidth={1.7} />
-          {/each}
-        </span>
+      <div class="mt-10 flex max-w-[620px] items-start gap-2.5 text-[13px] leading-5 text-white/82">
+        <BadgeCheck size={18} class="mt-px shrink-0 text-goldfinch-gold" strokeWidth={2.1} aria-hidden="true" />
         <span>{trustLine}</span>
       </div>
     </div>
