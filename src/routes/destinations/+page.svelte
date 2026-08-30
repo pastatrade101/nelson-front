@@ -149,7 +149,7 @@
   </section>
 {:else}
   <!-- Sticky destination tabs — deep-linkable via ?d=slug -->
-  <section class="sticky top-0 z-30 border-b border-ink/10 bg-surface/95 backdrop-blur">
+  <section class="sticky top-[var(--nav-h)] z-30 border-b border-ink/10 bg-surface/95 backdrop-blur">
     <div class="container-shell py-3">
       <div class="hide-scroll flex gap-2 overflow-x-auto" role="tablist" aria-label="Destinations">
         <button

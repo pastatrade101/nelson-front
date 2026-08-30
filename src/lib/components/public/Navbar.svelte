@@ -321,7 +321,27 @@
   $: setScrollLock(menuOpen);
   onDestroy(() => setScrollLock(false));
 
+  let headerEl: HTMLElement;
+
   onMount(() => {
+    /**
+     * Publish the header's real height as --nav-h so sticky bars elsewhere can
+     * sit directly beneath it. The accommodation filter bar used `top-0` and so
+     * stuck UNDERNEATH this header, which has a higher z-index — it was pinned,
+     * just invisible. Measuring rather than hardcoding also covers the header
+     * growing when nav labels wrap at middling widths.
+     */
+    const publishHeight = () => {
+      if (!headerEl) return;
+      document.documentElement.style.setProperty(
+        '--nav-h',
+        `${Math.round(headerEl.getBoundingClientRect().height)}px`
+      );
+    };
+    publishHeight();
+    const sizeWatcher = new ResizeObserver(publishHeight);
+    sizeWatcher.observe(headerEl);
+
     const loadNav = async () => {
       try {
         const res = await api.destinations.list({ status: 'published', limit: 100 });
@@ -433,11 +453,12 @@
       window.removeEventListener('click', onClick);
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('scroll', onScroll);
+      sizeWatcher.disconnect();
     };
   });
 </script>
 
-<header class={`${isHome ? 'fixed' : 'sticky'} inset-x-0 top-0 z-40 border-b text-white transition-[background-color,box-shadow,border-color] duration-[400ms] ease-out ${
+<header bind:this={headerEl} class={`${isHome ? 'fixed' : 'sticky'} inset-x-0 top-0 z-40 border-b text-white transition-[background-color,box-shadow,border-color] duration-[400ms] ease-out ${
   transparentHeader
     ? 'border-transparent bg-transparent'
     : `bg-deep-green ${scrolled ? 'border-transparent shadow-[0_8px_28px_rgba(28,26,22,0.20)]' : 'border-white/10'}`

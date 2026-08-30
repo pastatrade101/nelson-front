@@ -249,7 +249,7 @@
   <div id="browse" class="scroll-mt-24"></div>
 
   <!-- ── sticky search / filter / sort ────────────────────────────────────── -->
-  <section class="sticky top-0 z-20 border-b border-ink/10 bg-surface/95 backdrop-blur">
+  <section class="sticky top-[var(--nav-h)] z-30 border-y border-ink/10 bg-surface/95 shadow-[0_8px_24px_rgba(57,61,50,0.06)] backdrop-blur-md">
     <div class="container-shell flex flex-col gap-3 py-4">
       <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
         <label class="relative flex-1">
