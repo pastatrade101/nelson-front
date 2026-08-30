@@ -231,6 +231,8 @@ export type Lodge = {
   seo_title?: string;
   meta_title?: string;
   meta_description?: string;
+  /** The property's photo gallery, embedded by the detail endpoint. */
+  lodge_images?: LodgeImage[];
 };
 
 export type Activity = {

@@ -162,39 +162,74 @@
   />
 </svelte:head>
 
-<!-- ── cinematic hero ─────────────────────────────────────────────────────── -->
-<section class="relative overflow-hidden bg-deep-green text-white">
+<!-- ── cinematic hero ───────────────────────────────────────────────────────
+     Bottom-aligned over a full-bleed photograph, the way the goldfinch stays
+     index opens: the image carries the page and the type sits on it rather than
+     beside it. Emnel's own palette and weights — Cormorant at light, sharp
+     corners, gold used sparingly. -->
+<section class="relative flex min-h-[62vh] items-end overflow-hidden bg-deep-green text-white md:min-h-[74vh]">
   {#if heroImageSrc}
-    <ResponsiveImage src={heroImageSrc} fallbackSrc={heroImageFallback} width={1920} alt="" imgClass="absolute inset-0 h-full w-full object-cover object-center" sizes="100vw" eager priority />
-    <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.5)_0%,rgba(28,26,22,0.22)_48%,transparent_100%)]"></div>
+    <ResponsiveImage
+      src={heroImageSrc}
+      fallbackSrc={heroImageFallback}
+      width={1920}
+      sizes="100vw"
+      alt=""
+      eager
+      priority
+      imgClass="absolute inset-0 h-full w-full object-cover"
+    />
+    <span class="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/50 to-ink/25" aria-hidden="true"></span>
+  {:else}
+    <span class="absolute inset-0 bg-gradient-to-br from-deep-green via-forest to-deep-green" aria-hidden="true"></span>
   {/if}
-  <div class="container-shell relative py-20 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-28">
-    <p class="text-[12px] font-bold uppercase tracking-[0.22em] text-goldfinch-gold">Where to stay</p>
-    <h1 class="mt-4 max-w-3xl font-serif text-4xl font-light leading-[1.06] md:text-6xl" use:revealHeading>
-      A collection of Tanzania's finest safari stays
-    </h1>
-    <p class="mt-5 max-w-2xl text-base leading-8 text-white/80 md:text-lg">
-      Every safari is only as good as where you rest each night. These are the lodges, tented camps and beach retreats
-      our specialists know, trust and book — chosen for location, character and value.
-    </p>
-    <div class="mt-7 flex flex-wrap gap-2">
-      {#each heroChips as chip}
-        <span class="border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/85 backdrop-blur">{chip}</span>
-      {/each}
-    </div>
-    <div class="mt-8 flex flex-wrap gap-3">
-      <a href="#browse" class="group inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna">
-        Browse Stays <ArrowRight size={16} strokeWidth={2.5} class="transition-transform group-hover:translate-x-0.5" />
-      </a>
-      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 border border-white/30 px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold">
-        Plan My Safari
-      </a>
+  <span class="pointer-events-none absolute inset-0 shadow-[inset_0_0_180px_60px_rgba(0,0,0,0.5)]" aria-hidden="true"></span>
+
+  <div class="container-shell relative z-10 pb-14 pt-28 md:pb-20">
+    <div class="max-w-3xl" use:fadeUpOnScroll={{ y: 16 }}>
+      <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-goldfinch-gold">Accommodation</p>
+      <h1 class="mt-4 font-serif text-4xl font-light leading-[1.05] md:text-[62px]" use:revealHeading>
+        Where you sleep shapes the whole trip
+      </h1>
+      <p class="mt-5 max-w-2xl text-base leading-8 text-white/80 md:text-lg">
+        Every safari is only as good as where you rest each night. These are the lodges, tented camps and beach
+        retreats our specialists know, trust and book — chosen for location, character and value.
+      </p>
+
+      {#if heroChips.length}
+        <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2.5 border-t border-white/15 pt-4 md:mt-6 md:gap-x-7 md:pt-5">
+          {#each heroChips as chip}
+            <span class="text-[11px] font-semibold uppercase tracking-[0.11em] text-white/70">{chip}</span>
+          {/each}
+        </div>
+      {/if}
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a href="#browse" class="group inline-flex h-12 w-full items-center justify-center gap-2 bg-goldfinch-gold px-7 text-sm font-semibold text-deep-green transition hover:brightness-95 sm:w-auto">
+          Browse stays <ArrowRight size={16} class="transition-transform group-hover:translate-x-0.5" />
+        </a>
+        <a href="/plan-my-trip" class="inline-flex h-12 w-full items-center justify-center border border-white/30 px-7 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/10 sm:w-auto">
+          Plan My Safari
+        </a>
+      </div>
     </div>
   </div>
-  <a href="#browse" aria-label="Scroll to browse" class="absolute inset-x-0 bottom-5 mx-auto grid w-fit place-items-center text-white/60 transition hover:text-goldfinch-gold">
+
+  <a href="#browse" aria-label="Scroll to browse" class="absolute inset-x-0 bottom-5 mx-auto grid w-fit place-items-center text-white/55 transition hover:text-goldfinch-gold">
     <ChevronDown size={22} class="animate-bounce" />
   </a>
 </section>
+
+<!-- ── quiet trust band, as the goldfinch index has under its hero ─────────── -->
+{#if lodges.length}
+  <section class="border-b border-ink/10 bg-sand/35">
+    <div class="container-shell flex flex-wrap items-center justify-center gap-x-8 gap-y-3 py-5 text-xs font-semibold text-ink/65">
+      {#each ['Chosen for the route', 'Local specialist guidance', 'Every stay arranged for you', 'Private tailor-made safaris'] as point}
+        <span class="inline-flex items-center gap-2"><ShieldCheck size={14} class="text-forest" />{point}</span>
+      {/each}
+    </div>
+  </section>
+{/if}
 
 {#if loadFailed}
   <section class="container-shell py-20"><ErrorState message="We couldn't load our lodges right now. Please refresh in a moment." /></section>
