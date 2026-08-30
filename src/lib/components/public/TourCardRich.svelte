@@ -10,6 +10,12 @@
   import { tierLabel } from '$lib/tiers';
 
   export let tour: Tour;
+  /**
+   * CTA wording. Overridable so the same card can be reused wherever the action
+   * reads differently — "View itinerary" on a property page, for instance —
+   * rather than forking the component.
+   */
+  export let ctaLabel = 'View Safari';
 
 
   // "Perfect for" audience labels, from the tour's real persona tags.
@@ -132,7 +138,7 @@
           {#if durationLabel}<p class="mt-1 inline-flex items-center gap-1 text-[12px] font-semibold text-clay"><Clock size={12} /> {durationLabel}</p>{/if}
         </div>
         <span class="inline-flex shrink-0 items-center gap-1.5 bg-deep-green px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition group-hover:bg-goldfinch-gold group-hover:text-deep-green">
-          View Safari <ArrowRight size={14} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
+          {ctaLabel} <ArrowRight size={14} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
         </span>
       </div>
     </div>

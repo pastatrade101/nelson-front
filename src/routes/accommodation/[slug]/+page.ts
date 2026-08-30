@@ -20,6 +20,22 @@ export const load: PageLoad = async ({ params, fetch }) => {
 
   let relatedLodges: Lodge[] = [];
   let safaris: Tour[] = [];
+
+  // Trips that actually SLEEP here, via the day -> property link. Distinct from
+  // the destination-mates below, which merely pass through the same park. Empty
+  // until a day is linked (or the migration is applied), which the page handles
+  // by falling back rather than showing an empty section.
+  let staysHere: Tour[] = [];
+  try {
+    const res = await fetch(`/api/lodges/${lodge.id}/itineraries`);
+    if (res.ok) {
+      const body = await res.json();
+      staysHere = ((body?.data?.items ?? []) as Tour[]).slice(0, 6);
+    }
+  } catch {
+    staysHere = [];
+  }
+
   if (lodge.destination_id) {
     const [lRes, tRes] = await Promise.allSettled([
       fetch(`/api/lodges?destination_id=${lodge.destination_id}&status=published&limit=7`),
@@ -35,5 +51,5 @@ export const load: PageLoad = async ({ params, fetch }) => {
     }
   }
 
-  return { lodge, relatedLodges, safaris };
+  return { lodge, relatedLodges, safaris, staysHere };
 };

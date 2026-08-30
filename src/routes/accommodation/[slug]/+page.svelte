@@ -7,7 +7,7 @@
   import { imgUrl, origUrl, thumbUrl } from '$lib/img';
   import { lodgeStars, levelLabel, lodgeBestForLabel, lodgeImage, lodgePriceLabel, lodgeRating, typeLabel } from '$lib/lodge';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
-  import TourCard from '$lib/components/public/TourCard.svelte';
+  import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { PageData } from './$types';
@@ -230,14 +230,32 @@
   </section>
 {/if}
 
-<!-- ── related safaris ────────────────────────────────────────────────────── -->
-{#if data.safaris.length}
+<!-- ── itineraries ─────────────────────────────────────────────────────────
+     Trips that actually stay here take precedence: someone reading about a
+     property wants the trips that sleep in it, not the ones that merely cross
+     the same park. Falls back to destination-mates, worded honestly as such,
+     when nothing is linked yet. Uses the same TourCardRich as the /tours grid,
+     so a card looks and behaves identically wherever it appears. -->
+{#if data.staysHere?.length}
+  <section class="container-shell py-14 md:py-20" use:fadeUpOnScroll={{ y: 16 }}>
+    <p class="brand-eyebrow">Stays here</p>
+    <h2 class="mt-3 max-w-2xl font-serif text-3xl font-light leading-[1.12] text-heading md:text-[38px]">
+      Itineraries that stay at {l.name}
+    </h2>
+    <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/65">
+      Private safaris with a night here already built in — each one can still be reshaped around your dates.
+    </p>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
+      {#each data.staysHere as tour (tour.id)}<TourCardRich {tour} ctaLabel="View itinerary" />{/each}
+    </div>
+  </section>
+{:else if data.safaris.length}
   <section class="container-shell py-14 md:py-20" use:fadeUpOnScroll={{ y: 16 }}>
     <p class="brand-eyebrow">Safaris that visit here</p>
     <h2 class="mt-3 max-w-2xl font-serif text-3xl font-light leading-[1.12] text-heading md:text-[38px]">Itineraries through {l.destinations?.name ?? 'this region'}</h2>
     <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/65">Private safaris that explore this area — each one can be shaped to include {l.name}.</p>
     <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
-      {#each data.safaris as tour (tour.id)}<TourCard {tour} />{/each}
+      {#each data.safaris as tour (tour.id)}<TourCardRich {tour} ctaLabel="View itinerary" />{/each}
     </div>
   </section>
 {/if}
