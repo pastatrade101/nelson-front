@@ -6,6 +6,7 @@
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { GalleryItem } from '$lib/types';
+  import { GALLERY_CATEGORIES, galleryCategoryLabel } from '$lib/galleryCategories';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -27,8 +28,22 @@
     new Set(images.map((im) => destOf(im)?.name).filter((n): n is string => Boolean(n)))
   ).sort();
   let activeDest = 'All';
-  $: filtered = activeDest === 'All' ? images : images.filter((im) => destOf(im)?.name === activeDest);
+
+  // ...and by what the photograph is OF, which the destination link cannot say:
+  // a lion and a tent on the same plain belong in different rows. Built from the
+  // categories actually present, and held in the canonical order rather than
+  // alphabetically so the row reads the way the CMS dropdown does.
+  $: categories = GALLERY_CATEGORIES.filter((c) => images.some((im) => im.category === c));
+  let activeCat = 'All';
+
+  $: filtered = images
+    .filter((im) => activeDest === 'All' || destOf(im)?.name === activeDest)
+    .filter((im) => activeCat === 'All' || im.category === activeCat);
+
+  // Both setters reset the lightbox: its index points into `filtered`, so
+  // leaving it open across a filter change would show an unrelated photograph.
   const setDest = (d: string) => { activeDest = d; index = -1; };
+  const setCat = (c: string) => { activeCat = c; index = -1; };
 
   // Lightbox
   let index = -1;
@@ -112,7 +127,22 @@
       </div>
     {/if}
 
-    {#key activeDest}
+    {#if categories.length > 1}
+      <div class="hide-scroll -mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-1" use:fadeUpOnScroll={{ y: 10 }}>
+        <button type="button" class={chip(activeCat === 'All')} on:click={() => setCat('All')}>All subjects</button>
+        {#each categories as c}
+          <button type="button" class={chip(activeCat === c)} on:click={() => setCat(c)}>{galleryCategoryLabel(c)}</button>
+        {/each}
+      </div>
+    {/if}
+
+    {#if !filtered.length}
+      <p class="mt-10 border border-dashed border-ink/20 px-4 py-10 text-center text-sm text-ink/55">
+        Nothing matches that combination yet.
+      </p>
+    {/if}
+
+    {#key `${activeDest}|${activeCat}`}
       <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4" use:staggeredCardReveal>
         {#each filtered as im, i (im.id ?? i)}
           {@const c = cap(im)}

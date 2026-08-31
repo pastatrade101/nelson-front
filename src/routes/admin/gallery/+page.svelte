@@ -34,12 +34,14 @@
   import ToastStack from '$lib/components/admin/ToastStack.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import { GALLERY_CATEGORY_OPTIONS, galleryCategoryLabel } from '$lib/galleryCategories';
 
   type Relation = { id: string; name?: string; slug: string; title?: string } | null;
 
   type GalleryItem = {
     alt_text?: string | null;
     caption?: string | null;
+    category?: string | null;
     guest_quote?: string | null;
     created_at?: string;
     destination_id?: string | null;
@@ -78,6 +80,7 @@
     guest_quote: '',
     destination_id: '',
     image_url: '',
+    category: '',
     media_type: 'image' as GalleryItem['media_type'],
     sort_order: '0',
     status: 'draft' as GalleryItem['status'],
@@ -102,6 +105,7 @@
   let search = '';
   let statusFilter = 'all';
   let mediaTypeFilter = 'all';
+  let categoryFilter = 'all';
   let destinationFilter = 'all';
   let tourFilter = 'all';
   let viewMode: ViewMode = 'grid';
@@ -144,6 +148,7 @@
         search,
         status: statusFilter,
         media_type: mediaTypeFilter === 'all' ? undefined : mediaTypeFilter,
+        category: categoryFilter === 'all' ? undefined : categoryFilter,
         destination_id: destinationFilter === 'all' ? undefined : destinationFilter,
         tour_id: tourFilter === 'all' ? undefined : tourFilter,
         limit: 200
@@ -201,6 +206,7 @@
       guest_quote: item.guest_quote ?? '',
       destination_id: item.destination_id ?? '',
       image_url: item.image_url,
+      category: item.category ?? '',
       media_type: item.media_type,
       sort_order: String(item.sort_order ?? 0),
       status: item.status,
@@ -220,6 +226,7 @@
     guest_quote: form.guest_quote.trim() || null,
     destination_id: form.destination_id || null,
     image_url: form.image_url.trim(),
+    category: form.category || null,
     media_type: form.media_type,
     sort_order: Number(form.sort_order || 0),
     status: form.status,
@@ -331,6 +338,12 @@
     </label>
     <AdminSelect label="Status" name="status_filter" bind:value={statusFilter} options={[{ label: 'All statuses', value: 'all' }, ...statusOptions]} />
     <AdminSelect label="Type" name="media_type_filter" bind:value={mediaTypeFilter} options={[{ label: 'All types', value: 'all' }, ...mediaTypeOptions]} />
+    <AdminSelect
+      label="Category"
+      name="category_filter"
+      bind:value={categoryFilter}
+      options={[{ label: 'All categories', value: 'all' }, ...GALLERY_CATEGORY_OPTIONS.filter((o) => o.value)]}
+    />
     <AdminSelect label="Destination" name="destination_filter" bind:value={destinationFilter} options={destinationFilterOptions} />
     <AdminSelect label="Tour" name="tour_filter" bind:value={tourFilter} options={tourFilterOptions} />
     <AdminButton variant="secondary" on:click={load}>Apply</AdminButton>
@@ -388,6 +401,9 @@
             {#if item.guest_quote}<p class="line-clamp-2 inline-flex items-start gap-1.5 text-xs italic leading-5 text-ink/65"><Quote class="mt-0.5 shrink-0 text-goldfinch-gold" size={12} />{item.guest_quote}</p>{/if}
             <div class="flex flex-wrap gap-1.5">
               <span class="rounded-full bg-sand/70 px-2 py-0.5 text-[11px] font-semibold text-ink/55">Sort {item.sort_order}</span>
+              {#if galleryCategoryLabel(item.category)}
+                <span class="inline-flex items-center gap-1 rounded-full bg-deep-green/10 px-2 py-0.5 text-[11px] font-semibold text-deep-green">{galleryCategoryLabel(item.category)}</span>
+              {/if}
               {#if item.travel_month}
                 <span class="inline-flex items-center gap-1 rounded-full bg-clay/10 px-2 py-0.5 text-[11px] font-semibold text-clay"><CalendarDays size={10} />{item.travel_month}</span>
               {/if}
@@ -450,6 +466,7 @@
                   <div class="font-semibold text-ink">{item.title || 'Untitled'}</div>
                   {#if item.caption}<p class="line-clamp-1 max-w-xs text-xs text-ink/50">{item.caption}</p>{/if}
                   {#if item.travel_month}<p class="mt-0.5 text-xs font-semibold text-clay">{item.travel_month}</p>{/if}
+                  {#if galleryCategoryLabel(item.category)}<p class="mt-0.5 text-xs font-semibold text-deep-green">{galleryCategoryLabel(item.category)}</p>{/if}
                   {#if item.guest_quote}<p class="line-clamp-1 max-w-xs text-xs italic text-ink/50">“{item.guest_quote}”</p>{/if}
                 </td>
                 <td class="px-4 py-3 capitalize text-ink/65">{item.media_type}</td>
@@ -547,6 +564,12 @@
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
+            <AdminSelect
+              label="Category"
+              name="category"
+              bind:value={form.category}
+              options={GALLERY_CATEGORY_OPTIONS}
+            />
             <AdminSelect label="Media type" name="media_type" bind:value={form.media_type} options={mediaTypeOptions} />
             <AdminSelect label="Status" name="status" bind:value={form.status} options={statusOptions} />
           </div>

@@ -526,6 +526,8 @@ export type GalleryItem = {
   image_url_thumbnail?: string | null;
   alt_text?: string | null;
   caption?: string | null;
+  /** What the photograph is of — see $lib/galleryCategories.ts. */
+  category?: string | null;
   travel_month?: string | null;
   guest_quote?: string | null;
   destination_id?: string | null;
