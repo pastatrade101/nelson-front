@@ -213,7 +213,42 @@
     modalOpen = true;
   };
 
-  const openEditModal = (destination: Destination) => {
+  /** Row id whose full record is being fetched, so its button can show progress. */
+  let loadingDestination: string | null = null;
+
+  /**
+   * Open the edit form for a destination.
+   *
+   * MUST re-fetch the full record first. The rows behind this table come from
+   * the LIST endpoint, whose projection is deliberately lean — it omits `guide`
+   * (a large jsonb) and the five health-and-safety columns, ~50KB/row that a
+   * listing has no use for. Hydrating the form straight from a list row left
+   * those seven fields blank, and because the save sends every field, the next
+   * save overwrote real content with '' and []. That silently destroyed the
+   * long-form guide on nine destinations on 2026-08-03.
+   *
+   * If the fetch fails we refuse to open rather than showing a blank form:
+   * a form that cannot see the existing content is a form that will delete it.
+   */
+  const openEditModal = async (listRow: Destination) => {
+    loadingDestination = listRow.id;
+    let destination: Destination;
+    try {
+      const res = await api.destinations.get(listRow.slug);
+      // Same database row; the local type only narrows `status` and widens the
+      // numeric columns the form binds as text.
+      destination = res.data as unknown as Destination;
+    } catch (error) {
+      loadingDestination = null;
+      showToast(
+        error instanceof Error
+          ? `Could not load ${listRow.name}: ${error.message}`
+          : `Could not load ${listRow.name}.`,
+        'error'
+      );
+      return;
+    }
+    loadingDestination = null;
     editingDestination = destination;
     form = {
       banner_image_url: destination.banner_image_url ?? '',
@@ -425,9 +460,9 @@
               <td class="px-4 py-4 text-ink/65">{formatDate(destination.updated_at ?? destination.created_at)}</td>
               <td class="px-4 py-4">
                 <div class="flex justify-end gap-2">
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(destination)}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(destination)} disabled={loadingDestination === destination.id}>
                     <Edit size={14} />
-                    Edit
+                    {loadingDestination === destination.id ? 'Loading…' : 'Edit'}
                   </button>
                   <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDeleteConfirm(destination)}>
                     <Trash2 size={14} />
