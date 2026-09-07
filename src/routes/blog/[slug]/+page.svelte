@@ -67,6 +67,12 @@
   $: slug = $page.params.slug ?? '';
   $: if (browser && slug) void load(slug);
 </script>
+<!-- Unique per-article title and description. -->
+<!-- svelte:head must be top level, so the guard lives inside it. -->
+<svelte:head>
+  <title>{post ? `${post.title} | Emnel Adventures` : 'Emnel Adventures'}</title>
+</svelte:head>
+
 
 <article class="container-shell py-14">
   {#if loading}

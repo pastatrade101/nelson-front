@@ -398,6 +398,16 @@
     };
   });
 </script>
+<!-- Unique per-tour title and description. These pages previously served the
+     brand name alone, so every safari competed for the same SERP listing. -->
+<!-- svelte:head must be top level, so the guard lives inside it. -->
+<svelte:head>
+  <title>{tour ? `${tour.title} | Emnel Adventures` : 'Emnel Adventures'}</title>
+  {#if tour?.short_description}
+    <meta name="description" content={tour.short_description.slice(0, 158)} />
+  {/if}
+</svelte:head>
+
 
 {#if loading}
   <section class="container-shell py-20">

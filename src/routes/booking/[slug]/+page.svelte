@@ -39,6 +39,12 @@
     }
   });
 </script>
+<svelte:head>
+  <title>{tour ? `Book ${tour.title} | Emnel Adventures` : `Book Your Safari | Emnel Adventures`}</title>
+  <!-- A booking step is a private funnel page, not a search result. -->
+  <meta name="robots" content="noindex,follow" />
+</svelte:head>
+
 
 {#if loading}
   <section class="container-shell py-20">

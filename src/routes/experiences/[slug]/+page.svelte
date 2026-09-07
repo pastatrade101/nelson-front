@@ -53,6 +53,10 @@
   $: name = exp ? String(exp.name ?? slug) : slug;
   $: image = exp ? String(exp.image_url ?? '') : '';
 </script>
+<svelte:head>
+  <title>{exp && typeof exp.title === 'string' ? `${exp.title} | Emnel Adventures` : `Safari Experiences | Emnel Adventures`}</title>
+</svelte:head>
+
 
 {#if loading}
   <section class="container-shell py-20"><LoadingState message="Loading experience..." /></section>

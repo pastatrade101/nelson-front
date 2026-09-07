@@ -206,7 +206,13 @@
 </script>
 
 <svelte:head>
-  <title>{$branding.site_name}</title>
+  <!-- NO <title> here, deliberately.
+       A title in the layout does not act as a fallback: SvelteKit applies the
+       layout's head AFTER the page's on the client, so this element replaced
+       every page's own title once hydration finished. Pages served a correct,
+       unique title in the SSR HTML and then reverted to the brand name in the
+       rendered DOM — which is what Google indexes when it renders. Every public
+       page now sets its own; see the orphans fixed alongside this change. -->
   <!-- No site-wide <meta name="description"> here. It used to be emitted
        unconditionally, so every page that wrote its own ended up with TWO, and
        Google picks one of those unpredictably or ignores both. Each page now owns

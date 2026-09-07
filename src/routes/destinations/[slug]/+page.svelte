@@ -117,6 +117,15 @@
     trackEvent('destination_page_view', { destination: destination.name });
   }
 </script>
+<!-- Unique per-destination title and description. -->
+<!-- svelte:head must be top level, so the guard lives inside it. -->
+<svelte:head>
+  <title>{destination ? `${destination.name} Safaris — Tanzania | Emnel Adventures` : 'Emnel Adventures'}</title>
+  {#if destination?.short_description}
+    <meta name="description" content={destination.short_description.slice(0, 158)} />
+  {/if}
+</svelte:head>
+
 
 {#if !destination}
   <section class="container-shell py-20">
