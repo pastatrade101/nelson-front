@@ -77,25 +77,43 @@
   const isProdHost = () =>
     browser && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname) && !window.location.hostname.endsWith('.local');
 
-  // Load GA4 (gtag) on the public site — gated by consent ('granted') above and a
-  // configured PUBLIC_GA4_MEASUREMENT_ID. send_page_view is off so the SPA
-  // page-view tracker (afterNavigate → trackPageView) is the single source of
-  // truth for page views; we send the current page once here to catch the entry
-  // page (afterNavigate for it already ran before gtag existed).
-  const loadGa4 = () => {
-    const id = publicEnv.PUBLIC_GA4_MEASUREMENT_ID;
-    if (!browser || !id || isAdmin || !isProdHost() || document.getElementById('ga4-src')) return;
+  // Load the Google tag on the public site — gated by consent ('granted') below,
+  // a production host, and at least one configured id.
+  //
+  // GA4 (G-…) and Google Ads (AW-…) deliberately share ONE gtag.js script. That
+  // is what Google's own instructions mean by "don't add more than one Google
+  // tag to each page": the library loads once and each product is registered by
+  // its own config() call. Pasting the Ads snippet verbatim next to the GA4 one
+  // would load the library twice and double-count everything.
+  //
+  // GA4's send_page_view stays off so the SPA tracker (afterNavigate →
+  // trackPageView) remains the single source of truth for page views; the entry
+  // page is sent once here because its afterNavigate ran before gtag existed.
+  // The Ads config takes no such flag — Ads counts conversions, not page views.
+  const loadGoogleTag = () => {
+    const ga4Id = publicEnv.PUBLIC_GA4_MEASUREMENT_ID;
+    const adsId = publicEnv.PUBLIC_GOOGLE_ADS_ID;
+    if (!browser || isAdmin || !isProdHost()) return;
+    if (!ga4Id && !adsId) return;
+    if (document.getElementById('ga4-src')) return;
+
+    // Either id can bootstrap the library; the other is registered by config().
     const script = document.createElement('script');
     script.id = 'ga4-src';
     script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id || adsId}`;
     document.head.appendChild(script);
+
     const w = window as unknown as { dataLayer: unknown[]; gtag: (...args: unknown[]) => void };
     w.dataLayer = w.dataLayer || [];
     w.gtag = function gtag() { w.dataLayer.push(arguments); };
     w.gtag('js', new Date());
-    w.gtag('config', id, { anonymize_ip: true, send_page_view: false });
-    trackPageView();
+
+    if (ga4Id) {
+      w.gtag('config', ga4Id, { anonymize_ip: true, send_page_view: false });
+      trackPageView();
+    }
+    if (adsId) w.gtag('config', adsId);
   };
 
   // Microsoft Clarity — UX companion to GA4 (session recordings, heatmaps,
@@ -108,8 +126,8 @@
     loadClarity(id);
   };
 
-  // Load analytics (GA4 + Clarity) only once the visitor has granted consent.
-  $: if (browser && $consent === 'granted') { loadGa4(); loadClarityIfReady(); }
+  // Load analytics (Google tag + Clarity) only once the visitor has granted consent.
+  $: if (browser && $consent === 'granted') { loadGoogleTag(); loadClarityIfReady(); }
 
   // One page_view per navigation (initial + every client-side route change,
   // incl. back/forward). Deduped + query-stripped inside trackPageView. Public
