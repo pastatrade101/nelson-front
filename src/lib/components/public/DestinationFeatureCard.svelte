@@ -13,13 +13,14 @@
   $: blurb = destination.short_description || destination.description || '';
   $: tags = bestForTags(destination).slice(0, 2);
 
-  // Average the curated 0–10 scores into a /5 rating (shown only when scored).
-  $: rating = (() => {
-    const s = [destination.score_wildlife, destination.score_luxury, destination.score_family, destination.score_photography, destination.score_adventure]
-      .map(Number)
-      .filter((n) => n > 0);
-    return s.length ? Math.round((s.reduce((a, b) => a + b, 0) / s.length / 2) * 10) / 10 : null;
-  })();
+  // NOTE: this card deliberately shows no overall "rating".
+  //
+  // It used to average the five curated 0-10 scores into a /5 number and render
+  // it in a gold star badge. Those scores are editorial (wildlife, luxury,
+  // family, photography, adventure), not customer reviews — so Zanzibar, scored
+  // low for wildlife because it is correctly a beach rather than a game park,
+  // showed "3.4" beside a star and read to every visitor as a poor review of our
+  // own destination. The labelled per-category scores below are the honest form.
 
   // ── Quick facts revealed on hover — REAL data only; each row renders only when
   // its value exists. Best time / ideal length come from the destination guide's
@@ -68,12 +69,6 @@
   {/if}
   <!-- gradient deepens on hover so the revealed facts stay legible -->
   <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,24,0.02)_0%,rgba(15,26,24,0.34)_46%,rgba(13,22,20,0.92)_100%)] transition-opacity duration-500 md:opacity-90 md:group-hover:opacity-100"></span>
-
-  {#if rating}
-    <span class="absolute right-3 top-3 z-10 inline-flex items-center gap-1 bg-goldfinch-gold px-2.5 py-1 text-xs font-bold text-deep-green shadow">
-      <Star size={12} fill="currentColor" strokeWidth={0} /> {rating.toFixed(1)}
-    </span>
-  {/if}
 
   <!-- Content: on desktop it sits low (region + name visible) and slides up on
        hover to reveal the facts; on mobile it's always fully shown (no hover). -->

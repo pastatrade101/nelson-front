@@ -12,7 +12,7 @@
   import ShortlistFab from '$lib/components/public/ShortlistFab.svelte';
   import EnquiryModal from '$lib/components/public/EnquiryModal.svelte';
   import LazyAIAdvisor from '$lib/components/public/LazyAIAdvisor.svelte';
-  import { consent } from '$lib/consent';
+  import { consent, getConsent } from '$lib/consent';
   import { setupPwaInstall } from '$lib/pwa';
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
   import { api } from '$lib/api/client';
@@ -90,6 +90,26 @@
   // trackPageView) remains the single source of truth for page views; the entry
   // page is sent once here because its afterNavigate ran before gtag existed.
   // The Ads config takes no such flag — Ads counts conversions, not page views.
+  /**
+   * Tell an already-loaded Google tag about a consent decision. Safe to call
+   * before the library exists — gtag() only pushes onto dataLayer, which the
+   * library drains when it loads.
+   */
+  const applyConsent = (state: 'granted' | 'denied' | null) => {
+    if (!browser) return;
+    const w = window as unknown as { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void };
+    if (!w.gtag) return;
+    const v = state === 'granted' ? 'granted' : 'denied';
+    w.gtag('consent', 'update', {
+      ad_storage: v,
+      ad_user_data: v,
+      ad_personalization: v,
+      analytics_storage: v,
+      functionality_storage: v,
+      personalization_storage: v
+    });
+  };
+
   const loadGoogleTag = () => {
     const ga4Id = publicEnv.PUBLIC_GA4_MEASUREMENT_ID;
     const adsId = publicEnv.PUBLIC_GOOGLE_ADS_ID;
@@ -107,6 +127,32 @@
     const w = window as unknown as { dataLayer: unknown[]; gtag: (...args: unknown[]) => void };
     w.dataLayer = w.dataLayer || [];
     w.gtag = function gtag() { w.dataLayer.push(arguments); };
+
+    // CONSENT MODE v2 — the default MUST be pushed before anything else, so the
+    // library never has a moment where it could set a cookie. Everything that
+    // can identify someone starts denied; the banner upgrades it on Accept.
+    //
+    // This is why the tag may now load before a choice is made: in denied state
+    // it writes no cookies and sends no identifiers, only cookieless pings that
+    // let Google model the conversions it would otherwise never see. That is
+    // the behaviour Google's own EEA guidance asks for, and it is what makes
+    // conversion tracking work for visitors who decline.
+    w.gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      // Not a tracking signal — it covers things like fraud prevention.
+      security_storage: 'granted',
+      // Give the banner a moment to answer before anything is sent.
+      wait_for_update: 500
+    });
+    // A returning visitor already decided; apply it before the first ping so we
+    // never send a denied ping to someone who accepted on a previous visit.
+    applyConsent(getConsent());
+
     w.gtag('js', new Date());
 
     if (ga4Id) {
@@ -126,8 +172,15 @@
     loadClarity(id);
   };
 
-  // Load analytics (Google tag + Clarity) only once the visitor has granted consent.
-  $: if (browser && $consent === 'granted') { loadGoogleTag(); loadClarityIfReady(); }
+  // The Google tag loads for everyone (in denied state — see loadGoogleTag), so
+  // Ads can model conversions from visitors who decline and Google's own tag
+  // test can detect the installation. The decision is then pushed as an update.
+  $: if (browser && !isAdmin) loadGoogleTag();
+  $: if (browser && $consent) applyConsent($consent);
+
+  // Clarity records sessions, so unlike the Google tag it stays fully gated on
+  // an explicit grant — it has no cookieless mode to fall back to.
+  $: if (browser && $consent === 'granted') loadClarityIfReady();
 
   // One page_view per navigation (initial + every client-side route change,
   // incl. back/forward). Deduped + query-stripped inside trackPageView. Public
