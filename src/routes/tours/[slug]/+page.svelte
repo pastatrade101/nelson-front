@@ -82,6 +82,8 @@
     thumbUrl(post as unknown as Record<string, unknown>, 'featured_image_url') || post.featured_image_url || DEFAULT_TOUR_IMAGE;
 
   let tour: Tour | null = null;
+  /** SSR-loaded copy, used only for the document head. */
+  $: seoTour = ($page.data?.tour as Tour | null) ?? tour;
   let loading = true;
   let error = '';
 
@@ -402,9 +404,11 @@
      brand name alone, so every safari competed for the same SERP listing. -->
 <!-- svelte:head must be top level, so the guard lives inside it. -->
 <svelte:head>
-  <title>{tour ? `${tour.title} | Emnel Adventures` : 'Emnel Adventures'}</title>
-  {#if tour?.short_description}
-    <meta name="description" content={tour.short_description.slice(0, 158)} />
+  <!-- `seoTour` prefers the SSR-loaded record so crawlers get a real title;
+       it falls back to the component's own client-fetched `tour` afterwards. -->
+  <title>{seoTour ? `${seoTour.title} | Emnel Adventures` : 'Emnel Adventures'}</title>
+  {#if seoTour?.short_description}
+    <meta name="description" content={seoTour.short_description.slice(0, 158)} />
   {/if}
 </svelte:head>
 
