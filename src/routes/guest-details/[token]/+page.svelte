@@ -153,26 +153,38 @@
     return next.size === 0;
   };
 
+  /**
+   * Write the form as it currently stands and adopt the ids that come back.
+   *
+   * Used both by the visible Send button and quietly behind a passport upload —
+   * a file has to attach to a traveller row that exists, and making the guest
+   * press Save first just to reveal an upload button was our problem leaking
+   * into their form.
+   */
+  const persist = async (): Promise<boolean> => {
+    const res = await fetch(api(''), {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...form, travellers })
+    });
+    const body = await res.json().catch(() => null);
+    if (!res.ok) {
+      serverError = body?.message || 'We could not save your details. Please try again.';
+      return false;
+    }
+    travellers = (body.data?.travellers ?? travellers).map((t: Record<string, unknown>) => ({
+      ...(t as unknown as Traveller),
+      has_passport_copy: Boolean(t.has_passport_copy)
+    }));
+    return true;
+  };
+
   const save = async () => {
     serverError = '';
     if (!validate()) return;
     saving = true;
     try {
-      const res = await fetch(api(''), {
-        method: 'PUT',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...form, travellers })
-      });
-      const body = await res.json().catch(() => null);
-      if (!res.ok) {
-        serverError = body?.message || 'We could not save your details. Please try again.';
-        return;
-      }
-      // Re-read ids so a passport copy can be attached to a newly created row.
-      travellers = (body.data?.travellers ?? travellers).map((t: Record<string, unknown>) => ({
-        ...(t as unknown as Traveller),
-        has_passport_copy: Boolean(t.has_passport_copy)
-      }));
+      if (!(await persist())) return;
       sent = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
@@ -182,24 +194,47 @@
     }
   };
 
-  let uploadingFor: string | null = null;
-  const uploadPassport = async (traveller: Traveller, files: FileList | null) => {
-    if (!files?.length || !traveller.id) return;
-    uploadingFor = traveller.id;
+  /** Index of the traveller currently uploading, so the row can show progress. */
+  let uploadingIndex: number | null = null;
+  /** Per-traveller upload message, e.g. asking for a name first. */
+  let uploadNote: Record<number, string> = {};
+
+  const uploadPassport = async (index: number, files: FileList | null) => {
+    if (!files?.length) return;
     serverError = '';
+    uploadNote = { ...uploadNote, [index]: '' };
+
+    // A file is filed under a person, so we need the name before we can store
+    // it. Stated as what we need, not as a step in our save process.
+    if (!travellers[index]?.full_name.trim()) {
+      uploadNote = { ...uploadNote, [index]: 'Please enter this traveller\u2019s name first, so we file the passport under the right person.' };
+      return;
+    }
+
+    uploadingIndex = index;
     try {
+      // Create the traveller row on demand if this is their first upload.
+      if (!travellers[index].id && !(await persist())) return;
+      const travellerId = travellers[index]?.id;
+      if (!travellerId) {
+        uploadNote = { ...uploadNote, [index]: 'We could not attach that file. Please try again.' };
+        return;
+      }
+
       const data = new FormData();
       data.append('file', files[0]);
-      data.append('traveller_id', traveller.id);
+      data.append('traveller_id', travellerId);
       const res = await fetch(api('/document'), { method: 'POST', body: data });
       const body = await res.json().catch(() => null);
       if (!res.ok) {
-        serverError = body?.message || 'That file could not be uploaded.';
+        uploadNote = { ...uploadNote, [index]: body?.message || 'That file could not be uploaded.' };
         return;
       }
-      travellers = travellers.map((t) => (t.id === traveller.id ? { ...t, has_passport_copy: true } : t));
+      travellers = travellers.map((t, n) => (n === index ? { ...t, has_passport_copy: true } : t));
+    } catch {
+      uploadNote = { ...uploadNote, [index]: 'We could not reach our server. Please try again.' };
     } finally {
-      uploadingFor = null;
+      uploadingIndex = null;
     }
   };
 
@@ -417,22 +452,19 @@
 
             <div class="sm:col-span-2">
               <span class={LABEL}>Passport copy</span>
-              {#if t.id}
-                <div class="flex flex-wrap items-center gap-3">
-                  <label class="inline-flex cursor-pointer items-center gap-2 border border-ink px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-ink hover:text-white">
-                    {t.has_passport_copy ? 'Replace passport copy' : '+ Upload passport copy'}
-                    <input class="sr-only" type="file" accept="image/*,application/pdf" on:change={(e) => uploadPassport(t, (e.currentTarget as HTMLInputElement).files)} />
-                  </label>
-                  {#if uploadingFor === t.id}
-                    <span class="text-xs text-ink/50">Uploading&hellip;</span>
-                  {:else if t.has_passport_copy}
-                    <span class="text-xs font-semibold text-forest">Received &mdash; stored securely</span>
-                  {/if}
-                </div>
-              {:else}
-                <p class="border border-dashed border-ink/20 px-4 py-3 text-xs leading-5 text-ink/55">
-                  Save the form once and this traveller will get an upload button here.
-                </p>
+              <div class="flex flex-wrap items-center gap-3">
+                <label class="inline-flex cursor-pointer items-center gap-2 border border-ink px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-ink hover:text-white">
+                  {t.has_passport_copy ? 'Replace passport copy' : '+ Upload passport copy'}
+                  <input class="sr-only" type="file" accept="image/*,application/pdf" on:change={(e) => uploadPassport(i, (e.currentTarget as HTMLInputElement).files)} />
+                </label>
+                {#if uploadingIndex === i}
+                  <span class="text-xs text-ink/50">Uploading&hellip;</span>
+                {:else if t.has_passport_copy}
+                  <span class="text-xs font-semibold text-forest">Received &mdash; stored securely</span>
+                {/if}
+              </div>
+              {#if uploadNote[i]}
+                <p class="mt-1.5 text-xs text-clay">{uploadNote[i]}</p>
               {/if}
               <p class={HINT}>
                 A clear photo or scan of the passport photo page (JPG, PNG or PDF, up to 8MB). If you cannot upload,
