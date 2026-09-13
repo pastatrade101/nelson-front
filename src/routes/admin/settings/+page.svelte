@@ -75,7 +75,8 @@
       { key: 'default_currency', label: 'Default currency', type: 'select', public: true, options: ['USD', 'EUR', 'GBP', 'TZS', 'KES'], default: 'USD' },
       { key: 'default_response_time_message', label: 'Response time message', type: 'text', public: true },
       { key: 'require_phone_number', label: 'Require phone number', type: 'boolean', public: true },
-      { key: 'allow_general_plan_my_trip', label: 'Allow general Plan My Safari', type: 'boolean', public: true, default: true }
+      { key: 'allow_general_plan_my_trip', label: 'Allow general Plan My Safari', type: 'boolean', public: true, default: true },
+      { key: 'guest_form_hero_image_url', label: 'Guest form hero image', type: 'image', public: false, helper: 'Shown at the top of the private guest information form. Leave empty for a plain dark header.' },
     ] },
     { key: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, fields: [
       { key: 'whatsapp_enabled', label: 'WhatsApp CTA enabled', type: 'boolean', public: true, default: true },

@@ -2,48 +2,7 @@
   import { page } from '$app/stores';
   import { onMount, type Component } from 'svelte';
   import { slide } from 'svelte/transition';
-  import {
-	BookOpen,
-	Bot,
-	CalendarDays,
-	ChartColumnBig,
-	ChevronDown,
-	ChevronLeft,
-	CircleDollarSign,
-	CircleHelp,
-	ClipboardList,
-	Compass,
-	CreditCard,
-	FileText,
-	FolderTree,
-	GitCompare,
-	Globe,
-	Heart,
-	Home,
-	Hotel,
-	Image,
-	Images,
-	LayoutDashboard,
-	LayoutTemplate,
-	ListCheck,
-	Mail,
-	Map,
-	MapPin,
-	MessageCircle,
-	MessageCircleHeart,
-	Newspaper,
-	Palette,
-	Plane,
-	Plug,
-	Route,
-	ScrollText,
-	Settings,
-	ShieldCheck,
-	Tags,
-	Upload,
-	Users,
-	UsersRound
-} from '@lucide/svelte';
+  import { BookOpen, Bot, CalendarDays, ChartColumnBig, ChevronDown, ChevronLeft, CircleDollarSign, CircleHelp, ClipboardList, Compass, CreditCard, FileText, FolderTree, GitCompare, Globe, Heart, Home, Hotel, Image, Images, LayoutDashboard, LayoutTemplate, ListCheck, Mail, Map, MapPin, MessageCircle, MessageCircleHeart, Newspaper, Palette, Plane, Plug, Route, ScrollText, Settings, ShieldCheck, Tags, Upload, UserCheck, Users, UsersRound } from '@lucide/svelte';
   import { brand } from '$lib/brand';
 
   export let collapsed = false;
@@ -87,6 +46,7 @@
       label: 'Booking Management',
       links: [
         { href: '/admin/bookings', label: 'Bookings', icon: ClipboardList },
+        { href: '/admin/guest-forms', label: 'Guest Forms', icon: UserCheck },
         { href: '/admin/quotations', label: 'Quotations', icon: FileText },
         { href: '/admin/payments', label: 'Payments', icon: CreditCard },
         { href: '/admin/messages', label: 'Messages', icon: Mail }

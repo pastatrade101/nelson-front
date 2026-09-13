@@ -316,6 +316,33 @@ export const api = {
     update: (id: string, body: Record<string, unknown>) => apiRequest<Destination>(`/destinations/${id}`, { method: 'PUT', body }),
     remove: (id: string) => apiRequest(`/destinations/${id}`, { method: 'DELETE' })
   },
+  /**
+   * Guest passport/traveller details for a booking. Admin side only — the guest
+   * form talks to /api/guest-details/token/... directly with no credentials
+   * beyond the token in its own URL.
+   */
+  guestDetails: {
+    forBooking: (bookingId: string) => apiRequest(`/guest-details/bookings/${bookingId}`),
+    createLink: (bookingId: string) =>
+      apiRequest(`/guest-details/bookings/${bookingId}/link`, { method: 'POST', body: {} }),
+    revokeLink: (bookingId: string) =>
+      apiRequest(`/guest-details/bookings/${bookingId}/link`, { method: 'DELETE' }),
+    setLock: (bookingId: string, locked: boolean) =>
+      apiRequest(`/guest-details/bookings/${bookingId}/lock`, { method: 'PUT', body: { locked } }),
+    // Returns a URL that expires in ~2 minutes; never persist it.
+    documentUrl: (travellerId: string) =>
+      apiRequest(`/guest-details/travellers/${travellerId}/document`),
+
+    // Standalone forms — no booking behind them.
+    listForms: () => apiRequest('/guest-details/forms'),
+    createForm: (body: Record<string, unknown>) =>
+      apiRequest('/guest-details/forms', { method: 'POST', body }),
+    getForm: (submissionId: string) => apiRequest(`/guest-details/forms/${submissionId}`),
+    createFormLink: (submissionId: string) =>
+      apiRequest(`/guest-details/forms/${submissionId}/link`, { method: 'POST', body: {} }),
+    setFormLock: (submissionId: string, locked: boolean) =>
+      apiRequest(`/guest-details/forms/${submissionId}/lock`, { method: 'PUT', body: { locked } })
+  },
   lodges: {
     list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Lodge>>(`/lodges${queryString(params)}`),
     get: (slug: string) => apiRequest<Lodge>(`/lodges/${slug}`),

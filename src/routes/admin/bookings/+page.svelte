@@ -19,6 +19,7 @@
     X
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import GuestDetailsPanel from '$lib/components/admin/GuestDetailsPanel.svelte';
   import AdminQuotationEditor from '$lib/components/admin/AdminQuotationEditor.svelte';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
@@ -633,6 +634,11 @@
       </div>
 
       <div class="flex flex-col-reverse gap-3 border-t border-ink/10 bg-sand/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <GuestDetailsPanel
+          bookingId={viewing.id}
+          on:toast={(e) => showToast(e.detail.message, e.detail.type ?? 'success')}
+        />
+
         <button class="inline-flex h-10 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => viewing && openDelete(viewing)}><Trash2 size={14} />Archive</button>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
           <button class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-ink/15 bg-surface px-3 text-xs font-semibold text-ink/75 shadow-sm transition hover:bg-sand disabled:opacity-60" type="button" disabled={creatingLink} on:click={copyTripLink}><LinkIcon size={14} />{creatingLink ? 'Generating…' : 'Copy trip link'}</button>
