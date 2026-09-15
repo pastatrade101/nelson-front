@@ -253,6 +253,8 @@
   <title>Guest Information Form — Emnel Adventures</title>
   <!-- A private form for one booking. It must never be indexed or followed. -->
   <meta name="robots" content="noindex, nofollow" />
+  <!-- Keep the name and secret in this private URL out of outgoing referrers. -->
+  <meta name="referrer" content="no-referrer" />
 </svelte:head>
 
 <!-- ── Hero ──────────────────────────────────────────────────────────────── -->

@@ -234,7 +234,9 @@
             required
             placeholder="Miller family, November 2026"
           />
-          <p class="-mt-2 text-xs text-ink/50">Only you see this. It is how you will find the form later.</p>
+          <p class="-mt-2 text-xs text-ink/50">
+            This also becomes the readable part of the guest link. A private security code is added automatically.
+          </p>
 
           <AdminFormInput label="Guest email (optional)" name="lead_email" bind:value={draft.lead_email} placeholder="guest@example.com" />
           <AdminFormInput label="Your reference (optional)" name="booking_reference" bind:value={draft.booking_reference} placeholder="#2026-0000" />
