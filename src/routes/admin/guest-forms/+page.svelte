@@ -152,9 +152,10 @@
             <div class="min-w-0">
               <p class="font-serif text-lg font-light text-heading">{nameOf(row)}</p>
               <p class="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink/55">
-                {#if row.booking_requests?.booking_code}
-                  <span class="font-semibold text-forest">{row.booking_requests.booking_code}</span>
-                {:else}
+                {#if row.reference}
+                  <span class="font-mono font-semibold text-forest">{row.reference}</span>
+                {/if}
+                {#if !row.booking_id}
                   <span class="border border-ink/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-ink/50">No booking</span>
                 {/if}
                 {#if row.lead_email}<span>{row.lead_email}</span>{/if}
