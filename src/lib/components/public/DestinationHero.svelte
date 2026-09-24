@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ArrowRight, Banknote, Compass, Globe } from '@lucide/svelte';
+  import RichText from './RichText.svelte';
   import { origUrl, thumbUrl } from '$lib/img';
   import ScoreBars from '$lib/components/public/ScoreBars.svelte';
   import ResponsiveImage from './ResponsiveImage.svelte';
@@ -100,9 +101,10 @@
     <div>
       <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-clay">Overview</p>
       <h2 class="mt-3 font-serif text-3xl font-light text-heading md:text-[40px]">Why go to {destination.name}</h2>
-      {#if destination.description}
-        <p class="mt-5 whitespace-pre-line text-base leading-8 text-ink/75">{destination.description}</p>
-      {/if}
+        <!-- RichText, so links written in the CMS render as real anchors. It
+             also handles the plain text that predates the editor, so existing
+             descriptions keep working unchanged. -->
+        <RichText value={destination.description} className="mt-5 text-base leading-8 text-ink/75" />
       <div class="mt-7 flex flex-wrap gap-3">
         {#if destination.country}
           <div class="flex items-center gap-3 border border-ink/10 bg-surface px-4 py-3 shadow-soft">

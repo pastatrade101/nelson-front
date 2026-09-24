@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy, tick } from 'svelte';
+  import RichText from '../RichText.svelte';
   import { browser } from '$app/environment';
   import { Compass, Lightbulb, ShieldCheck, Sparkles } from '@lucide/svelte';
   import ComparisonTable from '$lib/components/public/ComparisonTable.svelte';
@@ -199,11 +200,10 @@
                 {#if block.heading}
                   <h3 class="font-serif text-xl font-normal text-heading">{block.heading}</h3>
                 {/if}
-                <div class="mt-3 space-y-4">
-                  {#each paras(block.body) as p}
-                    <p class="text-base leading-8 text-ink/75">{p}</p>
-                  {/each}
-                </div>
+                  <!-- RichText so a paragraph can link to the destination, safari
+                       or journal post it mentions. Falls back to the escaped
+                       paragraph path for the plain text already written here. -->
+                  <RichText value={block.body} className="mt-3 text-base leading-8 text-ink/75" />
               </div>
             {:else if block.type === 'field_notes'}
               {@const isIntel = /emnel intelligence/i.test(block.title ?? '')}

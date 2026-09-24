@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ArrowDown, ArrowUp, Plus, Trash2 } from '@lucide/svelte';
+  import RichTextEditor from './RichTextEditor.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
   import AdminTextArea from '$lib/components/admin/AdminTextArea.svelte';
   import AdminSelect from '$lib/components/admin/AdminSelect.svelte';
@@ -123,7 +124,10 @@
       {:else if block.type === 'richtext'}
         <div class="grid gap-3">
           <AdminFormInput label="Heading (optional)" name={`h-${i}`} bind:value={block.heading} />
-          <AdminTextArea label="Body" name={`body-${i}`} rows={5} bind:value={block.body} />
+          <!-- Rich text: the toolbar's link button searches every itinerary,
+               destination, travel style and journal post, so a paragraph can
+               link to the page it is discussing without typing a URL. -->
+          <RichTextEditor label="Body" bind:value={block.body} media={media} uploadFolder="destinations" minHeight="220px" placeholder="Write this section — link place names and safaris as you go." />
         </div>
       {:else if block.type === 'field_notes'}
         <AdminTextArea label="Field Notes body" name={`fn-${i}`} rows={4} bind:value={block.body} />

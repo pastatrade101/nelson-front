@@ -11,6 +11,7 @@
   import AdminPageHeader from '$lib/components/admin/AdminPageHeader.svelte';
   import AdminSelect from '$lib/components/admin/AdminSelect.svelte';
   import AdminTextArea from '$lib/components/admin/AdminTextArea.svelte';
+  import RichTextEditor from '$lib/components/admin/RichTextEditor.svelte';
   import AdminToolbar from '$lib/components/admin/AdminToolbar.svelte';
   import ConfirmModal from '$lib/components/admin/ConfirmModal.svelte';
   import StatusBadge from '$lib/components/admin/StatusBadge.svelte';
@@ -515,7 +516,20 @@
         </div>
 
         <AdminTextArea label="Short description" name="short_description" bind:value={form.short_description} rows={3} placeholder="Concise destination summary for cards and search." />
-        <AdminTextArea label="Description" name="description" bind:value={form.description} rows={5} placeholder="Destination overview for the public page." />
+        <!-- Rich text, so writers can link a phrase straight to another page.
+             Internal links are the point: the toolbar's link button searches every
+             itinerary, destination, travel style, comparison and journal post, so a
+             paragraph can reference the page it is talking about without anyone
+             typing a URL. RichText on the public side renders plain text that
+             predates this unchanged, so nothing already written breaks. -->
+        <RichTextEditor
+          label="Description"
+          bind:value={form.description}
+          media={mediaItems}
+          uploadFolder="destinations"
+          minHeight="260px"
+          placeholder="Destination overview for the public page — link place names and safaris to their own pages as you write."
+        />
 
         <div class="rounded-2xl border border-ink/10 bg-sand/20 p-4">
           <p class="text-sm font-bold text-ink">Health &amp; safety</p>
