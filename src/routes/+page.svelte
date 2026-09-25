@@ -5,7 +5,6 @@
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import { faqLd } from '$lib/seo';
-  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import FounderStorySection from '$lib/components/public/FounderStorySection.svelte';
   import HomeProofStrip from '$lib/components/public/HomeProofStrip.svelte';
   import HeroSection from '$lib/components/public/HeroSection.svelte';
@@ -71,18 +70,6 @@
   $: founderExtra = (sections.founder_story?.extra_data ?? {}) as Record<string, unknown>;
   $: processExtra = (sections.how_it_works?.extra_data ?? {}) as Record<string, unknown>;
 
-  // Final CTA background (image/video + overlay), all editable from Admin → Homepage.
-  $: ctaExtra = (sections.final_cta?.extra_data ?? {}) as Record<string, unknown>;
-  $: ctaImage = typeof sections.final_cta?.image_url === 'string' ? sections.final_cta.image_url : '';
-  $: ctaVideo = typeof ctaExtra.background_video === 'string' ? ctaExtra.background_video : '';
-  $: ctaPosition = typeof ctaExtra.media_position === 'string' ? ctaExtra.media_position : 'center';
-  // Prefer a real CMS gallery image over a stock fallback. If neither exists,
-  // FinalCtaSection uses its branded gradient.
-  $: galleryCtaImage = gallery.find((item) => item.media_type !== 'video' && item.media_type !== 'document')?.image_url ?? '';
-  $: ctaImageResolved = ctaImage || galleryCtaImage;
-  $: ctaOverlayColor = typeof ctaExtra.overlay_color === 'string' ? ctaExtra.overlay_color : '#1C1A16';
-  $: ctaOverlayOpacity = typeof ctaExtra.overlay_opacity === 'number' ? ctaExtra.overlay_opacity : 0.7;
-  $: ctaOverlayGradient = ctaExtra.overlay_gradient !== false;
 
   // A homepage section renders only when its CMS "Active" toggle is on (absent /
   // undefined counts as active). This makes the admin Active switch actually
@@ -223,23 +210,4 @@
       <FAQAccordion {faqs} />
     </div>
   </section>
-{/if}
-
-{#if sections.final_cta?.is_active !== false}
-  <FinalCtaSection
-    eyebrow="Start Your Journey"
-    title={cms('final_cta', 'title', 'Ready to plan your private Tanzania safari?')}
-    subtitle={cms('final_cta', 'subtitle', 'Talk to a local expert in Arusha and travel with confidence — no payment needed to start planning.')}
-    primaryLabel={cms('final_cta', 'button_text', 'Plan My Safari')}
-    primaryHref={cms('final_cta', 'button_url', '/plan-my-trip')}
-    secondaryLabel="Talk to a Safari Advisor"
-    secondaryHref="/contact"
-    imageUrl={ctaImageResolved}
-    videoUrl={ctaVideo}
-    imagePosition={ctaPosition}
-    points={['Local experts', 'No payment to plan', 'Honest, tailored advice']}
-    overlayColor={ctaOverlayColor}
-    overlayOpacity={ctaOverlayOpacity}
-    overlayGradient={ctaOverlayGradient}
-  />
 {/if}
