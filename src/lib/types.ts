@@ -183,7 +183,30 @@ export type ItineraryDay = {
     destinations?: { name?: string | null } | null;
   } | null;
   meals?: string | null;
+  /** Free text — still the fallback for days written before the catalogue link. */
   activities?: string | null;
+  /**
+   * Catalogue activities linked to this day, through itinerary_day_activities.
+   * Absent on a payload from a database without the 2026-09-26 migration, and
+   * empty when the day has none — readers must treat both as "nothing linked".
+   */
+  day_activities?: {
+    sort_order?: number;
+    activity?: {
+      id: string;
+      name: string;
+      slug?: string | null;
+      category?: string | null;
+      duration_label?: string | null;
+      price_from?: number | null;
+      currency?: string | null;
+      price_unit?: string | null;
+      badge?: string | null;
+      hero_image_url?: string | null;
+      image_url?: string | null;
+      status?: string | null;
+    } | null;
+  }[];
   image_url?: string | null;
 };
 

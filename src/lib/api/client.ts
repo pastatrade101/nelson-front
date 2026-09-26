@@ -255,7 +255,10 @@ export const api = {
     create: (body: Record<string, unknown>) => apiRequest<Record<string, unknown>>('/itineraries', { method: 'POST', body }),
     update: (id: string, body: Record<string, unknown>) =>
       apiRequest<Record<string, unknown>>(`/itineraries/${id}`, { method: 'PUT', body }),
-    remove: (id: string) => apiRequest(`/itineraries/${id}`, { method: 'DELETE' })
+    remove: (id: string) => apiRequest(`/itineraries/${id}`, { method: 'DELETE' }),
+    // Replace the catalogue activities linked to a day, in the order given.
+    setActivities: (id: string, activityIds: string[]) =>
+      apiRequest(`/itineraries/${id}/activities`, { method: 'PUT', body: { activity_ids: activityIds } })
   },
   availableDates: {
     list: (params?: Record<string, QueryValue>) =>

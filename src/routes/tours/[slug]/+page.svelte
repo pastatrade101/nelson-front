@@ -72,6 +72,11 @@
           accommodation: typeof source.accommodation === 'string' ? source.accommodation : null,
           meals: typeof source.meals === 'string' ? source.meals : null,
           activities: typeof source.activities === 'string' ? source.activities : null,
+          // Catalogue activities linked through itinerary_day_activities. Kept
+          // beside the free-text `activities`, which stays the fallback.
+          day_activities: Array.isArray(source.day_activities)
+            ? (source.day_activities as ItineraryDay['day_activities'])
+            : undefined,
           image_url: typeof source.image_url === 'string' ? source.image_url : null
         };
       })
@@ -194,6 +199,22 @@
     add(lodge.image_url);
     return out;
   };
+  /**
+   * Catalogue activities on a day, in saved order, with anything unpublished
+   * dropped. Both "no embed" (older database) and "empty" collapse to [] so
+   * the block simply does not render — the site hides rather than stubs.
+   */
+  const dayActivities = (day: DisplayDay) =>
+    [...(day.day_activities ?? [])]
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .map((row) => row.activity)
+      .filter((a): a is NonNullable<typeof a> => Boolean(a) && (a?.status ?? 'published') === 'published');
+
+  const activityPrice = (a: { price_from?: number | null; currency?: string | null; price_unit?: string | null }) =>
+    a.price_from != null
+      ? `${a.currency ?? 'USD'} ${Math.round(a.price_from).toLocaleString()}${a.price_unit ? ` ${a.price_unit.toLowerCase()}` : ''}`
+      : '';
+
   $: inclusions = [...(tour?.tour_inclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: exclusions = [...(tour?.tour_exclusions ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   // InclusionsGrid is driven by plain strings; map the sorted records here.
@@ -623,6 +644,44 @@
                         <li class="flex gap-2.5 text-[14px] leading-6 text-ink/70"><Utensils size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Meals:</span> {day.meals}</span></li>
                       {/if}
                     </ul>
+                  {/if}
+
+                  <!-- Catalogue activities linked to this day. Rendered only when
+                       there are any; the free-text line above remains for days
+                       written before the link existed. Informational, not a
+                       booking widget: no "add", no quantity, no basket. -->
+                  {#if dayActivities(day).length}
+                    {@const linked = dayActivities(day)}
+                    <div class="mt-5">
+                      <p class="text-[11px] uppercase tracking-[0.2em] text-clay">On this day</p>
+                      <div class="mt-3 grid gap-2.5 sm:grid-cols-2">
+                        {#each linked as a (a.id)}
+                          {@const img = a.hero_image_url || a.image_url}
+                          <div class="flex gap-3 border border-ink/10 bg-surface p-2.5">
+                            {#if img}
+                              <ResponsiveImage
+                                src={img}
+                                alt={a.name}
+                                width={240}
+                                sizes="120px"
+                                imgClass="h-20 w-24 shrink-0 object-cover"
+                              />
+                            {/if}
+                            <div class="min-w-0 py-0.5">
+                              <p class="truncate text-[14px] font-semibold text-heading">{a.name}</p>
+                              {#if a.duration_label || activityPrice(a)}
+                                <p class="mt-0.5 text-[12.5px] text-ink/60">
+                                  {[a.duration_label, activityPrice(a)].filter(Boolean).join(' · ')}
+                                </p>
+                              {/if}
+                              {#if a.badge}
+                                <span class="mt-1.5 inline-block border border-goldfinch-gold/40 bg-goldfinch-gold/10 px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-clay">{a.badge}</span>
+                              {/if}
+                            </div>
+                          </div>
+                        {/each}
+                      </div>
+                    </div>
                   {/if}
 
                     <!-- The property itself, shown when the day is linked to a

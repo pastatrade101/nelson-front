@@ -41,7 +41,10 @@
     meals?: string | null;
     title: string;
     tour_id: string;
+    /** Catalogue activities linked through itinerary_day_activities; absent on an older database. */
+    day_activities?: { sort_order?: number; activity?: { id: string; name: string } | null }[];
   };
+  type ActivityOption = { id: string; name: string; status?: string };
   type MediaItem = { file_name: string; file_url: string; id: string; thumbnail_url?: string | null };
   type Toast = { id: string; message: string; type: 'error' | 'success' };
 
@@ -56,6 +59,34 @@
   let modalOpen = false;
   let confirmOpen = false;
   let editingDay: ItineraryDay | null = null;
+  // Catalogue activities for the picker, and the ids ticked for the open day.
+  // The free-text `activities` field stays as-is beside this: it is the
+  // fallback for days written before the link, and for things that will never
+  // be a catalogue entry ("Airport transfer").
+  let activityOptions: ActivityOption[] = [];
+  let loadingActivities = false;
+  let selectedActivityIds: string[] = [];
+
+  const loadActivities = async () => {
+    if (activityOptions.length || loadingActivities) return;
+    loadingActivities = true;
+    try {
+      const res = await api.activities.list({ status: 'all', limit: 200 });
+      activityOptions = ((res.data.items ?? []) as ActivityOption[])
+        .filter((a) => a && a.id && a.name)
+        .sort((a, b) => a.name.localeCompare(b.name));
+    } catch {
+      activityOptions = [];
+    } finally {
+      loadingActivities = false;
+    }
+  };
+
+  const toggleActivity = (id: string) => {
+    selectedActivityIds = selectedActivityIds.includes(id)
+      ? selectedActivityIds.filter((x) => x !== id)
+      : [...selectedActivityIds, id];
+  };
   let dayToDelete: ItineraryDay | null = null;
   let toasts: Toast[] = [];
   let form = { accommodation: '', activities: '', day_number: '1', description: '', image_url: '', meals: '', title: '' };
@@ -84,7 +115,11 @@
     image_url: String(v.image_url ?? ''),
     meals: String(v.meals ?? ''),
     title: String(v.title ?? 'Untitled day'),
-    tour_id: String(v.tour_id ?? '')
+    tour_id: String(v.tour_id ?? ''),
+    // Carried through as-is so the editor can pre-tick the linked activities.
+    day_activities: Array.isArray(v.day_activities)
+      ? (v.day_activities as ItineraryDay['day_activities'])
+      : []
   });
 
   const loadContext = async () => {
@@ -148,6 +183,8 @@
   const openCreateModal = () => {
     editingDay = null;
     form = { accommodation: '', activities: '', day_number: nextDayNumber(), description: '', image_url: '', meals: '', title: '' };
+    selectedActivityIds = [];
+    void loadActivities();
     void loadMedia();
     modalOpen = true;
   };
@@ -162,7 +199,13 @@
       meals: day.meals ?? '',
       title: day.title
     };
+    // Ticked in saved order, so re-saving without touching the picker keeps it.
+    selectedActivityIds = [...(day.day_activities ?? [])]
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .map((row) => row.activity?.id)
+      .filter((id): id is string => Boolean(id));
     void loadMedia();
+    void loadActivities();
     modalOpen = true;
   };
   const closeModal = () => {
@@ -191,13 +234,24 @@
     if (duplicateDayExists()) return showToast('This tour already has a day with that number.', 'error');
     saving = true;
     try {
+      let dayId = editingDay?.id ?? '';
       if (editingDay) {
         await api.itineraries.update(editingDay.id, payload());
-        showToast('Itinerary day updated.');
       } else {
-        await api.itineraries.create(payload());
-        showToast('Itinerary day added.');
+        const created = await api.itineraries.create(payload());
+        dayId = String((created.data as { id?: string })?.id ?? '');
       }
+      // The links live in their own table, written after the day so a new day
+      // has an id to attach to. Saved even when empty, so unticking everything
+      // clears the previous links rather than silently keeping them.
+      if (dayId) {
+        try {
+          await api.itineraries.setActivities(dayId, selectedActivityIds);
+        } catch {
+          showToast('Day saved, but its linked activities could not be updated.', 'error');
+        }
+      }
+      showToast(editingDay ? 'Itinerary day updated.' : 'Itinerary day added.');
       closeModal();
       await loadDays();
     } catch (err) {
@@ -368,6 +422,35 @@
         <AdminFormInput label="Accommodation" name="accommodation" bind:value={form.accommodation} placeholder="Safari lodge, hotel..." />
         <AdminFormInput label="Meals" name="meals" bind:value={form.meals} placeholder="Breakfast, lunch, dinner" />
         <AdminTextArea label="Activities" name="activities" bind:value={form.activities} rows={3} placeholder="Game drive, transfer..." />
+      </div>
+      <div class="mt-4 border border-ink/10 bg-sand/25 p-4">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <span class="text-[13px] font-semibold text-ink">Catalogue activities on this day</span>
+          <span class="text-xs text-ink/50">{selectedActivityIds.length} selected</span>
+        </div>
+        <p class="mt-1 text-xs text-ink/55">
+          Tick the activities from the catalogue that happen on this day — they show on the tour page with their
+          photo, duration and price. The free-text field above still works for anything not in the catalogue.
+        </p>
+        {#if loadingActivities}
+          <p class="mt-3 text-xs text-ink/50">Loading activities&hellip;</p>
+        {:else if !activityOptions.length}
+          <p class="mt-3 border border-dashed border-ink/20 px-3 py-3 text-xs text-ink/55">
+            No activities in the catalogue yet. Add some under Activities, then link them here.
+          </p>
+        {:else}
+          <div class="mt-3 grid gap-1.5 sm:grid-cols-2">
+            {#each activityOptions as a (a.id)}
+              <label class="flex cursor-pointer items-center gap-2.5 border border-ink/10 bg-surface px-3 py-2 text-sm text-ink transition hover:border-forest/40">
+                <input class="h-4 w-4 accent-forest" type="checkbox" checked={selectedActivityIds.includes(a.id)} on:change={() => toggleActivity(a.id)} />
+                <span class="min-w-0 truncate">{a.name}</span>
+                {#if a.status && a.status !== 'published'}
+                  <span class="ml-auto shrink-0 text-[10px] uppercase tracking-wide text-ink/40">{a.status}</span>
+                {/if}
+              </label>
+            {/each}
+          </div>
+        {/if}
       </div>
       <div class="mt-5 rounded-none border border-ink/10 bg-sand/25 p-4">
         <MediaPicker label="Day image" media={mediaItems} uploadFolder="itineraries" bind:value={form.image_url} />
