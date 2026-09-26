@@ -181,35 +181,52 @@
 
   const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); slugManuallyEdited = false; };
 
-  const numOrNull = (v: string) => { const n = Number(v); return v.trim() !== '' && Number.isFinite(n) ? n : null; };
+  /**
+   * A number field, or null when it is blank.
+   *
+   * Takes `unknown`, not `string`, on purpose. Svelte's bind:value coerces an
+   * <input type="number"> to an actual NUMBER, so this used to be handed 240
+   * and call (240).trim() — a TypeError raised while building the payload,
+   * BEFORE the try block, which left the Save button stuck on "Saving..." with
+   * nothing shown to the user. String() first so any input shape is safe.
+   */
+  const numOrNull = (v: unknown) => {
+    const s = String(v ?? '').trim();
+    if (!s) return null;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : null;
+  };
 
   const save = async () => {
     if (!form.name.trim()) { showToast('Name is required.', 'error'); return; }
-    saving = true;
-    const payload = {
-      name: form.name.trim(),
-      slug: form.slug.trim(),
-      destination_id: form.destination_id || null,
-      location_label: form.location_label.trim() || null,
-      category: form.category,
-      difficulty: form.difficulty || null,
-      description: form.description.trim() || null,
-      why_we_recommend: form.why_we_recommend.trim() || null,
-      highlights: form.highlights.split(',').map((s) => s.trim()).filter(Boolean),
-      hero_image_url: form.hero_image_url.trim() || null,
-      image_url: form.image_url.trim() || null,
-      duration_label: form.duration_label.trim() || null,
-      price_from: numOrNull(form.price_from),
-      currency: form.currency.trim() || 'USD',
-      price_unit: form.price_unit.trim() || null,
-      badge: form.badge.trim() || null,
-      best_season: form.best_season.split(',').map((s) => s.trim()).filter(Boolean),
-      status: form.status,
-      is_featured: form.is_featured,
-      seo_title: form.seo_title.trim() || null,
-      meta_description: form.meta_description.trim() || null
-    };
+    // Everything that can throw lives inside the try — including building the
+    // payload. It used to sit outside, so a TypeError there skipped the finally
+    // and left the Save button stuck on "Saving..." with no message.
     try {
+      saving = true;
+      const payload = {
+        name: form.name.trim(),
+        slug: form.slug.trim(),
+        destination_id: form.destination_id || null,
+        location_label: form.location_label.trim() || null,
+        category: form.category,
+        difficulty: form.difficulty || null,
+        description: form.description.trim() || null,
+        why_we_recommend: form.why_we_recommend.trim() || null,
+        highlights: form.highlights.split(',').map((s) => s.trim()).filter(Boolean),
+        hero_image_url: form.hero_image_url.trim() || null,
+        image_url: form.image_url.trim() || null,
+        duration_label: form.duration_label.trim() || null,
+        price_from: numOrNull(form.price_from),
+        currency: form.currency.trim() || 'USD',
+        price_unit: form.price_unit.trim() || null,
+        badge: form.badge.trim() || null,
+        best_season: form.best_season.split(',').map((s) => s.trim()).filter(Boolean),
+        status: form.status,
+        is_featured: form.is_featured,
+        seo_title: form.seo_title.trim() || null,
+        meta_description: form.meta_description.trim() || null
+      };
       if (editing) {
         await api.activities.update(editing.id, payload);
         showToast('Activity updated.');

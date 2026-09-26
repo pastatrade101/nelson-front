@@ -318,65 +318,82 @@
   /** Comma-separated text -> a clean string[] for the array columns. */
   const csv = (v: string) => v.split(',').map((x) => x.trim()).filter(Boolean);
 
-  const numOrNull = (v: string) => { const n = Number(v); return v.trim() !== '' && Number.isFinite(n) ? n : null; };
+  /**
+   * A number field, or null when it is blank.
+   *
+   * Takes `unknown`, not `string`, on purpose. Svelte's bind:value coerces an
+   * <input type="number"> to an actual NUMBER, so this used to be handed 240
+   * and call (240).trim() — a TypeError raised while building the payload,
+   * BEFORE the try block, which left the Save button stuck on "Saving..." with
+   * nothing shown to the user. String() first so any input shape is safe.
+   */
+  const numOrNull = (v: unknown) => {
+    const s = String(v ?? '').trim();
+    if (!s) return null;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : null;
+  };
 
   const save = async () => {
     if (!form.name.trim()) { showToast('Name is required.', 'error'); return; }
-    saving = true;
-    const payload = {
-      name: form.name.trim(),
-      slug: form.slug.trim(),
-      destination_id: form.destination_id || null,
-      accommodation_level: form.accommodation_level,
-      lodge_type: form.lodge_type,
-      description: form.description.trim() || null,
-      why_we_recommend: form.why_we_recommend.trim() || null,
-      hero_image_url: form.hero_image_url.trim() || null,
-      image_url: form.image_url.trim() || null,
-      price_per_night_from: numOrNull(form.price_per_night_from),
-      currency: form.currency.trim() || 'USD',
-      best_for: form.best_for.split(',').map((s) => s.trim()).filter(Boolean),
-      romantic_rating: numOrNull(form.romantic_rating),
-      family_rating: numOrNull(form.family_rating),
-      website_url: form.website_url.trim() || null,
-      status: form.status,
-      is_featured: form.is_featured,
-      seo_title: form.seo_title.trim() || null,
-      meta_description: form.meta_description.trim() || null,
-      short_description: form.short_description.trim() || null,
-      country: form.country.trim() || null,
-      region: form.region.trim() || null,
-      park_area: form.park_area.trim() || null,
-      settings: csv(form.settings),
-      recommended_nights: numOrNull(form.recommended_nights),
-      best_months: csv(form.best_months),
-      mobile_hero_image_url: form.mobile_hero_image_url.trim() || null,
-      social_image_url: form.social_image_url.trim() || null,
-      google_maps_url: form.google_maps_url.trim() || null,
-      latitude: numOrNull(form.latitude),
-      longitude: numOrNull(form.longitude),
-      nearest_airport: form.nearest_airport.trim() || null,
-      transfer_time: form.transfer_time.trim() || null,
-      distance_airstrip: form.distance_airstrip.trim() || null,
-      distance_park_gate: form.distance_park_gate.trim() || null,
-      road_accessibility: form.road_accessibility || null,
-      fly_in_available: form.fly_in_available,
-      transfer_available: form.transfer_available,
-      children_allowed: form.children_allowed,
-      minimum_child_age: numOrNull(form.minimum_child_age),
-      family_friendly: form.family_friendly,
-      honeymoon_friendly: form.honeymoon_friendly,
-      accessibility: form.accessibility || null,
-      wheelchair_accessible: form.wheelchair_accessible,
-      electricity_availability: form.electricity_availability || null,
-      wifi_availability: form.wifi_availability || null,
-      mobile_networks: csv(form.mobile_networks),
-      arrival_instructions: form.arrival_instructions.trim() || null,
-      traveler_notes: form.traveler_notes.trim() || null,
-      show_rates_publicly: form.show_rates_publicly,
-      indexable: form.indexable
-    };
+    // Everything that can throw lives inside the try — including building the
+    // payload. It used to sit outside, so a TypeError there skipped the finally
+    // and left the Save button stuck on "Saving..." with no message.
     try {
+      saving = true;
+      const payload = {
+        name: form.name.trim(),
+        slug: form.slug.trim(),
+        destination_id: form.destination_id || null,
+        accommodation_level: form.accommodation_level,
+        lodge_type: form.lodge_type,
+        description: form.description.trim() || null,
+        why_we_recommend: form.why_we_recommend.trim() || null,
+        hero_image_url: form.hero_image_url.trim() || null,
+        image_url: form.image_url.trim() || null,
+        price_per_night_from: numOrNull(form.price_per_night_from),
+        currency: form.currency.trim() || 'USD',
+        best_for: form.best_for.split(',').map((s) => s.trim()).filter(Boolean),
+        romantic_rating: numOrNull(form.romantic_rating),
+        family_rating: numOrNull(form.family_rating),
+        website_url: form.website_url.trim() || null,
+        status: form.status,
+        is_featured: form.is_featured,
+        seo_title: form.seo_title.trim() || null,
+        meta_description: form.meta_description.trim() || null,
+        short_description: form.short_description.trim() || null,
+        country: form.country.trim() || null,
+        region: form.region.trim() || null,
+        park_area: form.park_area.trim() || null,
+        settings: csv(form.settings),
+        recommended_nights: numOrNull(form.recommended_nights),
+        best_months: csv(form.best_months),
+        mobile_hero_image_url: form.mobile_hero_image_url.trim() || null,
+        social_image_url: form.social_image_url.trim() || null,
+        google_maps_url: form.google_maps_url.trim() || null,
+        latitude: numOrNull(form.latitude),
+        longitude: numOrNull(form.longitude),
+        nearest_airport: form.nearest_airport.trim() || null,
+        transfer_time: form.transfer_time.trim() || null,
+        distance_airstrip: form.distance_airstrip.trim() || null,
+        distance_park_gate: form.distance_park_gate.trim() || null,
+        road_accessibility: form.road_accessibility || null,
+        fly_in_available: form.fly_in_available,
+        transfer_available: form.transfer_available,
+        children_allowed: form.children_allowed,
+        minimum_child_age: numOrNull(form.minimum_child_age),
+        family_friendly: form.family_friendly,
+        honeymoon_friendly: form.honeymoon_friendly,
+        accessibility: form.accessibility || null,
+        wheelchair_accessible: form.wheelchair_accessible,
+        electricity_availability: form.electricity_availability || null,
+        wifi_availability: form.wifi_availability || null,
+        mobile_networks: csv(form.mobile_networks),
+        arrival_instructions: form.arrival_instructions.trim() || null,
+        traveler_notes: form.traveler_notes.trim() || null,
+        show_rates_publicly: form.show_rates_publicly,
+        indexable: form.indexable
+      };
       // The gallery is a separate table, so it is written after the lodge — and a
       // new lodge has no id until the create returns.
       let lodgeId = editing?.id ?? '';
