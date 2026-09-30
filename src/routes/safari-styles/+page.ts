@@ -9,15 +9,18 @@ export const load: PageLoad = async ({ fetch }) => {
     cachedJson<{ data?: { items?: Array<Record<string, unknown>> } }>(url, fetch)
       .then((b) => b?.data?.items ?? [])
       .catch(() => null);
-  const [cat, tour, dest] = await Promise.all([
+  const [cat, tour, dest, styles] = await Promise.all([
     pick('/api/categories?status=published&limit=100'),
     pick('/api/tours?status=published&limit=100'),
-    pick('/api/destinations?status=published&limit=100')
+    pick('/api/destinations?status=published&limit=100'),
+    // The copy written for each style card; a card opens it (see $lib/styleLinks).
+    pick('/api/travel-styles?status=published&limit=100')
   ]);
   return {
     categories: cat ?? [],
     tours: tour ?? [],
     destinations: dest ?? [],
+    travelStyles: styles ?? [],
     failed: cat === null
   };
 };

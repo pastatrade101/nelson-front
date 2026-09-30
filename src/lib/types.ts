@@ -462,6 +462,8 @@ export type TravelStyle = {
   desires?: string[];
   concerns?: string[];
   persona?: string | null;
+  /** The safari-style card (tour category) this style is written for; see $lib/styleLinks. */
+  category_id?: string | null;
   hero_image_url?: string;
   image_url?: string;
   status?: string;

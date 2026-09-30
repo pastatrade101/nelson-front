@@ -2,6 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import type { Tour, TravelStyle } from '$lib/types';
 import { cachedJson } from '$lib/cache';
+import { categoryForStyle } from '$lib/styleLinks';
 
 /**
  * A travel style, server-rendered.
@@ -34,14 +35,21 @@ export const load: PageLoad = async ({ fetch, params }) => {
 
   // Siblings and the tour pool are secondary: a failure hides a section rather
   // than losing the page.
-  const [others, tours] = await Promise.all([
+  const [others, tours, categories] = await Promise.all([
     cachedJson<{ data?: { items?: TravelStyle[] } }>('/api/travel-styles?status=published&limit=100', fetch)
       .then((b) => (b?.data?.items ?? []).filter((s) => s.slug !== params.slug))
       .catch(() => [] as TravelStyle[]),
     cachedJson<{ data?: { items?: Tour[] } }>('/api/tours?status=published&limit=100', fetch)
       .then((b) => b?.data?.items ?? [])
-      .catch(() => [] as Tour[])
+      .catch(() => [] as Tour[]),
+    cachedJson<{ data?: { items?: Array<{ id: string; name: string; slug: string }> } }>('/api/categories?status=published&limit=100', fetch)
+      .then((b) => b?.data?.items ?? [])
+      .catch(() => [] as Array<{ id: string; name: string; slug: string }>)
   ]);
 
-  return { style, others, tours };
+  // The safari-style card this page belongs to, so "Browse itineraries" lists
+  // that style's tours rather than a looser persona match.
+  const category = categoryForStyle(style, categories);
+
+  return { style, others, tours, categorySlug: category?.slug ?? null };
 };

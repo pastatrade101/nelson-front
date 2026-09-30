@@ -5,12 +5,14 @@
   import { fadeUpOnScroll, revealHeading, staggeredCardReveal } from '$lib/animations';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
-  import type { Destination } from '$lib/types';
+  import type { Destination, TravelStyle } from '$lib/types';
+  import { safariStyleHref } from '$lib/styleLinks';
   import type { PageData } from './$types';
 
   export let data: PageData;
 
   type Style = {
+    id?: string;
     name: string;
     slug: string;
     description?: string | null;
@@ -24,6 +26,9 @@
   // All three lists are SSR-loaded in +page.ts and derived reactively here.
   $: styles = ((data.categories ?? []) as unknown as Style[]).filter((s) => s.name && s.slug);
   $: failed = data.failed;
+  // A card opens the style's own page — never the tour filter, which carried none of its copy.
+  $: travelStyles = (data.travelStyles ?? []) as unknown as TravelStyle[];
+  $: hrefFor = (style: Style) => safariStyleHref(style, travelStyles);
   $: catStats = ((): Record<string, Stat> => {
     const stats: Record<string, Stat> = {};
     for (const t of (data.tours ?? []) as Array<Record<string, unknown>>) {
@@ -216,7 +221,7 @@
     {@const fImg = styleImg(featured, 1400)}
     {@const fStat = catStats[featured.slug]}
     <section class="container-shell py-14 md:py-20" use:fadeUpOnScroll={{ y: 18 }}>
-      <a href={`/tours?category=${featured.slug}`} class="group grid overflow-hidden border border-ink/10 bg-surface shadow-soft transition-shadow duration-300 hover:shadow-[0_28px_70px_rgba(28,26,22,0.18)] lg:grid-cols-2">
+      <a href={hrefFor(featured)} class="group grid overflow-hidden border border-ink/10 bg-surface shadow-soft transition-shadow duration-300 hover:shadow-[0_28px_70px_rgba(28,26,22,0.18)] lg:grid-cols-2">
         <div class="relative min-h-[300px] overflow-hidden bg-deep-green lg:min-h-[480px]">
           {#if fImg}
             <ResponsiveImage src={featured.image_url} fallbackSrc={thumbUrl(featured, 'image_url')} alt={featured.name} imgClass="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" sizes="(min-width:1024px) 50vw, 100vw" width={1400} />
@@ -257,7 +262,7 @@
         {@const image = styleImg(style)}
         {@const s = catStats[style.slug]}
         {@const label = decisionLabel(style)}
-        <a href={`/tours?category=${style.slug}`} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
+        <a href={hrefFor(style)} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
           <div class="relative aspect-[16/10] overflow-hidden bg-deep-green">
             {#if image}
               <ResponsiveImage src={style.image_url} fallbackSrc={thumbUrl(style, 'image_url')} alt={style.name} imgClass="h-full w-full object-cover transition duration-500 group-hover:scale-105" sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" width={900} />
@@ -308,7 +313,7 @@
           {@const image = styleImg(style)}
           {@const s = catStats[style.slug]}
           {@const label = decisionLabel(style)}
-          <a href={`/tours?category=${style.slug}`} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
+          <a href={hrefFor(style)} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
             <div class="relative aspect-[16/10] overflow-hidden bg-deep-green">
               {#if image}
                 <ResponsiveImage src={style.image_url} fallbackSrc={thumbUrl(style, 'image_url')} alt={style.name} imgClass="h-full w-full object-cover transition duration-500 group-hover:scale-105" sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" width={900} />

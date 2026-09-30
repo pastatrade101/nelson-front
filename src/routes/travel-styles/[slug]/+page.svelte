@@ -21,7 +21,9 @@
   $: desires = (style.desires ?? []).filter((d) => d && d.trim());
   $: concerns = (style.concerns ?? []).filter((c) => c && c.trim());
 
-  $: toursHref = style.persona ? `/tours?persona=${style.persona}` : '/tours';
+  $: toursHref = data.categorySlug
+    ? `/tours?category=${data.categorySlug}`
+    : style.persona ? `/tours?persona=${style.persona}` : '/tours';
   $: planHref = `/plan-my-trip${style.persona ? `?persona=${style.persona}` : ''}`;
 
   // A curated tour block replaces the generic fallback; only show the fallback

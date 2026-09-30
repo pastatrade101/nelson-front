@@ -10,6 +10,8 @@
   import CurrencySelector from './CurrencySelector.svelte';
   import WhatsAppCta from './WhatsAppCta.svelte';
   import { api } from '$lib/api/client';
+  import { safariStyleHref } from '$lib/styleLinks';
+  import type { TravelStyle } from '$lib/types';
   import { openAiAdvisor } from '$lib/aiAdvisor';
   import { openEnquiry } from '$lib/enquiry';
   import { navbarEntrance } from '$lib/animations';
@@ -35,6 +37,10 @@
   // Dropdown data comes ONLY from published CMS content — no invented fallbacks.
   let destinations: NavLink[] = [];
   let categories: NavLink[] = [];
+  // Where each style card opens (its travel style page, else its info page);
+  // the Tours menu keeps `categories[].href`, which filters the tour list.
+  let styleHrefBySlug: Record<string, string> = {};
+  $: styleLinks = categories.map((c) => ({ ...c, href: styleHrefBySlug[c.slug ?? ''] ?? c.href }));
   // Real published tours (genuine images) power the Tours "popular experiences"
   // cards; category records only carry placeholder image names.
   let popularTours: NavLink[] = [];
@@ -169,7 +175,7 @@
     tours: categories,
     destinations,
     accommodation: ACCOMMODATION_BROWSE,
-    'safari-styles': categories
+    'safari-styles': styleLinks
   } as Record<DropdownKey, NavLink[]>;
 
   // Background photo for a CTA panel: the first genuine http image from real data.
@@ -184,7 +190,7 @@
   $: browseTours = (curatedTours.length >= 5 ? curatedTours : categories)
     .slice(0, 8)
     .map((c) => ({ label: c.label, href: c.href, icon: catIcon(c.label), subtitle: c.subtitle }));
-  $: browseStyles = categories.map((c) => ({ label: c.label, href: c.href, icon: catIcon(c.label) }));
+  $: browseStyles = styleLinks.map((c) => ({ label: c.label, href: c.href, icon: catIcon(c.label) }));
   // Country hubs sit at the head of the destinations menu, above the individual
   // parks, so the menu reads country -> park. With one live country that is a
   // single extra row; it is what makes the shape country-aware rather than
@@ -202,7 +208,7 @@
   // Featured safari-style cards: category name + description (verbatim) over a
   // photo borrowed from that style's representative real tour; skip styles with
   // no real-image tour so no card is ever imageless/fabricated.
-  $: featuredStyles = categories
+  $: featuredStyles = styleLinks
     .map((c) => ({ label: c.label, href: c.href, description: c.description, image: styleImageBySlug[c.slug ?? ''] }))
     .filter((c) => Boolean(c.image))
     .slice(0, 5);
@@ -373,8 +379,14 @@
         // keep fallback
       }
       try {
-        const res = await api.categories.list({ status: 'published', limit: 20 });
+        // Travel styles alongside, so each style opens its own page (see $lib/styleLinks).
+        const [res, stylesRes] = await Promise.all([
+          api.categories.list({ status: 'published', limit: 20 }),
+          api.travelStyles.list({ status: 'published', limit: 100 }).catch(() => null)
+        ]);
         const items = res.data.items ?? [];
+        const travelStyles = (stylesRes?.data.items ?? []) as TravelStyle[];
+        styleHrefBySlug = Object.fromEntries(items.map((c) => [String(c.slug ?? ''), safariStyleHref(c, travelStyles)]));
         if (items.length) categories = items.map((c) => ({ label: String(c.name ?? c.slug), href: `/tours?category=${c.slug}`, slug: String(c.slug ?? ''), image: (c.image_url as string) || undefined, description: c.description ? String(c.description) : undefined, subtitle: oneLine(c.who_its_for) ?? oneLine(c.description) }));
       } catch {
         // keep fallback

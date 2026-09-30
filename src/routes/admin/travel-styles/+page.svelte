@@ -28,6 +28,7 @@
     desires?: string[] | null;
     concerns?: string[] | null;
     persona?: string | null;
+    category_id?: string | null;
     hero_image_url?: string | null;
     image_url?: string | null;
     status: 'archived' | 'draft' | 'published';
@@ -64,6 +65,7 @@
     desires: '',
     concerns: '',
     persona: '',
+    category_id: '',
     hero_image_url: '',
     image_url: '',
     status: 'draft' as TravelStyle['status'],
@@ -77,6 +79,12 @@
   // alongside `form` and are hydrated and reset with it.
   let blocks: Record<string, unknown>[] = [];
   let tourOptions: { id: string; title: string }[] = [];
+  // Safari-style cards (tour categories) a style can be written for. The card
+  // on /safari-styles opens this style's page once they are linked.
+  let categoryOptions: { label: string; value: string }[] = [{ label: 'None — not shown on a Safari Styles card', value: '' }];
+  // Only send the link once the database has the column (migration
+  // 2026-09-30-travel-style-category), so saving never fails before it runs.
+  $: linkReady = rows.some((row) => 'category_id' in row);
 
   let rows: TravelStyle[] = [];
   let loading = true;
@@ -128,6 +136,7 @@
       desires: (s.desires ?? []).join('\n'),
       concerns: (s.concerns ?? []).join('\n'),
       persona: s.persona ?? '',
+      category_id: s.category_id ?? '',
       hero_image_url: s.hero_image_url ?? '',
       image_url: s.image_url ?? '',
       status: s.status,
@@ -156,6 +165,7 @@
       desires: lines(form.desires),
       concerns: lines(form.concerns),
       persona: form.persona || null,
+      ...(linkReady ? { category_id: form.category_id || null } : {}),
       hero_image_url: form.hero_image_url.trim() || null,
       image_url: form.image_url.trim() || null,
       status: form.status,
@@ -201,6 +211,15 @@
       tourOptions = (tours.data.items as { id: string; title: string }[]).map((t) => ({ id: t.id, title: t.title }));
     } catch {
       // non-critical
+    }
+    try {
+      const categories = await api.categories.list({ status: 'all', limit: 100 });
+      categoryOptions = [
+        categoryOptions[0],
+        ...(categories.data.items as { id: string; name: string }[]).map((c) => ({ label: c.name, value: c.id }))
+      ];
+    } catch {
+      // non-critical: the select keeps "None"
     }
   };
 
@@ -315,6 +334,17 @@
         <div class="grid gap-4 sm:grid-cols-2">
           <AdminTextArea label="What they want (one per line)" name="desires" bind:value={form.desires} rows={4} />
           <AdminTextArea label="Concerns we plan around (one per line)" name="concerns" bind:value={form.concerns} rows={4} />
+        </div>
+
+        <div class="grid gap-1.5">
+          <AdminSelect label="Linked safari style · the card on the Safari Styles page" name="category_id" bind:value={form.category_id} options={categoryOptions} />
+          <p class="text-xs text-ink/50">
+            {#if linkReady}
+              Clicking that card opens this page, and “Browse itineraries” lists that style's tours.
+            {:else}
+              Not saved yet — the database needs the travel-style link update first. A card with the same name already opens this page.
+            {/if}
+          </p>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
