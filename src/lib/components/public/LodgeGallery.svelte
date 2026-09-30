@@ -58,6 +58,15 @@
     if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); }
   };
 
+  // The lightbox is rendered into <body>. Its page section fades in with a
+  // transform, and a transformed ancestor becomes the containing block for
+  // `position: fixed` and caps its z-index — so inside the section the lightbox
+  // was clipped to the section's box and later sections drew over it.
+  const toBody = (node: HTMLElement) => {
+    document.body.appendChild(node);
+    return { destroy: () => node.remove() };
+  };
+
   // The page scrolls behind an open lightbox otherwise.
   $: if (typeof document !== 'undefined') {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -121,7 +130,8 @@
 {#if open && ordered.length}
   <div
     bind:this={dialog}
-    class="fixed inset-0 z-[100] grid place-items-center bg-ink/92 p-4"
+    use:toBody
+    class="fixed inset-0 z-[100] grid place-items-center bg-ink/[0.92] p-4"
     role="dialog"
     aria-modal="true"
     aria-label={`${propertyName} gallery`}

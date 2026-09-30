@@ -219,7 +219,7 @@
   {@const d = destOf(active)}
   {@const t = tourOf(active)}
   <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-  <div class="fixed inset-0 z-[100] flex flex-col bg-black/92 backdrop-blur-sm" transition:fade={{ duration: 160 }} on:click={close}>
+  <div class="fixed inset-0 z-[100] flex flex-col bg-black/[0.92] backdrop-blur-sm" transition:fade={{ duration: 160 }} on:click={close}>
     <div class="flex items-center justify-between px-4 py-3 text-white/80 sm:px-6">
       <span class="text-xs font-bold uppercase tracking-[0.14em]">{index + 1} / {filtered.length}</span>
       <button type="button" class="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20" on:click|stopPropagation={close} aria-label="Close">
