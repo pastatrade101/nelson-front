@@ -18,3 +18,18 @@ export const faqLd = (faqs: { q: string; a: string }[]) => ({
     acceptedAnswer: { '@type': 'Answer', text: f.a }
   }))
 });
+
+/** Plain text for structured data — CMS FAQ answers are rich text. */
+export const plainText = (value: string | null | undefined): string =>
+  String(value ?? '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/** CMS FAQ rows → the { q, a } pairs faqLd takes, dropping any without both. */
+export const faqPairs = (faqs: { question?: string | null; answer?: string | null }[] = []) =>
+  faqs.map((f) => ({ q: plainText(f.question), a: plainText(f.answer) })).filter((f) => f.q && f.a);

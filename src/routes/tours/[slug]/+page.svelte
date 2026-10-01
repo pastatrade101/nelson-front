@@ -34,6 +34,7 @@
   import EmailItineraryCapture from '$lib/components/public/EmailItineraryCapture.svelte';
   import InclusionsGrid from '$lib/components/public/InclusionsGrid.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
+  import { faqLd, faqPairs } from '$lib/seo';
   import RichText from '$lib/components/public/RichText.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
@@ -235,15 +236,15 @@
   // Relevant content for onward navigation (loaded best-effort after the tour).
   let relatedTours: Tour[] = [];
   let recentPosts: BlogPost[] = [];
-  let faqs: FAQ[] = [];
+  // From the SSR load, so the answers are in the server HTML.
+  $: faqs = (($page.data?.faqs ?? []) as FAQ[]);
 
   const loadRelated = async (current: Tour) => {
     const destId = (current as unknown as { destination_id?: string | null }).destination_id ?? null;
 
-    const [tourRes, postRes, faqRes] = await Promise.allSettled([
+    const [tourRes, postRes] = await Promise.allSettled([
       api.tours.list(destId ? { destination_id: destId, limit: 7 } : { limit: 7 }),
-      api.blog.list({ limit: 6 }),
-      api.faqs.list({ destination_id: 'null', limit: 10 })
+      api.blog.list({ limit: 6 })
     ]);
 
     if (tourRes.status === 'fulfilled') {
@@ -261,11 +262,6 @@
     if (postRes.status === 'fulfilled') {
       recentPosts = postRes.value.data.items ?? [];
     }
-    if (faqRes.status === 'fulfilled') {
-      faqs = faqRes.value.data.items ?? [];
-    } else {
-      faqs = [];
-    }
   };
 
   const load = async (slug: string) => {
@@ -273,7 +269,6 @@
     error = '';
     relatedTours = [];
     recentPosts = [];
-    faqs = [];
     sheetOpen = false;
     overviewExpanded = false;
     overviewOverflows = false;
@@ -949,6 +944,7 @@
 
 {#if touristTripLd}<JsonLd data={touristTripLd} />{/if}
 {#if breadcrumbLd}<JsonLd data={breadcrumbLd} />{/if}
+{#if faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
 
 <style>
   /* Day accordion: hide the native marker; reveal the body with a soft slide. */

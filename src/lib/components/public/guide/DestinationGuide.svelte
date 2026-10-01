@@ -11,6 +11,8 @@
 
   export let blocks: GuideBlock[] = [];
   export let reviewedAt: string | null = null;
+  /** The page's own FAQs, folded into this guide's FAQPage so the page carries one. */
+  export let extraFaqs: { q: string; a: string }[] = [];
 
   // Split a body string into paragraphs on blank lines. Rendered as escaped text.
   const paras = (s: string): string[] =>
@@ -67,7 +69,8 @@
   // Aggregate every FAQ item across all faq blocks into one FAQPage schema.
   $: faqItems = blocks
     .filter((b): b is Extract<GuideBlock, { type: 'faq' }> => b?.type === 'faq')
-    .flatMap((b) => b.items ?? []);
+    .flatMap((b) => b.items ?? [])
+    .concat(extraFaqs);
   $: faqLd = faqItems.length
     ? {
         '@type': 'FAQPage',

@@ -16,7 +16,7 @@
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import DestinationGuide from '$lib/components/public/guide/DestinationGuide.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
-  import { breadcrumbLd } from '$lib/seo';
+  import { breadcrumbLd, faqLd, faqPairs } from '$lib/seo';
   import { FileCheck, HeartPulse, Phone, Plane, Shield, ShieldCheck } from '@lucide/svelte';
   import type { Activity, BlogPost, Destination, FAQ, Lodge, Tour, TripPoint } from '$lib/types';
   import type { PageData } from './$types';
@@ -38,7 +38,7 @@
   let lodges: Lodge[] = [];
   let activities: Activity[] = [];
   let tripPoints: TripPoint[] = [];
-  let faqs: FAQ[] = [];
+  $: faqs = ((data.faqs ?? []) as FAQ[]);
 
   // This destination's FAQs, grouped by their (optional) category for display.
   $: faqGroups = (() => {
@@ -68,14 +68,13 @@
   );
 
   const loadRelated = async (dest: Destination) => {
-    const [tourRes, destRes, postRes, lodgeRes, activityRes, tripPointRes, faqRes] = await Promise.allSettled([
+    const [tourRes, destRes, postRes, lodgeRes, activityRes, tripPointRes] = await Promise.allSettled([
       api.tours.list({ destination_id: dest.id, limit: 3 }),
       api.destinations.list({ limit: 7 }),
       api.blog.list({ limit: 3 }),
       api.lodges.list({ destination_id: dest.id, limit: 3 }),
       api.activities.list({ destination_id: dest.id, limit: 3 }),
-      api.tripPoints.list({ destination_id: dest.id, limit: 4 }),
-      api.faqs.list({ destination_id: dest.id, status: 'published', limit: 60 })
+      api.tripPoints.list({ destination_id: dest.id, limit: 4 })
     ]);
 
     if (tourRes.status === 'fulfilled') {
@@ -97,9 +96,6 @@
     }
     if (tripPointRes.status === 'fulfilled') {
       tripPoints = tripPointRes.value.data.items ?? [];
-    }
-    if (faqRes.status === 'fulfilled') {
-      faqs = faqRes.value.data.items ?? [];
     }
   };
 
@@ -133,13 +129,15 @@
   </section>
 {:else}
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Destinations', path: '/destinations' }, { name: destination.name, path: `/destinations/${destination.slug}` }])} />
+  <!-- With a guide, its FAQPage already includes these; otherwise the page carries its own. -->
+  {#if !destination.guide?.length && faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
   <DestinationHero {destination} />
 {/if}
 
 {#if destination}
   <!-- Long-form destination guide (the editorial "destination template") -->
   {#if destination.guide?.length}
-    <DestinationGuide blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} />
+    <DestinationGuide blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={faqPairs(faqs)} />
   {/if}
 
   <!-- Tours in this destination -->

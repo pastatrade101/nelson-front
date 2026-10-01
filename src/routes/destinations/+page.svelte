@@ -19,6 +19,8 @@
   import GuestReviewsSection from '$lib/components/public/GuestReviewsSection.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
+  import JsonLd from '$lib/components/public/JsonLd.svelte';
+  import { faqLd, faqPairs } from '$lib/seo';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -33,21 +35,19 @@
   $: loadFailed = data.loadFailed;
   let posts: BlogPost[] = [];
   let testimonials: Testimonial[] = [];
-  let allFaqs: FAQ[] = [];
+  $: allFaqs = (data.faqs ?? []) as FAQ[];
   let founderImage = '';
 
   onMount(async () => {
     // Supporting content for the lower sections — best-effort, never blocking.
-    const [p, t, f, h, tr] = await Promise.allSettled([
+    const [p, t, h, tr] = await Promise.allSettled([
       api.blog.list({ status: 'published', limit: 8 }),
       api.testimonials.list({ status: 'published', limit: 6 }),
-      api.faqs.list({ status: 'published', limit: 200 }),
       api.homepage.get(),
       api.tours.list({ status: 'published', limit: 100 })
     ]);
     if (p.status === 'fulfilled') posts = p.value.data.items ?? [];
     if (t.status === 'fulfilled') testimonials = t.value.data.items ?? [];
-    if (f.status === 'fulfilled') allFaqs = f.value.data.items ?? [];
     if (tr.status === 'fulfilled') {
       const stats: Record<string, TourStat> = {};
       for (const tour of (tr.value.data.items ?? []) as Tour[]) {
@@ -88,9 +88,8 @@
 
   // FAQ section is context-aware: a spotlighted destination shows its own FAQs;
   // otherwise only general (unattached) FAQs — never a mix of other destinations.
-  $: faqs = spotlight
-    ? allFaqs.filter((x) => x.destination_id === spotlight.id)
-    : allFaqs.filter((x) => !x.destination_id);
+  // The loader already picked them for this view (see +page.ts).
+  $: faqs = allFaqs;
 
   const selectTab = (slug: string) =>
     goto(slug === 'all' ? '/destinations' : `/destinations?d=${slug}`, {
@@ -107,6 +106,9 @@
     content="Explore Tanzania's safari destinations — the Serengeti, Ngorongoro, Tarangire and the northern circuit, the wild southern parks of Ruaha and Nyerere, and the islands of Zanzibar, Pemba and Mafia. Planned by Arusha-based specialists."
   />
 </svelte:head>
+
+<!-- Schema for the FAQs this view shows (general, or the spotlighted destination's). -->
+{#if faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
 
 <!-- page header -->
 <section class="relative overflow-hidden bg-deep-green text-white">

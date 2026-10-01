@@ -11,11 +11,17 @@
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import { aiAdvisorEnabled, publicSettings } from '$lib/settings';
   import type { BlogPost, FAQ } from '$lib/types';
+  import type { PageData } from './$types';
+  import JsonLd from '$lib/components/public/JsonLd.svelte';
+  import { faqLd, faqPairs } from '$lib/seo';
+
+  export let data: PageData;
 
   $: aiOn = aiAdvisorEnabled($publicSettings);
 
   let posts: BlogPost[] = [];
-  let faqs: FAQ[] = [];
+  // From the SSR load (+page.ts), so the answers are in the server HTML.
+  $: faqs = (data.faqs ?? []) as FAQ[];
   let loading = true;
   let postsFailed = false;
 
@@ -30,17 +36,13 @@
   ];
 
   onMount(async () => {
-    const [postRes, faqRes] = await Promise.allSettled([
-      api.blog.list({ status: 'published', limit: 24 }),
-      api.faqs.list({ destination_id: 'null', limit: 8 })
-    ]);
+    const [postRes] = await Promise.allSettled([api.blog.list({ status: 'published', limit: 24 })]);
     if (postRes.status === 'fulfilled') {
       posts = postRes.value.data.items;
     } else {
       posts = [];
       postsFailed = true;
     }
-    faqs = faqRes.status === 'fulfilled' ? faqRes.value.data.items : [];
     loading = false;
   });
 </script>
@@ -49,6 +51,8 @@
   <title>Expert Advice | Emnel Adventures</title>
   <meta name="description" content="Honest Tanzania safari advice — costs, timing, safety, Kilimanjaro routes and Zanzibar beach escapes, from local experts who plan these trips every day." />
 </svelte:head>
+
+{#if faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
 
 <!-- Hero -->
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
