@@ -1,6 +1,5 @@
 export const brand = {
   adminName: 'Emnel CMS',
-  aiAdvisorName: 'Emnel AI Safari Advisor',
   companyName: 'Emnel Adventures Limited',
   name: 'Emnel Adventures',
   platformName: 'Emnel Adventures Platform',

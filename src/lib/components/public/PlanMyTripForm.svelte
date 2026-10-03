@@ -140,6 +140,7 @@
     const destination = p.get('destination');
     const monthParam = p.get('month') || p.get('date');
     const tourSlug = p.get('tour');
+    const lodgeSlug = p.get('lodge');
 
     const personaMap: Record<string, string> = {
       family: 'Family',
@@ -224,6 +225,23 @@
         tripContext = tourSlug.replace(/-/g, ' ');
       }
       if (tripContext && !message.trim()) message = `I'm interested in: ${tripContext}.`;
+    } else if (lodgeSlug) {
+      // "Plan a trip around this stay": carry the property into the brief.
+      try {
+        const res = await api.lodges.get(lodgeSlug);
+        const l = res.data as unknown as Record<string, unknown>;
+        tripContext = String(l.name ?? '');
+        const country = String(l.country ?? '');
+        const dName = String((l.destinations as Record<string, unknown> | undefined)?.name ?? '');
+        destination_interest =
+          matchOption(destinationOptions, country) ||
+          matchOption(destinationOptions, dName) ||
+          destination_interest ||
+          'Tanzania';
+      } catch {
+        tripContext = lodgeSlug.replace(/-/g, ' ');
+      }
+      if (tripContext && !message.trim()) message = `I'd like a trip that includes a stay at ${tripContext}.`;
     } else {
       const saved = get(shortlist);
       if (saved.length) {

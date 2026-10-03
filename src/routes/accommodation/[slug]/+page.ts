@@ -16,40 +16,37 @@ export const load: PageLoad = async ({ params, fetch }) => {
   } catch {
     // fall through to 404 below
   }
-  if (!lodge) throw error(404, 'Property not found');
+  // The single-record endpoint does not filter by status, so a draft or
+  // archived property would otherwise be readable (and indexable) at its URL.
+  if (!lodge || (lodge.status && lodge.status !== 'published')) throw error(404, 'Property not found');
 
-  let relatedLodges: Lodge[] = [];
-  let safaris: Tour[] = [];
-
-  // Trips that actually SLEEP here, via the day -> property link. Distinct from
-  // the destination-mates below, which merely pass through the same park. Empty
-  // until a day is linked (or the migration is applied), which the page handles
-  // by falling back rather than showing an empty section.
-  let staysHere: Tour[] = [];
-  try {
-    const res = await fetch(`/api/lodges/${lodge.id}/itineraries`);
-    if (res.ok) {
-      const body = await res.json();
-      staysHere = ((body?.data?.items ?? []) as Tour[]).slice(0, 6);
+  const json = async <T>(url: string): Promise<T | null> => {
+    try {
+      const res = await fetch(url);
+      return res.ok ? ((await res.json()) as T) : null;
+    } catch {
+      return null;
     }
-  } catch {
-    staysHere = [];
-  }
+  };
 
-  if (lodge.destination_id) {
-    const [lRes, tRes] = await Promise.allSettled([
-      fetch(`/api/lodges?destination_id=${lodge.destination_id}&status=published&limit=7`),
-      fetch(`/api/tours?destination_id=${lodge.destination_id}&status=published&limit=6`)
-    ]);
-    if (lRes.status === 'fulfilled' && lRes.value.ok) {
-      const body = await lRes.value.json();
-      relatedLodges = ((body?.data?.items ?? []) as Lodge[]).filter((l) => l.id !== lodge!.id).slice(0, 3);
-    }
-    if (tRes.status === 'fulfilled' && tRes.value.ok) {
-      const body = await tRes.value.json();
-      safaris = ((body?.data?.items ?? []) as Tour[]).slice(0, 3);
-    }
-  }
+  // Itineraries follow the data model, nothing fuzzier: trips with a day whose
+  // accommodation is THIS property, then trips whose destination is its
+  // destination. The destination itself is checked too, so the page only links
+  // to a destination page that actually resolves.
+  const destinationId = lodge.destination_id;
+  const destinationSlug = lodge.destinations?.slug ?? '';
+  const [staysBody, lodgesBody, toursBody, destinationBody] = await Promise.all([
+    json<{ data?: { items?: Tour[] } }>(`/api/lodges/${lodge.id}/itineraries`),
+    destinationId ? json<{ data?: { items?: Lodge[] } }>(`/api/lodges?destination_id=${destinationId}&status=published&limit=7`) : null,
+    destinationId ? json<{ data?: { items?: Tour[] } }>(`/api/tours?destination_id=${destinationId}&status=published&limit=12`) : null,
+    destinationSlug ? json<{ data?: unknown }>(`/api/destinations/${destinationSlug}`) : null
+  ]);
 
-  return { lodge, relatedLodges, safaris, staysHere };
+  const staysHere = (staysBody?.data?.items ?? []).slice(0, 6);
+  const stayIds = new Set(staysHere.map((t) => t.id));
+  const safaris = (toursBody?.data?.items ?? []).filter((t) => !stayIds.has(t.id)).slice(0, 6);
+  const relatedLodges = (lodgesBody?.data?.items ?? []).filter((l) => l.id !== lodge!.id).slice(0, 3);
+  const destinationLive = Boolean(destinationBody?.data);
+
+  return { lodge, relatedLodges, safaris, staysHere, destinationLive };
 };

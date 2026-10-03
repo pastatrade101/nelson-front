@@ -181,6 +181,26 @@ export type ItineraryDay = {
     image_url?: string | null;
     lodge_images?: LodgeImage[];
     destinations?: { name?: string | null } | null;
+    // Facts for the property card on the tour page.
+    short_description?: string | null;
+    best_for?: string[] | null;
+    family_friendly?: boolean | null;
+    honeymoon_friendly?: boolean | null;
+    children_allowed?: boolean | null;
+    minimum_child_age?: number | null;
+    price_per_night_from?: number | null;
+    currency?: string | null;
+    show_rates_publicly?: boolean | null;
+    wifi_availability?: string | null;
+    settings?: string[] | null;
+    park_area?: string | null;
+    region?: string | null;
+    country?: string | null;
+    recommended_nights?: number | null;
+    family_rating?: number | null;
+    romantic_rating?: number | null;
+    fly_in_available?: boolean | null;
+    transfer_available?: boolean | null;
   } | null;
   meals?: string | null;
   /** Free text — still the fallback for days written before the catalogue link. */

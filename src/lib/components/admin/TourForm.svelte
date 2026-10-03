@@ -56,6 +56,15 @@
   let toasts: Toast[] = [];
 
   let destinationOptions: Option[] = [{ label: 'No destination', value: '' }];
+  /** Name of the tour's saved destination, for when it is no longer in the list (deleted). */
+  let savedDestinationName = '';
+  // A saved destination that is no longer listed (soft-deleted) stays visible,
+  // labelled, instead of the select going blank — so an editor can see it needs re-pointing.
+  $: destinationNotLive =
+    Boolean(form?.destination_id) && destinationOptions.length > 1 && !destinationOptions.some((o) => o.value === form.destination_id);
+  $: destinationSelectOptions = destinationNotLive
+    ? [...destinationOptions, { label: `${savedDestinationName || 'Unknown destination'} (deleted — pick the current one)`, value: form.destination_id }]
+    : destinationOptions;
   let categoryOptions: Option[] = [{ label: 'No category', value: '' }];
   let mediaItems: MediaItem[] = [];
 
@@ -201,6 +210,7 @@
     try {
       const response = await api.tours.get(tourId);
       const tour = response.data as Record<string, unknown>;
+      savedDestinationName = String((tour.destinations as { name?: string } | null)?.name ?? '');
 
       form = {
         banner_image_url: String(tour.banner_image_url ?? ''),
@@ -355,7 +365,12 @@
 
         <div class="mt-4 grid gap-4 md:grid-cols-3">
           <AdminSelect label="Status" name="status" bind:value={form.status} options={statusOptions} />
-          <AdminSelect label="Destination" name="destination_id" bind:value={form.destination_id} options={destinationOptions} />
+          <div class="grid gap-1.5">
+            <AdminSelect label="Destination" name="destination_id" bind:value={form.destination_id} options={destinationSelectOptions} />
+            {#if destinationNotLive}
+              <p class="text-xs leading-5 text-clay">This points at a destination that has been deleted, so the tour is missing from destination pages. Pick the current one.</p>
+            {/if}
+          </div>
           <AdminSelect label="Category" name="category_id" bind:value={form.category_id} options={categoryOptions} />
         </div>
 

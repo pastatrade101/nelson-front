@@ -18,6 +18,7 @@
   $: bestForLabel = lodgeBestForLabel(lodge);
   $: isLux = ['luxury', 'ultra_luxury'].includes(normalizeTier(lodge.accommodation_level));
   $: shortlistItem = {
+    kind: 'lodge' as const,
     slug: lodge.slug,
     title: lodge.name,
     image_url: imageUrl,

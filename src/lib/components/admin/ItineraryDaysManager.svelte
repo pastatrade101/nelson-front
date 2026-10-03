@@ -1,12 +1,13 @@
 <script lang="ts">
   import { fade, scale } from 'svelte/transition';
   import { browser } from '$app/environment';
-  import { Edit, Image as ImageIcon, Plus, Route, Save, Sparkles, Trash2, X } from '@lucide/svelte';
+  import { BedDouble, Edit, Image as ImageIcon, Link2, Plus, Route, Save, Sparkles, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
   import { cdnUrl } from '$lib/img';
   import AdminButton from './AdminButton.svelte';
   import AdminEmptyState from './AdminEmptyState.svelte';
   import AdminFormInput from './AdminFormInput.svelte';
+  import AdminSelect from './AdminSelect.svelte';
   import AdminTextArea from './AdminTextArea.svelte';
   import MediaPicker from './MediaPicker.svelte';
   import ConfirmModal from './ConfirmModal.svelte';
@@ -33,6 +34,8 @@
 
   type ItineraryDay = {
     accommodation?: string | null;
+    /** The lodge this night is spent at (itinerary_days.accommodation_id → lodges). */
+    accommodation_id?: string | null;
     activities?: string | null;
     day_number: number;
     description?: string | null;
@@ -87,9 +90,74 @@
       ? selectedActivityIds.filter((x) => x !== id)
       : [...selectedActivityIds, id];
   };
+  // Real accommodation for the picker. Picking one links the day to the lodge
+  // (so the tour page shows its card and links to its page); the text beside it
+  // is what the day summary prints, prefilled with the lodge's name and free to
+  // extend ("… or similar"). Days with only text keep working as before.
+  type LodgeOption = { id: string; name: string; accommodation_level?: string | null; destinations?: { name?: string | null } | null };
+  let lodgeOptions: LodgeOption[] = [];
+  let loadingLodges = false;
+
+  const loadLodges = async () => {
+    if (lodgeOptions.length || loadingLodges) return;
+    loadingLodges = true;
+    try {
+      const res = await api.lodges.list({ status: 'published', limit: 200 });
+      lodgeOptions = ((res.data.items ?? []) as LodgeOption[])
+        .filter((l) => l && l.id && l.name)
+        .sort((a, b) => a.name.localeCompare(b.name));
+    } catch {
+      lodgeOptions = [];
+    } finally {
+      loadingLodges = false;
+    }
+  };
+
+  const LEVEL: Record<string, string> = { essential: 'Essential', classic: 'Classic', luxury: 'Luxury', ultra_luxury: 'Ultra luxury' };
+  $: lodgeSelectOptions = [
+    { label: loadingLodges ? 'Loading accommodation…' : '— Not linked —', value: '' },
+    ...lodgeOptions.map((l) => ({
+      label: [l.name, l.destinations?.name, l.accommodation_level ? LEVEL[l.accommodation_level] ?? l.accommodation_level : ''].filter(Boolean).join(' · '),
+      value: l.id
+    }))
+  ];
+  const lodgeName = (id?: string | null) => lodgeOptions.find((l) => l.id === id)?.name ?? '';
+  const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+  // Picking a lodge fills the text with its name — unless the editor has
+  // written something of their own there, which is kept.
+  let lastLodgeName = '';
+  const onLodgePicked = () => {
+    const name = lodgeName(form.accommodation_id);
+    const text = form.accommodation.trim();
+    if (!text || text === lastLodgeName) form.accommodation = name;
+    lastLodgeName = name;
+  };
+
+  let prevLodgeId = '';
+  $: if (form.accommodation_id !== prevLodgeId) {
+    prevLodgeId = form.accommodation_id;
+    onLodgePicked();
+  }
+
+  // An unlinked day whose text names a lodge in the catalogue: offer the link.
+  $: suggestedLodge =
+    !form.accommodation_id && form.accommodation.trim()
+      ? lodgeOptions.find((l) => {
+          const t = norm(form.accommodation);
+          const n = norm(l.name);
+          return t === n || (n.length > 4 && t.includes(n));
+        }) ?? null
+      : null;
+  const acceptSuggestion = () => {
+    if (!suggestedLodge) return;
+    form.accommodation_id = suggestedLodge.id;
+    lastLodgeName = suggestedLodge.name;
+  };
+
   let dayToDelete: ItineraryDay | null = null;
   let toasts: Toast[] = [];
-  let form = { accommodation: '', activities: '', day_number: '1', description: '', image_url: '', meals: '', title: '' };
+  let form = { accommodation: '', accommodation_id: '', activities: '', day_number: '1', description: '', image_url: '', meals: '', title: '' };
 
   $: sortedDays = [...days].sort((a, b) => Number(a.day_number) - Number(b.day_number));
 
@@ -108,6 +176,7 @@
 
   const normalizeDay = (v: Record<string, unknown>): ItineraryDay => ({
     accommodation: String(v.accommodation ?? ''),
+    accommodation_id: v.accommodation_id ? String(v.accommodation_id) : null,
     activities: String(v.activities ?? ''),
     day_number: Number(v.day_number ?? 0),
     description: String(v.description ?? ''),
@@ -182,8 +251,10 @@
 
   const openCreateModal = () => {
     editingDay = null;
-    form = { accommodation: '', activities: '', day_number: nextDayNumber(), description: '', image_url: '', meals: '', title: '' };
+    form = { accommodation: '', accommodation_id: '', activities: '', day_number: nextDayNumber(), description: '', image_url: '', meals: '', title: '' };
+    lastLodgeName = '';
     selectedActivityIds = [];
+    void loadLodges();
     void loadActivities();
     void loadMedia();
     modalOpen = true;
@@ -192,6 +263,7 @@
     editingDay = day;
     form = {
       accommodation: day.accommodation ?? '',
+      accommodation_id: day.accommodation_id ?? '',
       activities: day.activities ?? '',
       day_number: String(day.day_number),
       description: day.description ?? '',
@@ -206,6 +278,8 @@
       .filter((id): id is string => Boolean(id));
     void loadMedia();
     void loadActivities();
+    void loadLodges().then(() => (lastLodgeName = lodgeName(form.accommodation_id)));
+    lastLodgeName = lodgeName(form.accommodation_id);
     modalOpen = true;
   };
   const closeModal = () => {
@@ -218,6 +292,7 @@
 
   const payload = () => ({
     accommodation: form.accommodation.trim() || null,
+    accommodation_id: form.accommodation_id || null,
     activities: form.activities.trim() || null,
     day_number: Number(form.day_number),
     description: form.description.trim() || null,
@@ -371,7 +446,10 @@
             <div class="mt-4 grid gap-3 md:grid-cols-3">
               <div class="rounded-2xl bg-sand/35 p-3">
                 <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-forest/70">Accommodation</p>
-                <p class="mt-1 text-sm text-ink/70">{day.accommodation || 'Not specified'}</p>
+                <p class="mt-1 text-sm text-ink/70">{day.accommodation || lodgeName(day.accommodation_id) || 'Not specified'}</p>
+                {#if day.accommodation_id}
+                  <p class="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-forest"><Link2 size={11} /> Linked to a property</p>
+                {/if}
               </div>
               <div class="rounded-2xl bg-sand/35 p-3">
                 <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-forest/70">Meals</p>
@@ -418,8 +496,22 @@
       <div class="mt-4 grid gap-4">
         <AdminTextArea label="Description" name="description" bind:value={form.description} rows={4} placeholder="Describe what happens on this day..." />
       </div>
-      <div class="mt-4 grid gap-4 md:grid-cols-3">
-        <AdminFormInput label="Accommodation" name="accommodation" bind:value={form.accommodation} placeholder="Safari lodge, hotel..." />
+      <div class="mt-4 border border-ink/10 bg-sand/25 p-4">
+        <div class="flex items-center gap-2 text-[13px] font-semibold text-ink"><BedDouble size={15} class="text-forest" /> Accommodation</div>
+        <div class="mt-3 grid gap-4 md:grid-cols-2">
+          <AdminSelect label="Property" name="accommodation_id" options={lodgeSelectOptions} bind:value={form.accommodation_id} />
+          <AdminFormInput label="Text shown on the day" name="accommodation" bind:value={form.accommodation} placeholder="e.g. Kati Kati Tented Camp or similar" />
+        </div>
+        {#if suggestedLodge}
+          <button type="button" class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-forest hover:underline" on:click={acceptSuggestion}>
+            <Link2 size={13} /> Link to “{suggestedLodge.name}” from Accommodation
+          </button>
+        {/if}
+        <p class="mt-2 text-xs leading-5 text-ink/50">
+          Pick a property to link this night to it — the tour page then shows its card and links to its page. Not listed? Add it under Accommodation first, or just type the name.
+        </p>
+      </div>
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
         <AdminFormInput label="Meals" name="meals" bind:value={form.meals} placeholder="Breakfast, lunch, dinner" />
         <AdminTextArea label="Activities" name="activities" bind:value={form.activities} rows={3} placeholder="Game drive, transfer..." />
       </div>

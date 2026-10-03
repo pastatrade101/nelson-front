@@ -4,6 +4,8 @@ import { browser } from '$app/environment';
 // Client-side "save trips" shortlist (spec §7). Persists across sessions so a
 // returning visitor keeps their saved trips and the enquiry form can pre-fill.
 export type ShortlistItem = {
+  /** What was saved. Absent on items saved before lodges could be — those are tours. */
+  kind?: 'tour' | 'lodge';
   slug: string;
   title: string;
   image_url?: string;
@@ -19,7 +21,12 @@ const load = (): ShortlistItem[] => {
   if (!browser) return [];
   try {
     const parsed = JSON.parse(localStorage.getItem(KEY) ?? '[]');
-    return Array.isArray(parsed) ? (parsed as ShortlistItem[]) : [];
+    if (!Array.isArray(parsed)) return [];
+    // Items saved before lodges carried a kind: tours always stored duration_days
+    // (a number or null), lodges never did — so its absence marks a lodge.
+    return (parsed as ShortlistItem[]).map((item) =>
+      item && !item.kind ? { ...item, kind: 'duration_days' in item ? 'tour' : 'lodge' } : item
+    );
   } catch {
     return [];
   }

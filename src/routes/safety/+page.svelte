@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import { onMount } from 'svelte';
   import {
     ArrowRight,
@@ -156,23 +157,12 @@
 {/if}
 
 <!-- CTA -->
-<section class="container-shell py-14 md:py-16">
-  <div class="relative overflow-hidden rounded-none bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-12 text-center text-white md:px-12 md:py-16">
-    <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
-    <div class="relative mx-auto max-w-2xl">
-      <h2 class="text-2xl font-serif font-light md:text-3xl">Still have a safety question?</h2>
-      <p class="mt-3 text-white/75">
-        Our team plans these trips every day and is happy to talk through anything — health, insurance,
-        wildlife or logistics — before you commit.
-      </p>
-      <div class="mt-7 flex flex-wrap justify-center gap-3">
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-lg transition hover:brightness-105" href="/plan-my-trip">
-          Plan My Safari <ArrowRight size={18} />
-        </a>
-        <a class="inline-flex h-12 items-center rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10" href="/contact">
-          Talk to an Advisor
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
+<FinalCtaSection
+  eyebrow="Talk it through"
+  title="Still have a safety question?"
+  subtitle="Our team plans these trips every day and is happy to talk through anything — health, insurance, wildlife or logistics — before you commit."
+  primaryLabel="Plan My Safari"
+  primaryHref="/plan-my-trip"
+  secondaryLabel="Talk to an Advisor"
+  secondaryHref="/contact"
+/>

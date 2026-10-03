@@ -1,4 +1,6 @@
 <script lang="ts">
+  import LodgeGalleryStrip from '$lib/components/public/LodgeGalleryStrip.svelte';
+  import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import {
     ArrowLeft,
     ArrowRight,
@@ -191,7 +193,7 @@
     const out: { url: string; alt: string }[] = [];
     const add = (url?: string | null, alt?: string | null) => {
       const clean = (url ?? '').trim();
-      if (!clean || seen.has(clean) || out.length >= 4) return;
+      if (!clean || seen.has(clean) || out.length >= 12) return;
       seen.add(clean);
       out.push({ url: clean, alt: (alt ?? '').trim() || lodge.name });
     };
@@ -309,6 +311,18 @@
     : [];
   $: heroImage = tour ? tour.banner_image_url || tour.main_image_url || DEFAULT_TOUR_IMAGE : DEFAULT_TOUR_IMAGE;
   $: destinationName = tour?.destinations?.name ?? tour?.destinations?.country ?? 'Tanzania';
+  // Linked only when the destination still exists — a tour can point at a deleted one.
+  $: destinationHref = (() => {
+    const d = tour?.destinations as { slug?: string | null; deleted_at?: string | null } | null | undefined;
+    return d?.slug && !d.deleted_at ? `/destinations/${d.slug}` : '';
+  })();
+  // The properties this route sleeps at, once each, in the order of the nights.
+  $: stayLodges = (() => {
+    const seen = new Set<string>();
+    return displayDays
+      .map((day) => day.lodge)
+      .filter((lodge): lodge is NonNullable<typeof lodge> => Boolean(lodge?.id && lodge.slug) && !seen.has(lodge!.id) && Boolean(seen.add(lodge!.id)));
+  })();
   $: categoryName = tour?.tour_categories?.name ?? tour?.experience_type ?? 'Private Safari';
   $: durationText = tour?.duration_days
     ? `${tour.duration_days} days${tour.duration_nights ? ` / ${tour.duration_nights} nights` : ''}`
@@ -334,6 +348,7 @@
     { key: 'gallery', label: 'Gallery', show: galleryImages.length > 0 },
     { key: 'included', label: 'Inclusions', show: inclusions.length > 0 || exclusions.length > 0 },
     { key: 'pricing', label: 'Prices', show: priceOptions.length > 0 },
+    { key: 'stays', label: 'Where You Stay', show: stayLodges.length > 0 },
     { key: 'related', label: 'More Trips', show: relatedTours.length > 0 },
     { key: 'planning', label: 'Journal', show: planningCards.length > 0 },
     { key: 'faqs', label: 'Good to Know', show: faqs.length > 0 }
@@ -471,7 +486,11 @@
             <MapPin class="shrink-0 text-goldfinch-gold" size={19} strokeWidth={1.7} />
             <div class="min-w-0">
               <p class="text-[9.5px] font-bold uppercase tracking-[0.16em] text-white/50">Destination</p>
-              <p class="truncate text-[13px] font-extrabold text-white">{destinationName}</p>
+              {#if destinationHref}
+                <a class="block truncate text-[13px] font-extrabold text-white underline decoration-white/30 underline-offset-4 transition hover:text-goldfinch-gold" href={destinationHref}>{destinationName}</a>
+              {:else}
+                <p class="truncate text-[13px] font-extrabold text-white">{destinationName}</p>
+              {/if}
             </div>
           </div>
           <div class="flex items-center gap-3 border-l-2 border-goldfinch-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
@@ -683,31 +702,8 @@
                          real lodge record rather than free text. -->
                     {#if day.lodge}
                       {@const stay = stayImages(day)}
-                      {#if stay.length}
-                      <figure class="mt-5">
-                        <figcaption class="flex flex-wrap items-baseline justify-between gap-3">
-                          <span class="text-[11px] uppercase tracking-[0.2em] text-clay">{day.lodge?.name}</span>
-                          {#if day.lodge?.slug}
-                            <a
-                              class="text-[12.5px] font-medium text-deep-green transition hover:underline"
-                              href={`/accommodation/${day.lodge.slug}`}
-                            >
-                              About this property
-                            </a>
-                          {/if}
-                        </figcaption>
-                        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                          {#each stay as image (image.url)}
-                            <ResponsiveImage
-                              src={image.url}
-                              alt={image.alt}
-                              width={420}
-                              sizes="(min-width:640px) 22vw, 45vw"
-                              imgClass="aspect-[4/3] w-full object-cover"
-                            />
-                          {/each}
-                        </div>
-                      </figure>
+                      {#if stay.length && day.lodge}
+                        <LodgeGalleryStrip lodge={day.lodge} images={stay} />
                       {/if}
                     {/if}
                 </div>
@@ -815,6 +811,25 @@
       </div>
     </aside>
   </div>
+
+  <!-- ── Where you stay: the properties linked to this route's nights ──────── -->
+  {#if stayLodges.length}
+    <section id="stays" class="scroll-mt-32 border-t border-ink/[0.07] bg-canvas py-14 md:py-20">
+      <div class="container-shell">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <SectionHeader eyebrow="Where you stay" title={stayLodges.length === 1 ? 'The property on this route' : 'The properties on this route'} description="Each night is spent at a property we know personally. Open one to see its rooms, setting and photographs." />
+          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-goldfinch-gold" href="/accommodation">
+            All accommodation <ArrowRight size={14} />
+          </a>
+        </div>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {#each stayLodges as lodge (lodge.id)}
+            <LodgeCard lodge={lodge as unknown as import('$lib/types').Lodge} />
+          {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
 
   <!-- ── Related tours ────────────────────────────────────────────────────── -->
   {#if relatedTours.length}

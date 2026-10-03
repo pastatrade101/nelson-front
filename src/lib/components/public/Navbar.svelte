@@ -3,7 +3,7 @@
   import { browser } from '$app/environment';
   import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { ArrowDownToLine, ArrowRight, BadgeCheck, BedDouble, Binoculars, Camera, ChevronDown, CircleHelp, Compass, Gem, Handshake, Headphones, Heart, Home, MapPin, Menu, MessageCircle, Mountain, Plane, Route, Search, ShieldCheck, Sparkles, Tent, Users, Wallet, Waves, X } from '@lucide/svelte';
+  import { ArrowDownToLine, ArrowRight, BadgeCheck, BedDouble, Binoculars, Camera, ChevronDown, Compass, Gem, Handshake, Headphones, Heart, Home, MapPin, Menu, MessageCircle, Mountain, Plane, Route, Search, ShieldCheck, Sparkles, Tent, Users, Wallet, Waves, X } from '@lucide/svelte';
   import { fade, fly } from 'svelte/transition';
   import MegaMenu from './MegaMenu.svelte';
   import { TIER_KEYS, TIER_LABELS, tierLabel } from '$lib/tiers';
@@ -12,13 +12,12 @@
   import { api } from '$lib/api/client';
   import { safariStyleHref } from '$lib/styleLinks';
   import type { TravelStyle } from '$lib/types';
-  import { openAiAdvisor } from '$lib/aiAdvisor';
   import { openEnquiry } from '$lib/enquiry';
   import { navbarEntrance } from '$lib/animations';
   import { brand } from '$lib/brand';
   import { branding } from '$lib/branding';
   import { cdnUrl } from '$lib/img';
-  import { aiAdvisorEnabled, publicSettings, settingText } from '$lib/settings';
+  import { publicSettings, settingText } from '$lib/settings';
   import { canInstall, promptInstall } from '$lib/pwa';
 
   type NavLink = {
@@ -278,7 +277,6 @@
 
   // ── WhatsApp CTA (from public settings, with safe fallback) ─────────────────
   $: s = $publicSettings;
-  $: aiOn = aiAdvisorEnabled(s);
   $: waNumber = settingText(s, 'whatsapp_number') || '+255 700 000 000';
   $: waMessage = settingText(s, 'whatsapp_default_message') || 'Hello Emnel Adventures, I would like help planning a private Tanzania safari.';
   $: waDigits = waNumber.replace(/[^0-9]/g, '');
@@ -583,16 +581,6 @@
           <button class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink" type="submit" aria-label="Search itineraries"><Search size={17} strokeWidth={2.6} /></button>
           <input class="min-w-0 flex-1 bg-transparent px-1 text-sm font-medium text-ink outline-none placeholder:text-stone" aria-label="Search itineraries" placeholder="Search itineraries..." bind:value={searchQuery} />
         </form>
-
-        {#if aiOn}
-          <button
-            type="button"
-            class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-deep-green px-4 py-3 text-sm font-bold text-white transition hover:bg-forest"
-            on:click={() => { openAiAdvisor(); menuOpen = false; }}
-          >
-            <CircleHelp size={16} strokeWidth={2.6} /> Ask our AI advisor
-          </button>
-        {/if}
 
         <nav class="mt-5 grid gap-1" aria-label="Mobile">
           {#each NAV as item}

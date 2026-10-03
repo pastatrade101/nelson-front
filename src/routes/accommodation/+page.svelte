@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import { page } from '$app/stores';
   import { ArrowRight, ChevronDown, MapPin, MessageCircle, Quote, Search, ShieldCheck, Sparkles, X } from '@lucide/svelte';
   import { staggeredCardReveal, fadeUpOnScroll, revealHeading } from '$lib/animations/motion';
@@ -348,46 +349,16 @@
   <!-- ── closing band ───────────────────────────────────────────────────────
        Full-bleed rather than a boxed panel, matching the goldfinch stays index so
        this page and the property page end the same way. -->
-  <section class="relative overflow-hidden bg-deep-green text-white">
-    {#if heroImageSrc}
-      <ResponsiveImage
-        src={heroImageSrc}
-        fallbackSrc={heroImageFallback}
-        width={1600}
-        sizes="100vw"
-        alt=""
-        imgClass="absolute inset-0 h-full w-full object-cover opacity-25"
-      />
-    {/if}
-    <span class="absolute inset-0 bg-gradient-to-br from-deep-green/95 via-deep-green/85 to-forest/90" aria-hidden="true"></span>
-    <span class="pointer-events-none absolute inset-0 shadow-[inset_0_0_160px_50px_rgba(0,0,0,0.45)]" aria-hidden="true"></span>
-
-    <div class="container-shell relative z-10 py-20 md:py-28">
-      <div class="max-w-3xl" use:fadeUpOnScroll={{ y: 16 }}>
-        <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-goldfinch-gold">Planning together</p>
-        <h2 class="mt-5 font-serif text-3xl font-light leading-[1.12] md:text-[46px]">
-          We match the stay to the route,<br class="hidden sm:block" /> not the other way round.
-        </h2>
-        <p class="mt-5 max-w-xl text-base leading-8 text-white/70">
-          Tell us your dates and how you like to travel. A local specialist will pick the camps that suit the route —
-          and say so when a different property would serve you better.
-        </p>
-        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-          <a class="inline-flex h-12 w-full items-center justify-center gap-2 bg-goldfinch-gold px-8 text-sm font-semibold text-deep-green transition hover:brightness-95 sm:w-auto" href="/plan-my-trip">
-            Plan My Safari <ArrowRight size={16} />
-          </a>
-          <a class="inline-flex h-12 w-full items-center justify-center border border-white/30 px-8 text-sm font-semibold text-white transition hover:bg-white/10 sm:w-auto" href="/tours">
-            Browse itineraries
-          </a>
-        </div>
-        <div class="mt-9 flex flex-wrap gap-x-7 gap-y-2 border-t border-white/15 pt-6 text-[12px] font-medium text-white/60">
-          {#each ['Personally chosen', 'Every booking handled', 'No obligation to book'] as t}
-            <span class="inline-flex items-center gap-1.5"><MapPin size={13} class="text-goldfinch-gold" />{t}</span>
-          {/each}
-        </div>
-      </div>
-    </div>
-  </section>
+  <FinalCtaSection
+    eyebrow="Planning together"
+    title="We match the stay to the route, not the other way round."
+    subtitle="Tell us your dates and how you like to travel. A local specialist will pick the camps that suit the route — and say so when a different property would serve you better."
+    primaryLabel="Plan My Safari"
+    primaryHref="/plan-my-trip"
+    secondaryLabel="Browse itineraries"
+    secondaryHref="/tours"
+    points={['Personally chosen', 'Every booking handled', 'No obligation to book']}
+  />
 {/if}
 
 <style>

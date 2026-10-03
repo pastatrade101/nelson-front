@@ -22,6 +22,12 @@
   export let uploadFolder = 'uploads';
   export let fit = 'object-cover'; // use 'object-contain' for logos/favicons
   export let kind: 'image' | 'video' = 'image';
+  /**
+   * A pasted URL normally reports every keystroke. Set false where each change
+   * is acted on (an "add to gallery" picker), so it reports once, on Enter or
+   * when the field loses focus, instead of once per letter.
+   */
+  export let commitUrlOnType = true;
 
   const dispatch = createEventDispatcher<{ change: string }>();
   $: isVideo = kind === 'video';
@@ -213,7 +219,14 @@
       class="w-full rounded-md border border-ink/15 bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/15"
       placeholder="https://…"
       bind:value
-      on:input={() => dispatch('change', value)}
+      on:input={() => commitUrlOnType && dispatch('change', value)}
+      on:keydown={(e) => {
+        if (!commitUrlOnType && e.key === 'Enter') {
+          e.preventDefault();
+          dispatch('change', value);
+        }
+      }}
+      on:blur={() => !commitUrlOnType && value && dispatch('change', value)}
     />
   {/if}
 </div>

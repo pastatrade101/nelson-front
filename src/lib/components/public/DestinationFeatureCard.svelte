@@ -49,7 +49,7 @@
 </script>
 
 <a
-  class="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden border border-ink/10 bg-deep-green text-white shadow-[0_14px_40px_rgba(28,26,22,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_62px_rgba(28,26,22,0.22)]"
+  class="group relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden bg-deep-green text-white shadow-[0_14px_40px_rgba(28,26,22,0.10)] transition-shadow duration-300 hover:shadow-[0_26px_62px_rgba(28,26,22,0.22)]"
   href={`/destinations/${destination.slug}`}
   aria-label={`Explore ${destination.name}`}
 >
@@ -70,46 +70,48 @@
   <!-- gradient deepens on hover so the revealed facts stay legible -->
   <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,24,0.02)_0%,rgba(15,26,24,0.34)_46%,rgba(13,22,20,0.92)_100%)] transition-opacity duration-500 md:opacity-90 md:group-hover:opacity-100"></span>
 
-  <!-- Content: on desktop it sits low (region + name visible) and slides up on
-       hover to reveal the facts; on mobile it's always fully shown (no hover). -->
-  <div
-    class="relative z-10 translate-y-0 p-5 transition-transform duration-[520ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:translate-y-[calc(100%_-_5.4rem)] md:p-6 md:group-hover:translate-y-0"
-  >
+  <!-- Content: region + name always sit in normal flow (so a two-line name is
+       never pushed off the card). On desktop the details below collapse to zero
+       height and expand on hover/focus; on mobile they are always shown. -->
+  <div class="relative z-10 p-5 md:p-6">
     <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">{region}</p>
-    <h3 class="mt-1.5 font-serif text-[26px] font-light leading-[1.05] md:text-[30px]">{destination.name}</h3>
+    <h3 class="mt-1.5 font-serif text-[26px] font-light leading-[1.08] md:text-[30px]">{destination.name}</h3>
 
-    <!-- revealed block (visible on mobile; fades in on desktop hover) -->
-    <div class="opacity-100 transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100 md:group-hover:delay-100">
-      {#if blurb}
-        <p class="mt-2.5 line-clamp-2 text-[13.5px] leading-6 text-white/80">{blurb}</p>
-      {/if}
+    <div class="grid grid-rows-[1fr] transition-[grid-template-rows] duration-[520ms] ease-[cubic-bezier(0.22,1,0.36,1)] md:grid-rows-[0fr] md:group-hover:grid-rows-[1fr] md:group-focus-visible:grid-rows-[1fr]">
+      <div class="min-h-0 overflow-hidden">
+        <div class="opacity-100 transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100 md:group-hover:delay-100 md:group-focus-visible:opacity-100">
+          {#if blurb}
+            <p class="mt-2.5 line-clamp-2 text-[13.5px] leading-6 text-white/80">{blurb}</p>
+          {/if}
 
-      {#if quickFacts.length}
-        <div class="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 border-t border-white/15 pt-3">
-          {#each quickFacts as f}
-            {@const FI = f.icon}
-            <div class="flex min-w-0 items-center gap-2">
-              <span class="grid h-7 w-7 shrink-0 place-items-center bg-white/10 text-goldfinch-gold"><FI size={13} strokeWidth={2} /></span>
-              <span class="min-w-0">
-                <span class="block text-[9px] font-bold uppercase tracking-[0.1em] text-white/45">{f.label}</span>
-                <span class="block truncate text-[12px] font-semibold text-white/90">{f.value}</span>
-              </span>
+          {#if quickFacts.length}
+            <div class="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 border-t border-white/15 pt-3">
+              {#each quickFacts as f}
+                {@const FI = f.icon}
+                <div class="flex min-w-0 items-center gap-2">
+                  <span class="grid h-7 w-7 shrink-0 place-items-center bg-white/10 text-goldfinch-gold"><FI size={13} strokeWidth={2} /></span>
+                  <span class="min-w-0">
+                    <span class="block text-[9px] font-bold uppercase tracking-[0.1em] text-white/45">{f.label}</span>
+                    <span class="block truncate text-[12px] font-semibold text-white/90">{f.value}</span>
+                  </span>
+                </div>
+              {/each}
             </div>
-          {/each}
-        </div>
-      {/if}
+          {/if}
 
-      {#if tags.length}
-        <div class="mt-3 flex flex-wrap gap-1.5">
-          {#each tags as t}
-            <span class="border border-white/25 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/90 backdrop-blur">{t}</span>
-          {/each}
+          {#if tags.length}
+            <div class="mt-3 flex flex-wrap gap-1.5">
+              {#each tags as t}
+                <span class="border border-white/25 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/90 backdrop-blur">{t}</span>
+              {/each}
+            </div>
+          {/if}
+
+          <span class="mt-4 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition group-hover:text-goldfinch-gold">
+            Explore <ArrowRight size={14} strokeWidth={2.5} class="transition group-hover:translate-x-1" />
+          </span>
         </div>
-      {/if}
+      </div>
     </div>
-
-    <span class="mt-4 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition group-hover:text-goldfinch-gold">
-      Explore <ArrowRight size={14} strokeWidth={2.5} class="transition group-hover:translate-x-1" />
-    </span>
   </div>
 </a>

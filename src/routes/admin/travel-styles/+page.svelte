@@ -79,6 +79,8 @@
   // alongside `form` and are hydrated and reset with it.
   let blocks: Record<string, unknown>[] = [];
   let tourOptions: { id: string; title: string }[] = [];
+  let destinationOptions: { id: string; name: string; region?: string | null }[] = [];
+  let lodgeOptions: { id: string; name: string; level?: string | null; place?: string | null }[] = [];
   // Safari-style cards (tour categories) a style can be written for. The card
   // on /safari-styles opens this style's page once they are linked.
   let categoryOptions: { label: string; value: string }[] = [{ label: 'None — not shown on a Safari Styles card', value: '' }];
@@ -203,12 +205,29 @@
   };
 
   const fmt = (v?: string) => v ? new Intl.DateTimeFormat('en', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(v)) : '-';
-  // The tour list for the block editor's `tours` block. The media library comes
+  // The tour and lodge lists for the block editor's pickers. The media library comes
   // from the shared store. Non-critical: a failure costs the picker its options.
   const loadEditorPools = async () => {
     try {
       const tours = await api.tours.list({ status: 'published', limit: 200 });
       tourOptions = (tours.data.items as { id: string; title: string }[]).map((t) => ({ id: t.id, title: t.title }));
+    } catch {
+      // non-critical
+    }
+    try {
+      const dests = await api.destinations.list({ status: 'published', limit: 100 });
+      destinationOptions = dests.data.items
+        .map((d) => ({ id: d.id, name: d.name, region: d.region ?? null }))
+        .sort((x, y) => x.name.localeCompare(y.name));
+    } catch {
+      // non-critical
+    }
+    try {
+      // Published lodges, for the accommodation picker inside price tiers.
+      const lodges = await api.lodges.list({ status: 'published', limit: 200 });
+      lodgeOptions = lodges.data.items
+        .map((l) => ({ id: l.id, name: l.name, level: l.accommodation_level, place: l.destinations?.name ?? l.park_area ?? null }))
+        .sort((x, y) => x.name.localeCompare(y.name));
     } catch {
       // non-critical
     }
@@ -377,7 +396,7 @@
               empty section renders nothing, so it is safe to leave one half-finished.
             </p>
           </div>
-          <ContentBlocksEditor bind:blocks media={$mediaLibrary} tours={tourOptions} uploadFolder="travel-styles" />
+          <ContentBlocksEditor bind:blocks media={$mediaLibrary} tours={tourOptions} lodges={lodgeOptions} destinations={destinationOptions} uploadFolder="travel-styles" />
         </div>
       </div>
 

@@ -20,15 +20,19 @@
 
   type MediaItem = { file_name: string; file_url: string; id: string; thumbnail_url?: string | null };
   type TourOption = { id: string; title: string };
+  type DestinationOption = { id: string; name: string; region?: string | null };
+  type LodgeOption = { id: string; name: string; level?: string | null; place?: string | null };
 
   type Field =
     | { key: string; label: string; kind: 'text'; placeholder?: string }
-    | { key: string; label: string; kind: 'textarea'; rows?: number; placeholder?: string }
-    | { key: string; label: string; kind: 'richtext' }
+    | { key: string; label: string; kind: 'textarea'; rows?: number; placeholder?: string; help?: string }
+    | { key: string; label: string; kind: 'richtext'; help?: string }
     | { key: string; label: string; kind: 'number' }
     | { key: string; label: string; kind: 'image' }
     | { key: string; label: string; kind: 'lines'; help?: string }
     | { key: string; label: string; kind: 'tours' }
+    | { key: string; label: string; kind: 'lodges'; help?: string }
+    | { key: string; label: string; kind: 'destinations' }
     | { key: string; label: string; kind: 'list'; itemLabel: string; fields: Field[] };
 
   type BlockSpec = { type: string; label: string; blurb: string; fields: Field[] };
@@ -40,7 +44,7 @@
       blurb: 'A heading and formatted copy. The workhorse block.',
       fields: [
         { key: 'title', label: 'Heading', kind: 'text' },
-        { key: 'body', label: 'Body', kind: 'richtext' }
+        { key: 'body', label: 'Body', kind: 'richtext', help: 'Write normally. Start each paragraph with a bold label and the page lays it out for you: "Day 1:" → route timeline, "6:30 am — Game drive." → day schedule, "June–October:" → season cards, any other "Label:" → tidy fact rows. A final paragraph that is all bold becomes a pull quote.' }
       ]
     },
     {
@@ -72,7 +76,7 @@
         { key: 'title', label: 'Heading', kind: 'text' },
         { key: 'panels', label: 'Panels', kind: 'list', itemLabel: 'Panel', fields: [
           { key: 'title', label: 'Title', kind: 'text' },
-          { key: 'items', label: 'Bullets', kind: 'lines' },
+          { key: 'items', label: 'Bullets', kind: 'lines', help: 'One per line. Panels with no image show as team cards (put the role after a comma in the title: "Minja, Head Guide"). Lines such as "Best for: …", "Children: …", "Rooms: …" show as lodge facts.' },
           { key: 'image_url', label: 'Image', kind: 'image' }
         ] }
       ]
@@ -88,8 +92,9 @@
         { key: 'tiers', label: 'Tiers', kind: 'list', itemLabel: 'Tier', fields: [
           { key: 'label', label: 'Label', kind: 'text' },
           { key: 'title', label: 'Title', kind: 'text' },
-          { key: 'body', label: 'Body', kind: 'textarea', rows: 3 },
-          { key: 'image_url', label: 'Image', kind: 'image' }
+          { key: 'body', label: 'Body', kind: 'textarea', rows: 3, help: 'Start with the price ("From US$350 per person sharing per day") and it is shown large; each further line is a note.' },
+          { key: 'lodge_ids', label: 'Accommodation', kind: 'lodges', help: 'Pick the lodges and camps at this level. They show as accommodation cards beside the price, linking to each property page.' },
+          { key: 'image_url', label: 'Image (only used when no accommodation is picked)', kind: 'image' }
         ] }
       ]
     },
@@ -174,6 +179,17 @@
       ]
     },
     {
+      type: 'destinations',
+      label: 'Destinations',
+      blurb: 'Points at existing destinations, shown as photo cards that link to each destination page. Use this for "Where to go".',
+      fields: [
+        { key: 'eyebrow', label: 'Eyebrow', kind: 'text' },
+        { key: 'title', label: 'Heading', kind: 'text' },
+        { key: 'intro', label: 'Intro', kind: 'textarea', rows: 2 },
+        { key: 'destination_ids', label: 'Destinations', kind: 'destinations' }
+      ]
+    },
+    {
       type: 'faq',
       label: 'FAQ',
       blurb: 'The questions this traveller actually asks.',
@@ -202,6 +218,10 @@
   export let blocks: Record<string, unknown>[] = [];
   export let media: MediaItem[] = [];
   export let tours: TourOption[] = [];
+  /** Published destinations, for the `destinations` block. */
+  export let destinations: DestinationOption[] = [];
+  /** Published lodges, for the accommodation picker inside price tiers. */
+  export let lodges: LodgeOption[] = [];
   export let uploadFolder = 'travel-styles';
 
   let addType = BLOCK_TYPES[0].type;
@@ -256,12 +276,25 @@
     setField(i, 'tour_ids', current.includes(id) ? current.filter((t) => t !== id) : [...current, id]);
   };
 
+  const toggleId = (i: number, key: string, id: string) => {
+    const current = Array.isArray(blocks[i]?.[key]) ? (blocks[i][key] as string[]) : [];
+    setField(i, key, current.includes(id) ? current.filter((x) => x !== id) : [...current, id]);
+  };
+
+  const toggleListId = (i: number, key: string, index: number, field: string, id: string) => {
+    const item = list(blocks[i]?.[key])[index] ?? {};
+    const current = Array.isArray(item[field]) ? (item[field] as string[]) : [];
+    setListItem(i, key, index, field, current.includes(id) ? current.filter((x) => x !== id) : [...current, id]);
+  };
+
+  const LEVEL_LABEL: Record<string, string> = { essential: 'Essential', classic: 'Classic', luxury: 'Luxury', ultra_luxury: 'Ultra luxury' };
+
   /** A one-line summary so a collapsed block is still identifiable. */
   const summarise = (block: Record<string, unknown>) => {
     const spec = specFor(block.type);
     const title = str(block.title) || str(block.eyebrow);
     if (title) return title;
-    for (const key of ['items', 'panels', 'tiers', 'seasons', 'steps', 'images', 'notes', 'tour_ids']) {
+    for (const key of ['items', 'panels', 'tiers', 'seasons', 'steps', 'images', 'notes', 'tour_ids', 'destination_ids']) {
       const n = Array.isArray(block[key]) ? (block[key] as unknown[]).length : 0;
       if (n) return `${n} ${n === 1 ? 'entry' : 'entries'}`;
     }
@@ -345,6 +378,7 @@
                 placeholder={field.placeholder ?? ''}
                 on:input={(e) => setField(i, field.key, (e.target as HTMLTextAreaElement).value)}
               />
+              {#if field.help}<p class="-mt-1 text-xs leading-5 text-ink/50">{field.help}</p>{/if}
             {:else if field.kind === 'richtext'}
               <RichTextEditor
                 label={field.label}
@@ -353,6 +387,7 @@
                 {uploadFolder}
                 on:change={(e) => setField(i, field.key, (e as CustomEvent<string>).detail)}
               />
+              {#if field.help}<p class="-mt-1 text-xs leading-5 text-ink/50">{field.help}</p>{/if}
             {:else if field.kind === 'image'}
               <MediaPicker
                 label={field.label}
@@ -392,6 +427,28 @@
                   {/each}
                 </div>
               </div>
+            {:else if field.kind === 'destinations'}
+              {@const picked = Array.isArray(block[field.key]) ? (block[field.key] as string[]) : []}
+              <div class="grid gap-2">
+                <p class="text-sm font-medium text-ink">
+                  {field.label}
+                  {#if picked.length}<span class="ml-1 text-xs font-normal text-ink/50">· {picked.length} selected</span>{/if}
+                </p>
+                <p class="text-xs text-ink/55">Shown in the order you tick them. Each card uses the destination's own photo and facts, and links to its page.</p>
+                <div class="grid max-h-56 gap-1 overflow-y-auto border border-ink/10 p-3">
+                  {#each destinations as d (d.id)}
+                    <label class="flex cursor-pointer items-start gap-2 text-sm text-ink/80">
+                      <input
+                        class="mt-0.5 h-4 w-4 accent-forest"
+                        type="checkbox"
+                        checked={picked.includes(d.id)}
+                        on:change={() => toggleId(i, field.key, d.id)}
+                      />
+                      <span>{d.name}{#if d.region}<span class="ml-1 text-xs text-ink/45">{d.region}</span>{/if}</span>
+                    </label>
+                  {/each}
+                </div>
+              </div>
             {:else if field.kind === 'list'}
               <div class="grid gap-3 border border-ink/10 bg-canvas p-4">
                 <div class="flex items-center justify-between">
@@ -417,6 +474,35 @@
                           value={str(item[sub.key])}
                           on:change={(e) => setListItem(i, field.key, n, sub.key, (e as CustomEvent<string>).detail)}
                         />
+                      {:else if sub.kind === 'lodges'}
+                        {@const picked = Array.isArray(item[sub.key]) ? (item[sub.key] as string[]) : []}
+                        <div class="grid gap-1.5">
+                          <p class="text-sm font-medium text-ink">
+                            {sub.label}
+                            {#if picked.length}<span class="ml-1 text-xs font-normal text-ink/50">· {picked.length} selected</span>{/if}
+                          </p>
+                          {#if sub.help}<p class="text-xs leading-5 text-ink/50">{sub.help}</p>{/if}
+                          {#if lodges.length}
+                            <div class="grid max-h-52 gap-1 overflow-y-auto border border-ink/10 p-3">
+                              {#each lodges as l (l.id)}
+                                <label class="flex cursor-pointer items-start gap-2 text-sm text-ink/80">
+                                  <input
+                                    class="mt-0.5 h-4 w-4 accent-forest"
+                                    type="checkbox"
+                                    checked={picked.includes(l.id)}
+                                    on:change={() => toggleListId(i, field.key, n, sub.key, l.id)}
+                                  />
+                                  <span>
+                                    {l.name}
+                                    <span class="text-xs text-ink/45">{[l.level ? LEVEL_LABEL[l.level] ?? l.level : '', l.place].filter(Boolean).join(' · ')}</span>
+                                  </span>
+                                </label>
+                              {/each}
+                            </div>
+                          {:else}
+                            <p class="text-xs text-ink/50">No published accommodation yet — add some under Accommodation first.</p>
+                          {/if}
+                        </div>
                       {:else if sub.kind === 'lines'}
                         <AdminTextArea
                           label={sub.label}
@@ -425,6 +511,7 @@
                           value={linesToText(item[sub.key])}
                           on:input={(e) => setListItem(i, field.key, n, sub.key, textToLines((e.target as HTMLTextAreaElement).value))}
                         />
+                        {#if sub.help}<p class="-mt-1 text-xs leading-5 text-ink/50">{sub.help}</p>{/if}
                       {:else if sub.kind === 'textarea'}
                         <AdminTextArea
                           label={sub.label}
@@ -433,6 +520,7 @@
                           value={str(item[sub.key])}
                           on:input={(e) => setListItem(i, field.key, n, sub.key, (e.target as HTMLTextAreaElement).value)}
                         />
+                        {#if sub.help}<p class="-mt-1 text-xs leading-5 text-ink/50">{sub.help}</p>{/if}
                       {:else}
                         <AdminFormInput
                           label={sub.label}

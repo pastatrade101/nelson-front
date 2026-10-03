@@ -9,11 +9,11 @@
 
 <LegalLayout
   title="Cancellation &amp; Refund Policy"
-  updated="June 2026"
+  updated="October 2026"
   intro="We keep things fair and transparent. Planning requests are free to cancel, and once your trip is confirmed the exact cancellation terms are always shared with you in writing before any payment."
 >
   <h2>Cancelling a planning request or enquiry</h2>
-  <p>If you have only submitted a planning request or enquiry — through a form or the AI Safari Advisor — there is <strong>nothing to cancel and no charge</strong>. A request is not a booking. If you no longer wish to proceed, simply let your specialist know, or <a href="/contact">contact us</a>, and we will close the enquiry.</p>
+  <p>If you have only submitted a planning request or enquiry, there is <strong>nothing to cancel and no charge</strong>. A request is not a booking. If you no longer wish to proceed, simply let your specialist know, or <a href="/contact">contact us</a>, and we will close the enquiry.</p>
 
   <h2>Once your trip is confirmed</h2>
   <p>When you decide to go ahead, your specialist sends you a written quote and booking confirmation. That document sets out the <strong>specific cancellation and refund terms for your trip</strong>, which depend on the lodges, parks, permits, flights and other suppliers involved. Those confirmed terms govern your booking. The points below explain how cancellations generally work so there are no surprises.</p>

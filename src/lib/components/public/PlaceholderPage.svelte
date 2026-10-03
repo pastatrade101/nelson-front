@@ -19,7 +19,7 @@
       <SectionHeader eyebrow={brand.tagline} {title} {description} />
       <div class="mt-8 grid gap-4 rounded-lg border border-ink/10 bg-surface p-5 text-sm leading-6 text-ink/70 shadow-soft">
         <p>{brand.positioning}</p>
-        <p>CMS and API hooks are ready for tours, destinations, lead capture, AI conversations, SEO content, and HubSpot handoff.</p>
+        <p>CMS and API hooks are ready for tours, destinations, lead capture, SEO content, and HubSpot handoff.</p>
       </div>
     </div>
 

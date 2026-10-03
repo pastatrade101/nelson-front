@@ -11,7 +11,6 @@
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import ShortlistFab from '$lib/components/public/ShortlistFab.svelte';
   import EnquiryModal from '$lib/components/public/EnquiryModal.svelte';
-  import LazyAIAdvisor from '$lib/components/public/LazyAIAdvisor.svelte';
   import { consent, getConsent } from '$lib/consent';
   import { setupPwaInstall } from '$lib/pwa';
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
@@ -30,7 +29,7 @@
 
   // Inline the palette during SSR so first paint matches the saved brand.
   $: brandStyleTag = brandColorStyleTag($branding.colors);
-  import { aiAdvisorEnabled, loadPublicSettings, publicSettings } from '$lib/settings';
+  import { loadPublicSettings } from '$lib/settings';
   import { initCurrency } from '$lib/currency';
   import { trackPageView } from '$lib/analytics';
   import { loadClarity } from '$lib/clarity';
@@ -43,11 +42,6 @@
   $: orgUrl = `${siteOrigin}/`;
 
   let smoothScrollCleanup: (() => void) | undefined;
-  // Gate the AI widget until real public settings have loaded — otherwise, on a
-  // refresh, the fallback defaults (AI on) render the widget for a moment before
-  // the saved "disabled" setting arrives and removes it (a visible flash).
-  let settingsReady = false;
-
   $: if (browser) {
     if (isAdmin && smoothScrollCleanup) {
       smoothScrollCleanup();
@@ -67,11 +61,6 @@
       // Defaults already live in app.css :root — nothing to do on failure.
     }
   };
-
-  // The public AI chatbot is the built-in Emnel AI Advisor (mounted below),
-  // powered by our own /ai/chat backend. The external Makutano widget is no
-  // longer loaded so there is only one chat launcher.
-  $: aiOn = !isAdmin && settingsReady && aiAdvisorEnabled($publicSettings);
 
   // Local dev / preview hosts must never pollute the production GA4 property.
   const isProdHost = () =>
@@ -196,7 +185,7 @@
     // server-side fetch had failed and we fell back to defaults).
     applyBranding(data.branding);
     void loadBranding();
-    void loadPublicSettings().then(() => (settingsReady = true));
+    void loadPublicSettings();
     void initCurrency();
     setupPwaInstall();
     return () => {
@@ -268,7 +257,4 @@
   <ShortlistFab />
   <ConsentBanner />
   <EnquiryModal />
-  {#if aiOn}
-    <LazyAIAdvisor />
-  {/if}
 {/if}

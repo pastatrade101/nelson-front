@@ -63,8 +63,30 @@ const hasMarketPages = async (fetch: typeof globalThis.fetch): Promise<boolean> 
   }
 };
 
+/**
+ * Photography for the site's call-to-action bands: the banner and main images
+ * of the featured tours. Loaded once here so every CTA can show a real trip photo
+ * without its page fetching anything. Returns [] on failure; the band then
+ * falls back to the brand gradient.
+ */
+const ctaImages = async (fetch: typeof globalThis.fetch): Promise<string[]> => {
+  try {
+    const res = await fetch('/api/tours?status=published&is_featured=true&limit=12');
+    if (!res.ok) return [];
+    const json = (await res.json()) as { data?: { items?: Array<{ banner_image_url?: string | null; main_image_url?: string | null }> } };
+    // Wide banners first, then each tour's main photo, so pages rarely share one.
+    const items = json?.data?.items ?? [];
+    const urls = [...items.map((t) => t.banner_image_url), ...items.map((t) => t.main_image_url)].filter(
+      (u): u is string => Boolean(u)
+    );
+    return [...new Set(urls)];
+  } catch {
+    return [];
+  }
+};
+
 export const load: LayoutLoad = async ({ fetch }) => {
-  const [brandingResult, essentialsLive, countries, marketsLive] = await Promise.all([
+  const [brandingResult, essentialsLive, countries, marketsLive, ctaPhotos] = await Promise.all([
     (async () => {
       try {
         const res = await fetch('/api/branding');
@@ -77,8 +99,9 @@ export const load: LayoutLoad = async ({ fetch }) => {
     })(),
     hasPublishedEssentials(fetch),
     liveCountries(fetch),
-    hasMarketPages(fetch)
+    hasMarketPages(fetch),
+    ctaImages(fetch)
   ]);
 
-  return { branding: brandingResult, essentialsLive, countries, marketsLive };
+  return { branding: brandingResult, essentialsLive, countries, marketsLive, ctaImages: ctaPhotos };
 };

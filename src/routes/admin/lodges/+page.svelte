@@ -5,8 +5,10 @@
   import { api } from '$lib/api/client';
   import { mediaLibrary } from '$lib/mediaLibrary';
   import { TIER_OPTIONS, tierLabel } from '$lib/tiers';
+  import { SETTING_LABELS } from '$lib/lodge';
   import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
   import LodgeDetailsEditor from '$lib/components/admin/LodgeDetailsEditor.svelte';
+  import LodgeGalleryEditor, { toGalleryItems, type GalleryItem } from '$lib/components/admin/LodgeGalleryEditor.svelte';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -103,7 +105,10 @@
     country: '',
     region: '',
     park_area: '',
-    settings: '',
+    // Settings split in two so no stored value is lost: the vocabulary the public
+    // site can label, as checkboxes, and anything else kept verbatim as text.
+    settings_checked: [] as string[],
+    settings_other: '',
     recommended_nights: '',
     best_months: '',
     mobile_hero_image_url: '',
@@ -182,21 +187,22 @@
     }
   };
 
-  // The property's photo gallery. Held separately from `form` because it is its
-  // own table, saved right after the lodge so a new lodge has an id to attach to.
-  let gallery: { image_url: string; alt_text: string }[] = [];
+  // ── What is loaded, and whether it can be trusted ────────────────────────
+  // The record, its gallery and its rooms/rates each load separately. A section
+  // is only written back on save when it actually arrived ('ready'): a gallery
+  // that failed to load must never be saved back as an empty one. Each open
+  // takes a fresh sequence number, so a slow response for a lodge the editor has
+  // already left is ignored instead of landing in the next lodge's form.
+  type LoadState = 'idle' | 'loading' | 'ready' | 'failed';
+  let openSeq = 0;
+  let recordState: LoadState = 'idle';
+  let galleryState: LoadState = 'idle';
+  let detailsState: LoadState = 'idle';
+  let recordWarning = '';
 
-  const loadGallery = async (lodgeId: string) => {
-    try {
-      const res = await api.lodgeImages.list(lodgeId);
-      gallery = (res.data.items ?? []).map((i) => ({
-        image_url: String(i.image_url ?? ''),
-        alt_text: String(i.alt_text ?? '')
-      }));
-    } catch {
-      gallery = [];
-    }
-  };
+  // The property's photo gallery: its own table, saved right after the lodge so
+  // a new lodge has an id to attach to.
+  let gallery: GalleryItem[] = [];
 
   // Rooms, rates, highlights and inclusions. Like the gallery these are their own
   // tables, so they need a saved lodge id and are written after the lodge itself.
@@ -204,14 +210,38 @@
   let details: { highlights: DetailRow[]; rooms: DetailRow[]; rates: DetailRow[]; inclusions: DetailRow[] } = {
     highlights: [], rooms: [], rates: [], inclusions: []
   };
-  let detailsLoading = false;
 
   const emptyDetails = () => ({ highlights: [], rooms: [], rates: [], inclusions: [] });
 
-  const loadDetails = async (lodgeId: string) => {
-    detailsLoading = true;
+  // Snapshots of what was loaded, to tell a clean form from unsaved changes.
+  // Numbers and nulls are compared as strings: a number input hands back 3 for
+  // the '3' it was given, which is not a change.
+  const snap = (v: unknown) => JSON.stringify(v, (_k, x) => (x === null || x === undefined ? '' : typeof x === 'number' ? String(x) : x));
+  const gallerySnap = (items: GalleryItem[]) => snap(items.map(({ image_url, alt_text, caption }) => ({ image_url, alt_text, caption })));
+  let savedForm = '';
+  let savedGallery = '';
+  let savedDetails = '';
+
+  const loadGallery = async (lodgeId: string, seq: number) => {
+    galleryState = 'loading';
+    try {
+      const res = await api.lodgeImages.list(lodgeId);
+      if (seq !== openSeq) return;
+      gallery = toGalleryItems((res.data.items ?? []) as Array<Record<string, unknown>>);
+      savedGallery = gallerySnap(gallery);
+      galleryState = 'ready';
+    } catch {
+      if (seq !== openSeq) return;
+      gallery = [];
+      galleryState = 'failed';
+    }
+  };
+
+  const loadDetails = async (lodgeId: string, seq: number) => {
+    detailsState = 'loading';
     try {
       const res = await api.lodges.details(lodgeId);
+      if (seq !== openSeq) return;
       const data = res.data as DetailRow;
       details = {
         highlights: (data.highlights as DetailRow[]) ?? [],
@@ -221,99 +251,165 @@
         rates: (data.rates as DetailRow[]) ?? [],
         inclusions: (data.inclusions as DetailRow[]) ?? []
       };
+      savedDetails = snap(details);
+      detailsState = 'ready';
     } catch {
+      if (seq !== openSeq) return;
       details = emptyDetails();
-    } finally {
-      detailsLoading = false;
+      detailsState = 'failed';
     }
   };
 
-  const addGalleryImage = () => { gallery = [...gallery, { image_url: '', alt_text: '' }]; };
-  const removeGalleryImage = (i: number) => { gallery = gallery.filter((_, n) => n !== i); };
-  const moveGalleryImage = (i: number, delta: number) => {
-    const j = i + delta;
-    if (j < 0 || j >= gallery.length) return;
-    const next = [...gallery];
-    [next[i], next[j]] = [next[j], next[i]];
-    gallery = next;
-  };
-  const setGalleryUrl = (i: number, url: string) => {
-    gallery = gallery.map((g, n) => (n === i ? { ...g, image_url: url } : g));
-  };
+  /** The record as form values. Settings outside the labelled vocabulary go to the free-text field, untouched. */
+  const formFrom = (l: Lodge) => ({
+    name: l.name,
+    slug: l.slug,
+    destination_id: l.destination_id ?? '',
+    accommodation_level: l.accommodation_level,
+    lodge_type: l.lodge_type,
+    description: l.description ?? '',
+    why_we_recommend: l.why_we_recommend ?? '',
+    hero_image_url: l.hero_image_url ?? '',
+    image_url: l.image_url ?? '',
+    price_per_night_from: l.price_per_night_from != null ? String(l.price_per_night_from) : '',
+    currency: l.currency ?? 'USD',
+    best_for: (l.best_for ?? []).join(', '),
+    romantic_rating: l.romantic_rating != null ? String(l.romantic_rating) : '',
+    family_rating: l.family_rating != null ? String(l.family_rating) : '',
+    website_url: l.website_url ?? '',
+    status: l.status,
+    is_featured: Boolean(l.is_featured),
+    seo_title: l.seo_title ?? '',
+    short_description: l.short_description ?? '',
+    country: l.country ?? '',
+    region: l.region ?? '',
+    park_area: l.park_area ?? '',
+    settings_checked: (l.settings ?? []).filter((v) => v in SETTING_LABELS),
+    settings_other: (l.settings ?? []).filter((v) => !(v in SETTING_LABELS)).join(', '),
+    recommended_nights: String(l.recommended_nights ?? ''),
+    best_months: (l.best_months ?? []).join(', '),
+    mobile_hero_image_url: l.mobile_hero_image_url ?? '',
+    social_image_url: l.social_image_url ?? '',
+    google_maps_url: l.google_maps_url ?? '',
+    latitude: String(l.latitude ?? ''),
+    longitude: String(l.longitude ?? ''),
+    nearest_airport: l.nearest_airport ?? '',
+    transfer_time: l.transfer_time ?? '',
+    distance_airstrip: l.distance_airstrip ?? '',
+    distance_park_gate: l.distance_park_gate ?? '',
+    road_accessibility: l.road_accessibility ?? '',
+    fly_in_available: Boolean(l.fly_in_available),
+    transfer_available: Boolean(l.transfer_available),
+    children_allowed: l.children_allowed !== false,
+    minimum_child_age: String(l.minimum_child_age ?? ''),
+    family_friendly: Boolean(l.family_friendly),
+    honeymoon_friendly: Boolean(l.honeymoon_friendly),
+    accessibility: l.accessibility ?? '',
+    wheelchair_accessible: Boolean(l.wheelchair_accessible),
+    electricity_availability: l.electricity_availability ?? '',
+    wifi_availability: l.wifi_availability ?? '',
+    mobile_networks: (l.mobile_networks ?? []).join(', '),
+    arrival_instructions: l.arrival_instructions ?? '',
+    traveler_notes: l.traveler_notes ?? '',
+    show_rates_publicly: Boolean(l.show_rates_publicly),
+    indexable: l.indexable !== false,
+    meta_description: l.meta_description ?? ''
+  });
 
   const openCreate = () => {
+    openSeq += 1;
     editing = null;
     form = emptyForm();
     gallery = [];
     details = emptyDetails();
+    recordWarning = '';
+    recordState = 'ready';
+    galleryState = 'ready';
+    detailsState = 'idle';
+    savedForm = snap(form);
+    savedGallery = gallerySnap(gallery);
+    savedDetails = snap(details);
     slugManuallyEdited = false;
     modalOpen = true;
   };
 
-  const openEdit = (l: Lodge) => {
+  const openEdit = async (l: Lodge) => {
+    const seq = ++openSeq;
     editing = l;
+    form = formFrom(l);
     gallery = [];
     details = emptyDetails();
-    void loadGallery(l.id);
-    void loadDetails(l.id);
-    form = {
-      name: l.name,
-      slug: l.slug,
-      destination_id: l.destination_id ?? '',
-      accommodation_level: l.accommodation_level,
-      lodge_type: l.lodge_type,
-      description: l.description ?? '',
-      why_we_recommend: l.why_we_recommend ?? '',
-      hero_image_url: l.hero_image_url ?? '',
-      image_url: l.image_url ?? '',
-      price_per_night_from: l.price_per_night_from != null ? String(l.price_per_night_from) : '',
-      currency: l.currency ?? 'USD',
-      best_for: (l.best_for ?? []).join(', '),
-      romantic_rating: l.romantic_rating != null ? String(l.romantic_rating) : '',
-      family_rating: l.family_rating != null ? String(l.family_rating) : '',
-      website_url: l.website_url ?? '',
-      status: l.status,
-      is_featured: Boolean(l.is_featured),
-      seo_title: l.seo_title ?? '',
-      short_description: l.short_description ?? '',
-      country: l.country ?? '',
-      region: l.region ?? '',
-      park_area: l.park_area ?? '',
-      settings: (l.settings ?? []).join(', '),
-      recommended_nights: String(l.recommended_nights ?? ''),
-      best_months: (l.best_months ?? []).join(', '),
-      mobile_hero_image_url: l.mobile_hero_image_url ?? '',
-      social_image_url: l.social_image_url ?? '',
-      google_maps_url: l.google_maps_url ?? '',
-      latitude: String(l.latitude ?? ''),
-      longitude: String(l.longitude ?? ''),
-      nearest_airport: l.nearest_airport ?? '',
-      transfer_time: l.transfer_time ?? '',
-      distance_airstrip: l.distance_airstrip ?? '',
-      distance_park_gate: l.distance_park_gate ?? '',
-      road_accessibility: l.road_accessibility ?? '',
-      fly_in_available: Boolean(l.fly_in_available),
-      transfer_available: Boolean(l.transfer_available),
-      children_allowed: l.children_allowed !== false,
-      minimum_child_age: String(l.minimum_child_age ?? ''),
-      family_friendly: Boolean(l.family_friendly),
-      honeymoon_friendly: Boolean(l.honeymoon_friendly),
-      accessibility: l.accessibility ?? '',
-      wheelchair_accessible: Boolean(l.wheelchair_accessible),
-      electricity_availability: l.electricity_availability ?? '',
-      wifi_availability: l.wifi_availability ?? '',
-      mobile_networks: (l.mobile_networks ?? []).join(', '),
-      arrival_instructions: l.arrival_instructions ?? '',
-      traveler_notes: l.traveler_notes ?? '',
-      show_rates_publicly: Boolean(l.show_rates_publicly),
-      indexable: l.indexable !== false,
-      meta_description: l.meta_description ?? ''
-    };
+    recordWarning = '';
     slugManuallyEdited = true;
     modalOpen = true;
+    void loadGallery(l.id, seq);
+    void loadDetails(l.id, seq);
+
+    // The list row can be stale (another editor, an import), so the form is
+    // filled from a fresh read; the fields stay locked until it arrives.
+    recordState = 'loading';
+    try {
+      const res = await api.lodges.get(l.slug);
+      if (seq !== openSeq) return;
+      const fresh = res.data as unknown as Lodge;
+      editing = { ...l, ...fresh };
+      form = formFrom(editing);
+    } catch {
+      if (seq !== openSeq) return;
+      recordWarning = 'The latest copy of this lodge could not be loaded, so the form shows the list values. Check them before saving.';
+    }
+    savedForm = snap(form);
+    recordState = 'ready';
   };
 
-  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); slugManuallyEdited = false; };
+  const retryGallery = () => { if (editing) void loadGallery(editing.id, openSeq); };
+  const retryDetails = () => { if (editing) void loadDetails(editing.id, openSeq); };
+
+  // Unsaved changes: only sections that loaded can be dirty.
+  $: dirty =
+    modalOpen &&
+    recordState === 'ready' &&
+    (snap(form) !== savedForm ||
+      (galleryState === 'ready' && gallerySnap(gallery) !== savedGallery) ||
+      (detailsState === 'ready' && snap(details) !== savedDetails));
+
+  const forceClose = () => {
+    openSeq += 1; // anything still loading for this lodge is now stale
+    modalOpen = false;
+    editing = null;
+    form = emptyForm();
+    gallery = [];
+    details = emptyDetails();
+    recordState = galleryState = detailsState = 'idle';
+    slugManuallyEdited = false;
+  };
+
+  const closeModal = () => {
+    if (saving) return;
+    if (dirty && !window.confirm('Discard your unsaved changes to this lodge?')) return;
+    forceClose();
+  };
+
+  const onKeydown = (e: KeyboardEvent) => {
+    if (modalOpen && e.key === 'Escape' && !confirmOpen) closeModal();
+  };
+
+  // A typed-in destination that is no longer live (unpublished, or a deleted
+  // duplicate) is still shown, labelled, instead of the select going blank.
+  $: destinationSelectOptions =
+    form.destination_id && !destinationOptions.some((o) => o.value === form.destination_id)
+      ? [
+          ...destinationOptions,
+          { label: `${editing?.destinations?.name ?? 'Unknown destination'} (not live — pick the current one)`, value: form.destination_id }
+        ]
+      : destinationOptions;
+  $: destinationNotLive = Boolean(form.destination_id) && !destinationOptions.some((o) => o.value === form.destination_id);
+
+  const toggleSetting = (value: string) => {
+    form.settings_checked = form.settings_checked.includes(value)
+      ? form.settings_checked.filter((v) => v !== value)
+      : [...form.settings_checked, value];
+  };
 
   /** Comma-separated text -> a clean string[] for the array columns. */
   const csv = (v: string) => v.split(',').map((x) => x.trim()).filter(Boolean);
@@ -335,6 +431,7 @@
   };
 
   const save = async () => {
+    if (saving || recordState !== 'ready') return;
     if (!form.name.trim()) { showToast('Name is required.', 'error'); return; }
     // Everything that can throw lives inside the try — including building the
     // payload. It used to sit outside, so a TypeError there skipped the finally
@@ -365,7 +462,7 @@
         country: form.country.trim() || null,
         region: form.region.trim() || null,
         park_area: form.park_area.trim() || null,
-        settings: csv(form.settings),
+        settings: [...new Set([...form.settings_checked, ...csv(form.settings_other)])],
         recommended_nights: numOrNull(form.recommended_nights),
         best_months: csv(form.best_months),
         mobile_hero_image_url: form.mobile_hero_image_url.trim() || null,
@@ -407,17 +504,27 @@
       }
 
       if (lodgeId) {
-        const images = gallery.filter((g) => g.image_url.trim());
-        try {
-          await api.lodgeImages.replace(lodgeId, images);
-        } catch {
-          // The lodge itself saved; say so rather than implying nothing happened.
-          showToast('Lodge saved, but its gallery could not be updated.', 'error');
+        // Written only when the saved gallery actually loaded (always true for a
+        // new lodge). Otherwise it is left exactly as it is.
+        if (galleryState === 'ready') {
+          const images = gallery
+            .filter((g) => g.image_url.trim())
+            .map((g) => ({ image_url: g.image_url.trim(), alt_text: g.alt_text, caption: g.caption }));
+          try {
+            await api.lodgeImages.replace(lodgeId, images);
+          } catch {
+            // The lodge itself saved; say so rather than implying nothing happened.
+            showToast('Lodge saved, but its gallery could not be updated.', 'error');
+          }
+        } else if (editing) {
+          showToast('Lodge saved. Its gallery had not loaded, so it was left unchanged.', 'error');
         }
 
-        // Only on edit: a brand-new property has no details editor to read from,
-        // and writing an empty document would be a no-op anyway.
-        if (editing) {
+        // Only on edit, and only when the rooms and rates actually loaded: a
+        // failed load must not be written back as "no rooms".
+        if (editing && detailsState !== 'ready') {
+          showToast('Lodge saved. Its rooms and rates had not loaded, so they were left unchanged.', 'error');
+        } else if (editing) {
           try {
             await api.lodges.saveDetails(lodgeId, {
               highlights: details.highlights.filter((h) => String(h.title ?? '').trim()),
@@ -432,7 +539,7 @@
           }
         }
       }
-      closeModal();
+      forceClose();
       await load();
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Unable to save lodge.', 'error');
@@ -463,6 +570,8 @@
 
   onMount(() => { load(); loadDestinations(); });
 </script>
+
+<svelte:window on:keydown={onKeydown} />
 
 <ToastStack {toasts} on:dismiss={dismissToast} />
 
@@ -557,6 +666,12 @@
         </button>
       </div>
 
+      {#if recordState === 'loading'}
+        <p class="mt-6 border border-dashed border-ink/20 px-4 py-16 text-center text-sm text-ink/55">Loading the latest copy of this lodge&hellip;</p>
+      {:else}
+      {#if recordWarning}
+        <p class="mt-6 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">{recordWarning}</p>
+      {/if}
       <div class="mt-6 grid gap-5">
       <section class="grid gap-4 border border-ink/10 bg-surface p-5">
         <div>
@@ -567,12 +682,17 @@
           <AdminFormInput label="Name" name="name" bind:value={form.name} required />
           <label class="grid gap-2 text-sm font-medium text-ink">
             <span>Slug</span>
-            <input class="h-11 rounded-2xl border border-ink/10 bg-surface px-3 font-mono text-sm shadow-sm outline-none transition focus:border-forest/40" bind:value={form.slug} placeholder="auto-generated from the name" />
+            <input class="h-11 rounded-2xl border border-ink/10 bg-surface px-3 font-mono text-sm shadow-sm outline-none transition focus:border-forest/40" bind:value={form.slug} on:input={() => (slugManuallyEdited = true)} placeholder="auto-generated from the name" />
           </label>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
-          <AdminSelect label="Destination" name="destination_id" bind:value={form.destination_id} options={destinationOptions} />
+          <div class="grid gap-1.5">
+            <AdminSelect label="Destination" name="destination_id" bind:value={form.destination_id} options={destinationSelectOptions} />
+            {#if destinationNotLive}
+              <p class="text-xs leading-5 text-clay">This points at a destination that is no longer live, so the property is missing from its destination page. Pick the current one.</p>
+            {/if}
+          </div>
           <AdminSelect label="Comfort tier" name="accommodation_level" bind:value={form.accommodation_level} options={levelOptions} />
           <AdminSelect label="Property type" name="lodge_type" bind:value={form.lodge_type} options={typeOptions} />
         </div>
@@ -594,10 +714,25 @@
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
-          <AdminFormInput label="Settings (comma-separated)" name="settings" bind:value={form.settings} placeholder="inside_national_park, private_reserve" />
           <AdminFormInput label="Recommended nights" name="recommended_nights" type="number" bind:value={form.recommended_nights} placeholder="3" />
-          <AdminFormInput label="Best months (comma-separated)" name="best_months" bind:value={form.best_months} placeholder="June, July, August" />
+          <div class="sm:col-span-2">
+            <AdminFormInput label="Best months (comma-separated)" name="best_months" bind:value={form.best_months} placeholder="June, July, August" />
+          </div>
         </div>
+
+        <fieldset class="grid gap-2">
+          <legend class="text-sm font-medium text-ink">Setting</legend>
+          <p class="text-xs text-ink/50">Shown to travellers as labelled tags on the property page.</p>
+          <div class="mt-1 flex flex-wrap gap-2">
+            {#each Object.entries(SETTING_LABELS) as [value, label] (value)}
+              <label class={`inline-flex cursor-pointer items-center gap-2 border px-3 py-2 text-sm transition ${form.settings_checked.includes(value) ? 'border-forest bg-forest/[0.06] text-ink' : 'border-ink/10 bg-surface text-ink/70 hover:border-ink/25'}`}>
+                <input class="h-4 w-4 accent-forest" type="checkbox" checked={form.settings_checked.includes(value)} on:change={() => toggleSetting(value)} />
+                {label}
+              </label>
+            {/each}
+          </div>
+          <AdminFormInput label="Other settings (comma-separated)" name="settings_other" bind:value={form.settings_other} placeholder="swimming_pool, mount_meru_views" />
+        </fieldset>
       </section>
 
       <section class="grid gap-4 border border-ink/10 bg-surface p-5">
@@ -696,61 +831,13 @@
           <MediaPicker label="Social share image" media={$mediaLibrary} uploadFolder="lodges" bind:value={form.social_image_url} />
         </div>
 
-          <div class="grid gap-3 border border-ink/10 bg-sand/20 p-4 md:col-span-2">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h3 class="text-base font-semibold text-ink">Photo gallery</h3>
-                <p class="mt-1 text-sm text-ink/55">
-                  Shown as a row on every itinerary day that stays here — the first four appear.
-                  The first image is the cover.
-                </p>
-              </div>
-              <button
-                class="inline-flex h-10 items-center gap-2 bg-forest px-4 text-sm font-semibold text-white transition hover:brightness-110"
-                type="button"
-                on:click={addGalleryImage}
-              >
-                Add image
-              </button>
-            </div>
-
-            {#if !gallery.length}
-              <p class="border border-dashed border-ink/20 px-4 py-6 text-center text-sm text-ink/55">
-                No gallery yet. Itinerary days will fall back to the hero and card images above.
-              </p>
-            {/if}
-
-            <div class="grid gap-4 sm:grid-cols-2">
-              {#each gallery as image, i (i)}
-                <div class="grid gap-2 border border-ink/10 bg-surface p-3">
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wide text-ink/45">
-                      {i === 0 ? 'Cover' : `Image ${i + 1}`}
-                    </span>
-                    <div class="flex items-center gap-1">
-                      <button class="p-1 text-ink/40 transition hover:text-ink disabled:opacity-30" type="button" disabled={i === 0} on:click={() => moveGalleryImage(i, -1)} aria-label="Move earlier">↑</button>
-                      <button class="p-1 text-ink/40 transition hover:text-ink disabled:opacity-30" type="button" disabled={i === gallery.length - 1} on:click={() => moveGalleryImage(i, 1)} aria-label="Move later">↓</button>
-                      <button class="p-1 text-red-500 transition hover:text-red-700" type="button" on:click={() => removeGalleryImage(i)} aria-label="Remove">✕</button>
-                    </div>
-                  </div>
-                  <MediaPicker
-                    label=""
-                    media={$mediaLibrary}
-                    uploadFolder="lodges"
-                    aspect="aspect-[4/3]"
-                    value={image.image_url}
-                    on:change={(e) => setGalleryUrl(i, (e as CustomEvent<string>).detail)}
-                  />
-                  <AdminFormInput
-                    label="Alt text"
-                    name={`gallery_alt_${i}`}
-                    bind:value={image.alt_text}
-                    placeholder="What the photograph shows"
-                  />
-                </div>
-              {/each}
-            </div>
-          </div>
+          <LodgeGalleryEditor
+            bind:images={gallery}
+            state={galleryState === 'failed' ? 'failed' : galleryState === 'ready' ? 'ready' : 'loading'}
+            media={$mediaLibrary}
+            uploadFolder="lodges"
+            on:retry={retryGallery}
+          />
       </section>
 
       <section class="grid gap-4 border border-ink/10 bg-surface p-5">
@@ -760,7 +847,12 @@
         </div>
 
         {#if editing}
-          {#if detailsLoading}
+          {#if detailsState === 'failed'}
+            <div class="flex flex-wrap items-center justify-between gap-3 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              <span>Rooms and rates could not be loaded, so they will be left exactly as they are when you save.</span>
+              <button class="font-semibold underline-offset-2 hover:underline" type="button" on:click={retryDetails}>Try again</button>
+            </div>
+          {:else if detailsState !== 'ready'}
             <p class="border border-dashed border-ink/20 px-4 py-6 text-center text-sm text-ink/55">Loading&hellip;</p>
           {:else}
             <LodgeDetailsEditor bind:details currency={form.currency || 'USD'} />
@@ -807,10 +899,13 @@
       </section>
 
       </div>
+      {/if}
 
-      <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <!-- Always in reach on a long form. -->
+      <div class="sticky -bottom-6 z-10 -mx-6 mt-6 flex flex-col-reverse gap-3 border-t border-ink/10 bg-surface/95 px-6 py-4 backdrop-blur sm:flex-row sm:items-center sm:justify-end">
+        {#if dirty}<span class="text-xs font-semibold text-clay sm:mr-auto">Unsaved changes</span>{/if}
         <AdminButton variant="secondary" type="button" on:click={closeModal}>Cancel</AdminButton>
-        <AdminButton type="submit" disabled={saving}>
+        <AdminButton type="submit" disabled={saving || recordState !== 'ready'}>
           {saving ? 'Saving...' : editing ? 'Save Changes' : 'Create Lodge'}
         </AdminButton>
       </div>

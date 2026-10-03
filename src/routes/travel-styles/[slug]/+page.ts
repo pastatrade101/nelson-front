@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-import type { Tour, TravelStyle } from '$lib/types';
+import type { Destination, Lodge, Tour, TravelStyle } from '$lib/types';
 import { cachedJson } from '$lib/cache';
 import { categoryForStyle } from '$lib/styleLinks';
 
@@ -47,9 +47,35 @@ export const load: PageLoad = async ({ fetch, params }) => {
       .catch(() => [] as Array<{ id: string; name: string; slug: string }>)
   ]);
 
+  // Lodges picked inside price tiers. Same request as the accommodation index,
+  // so it is usually already cached; skipped entirely when no tier picks any.
+  const wantsLodges = (Array.isArray(style.sections) ? style.sections : []).some(
+    (b) =>
+      (b as Record<string, unknown>)?.type === 'tiers' &&
+      Array.isArray((b as Record<string, unknown>).tiers) &&
+      ((b as Record<string, unknown>).tiers as Record<string, unknown>[]).some((t) => Array.isArray(t?.lodge_ids) && (t.lodge_ids as unknown[]).length)
+  );
+  const lodges = wantsLodges
+    ? await cachedJson<{ data?: { items?: Lodge[] } }>('/api/lodges?status=published&limit=200', fetch)
+        .then((b) => b?.data?.items ?? [])
+        .catch(() => [] as Lodge[])
+    : [];
+
+  // Destinations — for a `destinations` block, and so image panels naming real
+  // destinations ("Where to go") render as destination cards. Same request as
+  // the destinations index, so usually cached.
+  const wantsDestinations = (Array.isArray(style.sections) ? style.sections : []).some((b) =>
+    ['destinations', 'panels'].includes(String((b as Record<string, unknown>)?.type))
+  );
+  const destinations = wantsDestinations
+    ? await cachedJson<{ data?: { items?: Destination[] } }>('/api/destinations?status=published&limit=100', fetch)
+        .then((b) => b?.data?.items ?? [])
+        .catch(() => [] as Destination[])
+    : [];
+
   // The safari-style card this page belongs to, so "Browse itineraries" lists
   // that style's tours rather than a looser persona match.
   const category = categoryForStyle(style, categories);
 
-  return { style, others, tours, categorySlug: category?.slug ?? null };
+  return { style, others, tours, lodges, destinations, categorySlug: category?.slug ?? null };
 };

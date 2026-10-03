@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import { ArrowRight, ChevronDown, Compass, MapPin, MessageCircle, Quote, ShieldCheck, Sparkles, Users } from '@lucide/svelte';
   import { imgUrl, origUrl, thumbUrl } from '$lib/img';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
@@ -347,33 +348,14 @@
   {/if}
 
   <!-- ── premium final CTA ────────────────────────────────────────────────── -->
-  <section class="container-shell py-16 md:py-20">
-    <div class="relative overflow-hidden bg-deep-green px-6 py-14 text-center text-white md:px-12 md:py-20">
-      {#if heroImage}
-        <ResponsiveImage src={heroOrig} fallbackSrc={heroThumb} alt="" sizes="100vw" imgClass="absolute inset-0 h-full w-full object-cover object-center opacity-25" width={1920} />
-      {/if}
-      <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
-      <div class="relative mx-auto max-w-2xl">
-        <p class="brand-eyebrow justify-center text-goldfinch-gold">Still deciding?</p>
-        <h2 class="mt-3 font-serif text-3xl font-light leading-[1.1] md:text-[44px]">Tell us how you like to travel.</h2>
-        <p class="mx-auto mt-4 max-w-xl text-white/75">
-          Share your dates and what you have in mind — a local specialist will shape the right safari around you. No
-          payment needed to start.
-        </p>
-        <div class="mt-8 flex flex-wrap justify-center gap-3">
-          <a class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna" href="/plan-my-trip">
-            Build My Safari <ArrowRight size={16} strokeWidth={2.5} />
-          </a>
-          <a class="inline-flex h-12 items-center gap-2 border border-white/30 px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href="/contact">
-            <MessageCircle size={15} /> Talk to a Safari Expert
-          </a>
-        </div>
-        <div class="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 border-t border-white/15 pt-6 text-[12px] font-medium text-white/70">
-          {#each ['Private & tailor-made', 'Tanzania-born guides', 'No obligation to book'] as t}
-            <span class="inline-flex items-center gap-1.5"><MapPin size={13} class="text-goldfinch-gold" />{t}</span>
-          {/each}
-        </div>
-      </div>
-    </div>
-  </section>
+  <FinalCtaSection
+    eyebrow="Still deciding?"
+    title="Tell us how you like to travel."
+    subtitle="Share your dates and what you have in mind — a local specialist will shape the right safari around you. No payment needed to start."
+    primaryLabel="Build My Safari"
+    primaryHref="/plan-my-trip"
+    secondaryLabel="Talk to a Safari Expert"
+    secondaryHref="/contact"
+    points={['Private & tailor-made', 'Tanzania-born guides', 'No obligation to book']}
+  />
 {/if}

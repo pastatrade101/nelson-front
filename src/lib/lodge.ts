@@ -116,6 +116,31 @@ export const WIFI_LABELS: Record<string, string> = {
   not_available: 'Not available'
 };
 
+/**
+ * Settings a traveller can read, including the free values the CMS keeps
+ * outside the vocabulary ("swimming_pool" -> "Swimming pool"). Values that only
+ * repeat a fact the page states elsewhere (family/honeymoon flags, the tier)
+ * are dropped, and anything already written in prose is kept as typed.
+ */
+const SETTING_REPEATS = new Set(['family_friendly', 'honeymoon_friendly', 'luxury_lodge', 'luxury', 'lodge', 'tented_camp']);
+const SMALL_WORDS = new Set(['of', 'and', 'the', 'in', 'on', 'to', 'at', 'by', 'with']);
+/** "bed_and_breakfast" -> "Bed and breakfast"-style labels for stored vocabulary values. */
+export const humaniseValue = (v: string) =>
+  v
+    .replace(/[_-]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .map((w, i) => (i > 0 && SMALL_WORDS.has(w.toLowerCase()) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
+    .join(' ');
+export const settingDisplayLabels = (l: Lodge): string[] => {
+  const seen = new Set<string>();
+  return (l.settings ?? [])
+    .map((v) => String(v ?? '').trim())
+    .filter((v) => v && !SETTING_REPEATS.has(v.toLowerCase()))
+    .map((v) => SETTING_LABELS[v] ?? (/[\sA-Z]/.test(v) ? v : humaniseValue(v)))
+    .filter((label) => label && !seen.has(label.toLowerCase()) && seen.add(label.toLowerCase()));
+};
+
 /** Mapped setting labels, in the order stored; unrecognised values are dropped. */
 export const settingLabels = (l: Lodge): string[] =>
   (l.settings ?? []).map((v) => SETTING_LABELS[v]).filter(Boolean);

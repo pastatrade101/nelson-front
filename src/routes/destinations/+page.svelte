@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import { onMount } from 'svelte';
   import { ArrowRight, MessageCircle } from '@lucide/svelte';
   import { goto } from '$app/navigation';
@@ -270,23 +271,15 @@
   {/if}
 
   <!-- Closing CTA -->
-  <section class="container-shell py-14 md:py-16">
-    <div class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-12 text-center text-white md:px-12 md:py-16">
-      <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
-      <div class="relative mx-auto max-w-2xl">
-        <h2 class="font-serif text-2xl font-light md:text-4xl">Ready to plan your Tanzania safari?</h2>
-        <p class="mt-3 text-white/75">Tell us your dates and what you have in mind — a local expert will build a tailored plan. No payment needed to start.</p>
-        <div class="mt-7 flex flex-wrap justify-center gap-3">
-          <a class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-deep-green transition hover:bg-savanna" href="/plan-my-trip">
-            Plan My Safari <ArrowRight size={18} />
-          </a>
-          <a class="inline-flex h-12 items-center border border-white/30 px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-white transition hover:bg-white/10" href="/contact">
-            Talk to an Advisor
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <FinalCtaSection
+    eyebrow="Start planning"
+    title="Ready to plan your Tanzania safari?"
+    subtitle="Tell us your dates and what you have in mind — a local expert will build a tailored plan. No payment needed to start."
+    primaryLabel="Plan My Safari"
+    primaryHref="/plan-my-trip"
+    secondaryLabel="Talk to an Advisor"
+    secondaryHref="/contact"
+  />
 {/if}
 
 <style>

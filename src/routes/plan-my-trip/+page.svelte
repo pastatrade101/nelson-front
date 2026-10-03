@@ -1,12 +1,8 @@
 <script lang="ts">
-  import { ArrowRight, Compass, HeartHandshake, ShieldCheck, Sparkles, UserCheck } from '@lucide/svelte';
-  import { openAiAdvisor } from '$lib/aiAdvisor';
+  import { Compass, HeartHandshake, ShieldCheck, UserCheck } from '@lucide/svelte';
   import { revealHeading } from '$lib/animations';
   import PlanMyTripForm from '$lib/components/public/PlanMyTripForm.svelte';
   import PlanningProcess from '$lib/components/public/PlanningProcess.svelte';
-  import { aiAdvisorEnabled, publicSettings } from '$lib/settings';
-
-  $: aiOn = aiAdvisorEnabled($publicSettings);
 
   const assurances = [
     { icon: ShieldCheck, title: 'Honest, local expertise', text: 'Advice from people who live and guide in Tanzania every day.' },
@@ -37,27 +33,6 @@
       Tell us what you have in mind and an Emnel safari specialist will craft a confident, honest plan — whether it's a private safari, a Kilimanjaro climb, or a bush-and-beach escape in Zanzibar.
     </p>
 
-    <!-- Natural bridge to the AI advisor (same pipeline — it can start the very
-         same booking request, then a specialist confirms). Hidden when the AI
-         advisor is turned off in admin settings. -->
-    {#if aiOn}
-      <button
-        type="button"
-        on:click={() => openAiAdvisor()}
-        class="group mt-5 flex w-full items-center gap-3 rounded-2xl border border-forest/25 bg-forest/[0.04] p-4 text-left transition hover:bg-forest/[0.08]"
-      >
-        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-deep-green text-white"><Sparkles size={19} strokeWidth={2.4} /></span>
-        <span class="min-w-0">
-          <span class="flex items-center gap-1 font-bold text-heading">
-            Prefer to chat? Ask our AI advisor
-            <ArrowRight size={15} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
-          </span>
-          <span class="mt-0.5 block text-sm leading-6 text-ink/70">Get instant trip suggestions and start your request in a couple of minutes — a specialist still reviews and confirms.</span>
-        </span>
-      </button>
-
-      <p class="mt-4 text-xs font-medium uppercase tracking-[0.14em] text-ink/40">Or fill the form — whichever you prefer</p>
-    {/if}
 
     <div class="mt-8 grid gap-4">
       {#each assurances as item}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import { ArrowRight } from '@lucide/svelte';
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
@@ -32,10 +33,15 @@
   $: destination = (data.destination as Destination | null) ?? null;
 
   // Relevant content for onward navigation (loaded best-effort after the destination).
-  let relatedTours: Tour[] = [];
-  let otherDestinations: Destination[] = [];
+  // Tours, stays and other destinations come from the SSR load, so these onward
+  // links are in the first response for travellers and crawlers alike.
+  $: relatedTours = ((data.tours ?? []) as Array<Tour & { match?: string }>);
+  $: popularTours = ((data.popularTours ?? []) as Tour[]);
+  $: otherDestinations = ((data.otherDestinations ?? []) as Destination[]);
   let recentPosts: BlogPost[] = [];
-  let lodges: Lodge[] = [];
+  // Stays come from the SSR load; the page lays out twelve and links to the rest.
+  $: allLodges = ((data.lodges ?? []) as Lodge[]);
+  $: lodges = allLodges.slice(0, 12);
   let activities: Activity[] = [];
   let tripPoints: TripPoint[] = [];
   $: faqs = ((data.faqs ?? []) as FAQ[]);
@@ -68,28 +74,14 @@
   );
 
   const loadRelated = async (dest: Destination) => {
-    const [tourRes, destRes, postRes, lodgeRes, activityRes, tripPointRes] = await Promise.allSettled([
-      api.tours.list({ destination_id: dest.id, limit: 3 }),
-      api.destinations.list({ limit: 7 }),
+    const [postRes, activityRes, tripPointRes] = await Promise.allSettled([
       api.blog.list({ limit: 3 }),
-      api.lodges.list({ destination_id: dest.id, limit: 3 }),
       api.activities.list({ destination_id: dest.id, limit: 3 }),
       api.tripPoints.list({ destination_id: dest.id, limit: 4 })
     ]);
 
-    if (tourRes.status === 'fulfilled') {
-      relatedTours = tourRes.value.data.items ?? [];
-    }
-    if (destRes.status === 'fulfilled') {
-      otherDestinations = (destRes.value.data.items ?? [])
-        .filter((item) => item.id !== dest.id && item.slug !== dest.slug)
-        .slice(0, 3);
-    }
     if (postRes.status === 'fulfilled') {
       recentPosts = postRes.value.data.items ?? [];
-    }
-    if (lodgeRes.status === 'fulfilled') {
-      lodges = lodgeRes.value.data.items ?? [];
     }
     if (activityRes.status === 'fulfilled') {
       activities = activityRes.value.data.items ?? [];
@@ -105,6 +97,34 @@
     relatedFor = destination.id;
     void loadRelated(destination);
   }
+
+  // The page's onward routes, as plain links (counts only where they help).
+  $: quickLinks = destination
+    ? [
+        relatedTours.length
+          ? { label: 'Safaris through here', href: '#tours', count: relatedTours.length }
+          : popularTours.length ? { label: 'Popular safaris', href: '#tours', count: 0 } : null,
+        lodges.length ? { label: 'Where to stay', href: '#stays', count: allLodges.length } : null,
+        tripPoints.length ? { label: 'Getting there', href: '#getting-there', count: 0 } : null,
+        faqs.length ? { label: 'Questions', href: '#faqs', count: 0 } : null,
+        { label: 'Plan a trip here', href: '/plan-my-trip', count: 0 }
+      ].filter(Boolean) as { label: string; href: string; count: number }[]
+    : [];
+
+  // An ItemList of the tours and stays this page links to, so search engines
+  // read the destination as a hub for them.
+  $: itemListLd =
+    destination && (relatedTours.length || lodges.length)
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: `Safaris and stays in ${destination.name}`,
+          itemListElement: [
+            ...relatedTours.map((t) => ({ name: t.title, url: `${origin}/tours/${t.slug}` })),
+            ...lodges.map((l) => ({ name: l.name, url: `${origin}/accommodation/${l.slug}` }))
+          ].map((item, i) => ({ '@type': 'ListItem', position: i + 1, ...item }))
+        }
+      : null;
 
   // Track a page view once per destination.
   let trackedSlug = '';
@@ -132,6 +152,26 @@
   <!-- With a guide, its FAQPage already includes these; otherwise the page carries its own. -->
   {#if !destination.guide?.length && faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
   <DestinationHero {destination} />
+  {#if itemListLd}<JsonLd data={itemListLd} />{/if}
+
+  <!-- Plan your time here: the page's onward routes in one place, as real links. -->
+  {#if quickLinks.length}
+    <nav class="border-b border-ink/10 bg-canvas" aria-label={`Plan your time in ${destination.name}`}>
+      <div class="container-shell flex flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
+        <p class="text-[11px] font-medium uppercase tracking-[0.26em] text-clay">Plan your time in {destination.name}</p>
+        <ul class="flex flex-wrap gap-x-6 gap-y-3">
+          {#each quickLinks as link (link.href)}
+            <li>
+              <a class="group inline-flex items-center gap-1.5 border-b border-deep-green/25 pb-0.5 text-sm font-semibold text-deep-green transition hover:border-deep-green" href={link.href}>
+                {link.label}{#if link.count}<span class="font-normal text-ink/45">({link.count})</span>{/if}
+                <ArrowRight size={14} class="transition group-hover:translate-x-0.5" />
+              </a>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    </nav>
+  {/if}
 {/if}
 
 {#if destination}
@@ -140,28 +180,42 @@
     <DestinationGuide blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={faqPairs(faqs)} />
   {/if}
 
-  <!-- Tours in this destination -->
-  {#if relatedTours.length}
-    <section class="border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
+  <!-- Safaris through this destination: connected tours first, then popular ones -->
+  {#if relatedTours.length || popularTours.length}
+    <section id="tours" class="scroll-mt-28 border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
       <div class="container-shell">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <SectionHeader
-            eyebrow="Things to do"
-            title={`Tours in ${destination.name}`}
-            description={`Trusted trips that start in or pass through ${destination.name}.`}
+            eyebrow="Safaris"
+            title={relatedTours.length ? `Safaris through ${destination.name}` : 'Popular safaris'}
+            description={relatedTours.length
+              ? `Private itineraries that visit ${destination.name} or spend a night at one of its lodges.`
+              : `Our most-travelled private safaris — any of them can be shaped to include ${destination.name}.`}
           />
           <a
             class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
-            href="/tours"
+            href={relatedTours.length ? `/tours?destination=${encodeURIComponent(destination.slug)}` : '/tours'}
           >
-            Browse all tours <ArrowRight size={16} />
+            {relatedTours.length ? `All tours in ${destination.name}` : 'Browse all safaris'} <ArrowRight size={16} />
           </a>
         </div>
-        <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
-          {#each relatedTours as tour (tour.id)}
-            <TourCardRich {tour} />
-          {/each}
-        </div>
+        {#if relatedTours.length}
+          <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
+            {#each relatedTours as tour (tour.id)}
+              <TourCardRich {tour} />
+            {/each}
+          </div>
+        {/if}
+        {#if popularTours.length}
+          {#if relatedTours.length}
+            <p class="mt-14 text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Popular safaris</p>
+          {/if}
+          <div class={`grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${relatedTours.length ? 'mt-6' : 'mt-9'}`} use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
+            {#each popularTours as tour (tour.id)}
+              <TourCardRich {tour} />
+            {/each}
+          </div>
+        {/if}
       </div>
     </section>
   {/if}
@@ -186,7 +240,7 @@
 
   <!-- Where to stay (recommended lodges & camps) -->
   {#if lodges.length}
-    <section class="border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
+    <section id="stays" class="scroll-mt-28 border-t border-ink/[0.06] bg-canvas py-14 md:py-20">
       <div class="container-shell">
         <SectionHeader
           eyebrow="Where to stay"
@@ -198,6 +252,9 @@
             <LodgeCard {lodge} />
           {/each}
         </div>
+        <a class="mt-10 inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href={`/accommodation?destination=${encodeURIComponent(destination.name)}`}>
+          {allLodges.length > lodges.length ? `See all stays in ${destination.name}` : `Compare stays in ${destination.name}`} <ArrowRight size={14} />
+        </a>
       </div>
     </section>
   {/if}
@@ -258,7 +315,7 @@
 
   <!-- Getting there (start & end points) -->
   {#if tripPoints.length}
-    <section class="border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
+    <section id="getting-there" class="border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
       <div class="container-shell">
         <SectionHeader
           eyebrow="Getting there"
@@ -294,7 +351,7 @@
 
   <!-- FAQs attached to this destination (dynamic, imported per-destination) -->
   {#if faqs.length}
-    <section class="border-t border-ink/[0.06] py-14 md:py-20">
+    <section id="faqs" class="border-t border-ink/[0.06] py-14 md:py-20">
       <div class="container-shell">
         <SectionHeader
           eyebrow="Good to know"
@@ -317,7 +374,7 @@
 
   <!-- More destinations to explore -->
   {#if otherDestinations.length}
-    <section class="py-14 md:py-20">
+    <section id="more-destinations" class="py-14 md:py-20">
       <div class="container-shell">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <SectionHeader
@@ -368,30 +425,13 @@
   {/if}
 
   <!-- Plan-your-trip CTA so the page never dead-ends into the footer -->
-  <section class="container-shell py-14 md:py-16">
-    <div class="relative overflow-hidden rounded-none bg-gradient-to-br from-deep-green via-forest to-deep-green px-6 py-12 text-center text-white md:px-12 md:py-16">
-      <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
-      <div class="pointer-events-none absolute -bottom-20 -left-12 h-56 w-56 rounded-full bg-savanna/15 blur-3xl"></div>
-      <div class="relative mx-auto max-w-2xl">
-        <h2 class="text-2xl font-serif font-light md:text-3xl">Ready to explore {destination.name}?</h2>
-        <p class="mt-3 text-white/75">
-          Tell us what you have in mind and a local expert will craft a tailored plan — no payment needed to start.
-        </p>
-        <div class="mt-7 flex flex-wrap justify-center gap-3">
-          <a
-            class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-lg transition hover:brightness-105"
-            href="/plan-my-trip"
-          >
-            Plan My Safari <ArrowRight size={18} />
-          </a>
-          <a
-            class="inline-flex h-12 items-center rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10"
-            href="/contact"
-          >
-            Talk to an Advisor
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <FinalCtaSection
+    eyebrow="Start planning"
+    title={`Ready to explore ${destination.name}?`}
+    subtitle="Tell us what you have in mind and a local expert will craft a tailored plan — no payment needed to start."
+    primaryLabel="Plan My Safari"
+    primaryHref="/plan-my-trip"
+    secondaryLabel="Talk to an Advisor"
+    secondaryHref="/contact"
+  />
 {/if}

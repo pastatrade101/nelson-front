@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import type { Destination, FAQ } from '$lib/types';
+import type { Destination, FAQ, Lodge, Tour } from '$lib/types';
 
 // SSR-load the destination so the page arrives with content already rendered,
 // instead of shipping a blank shell that then fetches the ~70KB guide over a
@@ -14,18 +14,36 @@ export const load: PageLoad = async ({ params, fetch }) => {
         const destination = body.data as Destination;
         // In the first response so crawlers get every question AND answer; they
         // used to arrive in the browser after the page, invisible to AI crawlers.
-        let faqs: FAQ[] = [];
-        try {
-          const f = await fetch(`/api/faqs?destination_id=${destination.id}&status=published&limit=60`);
-          if (f.ok) faqs = ((await f.json())?.data?.items ?? []) as FAQ[];
-        } catch {
-          faqs = [];
-        }
-        return { destination, faqs };
+        // The stays here, in the first response too: published only, the same
+        // records the accommodation index shows. One more than the page lays out,
+        // so it knows whether to offer "see all".
+        const list = async <T>(url: string): Promise<T[]> => {
+          try {
+            const r = await fetch(url);
+            return r.ok ? (((await r.json())?.data?.items ?? []) as T[]) : [];
+          } catch {
+            return [];
+          }
+        };
+        // Onward links in the first response too, so travellers and crawlers both
+        // see them: tours connected to this destination (its own, or with a night
+        // at one of its lodges), the stays here, and other destinations. Featured
+        // safaris top the tour list up when few are connected yet.
+        const [faqs, lodges, tours, featured, others] = await Promise.all([
+          list<FAQ>(`/api/faqs?destination_id=${destination.id}&status=published&limit=60`),
+          list<Lodge>(`/api/lodges?destination_id=${destination.id}&status=published&limit=13`),
+          list<Tour & { match?: string }>(`/api/destinations/${destination.id}/tours?limit=9`),
+          list<Tour>(`/api/tours?status=published&is_featured=true&limit=9`),
+          list<Destination>(`/api/destinations?status=published&limit=12`)
+        ]);
+        const tourIds = new Set(tours.map((t) => t.id));
+        const popularTours = tours.length >= 3 ? [] : featured.filter((t) => !tourIds.has(t.id)).slice(0, 6 - Math.min(tours.length, 3));
+        const otherDestinations = others.filter((d) => d.id !== destination.id && d.slug !== destination.slug).slice(0, 6);
+        return { destination, faqs, lodges, tours, popularTours, otherDestinations };
       }
     }
   } catch {
     // Fall through — the page component falls back to a bundled placeholder.
   }
-  return { destination: null, faqs: [] as FAQ[] };
+  return { destination: null, faqs: [] as FAQ[], lodges: [] as Lodge[], tours: [] as Tour[], popularTours: [] as Tour[], otherDestinations: [] as Destination[] };
 };

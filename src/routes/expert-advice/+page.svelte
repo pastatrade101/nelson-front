@@ -1,15 +1,14 @@
 <script lang="ts">
+  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import { onMount } from 'svelte';
-  import { ArrowRight, GitCompare, MessageSquare, Sparkles } from '@lucide/svelte';
+  import { ArrowRight, GitCompare } from '@lucide/svelte';
   import { api } from '$lib/api/client';
-  import { openAiAdvisor } from '$lib/aiAdvisor';
   import { fadeUpOnScroll, revealHeading, staggeredCardReveal } from '$lib/animations';
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
-  import { aiAdvisorEnabled, publicSettings } from '$lib/settings';
   import type { BlogPost, FAQ } from '$lib/types';
   import type { PageData } from './$types';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
@@ -17,23 +16,11 @@
 
   export let data: PageData;
 
-  $: aiOn = aiAdvisorEnabled($publicSettings);
-
   let posts: BlogPost[] = [];
   // From the SSR load (+page.ts), so the answers are in the server HTML.
   $: faqs = (data.faqs ?? []) as FAQ[];
   let loading = true;
   let postsFailed = false;
-
-  // The questions confident travellers ask — tapping one asks our AI advisor.
-  const topics = [
-    'How much does a safari cost?',
-    'When is the best time to visit?',
-    'Is Tanzania safe?',
-    'What should I pack for a safari?',
-    'Kilimanjaro routes compared',
-    'How does a fly-in safari from Zanzibar work?'
-  ];
 
   onMount(async () => {
     const [postRes] = await Promise.allSettled([api.blog.list({ status: 'published', limit: 24 })]);
@@ -67,39 +54,12 @@
       Real answers from local experts — costs, timing, safety, and what each trip is actually like, from the team who plans these trips every day.
     </p>
     <div class="mt-7 flex flex-wrap justify-center gap-3">
-      {#if aiOn}
-        <button type="button" on:click={() => openAiAdvisor()} class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading shadow-lg transition hover:brightness-105">
-          <Sparkles size={18} strokeWidth={2.4} /> Ask our AI advisor
-        </button>
-      {/if}
-      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10">
+      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-7 text-sm font-semibold text-deep-green transition hover:brightness-95">
         Plan My Safari <ArrowRight size={18} />
       </a>
     </div>
   </div>
 </section>
-
-<!-- Popular questions → AI advisor (only when the AI advisor is enabled) -->
-{#if aiOn}
-  <section class="container-shell py-12 md:py-16" use:fadeUpOnScroll={{ y: 16 }}>
-    <p class="font-serif text-xl italic text-clay">Ask away</p>
-    <h2 class="mt-2 text-3xl font-serif font-light text-heading md:text-[34px]" use:revealHeading>Popular questions, answered instantly</h2>
-    <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">Tap a question and our AI safari advisor will answer it for you — grounded in real Emnel trips, with honest limitations.</p>
-
-    <div class="mt-6 flex flex-wrap gap-2.5">
-      {#each topics as topic}
-        <button
-          type="button"
-          on:click={() => openAiAdvisor(topic)}
-          class="group inline-flex items-center gap-2 rounded-full border border-ink/10 bg-surface px-4 py-2 text-sm font-semibold text-ink/70 shadow-sm transition hover:border-forest/40 hover:text-forest"
-        >
-          <MessageSquare size={14} class="text-forest/60 transition group-hover:text-forest" />
-          {topic}
-        </button>
-      {/each}
-    </div>
-  </section>
-{/if}
 
 <!-- Latest guides -->
 <section class="bg-sand/30 py-12 md:py-16">
@@ -147,33 +107,16 @@
       <p class="font-serif text-xl italic text-clay">Good to know</p>
       <h2 class="mt-2 text-3xl font-serif font-light text-heading md:text-4xl" use:revealHeading>Frequently asked</h2>
       <p class="mt-3 text-[15px] leading-7 text-ink/70">The questions Tanzania safari travellers ask us most. Need something specific? A local specialist can help.</p>
-      {#if aiOn}
-        <button type="button" on:click={() => openAiAdvisor()} class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-forest transition hover:text-heading">
-          <Sparkles size={15} /> Ask the AI advisor
-        </button>
-      {/if}
     </div>
     <FAQAccordion {faqs} />
   </section>
 {/if}
 
 <!-- Closing CTA -->
-<section class="container-shell pb-14 md:pb-20">
-  <div class="relative overflow-hidden rounded-none bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
-    <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
-    <div class="relative mx-auto max-w-2xl">
-      <h2 class="text-2xl font-serif font-light md:text-3xl">Still have questions?</h2>
-      <p class="mx-auto mt-3 text-white/75">Tell us what you're planning and a local expert will follow up — honest advice, no pressure.</p>
-      <div class="mt-7 flex flex-wrap justify-center gap-3">
-        {#if aiOn}
-          <button type="button" on:click={() => openAiAdvisor()} class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-heading transition hover:brightness-105">
-            <Sparkles size={18} strokeWidth={2.4} /> Ask our AI advisor
-          </button>
-        {/if}
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-7 font-semibold text-white transition hover:bg-surface/10" href="/plan-my-trip">
-          Plan My Safari <ArrowRight size={18} />
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
+<FinalCtaSection
+  eyebrow="Expert advice"
+  title="Still have questions?"
+  subtitle="Tell us what you're planning and a local expert will follow up — honest advice, no pressure."
+  primaryLabel="Plan My Safari"
+  primaryHref="/plan-my-trip"
+/>

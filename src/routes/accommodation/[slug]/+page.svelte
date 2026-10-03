@@ -1,130 +1,240 @@
 <script lang="ts">
-  import { ArrowRight, Award, Building2, ChevronRight, ExternalLink, MapPin, Sparkles, Star, Wallet } from '@lucide/svelte';
+  import { onMount } from 'svelte';
+  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
+  import { ArrowRight, Check, ChevronRight, ExternalLink, MapPin, Minus, Sparkles } from '@lucide/svelte';
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations/motion';
   import { imgUrl, origUrl, thumbUrl } from '$lib/img';
   import {
-    accessibilityLabel, electricityLabel, levelLabel, lodgeBestForLabel, lodgeImage,
-    lodgePriceLabel, lodgeRating, roadAccessLabel, settingLabels, typeLabel, wifiLabel
+    accessibilityLabel, electricityLabel, humaniseValue, levelLabel, lodgePlaceLine, lodgePriceLabel,
+    roadAccessLabel, settingDisplayLabels, typeLabel, wifiLabel
   } from '$lib/lodge';
-  import InclusionsGrid from '$lib/components/public/InclusionsGrid.svelte';
   import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import LodgeGallery from '$lib/components/public/LodgeGallery.svelte';
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import type { LodgeImage } from '$lib/types';
   import type { PageData } from './$types';
 
   export let data: PageData;
 
+  type Row = { label: string; value: string };
+  const rows = (list: Array<Row | null | false>) => list.filter(Boolean) as Row[];
+  const sortByOrder = <T extends { sort_order?: number | null }>(list: T[]) =>
+    [...list].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
   $: l = data.lodge;
-  $: heroImg = lodgeImage(l);
-  $: secondImg = l.image_url && l.image_url !== l.hero_image_url ? l.image_url : '';
-  $: rating = lodgeRating(l);
-  $: priceLabel = lodgePriceLabel(l);
-  $: bestForLabel = lodgeBestForLabel(l);
-  // The property's own photographs. Falls back to the hero and card images so a
-  // lodge with no gallery yet still has something to show rather than an empty
-  // section — the same rule the itinerary day uses.
-  $: gallery = (() => {
-    const rows = (l.lodge_images ?? []).filter((i) => (i.image_url ?? '').trim());
-    if (rows.length) return rows;
+
+  // ── Photographs ─────────────────────────────────────────────────────────
+  // The gallery in its saved order with the cover first, never repeating a
+  // photograph. The hero is the hero image, else the gallery cover, else the
+  // card image; the gallery section then shows everything except the hero, so
+  // a one-photo property does not show the same picture twice.
+  $: galleryRows = (() => {
     const seen = new Set<string>();
-    return [l.hero_image_url, l.image_url]
-      .map((url) => (url ?? '').trim())
-      .filter((url) => url && !seen.has(url) && seen.add(url))
-      .map((url, n) => ({ image_url: url, is_cover: n === 0 }));
+    return [...(l.lodge_images ?? [])]
+      .filter((i) => (i.image_url ?? '').trim())
+      .sort((a, b) => Number(b.is_cover ?? false) - Number(a.is_cover ?? false) || (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .filter((i) => {
+        const url = (i.image_url ?? '').trim();
+        return !seen.has(url) && Boolean(seen.add(url));
+      });
   })();
-  // ── the ported property model ───────────────────────────────────────────
-  // Every collection is sorted here: the PostgREST embed returns child rows in
-  // no particular order, so sort_order only means anything once we apply it.
-  // Each block is gated on its own array being non-empty — this site hides a
-  // section rather than showing an empty one, and all of these fields are new
-  // and mostly unfilled.
-  $: highlights = [...(l.lodge_highlights ?? [])]
-    .filter((h) => (h.title ?? '').trim())
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  $: heroUrl = (l.hero_image_url ?? '').trim() || (galleryRows[0]?.image_url ?? '').trim() || (l.image_url ?? '').trim();
+  $: heroFromRecord = Boolean((l.hero_image_url ?? '').trim() || (!galleryRows.length && (l.image_url ?? '').trim()));
+  $: mobileHero = (l.mobile_hero_image_url ?? '').trim();
+  $: galleryImages = (() => {
+    const list: LodgeImage[] = galleryRows.filter((i) => (i.image_url ?? '').trim() !== heroUrl);
+    const card = (l.image_url ?? '').trim();
+    if (card && card !== heroUrl && !list.some((i) => i.image_url === card)) list.push({ image_url: card });
+    return list;
+  })();
 
-  $: inclusions = [...(l.lodge_inclusions ?? [])]
-    .filter((i) => (i.title ?? '').trim())
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-  $: includedTitles = inclusions.filter((i) => i.is_included !== false).map((i) => i.title);
-  $: excludedTitles = inclusions.filter((i) => i.is_included === false).map((i) => i.title);
+  // ── The property's own collections, each sorted and gated on content ────
+  $: highlights = sortByOrder(l.lodge_highlights ?? []).filter((h) => (h.title ?? '').trim());
+  $: inclusions = sortByOrder(l.lodge_inclusions ?? []).filter((i) => (i.title ?? '').trim());
+  $: included = inclusions.filter((i) => i.is_included !== false).map((i) => i.title);
+  $: excluded = inclusions.filter((i) => i.is_included === false).map((i) => i.title);
 
-  // How the property sits in a route. Booleans render only when TRUE and only
-  // as words: a yes/no grid over these is an amenity tick-list, which is the
-  // hotel-site idiom this page exists to avoid.
-  $: arrival = [l.fly_in_available === true ? 'Fly-in' : '', l.transfer_available === true ? 'Road transfer' : '']
-    .filter(Boolean)
-    .join(' \u00b7 ');
-  $: gettingThere = [
-    l.park_area ? { label: 'Area', value: l.park_area } : null,
-    settingLabels(l).length ? { label: 'Setting', value: settingLabels(l).join(' \u00b7 ') } : null,
-    l.recommended_nights ? { label: 'Suggested stay', value: `${l.recommended_nights} nights` } : null,
-    l.nearest_airport ? { label: 'Nearest airstrip', value: l.nearest_airport } : null,
-    l.transfer_time ? { label: 'Transfer time', value: l.transfer_time } : null,
-    l.distance_airstrip ? { label: 'From the airstrip', value: l.distance_airstrip } : null,
-    l.distance_park_gate ? { label: 'From the park gate', value: l.distance_park_gate } : null,
-    roadAccessLabel(l) ? { label: 'Road access', value: roadAccessLabel(l) } : null,
-    arrival ? { label: 'Getting in', value: arrival } : null
-  ].filter(Boolean) as { label: string; value: string }[];
+  $: rooms = sortByOrder(l.lodge_rooms ?? [])
+    .filter((r) => (r.name ?? '').trim())
+    .map((r) => {
+      const images = [...(r.lodge_room_images ?? [])]
+        .filter((i) => (i.image_url ?? '').trim())
+        .sort((a, b) => Number(b.is_cover ?? false) - Number(a.is_cover ?? false) || (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const sleeps =
+        r.max_guests ? plural(r.max_guests, 'guest')
+          : r.max_adults ? [plural(r.max_adults, 'adult'), r.max_children ? plural(r.max_children, 'child').replace('childs', 'children') : ''].filter(Boolean).join(' + ')
+            : '';
+      return {
+        id: r.id ?? r.name,
+        name: r.name,
+        type: r.room_type ? humaniseValue(r.room_type) : '',
+        description: (r.short_description ?? '').trim(),
+        image: images[0] ?? null,
+        facts: rows([
+          sleeps ? { label: 'Sleeps', value: sleeps } : null,
+          (r.bed_types ?? []).length ? { label: 'Beds', value: (r.bed_types ?? []).join(' · ') } : null,
+          (r.views ?? []).length ? { label: 'Views', value: (r.views ?? []).join(' · ') } : null,
+          (r.amenities ?? []).length ? { label: 'In the room', value: (r.amenities ?? []).join(' · ') } : null,
+          r.unit_count ? { label: 'Rooms like this', value: String(r.unit_count) } : null
+        ])
+      };
+    });
 
-  // 'Adults only' is the one negative this page states outright: it is what a
-  // traveller needs in order to rule the property out, not an amenity score.
+  // Rates only reach the page when the property opts in (the API strips them otherwise).
+  const shortDate = (v?: string | null) => {
+    if (!v) return '';
+    const d = new Date(`${v}T00:00:00`);
+    return Number.isNaN(d.getTime()) ? '' : new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short' }).format(d);
+  };
+  const money = (currency: string | null | undefined, n?: number | null) =>
+    n != null ? `${currency ?? 'USD'} ${Math.round(n).toLocaleString()}` : '';
+  $: rates = sortByOrder(l.lodge_seasonal_rates ?? []).map((r) => ({
+    season: (r.season_name ?? '').trim() || (r.season_type ? humaniseValue(r.season_type) : 'Season'),
+    dates: [shortDate(r.valid_from), shortDate(r.valid_until)].filter(Boolean).join(' – '),
+    prices: [
+      r.double_rate != null ? `${money(r.currency, r.double_rate)} sharing` : '',
+      r.single_rate != null ? `${money(r.currency, r.single_rate)} single` : '',
+      r.child_rate != null ? `${money(r.currency, r.child_rate)} child` : ''
+    ].filter(Boolean).join(' · ') || money(r.currency, r.rack_rate),
+    terms: [r.pricing_basis ? humaniseValue(r.pricing_basis) : '', r.meal_plan ? humaniseValue(r.meal_plan) : ''].filter(Boolean).join(' · ')
+  }));
+
+  // ── Facts, each stated once ─────────────────────────────────────────────
+  $: priceLabel = lodgePriceLabel(l);
+  $: placeLine = lodgePlaceLine(l);
+  $: settingTags = settingDisplayLabels(l);
+  $: bestFor = (l.best_for ?? []).map((v) => String(v ?? '').trim()).filter(Boolean).map((v) => (/[\sA-Z]/.test(v) ? v : humaniseValue(v)));
+  $: bestMonths = (l.best_months ?? []).map((v) => String(v ?? '').trim()).filter(Boolean);
+
+  // 'Adults only' is stated outright: it is what a traveller needs in order to rule the property out.
   $: childPolicy =
     l.children_allowed === false
       ? 'Adults only'
-      : l.children_allowed === true
-        ? (l.minimum_child_age ? `Welcome from age ${l.minimum_child_age}` : 'Welcome')
-        : '';
-  $: suits = [
-    l.family_friendly === true ? { label: 'Families', value: 'Suited to families' } : null,
-    l.honeymoon_friendly === true ? { label: 'Couples', value: 'Works well for honeymoons' } : null,
+      : l.minimum_child_age
+        ? `Children welcome from age ${l.minimum_child_age}`
+        : l.children_allowed === true || l.family_friendly === true
+          ? 'Children welcome'
+          : '';
+
+  $: heroFacts = rows([
+    priceLabel ? { label: 'From', value: `${priceLabel} / night` } : null,
+    l.recommended_nights ? { label: 'Suggested stay', value: plural(l.recommended_nights, 'night') } : null,
     childPolicy ? { label: 'Children', value: childPolicy } : null,
-    l.wheelchair_accessible === true ? { label: 'Wheelchair access', value: 'Step-free access available' } : null,
-    accessibilityLabel(l) ? { label: 'Accessibility', value: accessibilityLabel(l) } : null
-  ].filter(Boolean) as { label: string; value: string }[];
+    settingTags.length ? { label: 'Setting', value: settingTags.slice(0, 2).join(' · ') } : null
+  ]);
 
-  // 'Not available' and 'No reliable power' render on purpose. Saying so plainly
-  // is the point — no booking site tells you the wifi does not work.
-  $: practical = [
+  $: arrivalModes = [l.fly_in_available === true ? 'Fly-in' : '', l.transfer_available === true ? 'Road transfer' : '']
+    .filter(Boolean)
+    .join(' · ');
+  $: whereRows = rows([
+    l.nearest_airport ? { label: 'Nearest airport', value: l.nearest_airport } : null,
+    l.distance_airstrip ? { label: 'From the airport', value: l.distance_airstrip } : null,
+    l.transfer_time ? { label: 'Transfer time', value: l.transfer_time } : null,
+    l.distance_park_gate ? { label: 'From the park gate', value: l.distance_park_gate } : null,
+    roadAccessLabel(l) ? { label: 'Road access', value: roadAccessLabel(l) } : null,
+    arrivalModes ? { label: 'Getting in', value: arrivalModes } : null
+  ]);
+  $: mapHref =
+    (l.google_maps_url ?? '').trim() ||
+    (l.latitude != null && l.longitude != null ? `https://www.google.com/maps?q=${l.latitude},${l.longitude}` : '');
+
+  $: scoreLine = [
+    l.romantic_rating != null ? `Couples ${l.romantic_rating}/10` : '',
+    l.family_rating != null ? `Families ${l.family_rating}/10` : ''
+  ].filter(Boolean).join(' · ');
+  $: accessText =
+    accessibilityLabel(l) || (l.wheelchair_accessible === true ? 'Step-free access available' : '');
+  $: suitsRows = rows([
+    bestFor.length ? { label: 'Best for', value: bestFor.join(' · ') } : null,
+    childPolicy ? { label: 'Children', value: childPolicy } : null,
+    settingTags.length ? { label: 'Setting', value: settingTags.join(' · ') } : null,
+    bestMonths.length ? { label: 'When to go', value: bestMonths.join(' · ') } : null,
+    accessText ? { label: 'Accessibility', value: accessText } : null,
+    scoreLine ? { label: 'Our scores', value: scoreLine } : null
+  ]);
+
+  // 'Not available' and 'No reliable power' render on purpose — saying so plainly is the point.
+  $: practicalRows = rows([
     electricityLabel(l) ? { label: 'Power', value: electricityLabel(l) } : null,
-    wifiLabel(l) ? { label: 'Wifi', value: wifiLabel(l) } : null,
-    (l.mobile_networks ?? []).length ? { label: 'Mobile signal', value: (l.mobile_networks ?? []).join(' \u00b7 ') } : null
-  ].filter(Boolean) as { label: string; value: string }[];
+    wifiLabel(l) ? { label: 'Wi-Fi', value: wifiLabel(l) } : null,
+    (l.mobile_networks ?? []).length ? { label: 'Mobile signal', value: (l.mobile_networks ?? []).join(' · ') } : null
+  ]);
 
-  $: hasGoodToKnow = suits.length || practical.length || l.arrival_instructions || l.traveler_notes;
+  $: hasOverview = Boolean((l.description ?? '').trim() || (l.why_we_recommend ?? '').trim() || highlights.length);
+  $: hasWhere = Boolean(placeLine || whereRows.length || (l.arrival_instructions ?? '').trim() || mapHref || (l.website_url ?? '').trim());
+  $: hasPractical = Boolean(practicalRows.length || (l.traveler_notes ?? '').trim());
+  $: stays = data.staysHere ?? [];
+  $: nearby = data.safaris ?? [];
+  $: destinationName = l.destinations?.name ?? '';
 
   $: planHref = `/plan-my-trip?lodge=${encodeURIComponent(l.slug)}`;
   $: shortlistItem = {
-    slug: l.slug, title: l.name, image_url: heroImg,
-    destination: l.destinations?.name, price_from: l.price_per_night_from ?? undefined, currency: l.currency
+    kind: 'lodge' as const,
+    slug: l.slug, title: l.name, image_url: heroUrl,
+    destination: destinationName || undefined, price_from: l.price_per_night_from ?? undefined, currency: l.currency
   };
 
-  // Quick facts — every entry maps to a real, populated field (nulls are dropped).
-  $: facts = [
-    l.destinations?.name ? { icon: MapPin, label: 'Destination', value: l.destinations.name } : null,
-    { icon: Building2, label: 'Property type', value: typeLabel(l) },
-    { icon: Award, label: 'Comfort tier', value: levelLabel(l) },
-    priceLabel ? { icon: Wallet, label: 'From', value: `${priceLabel} / night` } : null,
-    rating != null ? { icon: Star, label: 'Emnel score', value: `${rating.toFixed(1)} / 10` } : null
-  ].filter(Boolean) as { icon: typeof MapPin; label: string; value: string }[];
+  // ── Section bar ─────────────────────────────────────────────────────────
+  $: nav = [
+    hasOverview && { id: 'overview', label: 'Overview' },
+    galleryImages.length && { id: 'photos', label: 'Photos' },
+    rooms.length && { id: 'rooms', label: 'Rooms' },
+    hasWhere && { id: 'location', label: 'Location' },
+    suitsRows.length && { id: 'suits', label: 'Who it suits' },
+    hasPractical && { id: 'good-to-know', label: 'Good to know' },
+    inclusions.length && { id: 'included', label: "What's included" },
+    rates.length && { id: 'rates', label: 'Rates' },
+    { id: 'safari-itineraries', label: 'Itineraries' }
+  ].filter(Boolean) as { id: string; label: string }[];
 
-  $: scores = [
-    l.romantic_rating != null ? { label: 'Romance & couples', value: l.romantic_rating } : null,
-    l.family_rating != null ? { label: 'Family & children', value: l.family_rating } : null
-  ].filter(Boolean) as { label: string; value: number }[];
+  let active = '';
+  let navBar: HTMLElement;
+  onMount(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const line = window.innerHeight * 0.33;
+      let current = '';
+      for (const n of nav) {
+        const el = document.getElementById(n.id);
+        if (el && el.getBoundingClientRect().top <= line) current = n.id;
+      }
+      if (current === active) return;
+      active = current;
+      const link = navBar?.querySelector<HTMLElement>(`[data-nav="${active}"]`);
+      if (link && navBar) navBar.scrollTo({ left: link.offsetLeft - navBar.clientWidth / 2 + link.clientWidth / 2, behavior: 'smooth' });
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  });
 
-  $: title = l.seo_title || l.meta_title || `${l.name} — ${l.destinations?.name ?? 'Tanzania'} | Emnel Adventures`;
-  $: metaDesc = l.meta_description || l.short_description || l.why_we_recommend || l.description || `${l.name}, a hand-picked ${typeLabel(l).toLowerCase()} in ${l.destinations?.name ?? 'Tanzania'}, chosen and booked by Emnel Adventures.`;
+  // ── SEO ─────────────────────────────────────────────────────────────────
+  $: title = l.seo_title || l.meta_title || `${l.name} — ${destinationName || 'Tanzania'} | Emnel Adventures`;
+  $: metaDesc = l.meta_description || l.short_description || l.why_we_recommend || l.description || `${l.name}, a hand-picked ${typeLabel(l).toLowerCase()} in ${destinationName || 'Tanzania'}, chosen and booked by Emnel Adventures.`;
   $: canonical = `https://emneladventures.com/accommodation/${l.slug}`;
   $: schema = {
     '@context': 'https://schema.org',
     '@type': 'LodgingBusiness',
     name: l.name,
     description: metaDesc,
-    ...(heroImg ? { image: imgUrl(heroImg, 1600) } : {}),
+    ...(heroUrl ? { image: imgUrl(heroUrl, 1600) } : {}),
     url: canonical,
-    ...(l.destinations?.name ? { address: { '@type': 'PostalAddress', addressRegion: l.destinations.name, addressCountry: 'TZ' } } : {}),
+    address: {
+      '@type': 'PostalAddress',
+      ...(l.region || destinationName ? { addressRegion: l.region || destinationName } : {}),
+      addressCountry: l.country || 'TZ'
+    },
+    ...(l.latitude != null && l.longitude != null ? { geo: { '@type': 'GeoCoordinates', latitude: l.latitude, longitude: l.longitude } } : {}),
     ...(l.price_per_night_from ? { priceRange: `${l.currency ?? 'USD'} ${Math.round(l.price_per_night_from)}+ per night` } : {})
   };
 </script>
@@ -143,342 +253,396 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={metaDesc} />
-  {#if l.social_image_url || heroImg}<meta property="og:image" content={imgUrl(l.social_image_url || heroImg, 1600)} />{/if}
+  {#if l.social_image_url || heroUrl}<meta property="og:image" content={imgUrl(l.social_image_url || heroUrl, 1600)} />{/if}
   {@html `<script type="application/ld+json">${JSON.stringify(schema)}<\/script>`}
 </svelte:head>
 
-<!-- ── hero: full-bleed, editorial, one clear action ───────────────────────── -->
-<section class="relative flex min-h-[68svh] items-end overflow-hidden bg-deep-green text-white md:min-h-[76vh]">
-  {#if heroImg}
-    <ResponsiveImage
-      src={origUrl(l, 'hero_image_url', 'image_url')}
-      fallbackSrc={thumbUrl(l, 'hero_image_url', 'image_url')}
-      alt=""
-      width={1920}
-      sizes="100vw"
-      eager
-      priority
-      imgClass="absolute inset-0 h-full w-full object-cover"
-    />
-    <span class="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/50 to-ink/25" aria-hidden="true"></span>
-  {:else}
-    <span class="absolute inset-0 bg-gradient-to-br from-deep-green via-forest to-deep-green" aria-hidden="true"></span>
-  {/if}
-  <span class="pointer-events-none absolute inset-0 shadow-[inset_0_0_180px_60px_rgba(0,0,0,0.5)]" aria-hidden="true"></span>
+{#snippet heading(eyebrow: string, title: string, dark = false)}
+  <p class={`text-[11px] font-medium uppercase tracking-[0.26em] ${dark ? 'text-goldfinch-gold' : 'text-clay'}`}>{eyebrow}</p>
+  <h2 class={`mt-4 font-serif text-[32px] font-light leading-[1.08] md:text-[44px] ${dark ? 'text-white' : 'text-heading'}`}>{title}</h2>
+{/snippet}
 
-  <div class="container-shell relative z-10 pb-14 pt-28 md:pb-20">
-    <nav class="mb-8 hidden flex-wrap items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-white/55 sm:flex md:mb-12" aria-label="Breadcrumb">
+{#snippet factList(list: Row[])}
+  <dl class="divide-y divide-ink/10 border-y border-ink/10">
+    {#each list as row (row.label)}
+      <div class="grid gap-1 py-4 sm:grid-cols-[180px_1fr] sm:gap-8">
+        <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/45 sm:pt-1">{row.label}</dt>
+        <dd class="text-[15px] leading-7 text-ink/80">{row.value}</dd>
+      </div>
+    {/each}
+  </dl>
+{/snippet}
+
+<!-- ── hero ─────────────────────────────────────────────────────────────────
+     Full height with a photograph; a compact band without one, so a property
+     still waiting for photos does not open on an empty green screen. -->
+<section class={`relative isolate overflow-hidden bg-deep-green text-white ${heroUrl ? 'flex min-h-[72svh] items-end md:min-h-[82vh]' : ''}`}>
+  {#if heroUrl}
+    {#if mobileHero}
+      <div class="md:hidden">
+        <ResponsiveImage src={mobileHero} alt="" width={900} sizes="100vw" eager priority imgClass="absolute inset-0 -z-10 h-full w-full object-cover" />
+      </div>
+    {/if}
+    <div class={mobileHero ? 'hidden md:block' : ''}>
+      {#if heroFromRecord}
+        <ResponsiveImage
+          src={origUrl(l, 'hero_image_url', 'image_url')}
+          fallbackSrc={thumbUrl(l, 'hero_image_url', 'image_url')}
+          alt=""
+          width={1920}
+          sizes="100vw"
+          eager
+          priority
+          imgClass="absolute inset-0 -z-10 h-full w-full object-cover"
+        />
+      {:else}
+        <ResponsiveImage src={heroUrl} alt="" width={1920} sizes="100vw" eager priority imgClass="absolute inset-0 -z-10 h-full w-full object-cover" />
+      {/if}
+    </div>
+    <span class="absolute inset-0 -z-10 bg-gradient-to-r from-ink/85 via-ink/55 to-ink/10" aria-hidden="true"></span>
+    <span class="absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-ink/75 to-transparent" aria-hidden="true"></span>
+  {/if}
+
+  <div class={`container-shell w-full ${heroUrl ? 'pb-12 pt-28 md:pb-14' : 'pb-14 pt-28 md:pb-16 md:pt-32'}`}>
+    <nav class="mb-8 hidden flex-wrap items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-white/55 sm:flex" aria-label="Breadcrumb">
       <a href="/" class="transition hover:text-goldfinch-gold">Home</a><ChevronRight size={13} />
       <a href="/accommodation" class="transition hover:text-goldfinch-gold">Accommodation</a><ChevronRight size={13} />
       <span class="text-goldfinch-gold">{l.name}</span>
     </nav>
 
-    <div class="max-w-3xl" use:fadeUpOnScroll={{ y: 16 }}>
-      <div class="flex flex-wrap items-center gap-2">
+    <div class="max-w-3xl">
+      <p class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-medium uppercase tracking-[0.26em] text-goldfinch-gold">
+        <span>{typeLabel(l)} · {levelLabel(l)}</span>
         {#if l.is_featured}
-          <span class="inline-flex items-center gap-1 bg-goldfinch-gold px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-deep-green"><Sparkles size={11} /> Recommended</span>
+          <span class="inline-flex items-center gap-1 bg-goldfinch-gold px-2 py-0.5 text-[10px] font-bold tracking-[0.14em] text-deep-green"><Sparkles size={11} /> Recommended</span>
         {/if}
-        <span class="border border-white/25 bg-black/20 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur">{typeLabel(l)}</span>
-      </div>
-
-      <h1 class="mt-4 font-serif text-4xl font-light leading-[1.05] md:text-[62px]">{l.name}</h1>
-
-      {#if l.destinations?.name}
-        <p class="mt-3 inline-flex items-center gap-1.5 text-sm text-white/80">
-          <MapPin size={15} class="text-goldfinch-gold" />{l.destinations.name}
-          <span> · {levelLabel(l)}</span>
-        </p>
+      </p>
+      <h1 class="mt-5 font-serif text-[40px] font-light leading-[1.04] md:text-[68px]">{l.name}</h1>
+      {#if placeLine}
+        <p class="mt-4 inline-flex items-center gap-1.5 text-[15px] text-white/80"><MapPin size={15} class="shrink-0 text-goldfinch-gold" />{placeLine}</p>
+      {/if}
+      {#if (l.short_description ?? '').trim()}
+        <p class="mt-6 max-w-[58ch] text-[16px] leading-8 text-white/80 md:text-[18px]">{l.short_description}</p>
       {/if}
 
-      {#if l.why_we_recommend}
-        <p class="mt-5 max-w-2xl text-base leading-8 text-white/80 md:text-lg">{l.why_we_recommend}</p>
-      {/if}
-
-      {#if bestForLabel}
-        <div class="mt-5 border-t border-white/15 pt-4 md:mt-6 md:pt-5">
-          <p class="text-[9px] font-bold uppercase tracking-[0.16em] text-white/55">Best for</p>
-          <p class="mt-2 text-xs font-semibold text-white/85">{bestForLabel}</p>
-        </div>
-      {/if}
-
-      <div class="mt-7 flex flex-col gap-3 sm:flex-row">
-        <a
-          class="inline-flex h-12 w-full items-center justify-center gap-2 bg-goldfinch-gold px-7 text-sm font-semibold text-deep-green transition hover:brightness-95 sm:w-auto"
-          href={data.staysHere?.length || data.safaris.length ? '#safari-itineraries' : '/tours'}
-        >
+      <div class="mt-9 flex flex-wrap items-center gap-3">
+        <a class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-7 text-sm font-semibold text-deep-green transition hover:brightness-95" href="#safari-itineraries">
           See safari itineraries <ArrowRight size={16} />
         </a>
-        <a class="inline-flex h-12 w-full items-center justify-center border border-white/30 px-7 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/10 sm:w-auto" href={planHref}>
-          Build a trip around this stay
+        <a class="inline-flex h-12 items-center border border-white/30 px-7 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/10" href={planHref}>
+          Plan a trip around this stay
         </a>
+        <div class="w-full sm:w-auto"><ShortlistButton item={shortlistItem} variant="full" /></div>
       </div>
     </div>
+
+    {#if heroFacts.length}
+      <dl class="mt-12 grid gap-x-8 gap-y-5 border-t border-white/15 pt-7 sm:grid-cols-2 lg:grid-cols-4">
+        {#each heroFacts as fact (fact.label)}
+          <div>
+            <dt class="text-[11px] font-medium uppercase tracking-[0.2em] text-white/50">{fact.label}</dt>
+            <dd class="mt-1.5 text-[15px] leading-6 text-white/90">{fact.value}</dd>
+          </div>
+        {/each}
+      </dl>
+    {/if}
   </div>
 </section>
 
-<!-- ── fact strip: text on hairlines, not badges ───────────────────────────── -->
-{#if facts.length}
-  <section class="border-b border-ink/10 bg-sand/35">
-    <div class="container-shell grid grid-cols-2 gap-5 py-7 md:flex md:flex-wrap md:justify-between md:py-8">
-      {#each facts as fact}
-        <div class="flex min-w-0 items-center gap-3">
-          <span class="grid h-10 w-10 shrink-0 place-items-center bg-forest/10 text-forest"><svelte:component this={fact.icon} size={18} /></span>
-          <div class="min-w-0">
-            <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-ink/40">{fact.label}</p>
-            <p class="mt-0.5 truncate text-sm font-semibold text-heading">{fact.value}</p>
-          </div>
-        </div>
-      {/each}
+<!-- ── section bar ─────────────────────────────────────────────────────────── -->
+{#if nav.length > 2}
+  <div class="sticky top-[var(--nav-h,70px)] z-30 border-b border-ink/10 bg-canvas/90 backdrop-blur-md">
+    <div class="container-shell flex items-center gap-4">
+      <nav bind:this={navBar} class="no-scrollbar -mx-3.5 flex min-w-0 flex-1 overflow-x-auto" aria-label="On this page">
+        {#each nav as item (item.id)}
+          <a
+            data-nav={item.id}
+            href={`#${item.id}`}
+            class={`relative shrink-0 whitespace-nowrap px-3.5 py-4 text-[13px] font-medium transition ${active === item.id ? 'text-heading' : 'text-ink/50 hover:text-heading'}`}
+          >
+            {item.label}
+            <span class={`absolute inset-x-3.5 bottom-0 h-0.5 bg-goldfinch-gold transition-opacity ${active === item.id ? 'opacity-100' : 'opacity-0'}`}></span>
+          </a>
+        {/each}
+      </nav>
+      <a class="hidden h-9 shrink-0 items-center gap-1.5 whitespace-nowrap bg-deep-green px-4 text-[12px] font-semibold text-white transition hover:bg-forest lg:inline-flex" href={planHref}>
+        Plan this stay <ArrowRight size={14} />
+      </a>
     </div>
-  </section>
+  </div>
 {/if}
 
-<!-- ── body + sticky aside ─────────────────────────────────────────────────── -->
-<section class="bg-canvas py-16 md:py-24">
-  <div class="container-shell grid gap-14 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-20">
-    <div class="max-w-[68ch]">
-      {#if l.why_we_recommend}
-        <div use:fadeUpOnScroll={{ y: 14 }}>
-          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
-          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">Why we recommend it</p>
-          <p class="mt-4 font-serif text-2xl font-light leading-[1.5] text-heading md:text-[30px] md:leading-[1.45]">{l.why_we_recommend}</p>
-        </div>
-      {/if}
-
-      {#if l.description}
-        <div use:fadeUpOnScroll={{ y: 14 }}>
-          <p class="mt-12 text-base leading-8 text-ink/70">{l.description}</p>
-        </div>
-      {/if}
-
-      {#if highlights.length}
-        <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
-          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
-          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">What stands out</p>
-          <ul class="mt-5 grid gap-3.5">
+<!-- ── overview ────────────────────────────────────────────────────────────── -->
+{#if hasOverview}
+  <section id="overview" class="scroll-mt-[calc(var(--nav-h,70px)+56px)] bg-canvas py-20 md:py-28">
+    <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-16" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="lg:col-span-5">
+        {@render heading('The property', 'What it is like')}
+        {#if (l.why_we_recommend ?? '').trim()}
+          <p class="mt-10 border-l-2 border-goldfinch-gold pl-6 font-serif text-[22px] font-light italic leading-[1.45] text-heading md:text-[26px]">
+            {l.why_we_recommend}
+          </p>
+          <p class="mt-3 pl-6 text-[11px] font-medium uppercase tracking-[0.2em] text-ink/45">Why we recommend it</p>
+        {/if}
+      </div>
+      <div class="lg:col-span-7 lg:pt-2">
+        {#if (l.description ?? '').trim()}
+          <p class="max-w-[68ch] whitespace-pre-line text-[16px] leading-[1.85] text-ink/75">{l.description}</p>
+        {/if}
+        {#if highlights.length}
+          <p class={`text-[11px] font-semibold uppercase tracking-[0.2em] text-heading ${(l.description ?? '').trim() ? 'mt-10' : ''}`}>What stands out</p>
+          <ul class="mt-4 divide-y divide-ink/10 border-y border-ink/10">
             {#each highlights as h (h.id ?? h.title)}
-              <li class="flex gap-3 text-base leading-8 text-ink/70">
-                <span class="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-goldfinch-gold" aria-hidden="true"></span>
-                <span class="text-heading">{h.title}</span>
-              </li>
+              <li class="flex gap-3 py-3.5 text-[15px] leading-7 text-ink/80"><Check class="mt-1.5 h-4 w-4 shrink-0 text-clay" strokeWidth={2.4} />{h.title}</li>
             {/each}
           </ul>
-        </div>
-      {/if}
-
-      {#if gallery.length}
-        <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
-          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
-          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">The property</p>
-          <div class="mt-5">
-            <LodgeGallery images={gallery} propertyName={l.name} />
-          </div>
-        </div>
-      {/if}
-
-      {#if scores.length}
-        <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
-          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
-          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">How it scores</p>
-          <dl class="mt-5 grid gap-px border border-ink/10 bg-ink/10 sm:grid-cols-2">
-            {#each scores as s}
-              <div class="bg-surface p-5">
-                <dt class="text-[10px] font-bold uppercase tracking-wider text-ink/45">{s.label}</dt>
-                <dd class="mt-1 font-serif text-2xl font-light text-heading">{s.value}<span class="text-base text-ink/40"> / 10</span></dd>
-              </div>
-            {/each}
-          </dl>
-        </div>
-      {/if}
-
-      {#if l.destinations?.name}
-        <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
-          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
-          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">Where it is</p>
-          <p class="mt-4 text-base leading-8 text-ink/70">
-            {l.name} sits in {l.destinations.name}. We pair it with the rest of a route so the driving works and the
-            days are paced properly — that is usually what decides whether a stay is right, not the property alone.
-          </p>
-          {#if l.destinations.slug}
-            <a class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-deep-green transition hover:underline" href={`/destinations/${l.destinations.slug}`}>
-              About {l.destinations.name} <ArrowRight size={15} />
-            </a>
-          {/if}
-        </div>
-      {/if}
-
-      {#if gettingThere.length}
-        <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
-          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
-          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">Getting there</p>
-          <p class="mt-4 text-base leading-8 text-ink/70">
-            Where you come in from and how long the transfer takes — the practical reasons this property sits
-            where it does in a route.
-          </p>
-          <dl class="mt-5 grid gap-px border border-ink/10 bg-ink/10 sm:grid-cols-2">
-            {#each gettingThere as item (item.label)}
-              <div class="bg-surface p-5">
-                <dt class="text-[10px] font-bold uppercase tracking-wider text-ink/45">{item.label}</dt>
-                <dd class="mt-1.5 text-[15px] leading-7 text-heading">{item.value}</dd>
-              </div>
-            {/each}
-          </dl>
-          {#if l.google_maps_url}
-            <!-- A link, never an iframe: an embedded map beside a price is the
-                 booking-site idiom, and a third-party tracker on a page with none. -->
-            <a class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-deep-green transition hover:underline"
-               href={l.google_maps_url} target="_blank" rel="noopener noreferrer">
-              Open in Google Maps <ExternalLink size={15} />
-            </a>
-          {/if}
-        </div>
-      {/if}
-
-      {#if includedTitles.length || excludedTitles.length}
-        <div class="mt-12" use:fadeUpOnScroll={{ y: 14 }}>
-          <span class="block h-px w-16 bg-goldfinch-gold" aria-hidden="true"></span>
-          <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-clay">What is included</p>
-          <p class="mt-4 text-base leading-8 text-ink/70">
-            Meals, drinks and game activities differ from camp to camp — this is what the property covers before
-            we add anything.
-          </p>
-          <!-- The component's default empty copy is tour copy ("your final quote"),
-               which is wrong here: a one-sided list would print it in the other card. -->
-          <InclusionsGrid
-            included={includedTitles}
-            excluded={excludedTitles}
-            includedEmpty="Ask us what this property covers."
-            excludedEmpty="Ask us what falls outside a night here."
-          />
-        </div>
-      {/if}
-    </div>
-
-    <aside class="lg:sticky lg:top-28">
-      <div class="bg-deep-green p-6 text-white shadow-[0_20px_50px_rgba(28,46,39,0.2)]">
-        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">Build your safari</p>
-        <p class="mt-2 font-serif text-2xl font-light leading-tight text-white">Stay at {l.name}</p>
-        {#if l.destinations?.name}<p class="mt-1 text-sm text-white/55">{l.destinations.name}</p>{/if}
-
-        <p class="mt-5 text-sm leading-7 text-white/70">
-          This stay works best as part of a well-paced route. Start with an itinerary and we will confirm the right
-          room, dates and transfers.
-        </p>
-
-        <a
-          class="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 bg-goldfinch-gold px-6 text-sm font-semibold text-deep-green transition hover:brightness-95"
-          href={data.staysHere?.length || data.safaris.length ? '#safari-itineraries' : '/tours'}
-        >
-          View safari itineraries <ArrowRight size={16} />
-        </a>
-        <a class="mt-3 inline-flex h-12 w-full items-center justify-center border border-white/25 px-6 text-sm font-semibold text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={planHref}>
-          Ask us to include this stay
-        </a>
-
-        <div class="mt-4"><ShortlistButton item={shortlistItem} variant="full" /></div>
-
-        {#if l.website_url}
-          <a class="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-white/60 transition hover:text-goldfinch-gold" href={l.website_url} target="_blank" rel="noopener noreferrer">
-            <ExternalLink size={13} /> Official property website
-          </a>
         {/if}
       </div>
-    </aside>
-  </div>
-</section>
-
-<!-- ── good to know ─────────────────────────────────────────────────────────
-     One new full-width band, not six. The narrative blocks stay ahead of every
-     fact grid in reading order, so the page still opens with a judgement rather
-     than a spec sheet. bg-savanna/30 because sand, canvas and surface are all
-     the same near-white — this is the only light token that reads as a band. -->
-{#if hasGoodToKnow}
-  <section class="border-t border-ink/10 bg-savanna/30 py-16 md:py-20">
-    <div class="container-shell" use:fadeUpOnScroll={{ y: 16 }}>
-      <p class="text-[11px] uppercase tracking-[0.22em] text-clay">Good to know</p>
-      <h2 class="mt-3 font-serif text-2xl font-light leading-tight text-heading md:text-[32px]">
-        What we would tell you first
-      </h2>
-      <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">
-        The practical detail we would give you on the phone before recommending a property — including the parts
-        that are not flattering.
-      </p>
-
-      {#if suits.length}
-        <h3 class="mt-10 font-serif text-[18px] font-light leading-tight text-heading">Who it suits</h3>
-        <dl class="mt-5 grid gap-px overflow-hidden border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
-          {#each suits as item (item.label)}
-            <div class="bg-surface p-6">
-              <dt class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{item.label}</dt>
-              <dd class="mt-2 text-[15px] leading-7 text-heading">{item.value}</dd>
-            </div>
-          {/each}
-        </dl>
-      {/if}
-
-      {#if practical.length}
-        <h3 class="mt-10 font-serif text-[18px] font-light leading-tight text-heading">Practicalities</h3>
-        <dl class="mt-5 grid gap-px overflow-hidden border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
-          {#each practical as item (item.label)}
-            <div class="bg-surface p-6">
-              <dt class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{item.label}</dt>
-              <dd class="mt-2 text-[15px] leading-7 text-heading">{item.value}</dd>
-            </div>
-          {/each}
-        </dl>
-      {/if}
-
-      {#if l.arrival_instructions}
-        <p class="mt-8 max-w-[68ch] text-base leading-8 text-ink/70">{l.arrival_instructions}</p>
-      {/if}
-      {#if l.traveler_notes}
-        <p class="mt-4 max-w-[68ch] text-base leading-8 text-ink/70">{l.traveler_notes}</p>
-      {/if}
     </div>
   </section>
 {/if}
 
-<!-- ── itineraries ─────────────────────────────────────────────────────────
-     Trips that actually stay here take precedence over ones that merely cross
-     the same park; the fallback is worded honestly as the weaker claim. -->
-{#if data.staysHere?.length || data.safaris.length}
-  <section id="safari-itineraries" class="scroll-mt-28 border-t border-ink/10 bg-deep-green py-16 text-white md:py-20">
-    <div class="container-shell" use:fadeUpOnScroll={{ y: 16 }}>
-      <p class="text-[11px] uppercase tracking-[0.22em] text-goldfinch-gold">
-        {data.staysHere?.length ? 'Stays here' : 'Safaris that visit here'}
-      </p>
-      <h2 class="mt-3 max-w-2xl font-serif text-3xl font-light leading-tight md:text-[42px]">
-        {#if data.staysHere?.length}
-          Itineraries that stay at {l.name}
-        {:else}
-          Itineraries through {l.destinations?.name ?? 'this region'}
-        {/if}
-      </h2>
-      <p class="mt-3 max-w-2xl text-[15px] leading-7 text-white/70">
-        {#if data.staysHere?.length}
-          Private safaris with a night here already built in — each one can still be reshaped around your dates.
-        {:else}
-          Private safaris that explore this area — each one can be shaped to include {l.name}.
-        {/if}
-      </p>
-      <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
-        {#each (data.staysHere?.length ? data.staysHere : data.safaris) as tour (tour.id)}
-          <TourCardRich {tour} ctaLabel="View itinerary" />
+<!-- ── photographs ─────────────────────────────────────────────────────────── -->
+{#if galleryImages.length}
+  <section id="photos" class="scroll-mt-[calc(var(--nav-h,70px)+56px)] border-t border-ink/10 bg-canvas py-20 md:py-28">
+    <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="max-w-3xl">{@render heading('Photographs', `Inside ${l.name}`)}</div>
+        <p class="text-[13px] text-ink/50">{plural(galleryImages.length + (heroUrl ? 1 : 0), 'photo')}</p>
+      </div>
+      <div class="mt-12 md:mt-14">
+        <LodgeGallery images={galleryImages} propertyName={l.name} />
+      </div>
+    </div>
+  </section>
+{/if}
+
+<!-- ── rooms ───────────────────────────────────────────────────────────────── -->
+{#if rooms.length}
+  <section id="rooms" class="scroll-mt-[calc(var(--nav-h,70px)+56px)] border-t border-ink/10 bg-canvas py-20 md:py-28">
+    <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="max-w-3xl">{@render heading('Where you sleep', rooms.length === 1 ? 'The room' : 'The rooms')}</div>
+      <div class="mt-12 grid gap-16 md:mt-16 md:gap-24">
+        {#each rooms as room, n (room.id)}
+          <article class="grid items-start gap-8 lg:grid-cols-12 lg:gap-14">
+            {#if room.image}
+              <div class={`aspect-[4/3] overflow-hidden bg-ink/5 lg:col-span-6 ${n % 2 ? 'lg:order-2' : ''}`}>
+                <ResponsiveImage
+                  src={room.image.image_url ?? ''}
+                  alt={room.image.alt_text || room.image.caption || room.name}
+                  sizes="(min-width:1024px) 50vw, 100vw"
+                  width={1100}
+                  imgClass="h-full w-full object-cover"
+                />
+              </div>
+            {/if}
+            <div class={room.image ? 'lg:col-span-6' : 'lg:col-span-12'}>
+              {#if room.type}<p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-clay">{room.type}</p>{/if}
+              <h3 class="mt-2 font-serif text-[30px] font-light leading-tight text-heading md:text-[36px]">{room.name}</h3>
+              {#if room.description}<p class="mt-4 max-w-[62ch] text-[15px] leading-7 text-ink/70">{room.description}</p>{/if}
+              {#if room.facts.length}
+                <dl class="mt-8 divide-y divide-ink/10 border-y border-ink/10">
+                  {#each room.facts as fact (fact.label)}
+                    <div class="grid gap-1 py-3.5 sm:grid-cols-[130px_1fr] sm:gap-6">
+                      <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/45 sm:pt-1">{fact.label}</dt>
+                      <dd class="text-[14px] leading-6 text-ink/75">{fact.value}</dd>
+                    </div>
+                  {/each}
+                </dl>
+              {/if}
+            </div>
+          </article>
         {/each}
       </div>
     </div>
   </section>
 {/if}
 
+<!-- ── where it is & getting there ────────────────────────────────────────── -->
+{#if hasWhere}
+  <section id="location" class="scroll-mt-[calc(var(--nav-h,70px)+56px)] bg-linen/45 py-20 md:py-28">
+    <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-16" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="lg:col-span-4">
+        {@render heading('Location', 'Where it is and how you arrive')}
+        {#if placeLine}
+          <p class="mt-6 flex items-start gap-2 text-[15px] leading-7 text-ink/70"><MapPin size={16} class="mt-1 shrink-0 text-clay" />{placeLine}</p>
+        {/if}
+        <div class="mt-6 flex flex-col items-start gap-3">
+          {#if mapHref}
+            <!-- A link, never an iframe: no third-party map embed on this page. -->
+            <a class="inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href={mapHref} target="_blank" rel="noopener noreferrer">
+              Open in Google Maps <ExternalLink size={14} />
+            </a>
+          {/if}
+          {#if (l.website_url ?? '').trim()}
+            <a class="inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href={l.website_url} target="_blank" rel="noopener noreferrer">
+              Official property website <ExternalLink size={14} />
+            </a>
+          {/if}
+          {#if data.destinationLive && l.destinations?.slug}
+            <a class="inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href={`/destinations/${l.destinations.slug}`}>
+              About {destinationName} <ArrowRight size={14} />
+            </a>
+          {/if}
+        </div>
+      </div>
+      <div class="lg:col-span-8">
+        {#if whereRows.length}{@render factList(whereRows)}{/if}
+        {#if (l.arrival_instructions ?? '').trim()}
+          <div class={whereRows.length ? 'mt-8' : ''}>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Arriving</p>
+            <p class="mt-3 max-w-[68ch] whitespace-pre-line text-[15px] leading-[1.8] text-ink/70">{l.arrival_instructions}</p>
+          </div>
+        {/if}
+      </div>
+    </div>
+  </section>
+{/if}
+
+<!-- ── who it suits ────────────────────────────────────────────────────────── -->
+{#if suitsRows.length}
+  <section id="suits" class="scroll-mt-[calc(var(--nav-h,70px)+56px)] bg-canvas py-20 md:py-28">
+    <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-16" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="lg:col-span-4">{@render heading('Who it suits', 'Is it right for you?')}</div>
+      <div class="lg:col-span-8">{@render factList(suitsRows)}</div>
+    </div>
+  </section>
+{/if}
+
+<!-- ── good to know ────────────────────────────────────────────────────────── -->
+{#if hasPractical}
+  <section id="good-to-know" class={`scroll-mt-[calc(var(--nav-h,70px)+56px)] bg-canvas py-20 md:py-28 ${suitsRows.length ? 'border-t border-ink/10' : ''}`}>
+    <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-16" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="lg:col-span-4">
+        {@render heading('Good to know', 'The practical detail')}
+        <p class="mt-6 max-w-[34ch] text-[15px] leading-7 text-ink/60">What we would tell you on the phone first, including the parts that are not flattering.</p>
+      </div>
+      <div class="lg:col-span-8">
+        {#if practicalRows.length}{@render factList(practicalRows)}{/if}
+        {#if (l.traveler_notes ?? '').trim()}
+          <div class={practicalRows.length ? 'mt-8' : ''}>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Before you go</p>
+            <p class="mt-3 max-w-[68ch] whitespace-pre-line text-[15px] leading-[1.8] text-ink/70">{l.traveler_notes}</p>
+          </div>
+        {/if}
+      </div>
+    </div>
+  </section>
+{/if}
+
+<!-- ── what is included ────────────────────────────────────────────────────── -->
+{#if inclusions.length}
+  <section id="included" class="scroll-mt-[calc(var(--nav-h,70px)+56px)] border-t border-ink/10 bg-canvas py-20 md:py-28">
+    <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-16" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="lg:col-span-4">{@render heading('A night here', "What's included")}</div>
+      <div class="grid gap-10 sm:grid-cols-2 lg:col-span-8">
+        {#if included.length}
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Included</p>
+            <ul class="mt-5 divide-y divide-ink/10 border-t border-ink/10">
+              {#each included as item, k (k)}
+                <li class="flex gap-3 py-3 text-[15px] leading-6 text-ink/75"><Check class="mt-1 h-4 w-4 shrink-0 text-clay" strokeWidth={2.4} />{item}</li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
+        {#if excluded.length}
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/50">Not included</p>
+            <ul class="mt-5 divide-y divide-ink/10 border-t border-ink/10">
+              {#each excluded as item, k (k)}
+                <li class="flex gap-3 py-3 text-[15px] leading-6 text-ink/55"><Minus class="mt-1 h-4 w-4 shrink-0 text-ink/30" strokeWidth={2.4} />{item}</li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
+      </div>
+    </div>
+  </section>
+{/if}
+
+<!-- ── rates (only when the property publishes them) ──────────────────────── -->
+{#if rates.length}
+  <section id="rates" class="scroll-mt-[calc(var(--nav-h,70px)+56px)] bg-linen/45 py-20 md:py-28">
+    <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-16" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="lg:col-span-4">
+        {@render heading('Rates', 'What a night costs')}
+        <p class="mt-6 max-w-[34ch] text-[15px] leading-7 text-ink/60">Per night, before we build the rest of your trip around it.</p>
+      </div>
+      <div class="lg:col-span-8">
+        <div class="divide-y divide-ink/10 border-y border-ink/10">
+          {#each rates as rate, k (k)}
+            <div class="grid gap-2 py-5 sm:grid-cols-[200px_1fr] sm:gap-8">
+              <div>
+                <p class="font-serif text-[20px] leading-snug text-heading">{rate.season}</p>
+                {#if rate.dates}<p class="mt-1 text-[13px] text-ink/50">{rate.dates}</p>{/if}
+              </div>
+              <div>
+                {#if rate.prices}<p class="text-[15px] leading-7 text-ink/80">{rate.prices}</p>{/if}
+                {#if rate.terms}<p class="text-[13px] leading-6 text-ink/55">{rate.terms}</p>{/if}
+              </div>
+            </div>
+          {/each}
+        </div>
+      </div>
+    </div>
+  </section>
+{/if}
+
+<!-- ── itineraries ──────────────────────────────────────────────────────────
+     Always here, so "See safari itineraries" never leaves the page. Trips that
+     sleep here (an itinerary day picked this property) come first; trips whose
+     destination is this property's destination follow; otherwise an honest
+     note and a way to have one built. -->
+<section id="safari-itineraries" class="scroll-mt-[calc(var(--nav-h,70px)+56px)] bg-linen/45 py-20 md:py-28">
+  <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
+    <div class="max-w-3xl">
+      {@render heading('Itineraries', stays.length ? `Safaris that stay at ${l.name}` : nearby.length ? `Safaris through ${destinationName || 'this area'}` : `Safaris with ${l.name}`)}
+    </div>
+
+    {#if stays.length}
+      <p class="mt-5 max-w-[60ch] text-[15px] leading-7 text-ink/65">A night here is already built into these routes. Each one can still be reshaped around your dates.</p>
+      <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
+        {#each stays as tour (tour.id)}<TourCardRich {tour} ctaLabel="View itinerary" />{/each}
+      </div>
+    {/if}
+
+    {#if nearby.length}
+      {#if stays.length}
+        <p class="mt-16 text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Also through {destinationName || 'this area'}</p>
+      {:else}
+        <p class="mt-5 max-w-[60ch] text-[15px] leading-7 text-ink/65">These routes explore {destinationName || 'the same area'}. Any of them can be shaped to include a night at {l.name}.</p>
+      {/if}
+      <div class={`grid gap-6 md:grid-cols-2 lg:grid-cols-3 ${stays.length ? 'mt-6' : 'mt-10'}`} use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
+        {#each nearby as tour (tour.id)}<TourCardRich {tour} ctaLabel="View itinerary" />{/each}
+      </div>
+    {/if}
+
+    {#if !stays.length && !nearby.length}
+      <div class="mt-10 flex flex-col gap-6 border-y border-goldfinch-gold/40 py-8 md:flex-row md:items-center md:justify-between md:gap-12">
+        <div class="max-w-2xl">
+          <p class="font-serif text-[24px] font-light leading-tight text-heading md:text-[28px]">No published itinerary includes this stay yet.</p>
+          <p class="mt-2 text-[15px] leading-7 text-ink/65">We can build one around it: tell us your dates and who is travelling, and we will send a route with {l.name} in it.</p>
+        </div>
+        <a class="inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-deep-green px-7 text-sm font-semibold text-white transition hover:bg-forest" href={planHref}>
+          Plan a trip around this stay <ArrowRight size={16} />
+        </a>
+      </div>
+    {/if}
+  </div>
+</section>
+
 <!-- ── other stays ─────────────────────────────────────────────────────────── -->
 {#if data.relatedLodges.length}
-  <section class="border-t border-ink/10 bg-sand/25 py-16 md:py-20">
-    <div class="container-shell" use:fadeUpOnScroll={{ y: 16 }}>
-      <p class="text-[11px] uppercase tracking-[0.22em] text-clay">More places to stay</p>
-      <h2 class="mt-3 font-serif text-2xl font-light leading-tight text-heading md:text-[32px]">
-        Other properties in {l.destinations?.name ?? 'this area'}
-      </h2>
-      <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
+  <section class="bg-canvas py-20 md:py-24">
+    <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <div class="max-w-3xl">{@render heading('More places to stay', `Other stays in ${destinationName || 'this area'}`)}</div>
+        <a class="inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href="/accommodation">
+          All accommodation <ArrowRight size={14} />
+        </a>
+      </div>
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
         {#each data.relatedLodges as rl (rl.id)}<LodgeCard lodge={rl} />{/each}
       </div>
     </div>
@@ -486,21 +650,21 @@
 {/if}
 
 <!-- ── closing band ────────────────────────────────────────────────────────── -->
-<section class="relative overflow-hidden bg-deep-green text-white">
-  <div class="container-shell relative py-16 text-center md:py-20">
-    <p class="text-[11px] uppercase tracking-[0.22em] text-goldfinch-gold">Plan it properly</p>
-    <h2 class="mx-auto mt-5 max-w-3xl font-serif text-3xl font-light leading-[1.12] md:text-[46px]">
-      Tell us what you want, and we will tell you honestly whether {l.name} fits
-    </h2>
-    <p class="mx-auto mt-5 max-w-2xl text-[15px] leading-8 text-white/70">
-      Dates, budget, who is travelling. We will come back with a route that works — including when a different
-      property would serve you better.
-    </p>
-    <div class="mt-9 flex flex-wrap justify-center gap-4">
-      <a class="inline-flex h-12 items-center bg-goldfinch-gold px-8 text-sm font-semibold text-deep-green transition hover:brightness-95" href={planHref}>Plan My Safari</a>
-      <a class="inline-flex h-12 items-center gap-2 border border-white/25 px-8 text-sm font-semibold text-white transition hover:bg-white/10" href="/accommodation">
-        Browse all stays <ArrowRight size={16} />
-      </a>
-    </div>
-  </div>
-</section>
+<FinalCtaSection
+  eyebrow="Plan it properly"
+  title={`Tell us what you want, and we will tell you honestly whether ${l.name} fits`}
+  subtitle="Dates, budget, who is travelling. We will come back with a route that works — including when a different property would serve you better."
+  primaryLabel="Plan My Safari"
+  primaryHref={planHref}
+  secondaryLabel="Browse all stays"
+  secondaryHref="/accommodation"
+/>
+
+<style>
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+</style>

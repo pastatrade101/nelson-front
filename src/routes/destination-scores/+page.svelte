@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import { onMount } from 'svelte';
   import { ArrowRight } from '@lucide/svelte';
   import { api } from '$lib/api/client';
@@ -91,9 +92,12 @@
     {/each}
   </div>
 
-  <div class="mt-12 overflow-hidden rounded-none bg-gradient-to-br from-deep-green via-forest to-deep-green p-8 text-center text-white md:p-12">
-    <h2 class="text-2xl font-serif font-light md:text-3xl">Not sure which scores matter most for you?</h2>
-    <p class="mx-auto mt-3 max-w-xl text-white/75">Tell us how you like to travel and we'll match the right destination — honestly.</p>
-    <a class="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-7 font-bold text-heading transition hover:brightness-105" href="/plan-my-trip">Plan My Safari <ArrowRight size={18} /></a>
-  </div>
 </section>
+
+<FinalCtaSection
+  eyebrow="Find your fit"
+  title="Not sure which scores matter most for you?"
+  subtitle="Tell us how you like to travel and we'll match the right destination — honestly."
+  primaryLabel="Plan My Safari"
+  primaryHref="/plan-my-trip"
+/>
