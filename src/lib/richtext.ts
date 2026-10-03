@@ -85,6 +85,48 @@ const safeHref = (raw: string): string | null => {
   return decoded;
 };
 
+// Query parameters that only carry campaign or click tracking. Links in body
+// copy are often pasted from tagged addresses — a chatbot answer appends
+// utm_source=chatgpt.com — and on our own pages those tags would misattribute
+// every click to that source.
+const TRACKING_PARAMS = new Set(['gclid', 'fbclid', 'msclkid', 'mc_cid', 'mc_eid', 'igshid', 'ref_src', '_ga']);
+const isTrackingParam = (key: string): boolean => {
+  let name = key;
+  try {
+    name = decodeURIComponent(key.replace(/\+/g, ' '));
+  } catch {
+    // A malformed escape: judge the key as written.
+  }
+  name = name.trim().toLowerCase();
+  return name.startsWith('utm_') || TRACKING_PARAMS.has(name);
+};
+
+// Our own domain, www or not. Links to it become site-relative so they stay on
+// whichever host is serving the page (staging, a preview) and open in-app.
+const OWN_ORIGIN = /^(?:https?:)?\/\/(?:www\.)?emneladventures\.com(?::(?:80|443))?(?=[/?#]|$)/i;
+
+/** Make own-domain links site-relative and drop tracking parameters. Runs on an already-safe href. */
+const tidyHref = (href: string): string => {
+  if (/^(?:mailto|tel):/i.test(href)) return href;
+  let value = href;
+  const own = OWN_ORIGIN.exec(value);
+  // Leading slashes (and backslashes, which browsers read as slashes) collapse
+  // to one: `/\evil.com` or `//evil.com` would otherwise point off-site.
+  if (own) value = `/${value.slice(own[0].length).replace(/^[/\\]+/, '')}`;
+
+  const hashAt = value.indexOf('#');
+  const hash = hashAt === -1 ? '' : value.slice(hashAt);
+  const beforeHash = hashAt === -1 ? value : value.slice(0, hashAt);
+  const queryAt = beforeHash.indexOf('?');
+  if (queryAt === -1) return value;
+  const kept = beforeHash
+    .slice(queryAt + 1)
+    .split('&')
+    .filter((pair) => pair && !isTrackingParam(pair.split('=')[0]));
+  const tidy = `${beforeHash.slice(0, queryAt)}${kept.length ? `?${kept.join('&')}` : ''}${hash}`;
+  return tidy || value;
+};
+
 type Attr = { name: string; value: string };
 const parseAttrs = (source: string): Attr[] => {
   const attrs: Attr[] = [];
@@ -104,8 +146,9 @@ const renderOpenTag = (name: string, attrSource: string): string => {
   for (const attr of parseAttrs(attrSource)) {
     if (!allowed.has(attr.name)) continue;
     if (attr.name === 'href') {
-      const href = safeHref(attr.value);
-      if (!href) return '';
+      const safe = safeHref(attr.value);
+      if (!safe) return '';
+      const href = tidyHref(safe);
       external = /^(?:https?:)?\/\//i.test(href);
       parts.push(`href="${escapeHref(href)}"`);
       continue;

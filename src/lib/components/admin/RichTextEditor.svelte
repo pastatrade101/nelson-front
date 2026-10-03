@@ -7,6 +7,10 @@
     Table as TableIcon, Undo2, Redo2, RemoveFormatting, X, Upload, Search, Trash2, Plus
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import {
+    checkLink, cleanUrl, describeCheck, isInternal, loadLinkIndex, withPath,
+    type LinkCheck, type LinkIndex, type LinkTarget
+  } from '$lib/linkTargets';
   import { imgUrl } from '$lib/img';
 
   type MediaItem = { id: string; file_name: string; file_url: string; thumbnail_url?: string | null };
@@ -121,6 +125,7 @@
         value = internalHTML;
         dispatch('change', value);
         refresh();
+        scheduleScan();
       },
       onSelectionUpdate: refresh,
       onTransaction: refresh
@@ -129,9 +134,16 @@
     internalHTML = value || '';
     ready = true;
     refresh();
+    void loadLinkIndex().then((index) => {
+      linkIndex = index;
+      scanLinks();
+    });
   });
 
-  onDestroy(() => editor?.destroy());
+  onDestroy(() => {
+    clearTimeout(scanTimer);
+    editor?.destroy();
+  });
 
   // Push external value changes (e.g. edit-mode load that resolves after mount)
   // into the editor. Guarded by internalHTML so typing never re-triggers this.
@@ -139,6 +151,7 @@
     internalHTML = value;
     editor.commands.setContent(value || '', false);
     refresh();
+    scheduleScan();
   }
 
   // ─── command helpers ────────────────────────────────────────────────────
@@ -148,77 +161,46 @@
   const insertTable = () => chain().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
 
   // ─── link modal (with internal-page picker for SEO) ─────────────────────
-  type LinkTarget = { label: string; path: string; group: string };
+  // Every address is cleaned as it is typed or pasted (tracking tags off, our own
+  // domain made a site path) and checked against the real public pages, so a
+  // link copied from a chatbot answer or an old URL cannot slip in unnoticed.
   let showLink = false;
   let linkUrl = '';
   let linkSearch = '';
-  let internalPages: LinkTarget[] = [];
-  let internalLoading = false;
-  let internalLoaded = false;
-
-  const STATIC_PAGES: LinkTarget[] = [
-    { label: 'Plan My Trip', path: '/plan-my-trip', group: 'Key pages' },
-    { label: 'Contact', path: '/contact', group: 'Key pages' },
-    { label: 'All safaris', path: '/tours', group: 'Key pages' },
-    { label: 'All destinations', path: '/destinations', group: 'Key pages' },
-    { label: 'Journal', path: '/blog', group: 'Key pages' },
-    { label: 'About', path: '/about', group: 'Key pages' },
-    { label: 'Gallery', path: '/gallery', group: 'Key pages' }
-  ];
-
-  // Fetch every internal page that has a public URL + slug, so writers can link
-  // straight to itineraries/destinations/journal for internal-linking SEO.
-  const loadInternalPages = async () => {
-    if (internalLoaded || internalLoading) return;
-    internalLoading = true;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pick = (r: PromiseSettledResult<any>, prefix: string, group: string): LinkTarget[] =>
-      r.status === 'fulfilled'
-        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ((r.value?.data?.items ?? []) as any[])
-            .filter((it) => it && it.slug)
-            .map((it) => ({ label: String(it.title ?? it.name ?? it.slug), path: `${prefix}/${it.slug}`, group }))
-        : [];
-    try {
-      const [tours, dests, styles, comps, posts] = await Promise.allSettled([
-        api.tours.list({ status: 'published', limit: 200 }),
-        api.destinations.list({ status: 'published', limit: 200 }),
-        api.travelStyles.list({ limit: 200 }),
-        api.comparisons.list({ limit: 200 }),
-        api.blog.list({ status: 'published', limit: 200 })
-      ]);
-      internalPages = [
-        ...pick(tours, '/tours', 'Itineraries'),
-        ...pick(dests, '/destinations', 'Destinations'),
-        ...pick(styles, '/travel-styles', 'Travel styles'),
-        ...pick(comps, '/compare', 'Comparisons'),
-        ...pick(posts, '/blog', 'Journal')
-      ];
-    } finally {
-      internalPages = [...internalPages, ...STATIC_PAGES];
-      internalLoaded = true;
-      internalLoading = false;
-    }
-  };
+  let linkAnyway = false;
+  let linkIndex: LinkIndex | null = null;
+  $: internalPages = linkIndex?.targets ?? [];
+  $: internalLoading = !linkIndex;
 
   const openLink = () => {
     if (!editor) return;
     linkUrl = editor.getAttributes('link').href ?? '';
     linkSearch = '';
+    linkAnyway = false;
     showLink = true;
-    void loadInternalPages();
+    void loadLinkIndex().then((index) => (linkIndex = index));
   };
+
+  $: cleaned = cleanUrl(linkUrl);
+  $: linkCheck = checkLink(cleaned.url, linkIndex) as LinkCheck;
+  $: linkBlocked = linkCheck.kind === 'broken' && !linkAnyway;
+  $: linkTone =
+    linkCheck.kind === 'broken' ? 'text-red-700' : linkCheck.kind === 'ok' || linkCheck.kind === 'redirect' ? 'text-forest' : 'text-ink/50';
+  // A new address needs a fresh decision about linking a missing page.
+  $: if (linkUrl !== undefined) linkAnyway = false;
+
+  const linkAttrs = (url: string) =>
+    /^https?:\/\//i.test(url)
+      ? { href: url, target: '_blank', rel: 'noopener noreferrer nofollow' }
+      : { href: url, target: null, rel: null };
 
   // Apply a link: internal (starts with "/") stays clean; external opens in a
   // new tab with safe rel. When nothing is selected, inserts the text as a link.
   const applyHref = (rawUrl: string, textIfEmpty = '') => {
     if (!editor) return;
-    const url = rawUrl.trim();
+    const url = cleanUrl(rawUrl).url.trim();
     if (!url) { chain().extendMarkRange('link').unsetLink().run(); showLink = false; return; }
-    const external = /^https?:\/\//i.test(url);
-    const attrs = external
-      ? { href: url, target: '_blank', rel: 'noopener noreferrer nofollow' }
-      : { href: url, target: null, rel: null };
+    const attrs = linkAttrs(url);
     if (editor.state.selection.empty && textIfEmpty) {
       chain().insertContent({ type: 'text', text: textIfEmpty, marks: [{ type: 'link', attrs }] }).run();
     } else {
@@ -228,7 +210,11 @@
     linkSearch = '';
   };
 
-  const applyLink = () => applyHref(linkUrl, linkUrl.replace(/^https?:\/\/(www\.)?/i, ''));
+  const applyLink = () => {
+    if (linkBlocked) return;
+    applyHref(cleaned.url, cleaned.url.replace(/^https?:\/\/(www\.)?/i, ''));
+  };
+  const useSuggestion = (target: LinkTarget) => (linkUrl = withPath(cleaned.url, target.path));
   const removeLink = () => { chain().extendMarkRange('link').unsetLink().run(); showLink = false; };
 
   // Group filtered internal pages for the picker list.
@@ -238,13 +224,69 @@
       ? internalPages.filter((p) => p.label.toLowerCase().includes(q) || p.path.toLowerCase().includes(q))
       : internalPages;
     const groups: Array<{ group: string; items: LinkTarget[] }> = [];
-    for (const it of items.slice(0, 100)) {
+    for (const it of items.slice(0, 120)) {
       let g = groups.find((x) => x.group === it.group);
       if (!g) { g = { group: it.group, items: [] }; groups.push(g); }
       g.items.push(it);
     }
     return groups;
   })();
+
+  // ─── link health: links already in the text ─────────────────────────────
+  // Links typed straight into the text (autolink, paste) or saved before these
+  // checks never went through the dialog, so the whole document is checked too.
+  // Each problem gets a one-click fix that rewrites that address everywhere here.
+  type LinkIssue = { href: string; message: string; fixes: Array<{ label: string; href: string }> };
+  let linkIssues: LinkIssue[] = [];
+  let scanTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const scheduleScan = () => {
+    clearTimeout(scanTimer);
+    scanTimer = setTimeout(scanLinks, 400);
+  };
+
+  const scanLinks = () => {
+    if (!editor || !linkIndex) return;
+    const hrefs = new Set<string>();
+    editor.state.doc.descendants((node: { isText?: boolean; marks?: Array<{ type: { name: string }; attrs: { href?: string } }> }) => {
+      for (const mark of node.marks ?? []) if (mark.type.name === 'link' && mark.attrs.href) hrefs.add(mark.attrs.href);
+    });
+    const issues: LinkIssue[] = [];
+    for (const href of hrefs) {
+      const tidy = cleanUrl(href);
+      const check = checkLink(tidy.url, linkIndex);
+      if (check.kind === 'broken') {
+        issues.push({
+          href,
+          message: tidy.removedTracking.length ? `${check.reason} — and it carries tracking (${tidy.removedTracking.join(', ')})` : check.reason,
+          fixes: check.suggestions.map((t) => ({ label: `Use ${t.label}`, href: withPath(tidy.url, t.path) }))
+        });
+      } else if (tidy.changed && isInternal(tidy.url)) {
+        issues.push({ href, message: tidy.notice || 'Can be tidied', fixes: [{ label: 'Tidy it', href: tidy.url }] });
+      } else if (tidy.removedTracking.length) {
+        issues.push({ href, message: `Carries tracking (${tidy.removedTracking.join(', ')})`, fixes: [{ label: 'Remove tracking', href: tidy.url }] });
+      }
+    }
+    linkIssues = issues;
+  };
+
+  /** Rewrite every link with `from` to point at `to`, as one undoable change. */
+  const replaceHref = (from: string, to: string) => {
+    if (!editor) return;
+    const { state } = editor;
+    const linkType = state.schema.marks.link;
+    const tr = state.tr;
+    state.doc.descendants((node: { isText?: boolean; nodeSize: number; marks: Array<{ type: unknown; attrs: Record<string, unknown> }> }, pos: number) => {
+      if (!node.isText) return;
+      for (const mark of node.marks) {
+        if (mark.type === linkType && mark.attrs.href === from) {
+          tr.removeMark(pos, pos + node.nodeSize, mark as never);
+          tr.addMark(pos, pos + node.nodeSize, linkType.create({ ...mark.attrs, ...linkAttrs(to) }));
+        }
+      }
+    });
+    if (tr.docChanged) editor.view.dispatch(tr);
+  };
 
   // ─── image modal ────────────────────────────────────────────────────────
   let showImage = false;
@@ -361,6 +403,29 @@
       <p class="px-4 py-3 text-sm text-ink/40">Loading editor…</p>
     {/if}
   </div>
+  {#if linkIssues.length}
+    <div class="border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs text-amber-950">
+      <p class="font-semibold">{linkIssues.length === 1 ? '1 link needs attention' : `${linkIssues.length} links need attention`}</p>
+      <ul class="mt-1.5 grid gap-2">
+        {#each linkIssues as issue (issue.href)}
+          <li class="grid gap-1">
+            <span><span class="break-all font-mono">{issue.href}</span> — {issue.message}</span>
+            {#if issue.fixes.length}
+              <span class="flex flex-wrap gap-1.5">
+                {#each issue.fixes as fix (fix.href)}
+                  <button type="button" class="border border-amber-400 bg-white px-2 py-0.5 font-semibold text-amber-900 transition hover:bg-amber-100" on:click={() => replaceHref(issue.href, fix.href)}>
+                    {fix.label} <span class="font-mono font-normal text-amber-900/60">{fix.href}</span>
+                  </button>
+                {/each}
+              </span>
+            {:else}
+              <span class="text-amber-900/70">No close match — open the link (select it, then the link button) and pick the right page.</span>
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    </div>
+  {/if}
   <p class="text-xs text-ink/45">Rich text — headings, lists, links, images, tables. Formatting shows exactly as published.</p>
 </div>
 
@@ -386,8 +451,29 @@
             autofocus
             on:keydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); applyLink(); } }}
           />
-          <button type="button" class="shrink-0 bg-forest px-3 py-2 text-xs font-bold text-white transition hover:bg-deep-green disabled:opacity-40" disabled={!linkUrl.trim()} on:click={applyLink}>Apply</button>
+          <button type="button" class="shrink-0 bg-forest px-3 py-2 text-xs font-bold text-white transition hover:bg-deep-green disabled:opacity-40" disabled={!linkUrl.trim() || linkBlocked} on:click={applyLink}>Apply</button>
         </div>
+        {#if linkUrl.trim()}
+          <div class="mt-2 grid gap-1.5 text-[12px]">
+            {#if cleaned.changed}
+              <p class="text-ink/55">Will save as <span class="break-all font-mono text-ink/80">{cleaned.url}</span>{#if cleaned.notice} · {cleaned.notice}{/if}</p>
+            {/if}
+            <p class={`font-semibold ${linkTone}`}>{linkCheck.kind === 'ok' ? '✓ ' : linkCheck.kind === 'broken' ? '✗ ' : ''}{describeCheck(linkCheck)}</p>
+            {#if linkCheck.kind === 'broken'}
+              {#if linkCheck.suggestions.length}
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="text-ink/55">Did you mean:</span>
+                  {#each linkCheck.suggestions as sug (sug.path)}
+                    <button type="button" class="border border-forest/30 px-2 py-0.5 font-semibold text-forest transition hover:bg-forest/10" on:click={() => useSuggestion(sug)}>{sug.label}</button>
+                  {/each}
+                </div>
+              {/if}
+              <label class="inline-flex items-center gap-2 text-ink/60">
+                <input type="checkbox" class="h-3.5 w-3.5 accent-forest" bind:checked={linkAnyway} /> Link anyway (the page will be published later)
+              </label>
+            {/if}
+          </div>
+        {/if}
         <div class="mt-2 flex items-center justify-between gap-3 text-[11px]">
           <span class="text-ink/45">Site links (starting with “/”) stay follow + same-tab for SEO.</span>
           <button type="button" class="shrink-0 font-semibold text-red-600 transition hover:underline" on:click={removeLink}>Remove link</button>

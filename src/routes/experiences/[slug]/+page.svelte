@@ -10,33 +10,39 @@
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import { breadcrumbLd } from '$lib/seo';
   import type { Tour } from '$lib/types';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   $: origin = $page.url.origin;
 
-  let exp: Record<string, unknown> | null = null;
+  // The category arrives from +page.ts, so the page is server-rendered; the
+  // fetch below only fills it in when that lookup could not reach the API.
+  let exp: Record<string, unknown> | null = data.category;
   let tours: Tour[] = [];
-  let loading = true;
+  let loading = !exp;
 
-  const load = async (slug: string) => {
-    loading = true;
-    exp = null;
+  const load = async (slug: string, seeded: Record<string, unknown> | null) => {
+    loading = !seeded;
+    exp = seeded;
     tours = [];
     try {
-      const res = await api.categories.get(slug);
-      exp = res.data;
+      if (!exp) exp = (await api.categories.get(slug)).data;
       if (exp?.id) {
         const t = await api.tours.list({ category_id: String(exp.id), status: 'published', limit: 6 });
         tours = t.data.items ?? [];
       }
     } catch {
-      exp = null;
+      exp = seeded;
     } finally {
       loading = false;
     }
   };
 
+  $: expName = exp ? String(exp.name ?? exp.title ?? '').trim() : '';
+  $: expDescription = exp ? String(exp.short_description ?? exp.description ?? '').trim() : '';
   $: slug = $page.params.slug ?? '';
-  $: if (browser && slug) void load(slug);
+  $: if (browser && slug) void load(slug, data.category);
   // Enrichment (who it's for / fitness / highlights) comes only from the CMS
   // category — the block hides when the category has not been given that copy.
   $: info = (() => {
@@ -54,7 +60,9 @@
   $: image = exp ? String(exp.image_url ?? '') : '';
 </script>
 <svelte:head>
-  <title>{exp && typeof exp.title === 'string' ? `${exp.title} | Emnel Adventures` : `Safari Experiences | Emnel Adventures`}</title>
+  <!-- Categories carry `name`; `title` is kept as a fallback for older records. -->
+  <title>{expName ? `${expName} | Emnel Adventures` : `Safari Experiences | Emnel Adventures`}</title>
+  {#if expDescription}<meta name="description" content={expDescription.slice(0, 158)} />{/if}
 </svelte:head>
 
 
