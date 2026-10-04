@@ -70,11 +70,6 @@
     }`;
 </script>
 
-<svelte:head>
-  <title>Safari Gallery — Real Moments from Tanzania | Emnel Adventures</title>
-  <meta name="description" content="A gallery of real moments from Emnel Adventures safaris — Serengeti, Ngorongoro, the Great Migration and Zanzibar, captured in the field." />
-</svelte:head>
-
 <!-- header -->
 <section class="relative isolate overflow-hidden bg-deep-green text-white">
   {#if images[0]}

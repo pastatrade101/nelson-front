@@ -86,10 +86,6 @@
   $: slug = $page.params.slug ?? '';
   $: if (browser && slug) void loadCmp(slug);
 </script>
-<svelte:head>
-  <title>{cmp ? `${cmp.title} | Emnel Adventures` : `Safari Comparisons | Emnel Adventures`}</title>
-</svelte:head>
-
 
 {#if loading}
   <section class="container-shell py-20"><LoadingState message="Loading comparison..." /></section>

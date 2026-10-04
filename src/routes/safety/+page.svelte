@@ -61,14 +61,6 @@
   onMount(load);
 </script>
 
-<svelte:head>
-  <title>Health &amp; Safety Guide | Emnel Adventures</title>
-  <meta
-    name="description"
-    content="Honest health and safety guidance for safaris in Tanzania, Kenya and Zanzibar — vaccinations, wildlife, insurance and our 24/7 support."
-  />
-</svelte:head>
-
 <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Safety', path: '/safety' }])} />
 
 <!-- Hero -->

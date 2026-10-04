@@ -17,11 +17,6 @@
     'Honeymoon, family, luxury, photography, group and solo — we shape a Tanzania safari around how you travel, not only where you go.';
 </script>
 
-<svelte:head>
-  <title>{title}</title>
-  <meta name="description" content={description} />
-</svelte:head>
-
 <section class="bg-deep-green text-white">
   <div class="container-shell py-20 md:py-28">
     <nav class="text-[11px] uppercase tracking-[0.24em] text-white/55" aria-label="Breadcrumb">

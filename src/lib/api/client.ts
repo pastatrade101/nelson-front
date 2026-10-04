@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { API_URL } from '$lib/config/env';
 import type { CurrencyApiState } from '$lib/types';
-import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, GalleryItem, LodgeDetails, Lodge, LodgeImage, MarketPage, Paginated, SafariEssential, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
+import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, GalleryItem, LodgeDetails, Lodge, LodgeImage, MarketPage, PageSeo, Paginated, SafariEssential, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
 
 type QueryValue = string | number | boolean | undefined | null;
 type RequestOptions = Omit<RequestInit, 'body'> & {
@@ -568,6 +568,14 @@ export const api = {
     update: (key: string, body: Record<string, unknown>) => apiRequest(`/settings/${key}`, { method: 'PUT', body }),
     remove: (key: string) => apiRequest(`/settings/${key}`, { method: 'DELETE' }),
     public: () => apiRequest<Record<string, unknown>>('/public/settings')
+  },
+  pageSeo: {
+    resolve: (path: string) => apiRequest<{ match: boolean; seo?: PageSeo }>(`/page-seo/resolve${queryString({ path })}`),
+    list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<PageSeo>>(`/page-seo${queryString(params)}`),
+    get: (id: string) => apiRequest<PageSeo>(`/page-seo/${id}`),
+    create: (body: Record<string, unknown>) => apiRequest<PageSeo>('/page-seo', { method: 'POST', body }),
+    update: (id: string, body: Record<string, unknown>) => apiRequest<PageSeo>(`/page-seo/${id}`, { method: 'PUT', body }),
+    remove: (id: string) => apiRequest(`/page-seo/${id}`, { method: 'DELETE' })
   },
   branding: {
     get: () => apiRequest<Record<string, unknown>>('/branding'),

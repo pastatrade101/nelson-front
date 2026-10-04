@@ -85,12 +85,6 @@
   });
 </script>
 
-<svelte:head>
-  <title>{seoTitle}</title>
-  {#if seoDescription}<meta name="description" content={seoDescription} />{/if}
-  {#if style.hero_image_url}<meta property="og:image" content={style.hero_image_url} />{/if}
-</svelte:head>
-
 <JsonLd
   data={breadcrumbLd(origin, [
     { name: 'Home', path: '/' },

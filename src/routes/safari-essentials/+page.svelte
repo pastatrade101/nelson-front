@@ -35,11 +35,6 @@
     'Straight answers to the questions that decide a safari: when to go, what it costs, how the migration times out, and what to pack.';
 </script>
 
-<svelte:head>
-  <title>{title}</title>
-  <meta name="description" content={description} />
-</svelte:head>
-
 <section class="container-shell py-14">
   <SectionHeader
     eyebrow="Safari Essentials"

@@ -87,6 +87,7 @@
         { href: '/admin/branding', label: 'Branding', icon: Palette },
         { href: '/admin/settings', label: 'Settings', icon: Settings },
         { href: '/admin/settings/integrations', label: 'Integrations', icon: Plug },
+        { href: '/admin/page-seo', label: 'Page SEO', icon: Globe },
         { href: '/admin/audit-logs', label: 'Audit Logs', icon: ScrollText }
       ]
     }

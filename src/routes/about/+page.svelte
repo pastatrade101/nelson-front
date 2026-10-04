@@ -80,11 +80,6 @@
   };
 </script>
 
-<svelte:head>
-  <title>{seoTitle}</title>
-  <meta name="description" content={seoDescription} />
-</svelte:head>
-
 <!-- ── Hero (original design, now CMS-driven) ────────────────────────────── -->
 {#if on('about_hero')}
   <section class="relative overflow-hidden bg-deep-green text-white">

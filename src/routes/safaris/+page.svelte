@@ -35,11 +35,6 @@
   };
 </script>
 
-<svelte:head>
-  <title>{title}</title>
-  <meta name="description" content={description} />
-</svelte:head>
-
 <JsonLd data={itemList} />
 
 <section class="bg-deep-green text-white">

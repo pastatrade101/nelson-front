@@ -230,11 +230,6 @@
   $: schema = accommodationStructuredData(l, origin);
 </script>
 
-<svelte:head>
-  <title>{seo.title}</title>
-  <meta name="description" content={seo.description} />
-  {#if l.indexable === false}<meta name="robots" content="noindex,follow" />{/if}
-</svelte:head>
 <JsonLd data={schema} />
 <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Accommodation', path: '/accommodation' }, { name: l.name, path: '/accommodation/' + l.slug }])} />
 

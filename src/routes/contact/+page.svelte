@@ -10,14 +10,6 @@
   ];
 </script>
 
-<svelte:head>
-  <title>Contact Emnel Adventures | Plan Your Tanzania Safari</title>
-  <meta
-    name="description"
-    content="Get in touch with Emnel Adventures to start planning your private Tanzania safari. We reply within 24 hours — WhatsApp, email and enquiry form available."
-  />
-</svelte:head>
-
 <!-- Header band -->
 <section class="relative overflow-hidden bg-deep-green text-white">
   <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl"></div>

@@ -296,20 +296,6 @@
   };
 </script>
 
-<svelte:head>
-  <title>{metaTitle}</title>
-  {#if metaDescription}<meta name="description" content={metaDescription} />{/if}
-  <link rel="canonical" href={canonical} />
-  <!-- The database defaults noindex to TRUE: a market page stays out of the
-       index (while still passing link equity) until marketing opts it in. -->
-  {#if mp.noindex}<meta name="robots" content="noindex,follow" />{/if}
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content={metaTitle} />
-  {#if metaDescription}<meta property="og:description" content={metaDescription} />{/if}
-  <meta property="og:url" content={canonical} />
-  {#if ogImage}<meta property="og:image" content={ogImage} />{/if}
-</svelte:head>
-
 <JsonLd
   data={breadcrumbLd(origin, [
     { name: 'Home', path: '/' },

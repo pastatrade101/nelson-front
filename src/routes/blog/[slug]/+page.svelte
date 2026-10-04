@@ -14,6 +14,9 @@
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import { breadcrumbLd } from '$lib/seo';
   import type { BlogPost, Destination } from '$lib/types';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   $: origin = $page.url.origin;
 
@@ -22,8 +25,8 @@
   const isHtml = (content?: string | null) =>
     !!content && /<(p|h[1-6]|ul|ol|li|blockquote|pre|table|img|figure|hr|strong|em|a|br|div)\b/i.test(content);
 
-  let post: BlogPost | null = null;
-  let loading = true;
+  let post: BlogPost | null = data.post ?? null;
+  let loading = !post && !data.notFound;
 
   // Relevant content for onward navigation (loaded best-effort after the article).
   let morePosts: BlogPost[] = [];
@@ -52,7 +55,7 @@
     exploreDestinations = [];
     try {
       const response = await api.blog.get(slug);
-      post = response.data;
+      post = response.data?.status === 'published' ? response.data : null;
     } catch {
       post = null;
     } finally {
@@ -65,15 +68,22 @@
   // The component is reused across /blog/[slug] navigations, so a one-shot
   // onMount would leave the page stale. Re-load whenever the slug changes.
   $: slug = $page.params.slug ?? '';
-  $: if (browser && slug) void load(slug);
+  let loadedSlug = '';
+  $: if (browser && slug && slug !== loadedSlug) {
+    loadedSlug = slug;
+    post = data.post ?? null;
+    morePosts = [];
+    exploreDestinations = [];
+    if (post) {
+      loading = false;
+      void loadRelated(post);
+    } else if (data.notFound) {
+      loading = false;
+    } else {
+      void load(slug);
+    }
+  }
 </script>
-<!-- Unique per-article title and description. -->
-<!-- svelte:head must be top level, so the guard lives inside it. -->
-<svelte:head>
-  <title>{post ? `${post.title} | Emnel Adventures` : 'Emnel Adventures'}</title>
-</svelte:head>
-
-
 <article class="container-shell py-14">
   {#if loading}
     <LoadingState message="Loading article..." />

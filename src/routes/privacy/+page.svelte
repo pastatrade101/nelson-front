@@ -2,11 +2,6 @@
   import LegalLayout from '$lib/components/public/LegalLayout.svelte';
 </script>
 
-<svelte:head>
-  <title>Privacy Policy | Emnel Adventures</title>
-  <meta name="description" content="How Emnel Adventures collects, uses and protects your personal information when you browse our site or plan a trip with us." />
-</svelte:head>
-
 <LegalLayout
   title="Privacy Policy"
   updated="October 2026"

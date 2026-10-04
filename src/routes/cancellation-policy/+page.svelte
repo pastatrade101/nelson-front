@@ -2,11 +2,6 @@
   import LegalLayout from '$lib/components/public/LegalLayout.svelte';
 </script>
 
-<svelte:head>
-  <title>Cancellation Policy | Emnel Adventures</title>
-  <meta name="description" content="How cancellations, changes and refunds work at Emnel Adventures — from a free-to-cancel planning request to confirmed trips governed by your written quote." />
-</svelte:head>
-
 <LegalLayout
   title="Cancellation &amp; Refund Policy"
   updated="October 2026"

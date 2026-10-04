@@ -5,11 +5,6 @@
   $: notice = settingText($publicSettings, 'data_retention_notice');
 </script>
 
-<svelte:head>
-  <title>Data Retention | Emnel Adventures</title>
-  <meta name="description" content="How long Emnel Adventures keeps your information, and how to ask us to delete your data." />
-</svelte:head>
-
 <LegalLayout
   title="Data Retention"
   updated="October 2026"

@@ -188,11 +188,6 @@
   $: destName = destinationOptions.find((d) => d.slug === destSlug)?.name ?? destSlug;
 </script>
 
-<svelte:head>
-  <title>Safari Itineraries | Emnel Adventures</title>
-  <meta name="description" content="Browse and filter private Tanzania safari itineraries by destination, experience, length, price and comfort level." />
-</svelte:head>
-
 <section class="container-shell py-10 md:py-14">
   {#if personaCfg}
     <div class="overflow-hidden rounded-none border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">

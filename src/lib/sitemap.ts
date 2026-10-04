@@ -1,4 +1,5 @@
 import { COMPARISONS } from '$lib/data/comparisons';
+import { disallowsIndexing } from '$lib/seo-policy';
 
 // ---------------------------------------------------------------------------
 // Sitemap config + builders. Google's current guidance: <lastmod> is the only
@@ -17,6 +18,7 @@ export const STATIC_PAGES: string[] = [
   '/tours',
   '/destinations',
   '/experiences',
+  '/safari-styles',
   '/accommodation',
   '/plan-my-trip',
   '/departures',
@@ -96,6 +98,7 @@ export const SITEMAP_KEYS: string[] = [
 ];
 
 export type SitemapEntry = { path: string; lastmod?: string };
+export type PageSeoIndexingRule = { path?: string; canonical_url?: string | null; robots?: string | null };
 
 export const xmlEscape = (value: string): string =>
   value
@@ -156,6 +159,46 @@ export const collectDb = async (
   } catch {
     return [];
   }
+};
+
+/**
+ * Keep sitemap URLs in lockstep with the page head. A noindex override is not
+ * advertised; a same-site canonical replacement is advertised once at its
+ * target; an external canonical removes the local duplicate entirely.
+ */
+export const applyPageSeoIndexingRules = (
+  origin: string,
+  entries: SitemapEntry[],
+  rules: PageSeoIndexingRule[]
+): SitemapEntry[] => {
+  const byPath = new Map(
+    rules
+      .filter((rule): rule is PageSeoIndexingRule & { path: string } => typeof rule.path === 'string' && rule.path.startsWith('/'))
+      .map((rule) => [rule.path === '/' ? '/' : rule.path.replace(/\/+$/, ''), rule])
+  );
+
+  return entries.flatMap((entry) => {
+    const path = entry.path === '/' ? '/' : entry.path.replace(/\/+$/, '');
+    const rule = byPath.get(path);
+    if (!rule || !rule.robots || !disallowsIndexing(rule.robots)) return [{ ...entry, path }];
+    return [];
+  }).flatMap((entry) => {
+    const rule = byPath.get(entry.path);
+    const canonical = rule?.canonical_url?.trim();
+    if (!canonical) return [entry];
+    try {
+      const target = new URL(canonical);
+      // A local alternate address can move to its canonical target. A page
+      // canonicalised to another domain must not stay in this domain's sitemap.
+      if (target.origin !== origin) return [];
+      if (target.search || target.hash) return [];
+      return [{ ...entry, path: target.pathname === '/' ? '/' : target.pathname.replace(/\/+$/, '') }];
+    } catch {
+      // Invalid rows are rejected by the CMS, but an old row should never break
+      // discovery for an otherwise healthy collection.
+      return [entry];
+    }
+  });
 };
 
 /** A <urlset> — lastmod only, deduped, XML-escaped, UTF-8. */

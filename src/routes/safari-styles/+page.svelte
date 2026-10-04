@@ -119,14 +119,6 @@
   const trust = ['Private vehicles only', 'Tailor-made itineraries', 'Tanzania-born guides', 'Arusha-based since 2016', 'A specialist through your trip'];
 </script>
 
-<svelte:head>
-  <title>Safari Styles | Emnel Adventures</title>
-  <meta
-    name="description"
-    content="Every Emnel safari is private and tailor-made — but they start from a style. Family, honeymoon, the Great Migration, Big Five, luxury, photography and more. Find the way you want to travel."
-  />
-</svelte:head>
-
 <!-- ── cinematic hero ─────────────────────────────────────────────────────── -->
 <section class="relative overflow-hidden bg-deep-green text-white">
   {#if heroImage}

@@ -1,5 +1,6 @@
 import type { LayoutLoad } from './$types';
 import { defaultBranding, mergeBranding } from '$lib/branding';
+import { isPrivateOrUtilityPath, type SeoOverride } from '$lib/seo-policy';
 
 // Fetch branding on the server so the very first paint — and crawlers — get the
 // correct site name, favicon and colors. Without this, branding only applied
@@ -85,8 +86,8 @@ const ctaImages = async (fetch: typeof globalThis.fetch): Promise<string[]> => {
   }
 };
 
-export const load: LayoutLoad = async ({ fetch }) => {
-  const [brandingResult, essentialsLive, countries, marketsLive, ctaPhotos] = await Promise.all([
+export const load: LayoutLoad = async ({ fetch, url }) => {
+  const [brandingResult, essentialsLive, countries, marketsLive, ctaPhotos, seoOverride, publicSettings] = await Promise.all([
     (async () => {
       try {
         const res = await fetch('/api/branding');
@@ -100,8 +101,29 @@ export const load: LayoutLoad = async ({ fetch }) => {
     hasPublishedEssentials(fetch),
     liveCountries(fetch),
     hasMarketPages(fetch),
-    ctaImages(fetch)
+    ctaImages(fetch),
+    (async (): Promise<SeoOverride | null> => {
+      if (isPrivateOrUtilityPath(url.pathname)) return null;
+      try {
+        const response = await fetch(`/api/page-seo/resolve?path=${encodeURIComponent(url.pathname)}`);
+        if (!response.ok) return null;
+        const body = (await response.json()) as { data?: { match?: boolean; seo?: SeoOverride } };
+        return body.data?.match ? body.data.seo ?? null : null;
+      } catch {
+        return null;
+      }
+    })(),
+    (async (): Promise<Record<string, unknown>> => {
+      try {
+        const response = await fetch('/api/public/settings');
+        if (!response.ok) return {};
+        const body = (await response.json()) as { data?: Record<string, unknown> };
+        return body.data ?? {};
+      } catch {
+        return {};
+      }
+    })()
   ]);
 
-  return { branding: brandingResult, essentialsLive, countries, marketsLive, ctaImages: ctaPhotos };
+  return { branding: brandingResult, essentialsLive, countries, marketsLive, ctaImages: ctaPhotos, seoOverride, publicSettings };
 };

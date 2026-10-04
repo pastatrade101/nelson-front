@@ -42,10 +42,6 @@
   $: collection = { '@type': 'CollectionPage', name: 'Tanzania safari lodges, camps and beach stays', url: origin + '/accommodation', mainEntity: { '@type': 'ItemList', numberOfItems: lodges.filter(l => l.indexable !== false).length, itemListElement: lodges.filter(l => l.indexable !== false).map((l, i) => ({ '@type': 'ListItem', position: i + 1, name: l.name, url: origin + '/accommodation/' + l.slug })) } };
 </script>
 
-<svelte:head>
-  <title>Tanzania Safari Lodges, Camps & Beach Stays | Emnel Adventures</title>
-  <meta name="description" content="Find your Tanzania stay. Browse hand-picked safari lodges, tented camps and island retreats by destination, comfort and property type." />
-</svelte:head>
 <JsonLd data={collection} />
 
 <section class="bg-deep-green text-white">

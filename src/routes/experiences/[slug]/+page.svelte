@@ -59,12 +59,6 @@
   $: name = exp ? String(exp.name ?? slug) : slug;
   $: image = exp ? String(exp.image_url ?? '') : '';
 </script>
-<svelte:head>
-  <!-- Categories carry `name`; `title` is kept as a fallback for older records. -->
-  <title>{expName ? `${expName} | Emnel Adventures` : `Safari Experiences | Emnel Adventures`}</title>
-  {#if expDescription}<meta name="description" content={expDescription.slice(0, 158)} />{/if}
-</svelte:head>
-
 
 {#if loading}
   <section class="container-shell py-20"><LoadingState message="Loading experience..." /></section>

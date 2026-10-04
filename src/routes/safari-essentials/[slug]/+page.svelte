@@ -40,15 +40,6 @@
   };
 </script>
 
-<svelte:head>
-  <title>{seoTitle}</title>
-  {#if seoDescription}<meta name="description" content={seoDescription} />{/if}
-  {#if article.noindex}<meta name="robots" content="noindex,nofollow" />{/if}
-  {#if article.og_image_url || article.hero_image_url}
-    <meta property="og:image" content={article.og_image_url || article.hero_image_url} />
-  {/if}
-</svelte:head>
-
 <JsonLd data={articleSchema} />
 
 <article>

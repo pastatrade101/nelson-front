@@ -144,16 +144,6 @@
 </script>
 <!-- Unique per-destination title and description. -->
 <!-- svelte:head must be top level, so the guard lives inside it. -->
-<svelte:head>
-  <title>{seo?.title || 'Destination unavailable | Emnel Adventures'}</title>
-  {#if seo?.description}
-    <meta name="description" content={seo.description} />
-  {/if}
-  {#if !destination}
-    <meta name="robots" content="noindex, follow" />
-  {/if}
-</svelte:head>
-
 
 {#if !destination}
   <section class="container-shell py-20">

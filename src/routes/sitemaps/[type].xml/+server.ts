@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { SITE_URL } from '$lib/config/env';
 import {
+  applyPageSeoIndexingRules,
   COUNTRY_HUB_KEY,
   DB_COLLECTIONS,
   LOCAL_COLLECTIONS,
@@ -10,6 +11,7 @@ import {
   renderUrlset,
   type SitemapEntry
 } from '$lib/sitemap';
+import { safeSiteOrigin } from '$lib/seo-policy';
 import type { RequestHandler } from './$types';
 
 // Collections are fetched through the app's own /api proxy rather than straight
@@ -21,12 +23,41 @@ import type { RequestHandler } from './$types';
 const API_BASE = '';
 
 // Per-type sub-sitemap: /sitemaps/<type>.xml (pages, tours, destinations, …).
+const seoConfig = async (fetch: typeof globalThis.fetch) => {
+  try {
+    const response = await fetch('/api/public/settings');
+    if (!response.ok) return { canonicalBase: '', indexingEnabled: true };
+    const body = (await response.json()) as { data?: Record<string, unknown> };
+    const data = body.data ?? {};
+    return {
+      canonicalBase: typeof data.canonical_base_url === 'string' ? data.canonical_base_url : '',
+      indexingEnabled: typeof data.robots_indexing_enabled === 'boolean' ? data.robots_indexing_enabled : true
+    };
+  } catch {
+    return { canonicalBase: '', indexingEnabled: true };
+  }
+};
+
+const indexingRules = async (fetch: typeof globalThis.fetch) => {
+  try {
+    const response = await fetch('/api/page-seo/indexing-rules');
+    if (!response.ok) return [];
+    const body = (await response.json()) as { data?: Array<{ path?: string; canonical_url?: string | null; robots?: string | null }> };
+    return body.data ?? [];
+  } catch {
+    return [];
+  }
+};
+
 export const GET: RequestHandler = async ({ params, url, fetch }) => {
-  const origin = SITE_URL || url.origin;
+  const [config, rules] = await Promise.all([seoConfig(fetch), indexingRules(fetch)]);
+  const origin = safeSiteOrigin(config.canonicalBase || SITE_URL, url.origin);
   const type = params.type;
 
   let entries: SitemapEntry[];
-  if (type === 'pages') {
+  if (!config.indexingEnabled) {
+    entries = [];
+  } else if (type === 'pages') {
     entries = STATIC_PAGES.map((path) => ({ path }));
   } else if (type === COUNTRY_HUB_KEY) {
     // One hub per country we actually sell. A country with no published
@@ -52,7 +83,7 @@ export const GET: RequestHandler = async ({ params, url, fetch }) => {
     }
   }
 
-  return new Response(renderUrlset(origin, entries), {
+  return new Response(renderUrlset(origin, applyPageSeoIndexingRules(origin, entries, rules)), {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
       'Cache-Control': 'public, max-age=3600, s-maxage=3600'

@@ -2,11 +2,6 @@
   import LegalLayout from '$lib/components/public/LegalLayout.svelte';
 </script>
 
-<svelte:head>
-  <title>Terms of Service | Emnel Adventures</title>
-  <meta name="description" content="The terms that govern your use of the Emnel Adventures website, including how booking requests and pricing work." />
-</svelte:head>
-
 <LegalLayout
   title="Terms of Service"
   updated="October 2026"

@@ -34,11 +34,6 @@
   });
 </script>
 
-<svelte:head>
-  <title>Expert Advice | Emnel Adventures</title>
-  <meta name="description" content="Honest Tanzania safari advice — costs, timing, safety, Kilimanjaro routes and Zanzibar beach escapes, from local experts who plan these trips every day." />
-</svelte:head>
-
 {#if faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
 
 <!-- Hero -->

@@ -109,14 +109,6 @@
 
 </script>
 
-<svelte:head>
-  <title>Tanzania Safari Destinations & National Parks | Emnel Adventures</title>
-  <meta
-    name="description"
-    content="Explore Tanzania's safari destinations — the Serengeti, Ngorongoro, Tarangire and the northern circuit, the wild southern parks of Ruaha and Nyerere, and the islands of Zanzibar, Pemba and Mafia. Planned by Arusha-based specialists."
-  />
-</svelte:head>
-
 <!-- Schema for the FAQs this view shows (general, or the spotlighted destination's). -->
 {#if !loadFailed && destinations.length}<JsonLd data={collectionSchema} />{/if}
 {#if faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}

@@ -42,11 +42,6 @@
   };
 </script>
 
-<svelte:head>
-  <title>{seoTitle}</title>
-  <meta name="description" content={seoDescription} />
-</svelte:head>
-
 <JsonLd data={breadcrumbs} />
 
 <!-- Hero -->

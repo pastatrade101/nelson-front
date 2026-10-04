@@ -78,18 +78,6 @@
 
 </script>
 
-<svelte:head>
-  <!-- The homepage title was the bare brand name, which said nothing about what
-       we sell or where. Built from the real branding record so it stays in sync,
-       and overridable from the homepage CMS ('seo' section) without a deploy.
-       Resolves today to: "Private Tanzania Safaris, Crafted by Locals | Emnel Adventures" -->
-  <title>{cms('seo', 'title', `${$branding.tagline.replace(/[.,\s]+$/, '')} | ${$branding.company_name}`)}</title>
-  <meta
-    name="description"
-    content={`${$branding.tagline.replace(/[.\s]+$/, '')}. ${$branding.positioning}`}
-  />
-</svelte:head>
-
 
 <HeroSection
   title={cms('hero', 'title', 'Where the wild speaks, we know how to listen.')}

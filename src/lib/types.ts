@@ -538,8 +538,29 @@ export type BlogPost = {
   excerpt?: string;
   content?: string;
   featured_image_url?: string;
+  meta_title?: string;
+  meta_description?: string;
+  og_image_url?: string;
+  published_at?: string;
   status?: string;
   author_name?: string;
+};
+
+/** A CMS-managed SEO override for one canonical public route. */
+export type PageSeo = {
+  id: string;
+  path: string;
+  title?: string | null;
+  meta_description?: string | null;
+  og_title?: string | null;
+  og_description?: string | null;
+  og_image_url?: string | null;
+  canonical_url?: string | null;
+  robots?: string | null;
+  structured_data?: Record<string, unknown> | unknown[] | null;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
 /**
