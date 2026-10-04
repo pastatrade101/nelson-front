@@ -12,7 +12,7 @@
  *   "<strong>6:30 am — Morning drive.</strong> …"                  → day schedule
  *   "<strong>June–October:</strong> …"                              → season rows
  *   any other run of "<strong>Label:</strong> …"                   → fact rows
- *   panels with no images                                          → team cards
+ *   team panels, with or without portraits                         → team cards
  *   panels with "Best for: / Children: / Rooms:" lines             → stay cards
  *   other panels                                                   → place cards
  *   "From US$350 per person…" in a tier                            → large price
@@ -81,7 +81,10 @@ export type ProseView = {
 
 const toHtml = (ps: string[]) => sanitizeRichText(ps.map((p) => `<p>${p}</p>`).join(''));
 
-export const readProse = (body: string, tours: Tour[]): ProseView => {
+export const readProse = (body: string, tours: Tour[], layout: unknown = ''): ProseView => {
+  if (layout === 'text') {
+    return { kind: 'text', intro: sanitizeRichText(body), rows: [], callout: '', outro: '', link: null };
+  }
   const ps = paragraphs(body);
   let callout = '';
   // A closing paragraph that is entirely bold reads as a pull quote, not body copy.
@@ -111,7 +114,8 @@ export const readProse = (body: string, tours: Tour[]): ProseView => {
 
   const leads = ps.map((p) => LEAD.exec(p));
   const rowCount = leads.filter(Boolean).length;
-  if (rowCount < 3 || rowCount < ps.length * 0.55) {
+  const explicitLayout = ['facts', 'route', 'schedule', 'seasons'].includes(String(layout));
+  if (explicitLayout ? rowCount < 1 : rowCount < 3 || rowCount < ps.length * 0.55) {
     return { kind: 'text', intro: toHtml(ps), rows: [], callout, outro: '', link };
   }
 
@@ -126,7 +130,7 @@ export const readProse = (body: string, tours: Tour[]): ProseView => {
 
   const labels = rows.map((r) => r.label);
   const all = (re: RegExp) => labels.every((l) => re.test(l));
-  const kind: ProseKind = all(/^days?\s+\d/i)
+  const kind: ProseKind = explicitLayout ? layout as ProseKind : all(/^days?\s+\d/i)
     ? 'route'
     : all(/^\d{1,2}(?::\d{2})?\s*(?:am|pm)\b/i)
       ? 'schedule'
@@ -161,43 +165,73 @@ export const splitPlace = (text: string) => {
 export type Fact = { label: string; value: string };
 export type PlaceCard = { title: string; text: string; image: string };
 export type StayCard = { title: string; image: string; bestFor: string; body: string[]; facts: Fact[] };
-export type PersonCard = { name: string; role: string; bio: string; image: string };
+export type PersonCard = {
+  name: string;
+  role: string;
+  paragraphs: string[];
+  image: string;
+  imageAlt: string;
+  imageFit: 'contain' | 'cover';
+  imagePosition: 'top' | 'center' | 'bottom';
+};
 
 const LABELLED = /^([A-Z][A-Za-z ]{1,24}):\s+(.+)$/;
 
-type RawPanel = { title?: unknown; items?: unknown; image_url?: unknown };
+type RawPanel = {
+  title?: unknown; role?: unknown; items?: unknown; image_url?: unknown;
+  image_alt?: unknown; image_fit?: unknown; image_position?: unknown;
+};
 
 export type PanelsView =
   | { kind: 'places'; items: PlaceCard[] }
   | { kind: 'stays'; items: StayCard[] }
   | { kind: 'people'; items: PersonCard[] };
 
-export const readPanels = (raw: unknown): PanelsView | null => {
+export const readPanels = (raw: unknown, layout: unknown = 'auto', context = ''): PanelsView | null => {
   const panels = arr<RawPanel>(raw)
-    .map((p) => ({ title: cleanTitle(p.title), items: strings(p.items), image: str(p.image_url) }))
+    .filter((p) => p && typeof p === 'object')
+    .map((p) => ({ ...p, title: cleanTitle(p.title), role: str(p.role), items: strings(p.items), image: str(p.image_url) }))
     .filter((p) => p.title || p.items.length);
   if (!panels.length) return null;
 
-  if (panels.every((p) => !p.image)) {
+  const automatic = !['people', 'places', 'stays'].includes(str(layout));
+  const labelled = (p: (typeof panels)[number]) => p.items.filter((i) => LABELLED.test(i)).length;
+  const looksLikeStays = panels.some((p) => labelled(p) >= 2);
+  const roleWords = /\b(guide|founder|co-founder|operations|travel designer|specialist|manager)\b/i;
+  const looksLikePeople = /\b(team|people)\b/i.test(context) || panels.some((p) =>
+    p.role || roleWords.test(p.title.split(',').slice(1).join(' ')) ||
+    (p.items.length > 1 && p.items[0].length < 48 && roleWords.test(p.items[0]))
+  );
+
+  // A photo must never change a person's card into a destination card. The
+  // explicit CMS layout wins; older blocks keep working from their own content.
+  if (layout === 'people' || (automatic && (looksLikePeople || (!looksLikeStays && panels.every((p) => !p.image))))) {
     return {
       kind: 'people',
       items: panels.map((p) => {
         // "Minja, Head Guide" carries the role in the title; otherwise a short
         // first line ("Operations Lead & Guide") is the role.
         const [name, ...rest] = p.title.split(/,\s*/);
-        let role = rest.join(', ');
+        let role = p.role || rest.join(', ');
         let items = p.items;
-        if (!role && items.length > 1 && items[0].length < 48 && !/[.!?]$/.test(items[0])) {
-          role = items[0];
+        if (items.length > 1 && items[0].length < 48 && !/[.!?]$/.test(items[0]) && (!role || roleWords.test(items[0]))) {
+          role ||= items[0];
           items = items.slice(1);
         }
-        return { name, role: role.replace(/\s*&\s*/g, ' & '), bio: items.join(' '), image: '' };
+        return {
+          name,
+          role: role.replace(/\s*&\s*/g, ' & '),
+          paragraphs: items,
+          image: p.image,
+          imageAlt: str(p.image_alt) || [name, role].filter(Boolean).join(' — '),
+          imageFit: p.image_fit === 'cover' ? 'cover' : 'contain',
+          imagePosition: p.image_position === 'top' || p.image_position === 'bottom' ? p.image_position : 'center'
+        };
       })
     };
   }
 
-  const labelled = (p: (typeof panels)[number]) => p.items.filter((i) => LABELLED.test(i)).length;
-  if (panels.some((p) => labelled(p) >= 2)) {
+  if (layout === 'stays' || (automatic && looksLikeStays)) {
     return {
       kind: 'stays',
       items: panels.map((p) => {
@@ -254,27 +288,68 @@ export const matchDestinations = (titles: string[], destinations: Destination[])
 
 /* ── Price tiers ───────────────────────────────────────────────────────────── */
 
-export type TierCard = { title: string; label: string; price: string; unit: string; notes: string[]; image: string; lodges: Lodge[] };
+export type TierCard = {
+  title: string; label: string; price: number | null; unit: string;
+  notes: string[]; highlights: string[]; image: string; imageAlt: string; lodges: Lodge[];
+  example: { days: number | null; adults: number | null; children: number | null; total: number | null } | null;
+};
+
+const amount = (value: unknown, allowZero = false): number | null => {
+  if ((typeof value !== 'number' && typeof value !== 'string') || String(value).trim() === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) && (allowZero ? number >= 0 : number > 0) ? number : null;
+};
+
+const count = (value: unknown, allowZero = false): number | null => {
+  const number = amount(value, allowZero);
+  return number !== null && Number.isInteger(number) ? number : null;
+};
+
+// Support the existing family-safari copy without rewriting saved content.
+// Only the complete, known sentence shape is converted; other notes stay intact.
+const FAMILY_EXAMPLE = /^(\d+)[-\s]day safari:\s*for a family of (\d+):\s*(\d+) adults?,\s*(\d+) child(?:ren)?\s*[:,]?\s*(?:it\s+)?would start from (?:US)?\$\s*([\d,]+(?:\.\d{1,2})?)\.?$/i;
 
 export const readTiers = (raw: unknown, lodges: Lodge[] = []): TierCard[] =>
   arr<Raw>(raw)
+    .filter((t) => t && typeof t === 'object')
     .map((t) => {
       const lines = str(t.body).split(/\n+/).map((l) => l.trim()).filter(Boolean);
-      let price = '';
+      let legacyPrice: number | null = null;
       let unit = '';
       const notes: string[] = [];
+      let legacyExample: TierCard['example'] = null;
       for (const line of lines) {
-        const m = !price ? /^(?:from\s+)?(US\$\s?[\d,]+|\$\s?[\d,]+)\s*(.*)$/i.exec(line) : null;
+        const m = legacyPrice === null ? /^(?:from\s+)?(?:US)?\$\s*([\d,]+(?:\.\d{1,2})?)\s*(.*)$/i.exec(line) : null;
         if (m) {
-          price = m[1].replace(/\s/g, '');
+          legacyPrice = amount(m[1].replace(/,/g, ''));
           unit = m[2];
+          continue;
+        }
+        const family: RegExpExecArray | null = !legacyExample ? FAMILY_EXAMPLE.exec(line) : null;
+        if (family && Number(family[2]) === Number(family[3]) + Number(family[4])) {
+          legacyExample = { days: count(family[1]), adults: count(family[3]), children: count(family[4], true), total: amount(family[5].replace(/,/g, '')) };
         } else notes.push(line);
       }
+      const price = amount(t.price_from_usd) ?? legacyPrice;
+      const example = {
+        days: count(t.example_days) ?? legacyExample?.days ?? null,
+        adults: count(t.example_adults) ?? legacyExample?.adults ?? null,
+        children: count(t.example_children, true) ?? legacyExample?.children ?? null,
+        total: amount(t.example_total_usd) ?? legacyExample?.total ?? null
+      };
       // Picked accommodation, in the editor's order, skipping any since unpublished.
       const picked = arr<string>(t.lodge_ids)
         .map((id) => lodges.find((l) => l.id === id))
         .filter((l): l is Lodge => Boolean(l));
-      return { title: cleanTitle(t.title), label: str(t.label), price, unit, notes, image: str(t.image_url), lodges: picked };
+      return {
+        title: cleanTitle(t.title), label: str(t.label), price,
+        unit: str(t.price_unit) || unit || (price !== null ? 'per person sharing per day' : ''),
+        notes, highlights: strings(t.highlights),
+        image: str(t.image_url) || str(picked[0]?.hero_image_url) || str(picked[0]?.image_url),
+        imageAlt: str(t.image_alt) || (picked[0]?.name ? picked[0].name : `${cleanTitle(t.title)} safari accommodation`),
+        lodges: picked,
+        example: Object.values(example).some((value) => value !== null) ? example : null
+      };
     })
     .filter((t) => t.title || t.price || t.notes.length || t.lodges.length);
 
@@ -282,16 +357,16 @@ export const readTiers = (raw: unknown, lodges: Lodge[] = []): TierCard[] =>
 
 export type Section =
   | { kind: 'prose'; id: string; nav: string; eyebrow: string; title: string; prose: ProseView; lead: boolean }
-  | { kind: 'numbered'; id: string; nav: string; eyebrow: string; title: string; items: { title: string; body: string }[] }
+  | { kind: 'numbered'; id: string; nav: string; eyebrow: string; title: string; columns: number; items: { title: string; body: string }[] }
   | { kind: 'panels'; id: string; nav: string; eyebrow: string; title: string; view: PanelsView }
   | { kind: 'tiers'; id: string; nav: string; eyebrow: string; title: string; intro: string; tiers: TierCard[] }
   | { kind: 'cta'; id: string; nav: string; title: string; subtitle: string; label: string; href: string; points: string[]; final: boolean }
   | { kind: 'steps'; id: string; nav: string; eyebrow: string; title: string; steps: { title: string; body: string }[]; ctaLabel: string; ctaHref: string }
-  | { kind: 'gallery'; id: string; nav: string; eyebrow: string; title: string; images: { url: string; caption: string }[] }
+  | { kind: 'gallery'; id: string; nav: string; eyebrow: string; title: string; images: { url: string; caption: string; alt: string }[] }
   | { kind: 'inclusions'; id: string; nav: string; eyebrow: string; title: string; included: string[]; excluded: string[] }
   | { kind: 'destinations'; id: string; nav: string; eyebrow: string; title: string; intro: string; destinations: Destination[] }
   | { kind: 'tours'; id: string; nav: string; eyebrow: string; title: string; intro: string; tours: Tour[] }
-  | { kind: 'faq'; id: string; nav: string; eyebrow: string; title: string; items: { q: string; a: string }[] };
+  | { kind: 'faq'; id: string; nav: string; eyebrow: string; title: string; items: { q: string; a: string; topic: string }[] };
 
 export type StylePage = { trust: string[]; sections: Section[] };
 
@@ -304,6 +379,8 @@ const NAV: Record<string, string> = {
   tiers: 'Prices',
   seasons: 'When to go',
   route: 'Sample route',
+  schedule: 'A safari day',
+  steps: 'How it works',
   inclusions: "What's included",
   tours: 'Itineraries',
   faq: 'FAQ'
@@ -341,7 +418,7 @@ export const buildStylePage = (blocks: Raw[], tours: Tour[], lodges: Lodge[] = [
 
       case 'prose': {
         if (!toPlainText(b.body).trim()) break;
-        const prose = readProse(str(b.body), tours);
+        const prose = readProse(str(b.body), tours, b.prose_layout);
         // The opening layout suits flowing copy; a structured block (rows, a
         // route, a schedule) keeps its own layout even when it comes first.
         const lead = prose.kind === 'text' && !sections.some((s) => s.kind === 'prose');
@@ -354,12 +431,12 @@ export const buildStylePage = (blocks: Raw[], tours: Tour[], lodges: Lodge[] = [
         const items = arr<Raw>(b.items)
           .map((i) => ({ title: cleanTitle(i.title), body: str(i.body) }))
           .filter((i) => i.title || i.body);
-        if (items.length) sections.push({ kind: 'numbered', id: anchor('why'), nav: navFor('numbered'), ...head(b), items });
+        if (items.length) sections.push({ kind: 'numbered', id: anchor('why'), nav: navFor('numbered'), ...head(b), columns: [2, 3, 4].includes(Number(b.columns)) ? Number(b.columns) : 3, items });
         break;
       }
 
       case 'panels': {
-        const view = readPanels(b.panels);
+        const view = readPanels(b.panels, b.panel_layout, `${str(b.title)} ${str(b.eyebrow)}`);
         // Place panels that each name a real destination become destination
         // cards, so the photo, facts and link come from the destination itself.
         const matched = view?.kind === 'places' ? matchDestinations(view.items.map((p) => p.title), destinations) : null;
@@ -450,7 +527,7 @@ export const buildStylePage = (blocks: Raw[], tours: Tour[], lodges: Lodge[] = [
 
       case 'imagegrid': {
         const images = arr<Raw>(b.images)
-          .map((im) => ({ url: str(im.image_url), caption: str(im.caption) }))
+          .map((im) => ({ url: str(im.image_url), caption: str(im.caption), alt: str(im.image_alt) || str(im.caption) }))
           .filter((im) => im.url);
         if (images.length) sections.push({ kind: 'gallery', id: anchor('gallery'), nav: navFor('gallery'), ...head(b), images });
         break;
@@ -487,7 +564,7 @@ export const buildStylePage = (blocks: Raw[], tours: Tour[], lodges: Lodge[] = [
 
       case 'faq': {
         const items = arr<Raw>(b.items)
-          .map((i) => ({ q: str(i.question), a: str(i.answer) }))
+          .map((i) => ({ q: str(i.question), a: str(i.answer), topic: str(i.topic) }))
           .filter((i) => i.q && i.a);
         if (items.length) sections.push({ kind: 'faq', id: anchor('faq'), nav: navFor('faq'), ...head(b), items });
         break;

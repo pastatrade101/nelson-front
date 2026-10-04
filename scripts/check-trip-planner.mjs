@@ -1,0 +1,88 @@
+// Run with Node 22+: node scripts/check-trip-planner.mjs (build backend first).
+// Database, email and CRM are all mocked; this script cannot create real leads.
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { emptyDraft, applyEntry, submission, validateStep, readDraft, briefRows } from '../src/lib/tripPlanner.ts';
+import { contextRows } from '../src/lib/leadContext.ts';
+const require = createRequire(new URL('../../tour-site-bckend/package.json', import.meta.url));
+const { bookingCreateSchema } = require('./dist/schemas/bookings.schema.js');
+const { bookingFingerprint } = require('./dist/utils/booking-fingerprint.js');
+const { leadContextLines } = require('./dist/utils/lead-context.js');
+const entry = { url: '/plan-my-trip?tour=family&lodge=camp&month=2030-06', params: { tour: ['family'], lodge: ['camp'], month: ['2030-06'], topic: ['Anniversary'], campaign: ['qa'] }, tour: { id: '4aaf20b3-9a08-4f64-8847-54ecec8c419d', slug: 'family', title: 'Family Safari' }, lodge: { slug: 'camp', name: 'Camp' } };
+const d = { ...applyEntry(emptyDraft(), entry, { tours: [], destinations: [], available: true }), experiences: ['Safari', 'Safari & beach'], destinations: ['Serengeti'], party: 'Family', adults: 2, children: 2, childAges: ['0', ''], duration: '7–10 days', pace: 'Relaxed', comfort: 'Luxury', accommodation: 'Tented camp', priorities: ['Wildlife'], budget: '4500', stage: 'Ready to plan', notes: 'Our anniversary\nKeep both notes <safe>', specialRequests: 'Connecting rooms', fullName: 'QA Traveller', email: 'qa@example.invalid', country: 'Tanzania', phone: '+255700000001', preferredContact: 'WhatsApp', contactConsent: true };
+assert.equal(d.month, '2030-06');
+for (let step = 0; step < 7; step++) assert.deepEqual(validateStep(d, step), []);
+assert.match(briefRows(d).find(([k]) => k === 'When')[1], /2030/);
+const payload = submission(d, [entry], [{ kind: 'tour', slug: 'saved', title: 'Saved safari' }], 'qa-attempt-0001', 'EUR', 'http://localhost/plan-my-trip', '');
+const parsed = bookingCreateSchema.parse(payload);
+assert.deepEqual(parsed.lead_context.answers, d);
+assert.deepEqual(parsed.lead_context.children_ages, [0, null]);
+assert.equal(parsed.tour_id, entry.tour.id);
+assert.equal(parsed.lead_context.entry_points[0].lodge.name, 'Camp');
+assert.equal(parsed.special_requests, d.specialRequests);
+assert.equal(parsed.message, d.notes);
+assert.equal(parsed.selected_currency, 'EUR');
+assert.equal(bookingCreateSchema.safeParse({ ...payload, number_of_children: 1 }).success, false);
+assert.equal(bookingCreateSchema.safeParse({ ...payload, lead_context: { ...payload.lead_context, answers: { ...d, contactConsent: false } } }).success, false);
+assert.equal(validateStep({ ...d, adults: 1.5 }, 1).length, 1);
+assert.ok(validateStep({ ...d, dateMode: 'exact', startDate: '2030-02-31', endDate: '2030-02-01' }, 2).length);
+assert.equal(bookingFingerprint(payload), bookingFingerprint(JSON.parse(JSON.stringify(payload))));
+assert.notEqual(bookingFingerprint(payload), bookingFingerprint({ ...payload, message: 'Changed' }));
+const stored = { v: 2, at: Date.now(), draft: d, entries: [entry], savedTrips: [], step: 6, key: 'qa-attempt-0001', pending: payload };
+assert.deepEqual(readDraft(JSON.stringify(stored)).pending, payload);
+assert.equal(readDraft('{broken'), null);
+assert.equal(readDraft(JSON.stringify({ ...stored, pending: null, at: 0 })), null);
+assert.ok(contextRows({ zero: 0, consent: false, ages: [0, null] }).some((row) => row.value === '0'));
+assert.ok(contextRows({ consent: false }).some((row) => row.value === 'No'));
+assert.ok(!leadContextLines(parsed.lead_context).join('\n').includes('[object Object]'));
+
+const mock = (path, exports) => { const id = require.resolve(path); require.cache[id] = { id, filename: id, loaded: true, exports }; };
+const records = new Map(); let notifications = 0;
+mock('./dist/config/env.js', { env: { NODE_ENV: 'production', SPECIALIST_EMAIL: 'qa@example.invalid' } });
+mock('./dist/config/supabase.js', { supabase: { from() { let key, insert; const q = { select() { return q; }, eq(k,v) { if (k === 'idempotency_key') key = v; return q; }, is() { return q; }, maybeSingle: async () => ({ data: records.get(key) || null }), insert(v) { insert = v; return q; }, single: async () => { if (records.has(insert.idempotency_key)) return { error: { code: '23505' } }; const row = { ...insert, id: 'qa-record' }; records.set(insert.idempotency_key, row); return { data: row }; } }; return q; } } });
+mock('./dist/services/hubspot.service.js', { syncToHubSpot: async () => {} });
+const email = require('./dist/services/email.service.js'); let mail;
+email.sendEmail = async (value) => { mail = value; return true; };
+const notify = require('./dist/services/notification.service.js');
+await notify.sendBookingNotification({ ...parsed, booking_code: 'QA-0001' });
+assert.ok(mail.html.includes('Connecting rooms') && mail.html.includes('Keep both notes &lt;safe&gt;'));
+assert.ok(mail.text.includes('Children ages · 1: 0'));
+assert.ok(mail.text.includes('Saved safari') && mail.text.includes('2030'));
+assert.ok(notify.buildLeadFromBooking(parsed).summary.includes('Preferred contact: WhatsApp'));
+notify.sendBookingNotification = async () => { notifications++; };
+notify.syncBookingToHubSpot = async () => {};
+mock('./dist/services/audit.service.js', { safeAudit: async () => {} });
+mock('./dist/services/makutano-connect.service.js', { syncBookingToMakutano: async () => {} });
+mock('./dist/services/booking-code.service.js', { generateBookingCode: async () => 'QA-0001' });
+mock('./dist/services/currency.service.js', { currencyService: { isConfiguredSupported: async () => true } });
+const { createBooking } = require('./dist/controllers/bookings.controller.js');
+const call = (body) => new Promise((resolve, reject) => createBooking({ body: bookingCreateSchema.parse(structuredClone(body)) }, { status() { return this; }, json: resolve }, reject));
+const first = await call(payload); const retry = await call(payload);
+assert.equal(first.data.booking_code, retry.data.booking_code);
+assert.equal(records.size, 1); assert.equal(notifications, 1);
+assert.deepEqual(first.data.lead_context.answers, d);
+await assert.rejects(call({ ...payload, message: 'Changed', lead_context: { ...payload.lead_context, answers: { ...d, notes: 'Changed' } } }), /different saved brief/);
+await Promise.all([call({ ...payload, idempotency_key: 'qa-race-0002' }), call({ ...payload, idempotency_key: 'qa-race-0002' })]);
+assert.equal(records.size, 2);
+assert.equal(notifications, 2);
+console.log('PASS: full payload, entry context, zero/unknown ages, dates/year, validation, draft recovery, CMS formatting, escaped complete email/CRM brief, idempotency, conflict protection, racing submissions. No external writes.');
+const { createServer } = await import('vite');
+const vite = await createServer({ server: { middlewareMode: true, watch: null }, appType: 'custom' });
+try {
+  const { default: Brief } = await vite.ssrLoadModule('/src/lib/components/admin/BookingBrief.svelte');
+  const { render } = await vite.ssrLoadModule('svelte/server');
+  const html = render(Brief, { props: { context: payload.lead_context } }).body;
+  assert.ok(html.includes('Journey &amp; travellers') && html.includes('Saved safari'));
+  assert.ok(!html.includes('[object Object]'));
+  assert.ok(html.includes('Contact permission') && html.includes('All original answers'));
+  const { load } = await vite.ssrLoadModule('/src/routes/plan-my-trip/+page.ts');
+  const data = await load({ url: new URL('http://localhost/plan-my-trip?tour=unknown&lodge=unknown&month=2030-06'), fetch: async () => new Response('', { status: 503 }) });
+  assert.equal(data.catalog.available, false);
+  assert.deepEqual(data.entry.params.lodge, ['unknown']);
+  assert.deepEqual(data.entry.params.month, ['2030-06']);
+  for (const path of ['/src/routes/booking/[slug]/+page.ts', '/src/routes/enquiry/+page.ts']) {
+    const legacy = await vite.ssrLoadModule(path);
+    assert.throws(() => legacy.load({ params: { slug: 'family' }, url: new URL('http://localhost/enquiry?destination=zanzibar&month=2030-06') }), (e) => e.status === 307 && e.location.includes('month=2030-06') && e.location.includes('destination=zanzibar'));
+  }
+  console.log('PASS: CMS component rendering, catalogue outage fallback and context-preserving legacy redirects.');
+} finally { await vite.close(); }

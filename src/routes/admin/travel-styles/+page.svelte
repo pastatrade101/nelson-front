@@ -18,6 +18,7 @@
   import ToastStack from '$lib/components/admin/ToastStack.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
+  import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
 
   type TravelStyle = {
     id: string;
@@ -340,20 +341,23 @@
 
       <div class="mt-6 grid gap-4">
         <div class="grid gap-4 sm:grid-cols-2">
-          <AdminFormInput label="Name" name="name" bind:value={form.name} required />
+          <AdminFormInput label="Page name · main heading (H1)" name="name" bind:value={form.name} counter={65} placeholder="Tanzania Family Safaris" required />
           <label class="grid gap-2 text-sm font-medium text-ink">
             <span>Slug</span>
             <input class="h-11 rounded-2xl border border-ink/10 bg-surface px-3 font-mono text-sm shadow-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" name="slug" bind:value={form.slug} required on:input={() => (slugManuallyEdited = true)} />
           </label>
         </div>
 
-        <AdminFormInput label="Emotional promise" name="emotional_promise" bind:value={form.emotional_promise} placeholder="The most romantic start to forever" />
-        <AdminTextArea label="Description" name="description" bind:value={form.description} rows={3} />
+        <p class="text-xs leading-5 text-ink/60">Use a clear, specific page name. It is the only H1; section headings become H2s. Changing an existing slug changes its URL and needs an appropriate redirect.</p>
+        <AdminFormInput label="Hero supporting line" name="emotional_promise" bind:value={form.emotional_promise} counter={100} placeholder="The safari your family will talk about for years." />
+        <AdminTextArea label="Hero introduction" name="description" bind:value={form.description} counter={260} rows={3} />
+        <p class="text-xs leading-5 text-ink/60">The supporting line sits below the main heading; the introduction follows in smaller text. Aim for 1–2 concise sentences. Counts are guidance, not cut-offs.</p>
 
         <div class="grid gap-4 sm:grid-cols-2">
           <AdminTextArea label="What they want (one per line)" name="desires" bind:value={form.desires} rows={4} />
           <AdminTextArea label="Concerns we plan around (one per line)" name="concerns" bind:value={form.concerns} rows={4} />
         </div>
+        <p class="text-xs leading-5 text-ink/60">Each “want” becomes a checked benefit. Aim for 6–9 short, distinct points. Concerns appear as quotes only when there is no complete FAQ section, to avoid repetition.</p>
 
         <div class="grid gap-1.5">
           <AdminSelect label="Linked safari style · the card on the Safari Styles page" name="category_id" bind:value={form.category_id} options={categoryOptions} />
@@ -370,6 +374,26 @@
           <AdminSelect label="Linked persona" name="persona" bind:value={form.persona} options={personaOptions} />
           <MediaPicker label="Hero image" media={$mediaLibrary} uploadFolder="travel-styles" bind:value={form.hero_image_url} />
         </div>
+        <p class="text-xs leading-5 text-ink/60">Hero photo: use a sharp landscape image, ideally at least 1920 px wide. Text overlays the left; keep important subjects central or to the right and check the narrow preview.</p>
+
+        <details class="border border-ink/15 bg-canvas p-4">
+          <summary class="cursor-pointer text-sm font-semibold text-ink">Hero layout preview · unsaved content</summary>
+          <p class="my-3 text-xs leading-5 text-ink/60">A narrow content preview; the public page has responsive spacing and the site navigation.</p>
+          <div class="relative isolate mx-auto max-w-md overflow-hidden bg-deep-green px-6 py-10 text-white">
+            {#if form.hero_image_url}
+              <ResponsiveImage src={form.hero_image_url} alt="" width={800} sizes="440px" imgClass="absolute inset-0 -z-10 h-full w-full object-cover" />
+              <div class="absolute inset-0 -z-10 bg-black/65"></div>
+            {/if}
+            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-goldfinch-gold">A journey shaped around you</p>
+            <p class="mt-4 break-words font-serif text-[42px] leading-[1.05]">{form.name || 'Your page name'}</p>
+            {#if form.emotional_promise}<p class="mt-5 break-words font-serif text-[23px] leading-snug">{form.emotional_promise}</p>{/if}
+            {#if form.description}<p class="mt-5 whitespace-pre-line break-words text-[15px] leading-7 text-white/85">{form.description}</p>{/if}
+            <div class="mt-7 grid gap-3 text-center text-sm font-semibold">
+              <span class="bg-goldfinch-gold px-4 py-3 text-ink">Plan this trip</span>
+              <span class="border border-white/40 px-4 py-3">Browse itineraries</span>
+            </div>
+          </div>
+        </details>
 
         <div class="grid gap-4 sm:grid-cols-3">
           <AdminSelect label="Status" name="status" bind:value={form.status} options={statusOptions} />
@@ -381,8 +405,15 @@
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <AdminFormInput label="SEO title" name="seo_title" bind:value={form.seo_title} />
-          <AdminFormInput label="Meta description" name="meta_description" bind:value={form.meta_description} />
+          <AdminFormInput label="SEO title" name="seo_title" bind:value={form.seo_title} counter={60} placeholder={`${form.name || 'Page name'} | Emnel Adventures`} />
+          <AdminTextArea label="Meta description" name="meta_description" bind:value={form.meta_description} counter={160} rows={3} />
+        </div>
+        <div class="min-w-0 border border-ink/10 bg-surface p-4">
+          <p class="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/50">Search preview · illustrative, not a guarantee</p>
+          <p class="break-all text-xs text-ink/65">emneladventures.com › travel-styles › {form.slug || 'your-page'}</p>
+          <p class="mt-1 break-words text-lg text-blue-800">{form.seo_title || `${form.name || 'Page name'} | Emnel Adventures`}</p>
+          <p class="mt-1 break-words text-sm leading-6 text-ink/70">{form.meta_description || form.description || 'Add a useful summary of this travel style.'}</p>
+          <p class="mt-3 text-xs leading-5 text-ink/50">Search engines may rewrite titles and snippets. A saved override in Page SEO takes priority over these fields. Structured data is generated from complete, visible FAQs and selected tours or destinations.</p>
         </div>
 
         <!-- Page content. Everything above is the fixed shape every style has;

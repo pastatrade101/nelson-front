@@ -23,6 +23,8 @@
   import { fade, fly } from 'svelte/transition';
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
+  import { planTripHref } from '$lib/planHref';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
   import { currency, formatUsd } from '$lib/currency';
@@ -95,16 +97,10 @@
   let loading = true;
   let error = '';
 
-  // Every "Plan this trip" / "Start a conversation" CTA opens the stepper booking
-  // form in an overlay — a centered modal on desktop, a bottom sheet on mobile.
-  // (The desktop sticky sidebar still shows the same form inline.)
-  let sheetOpen = false;
-  const closeSheet = () => (sheetOpen = false);
-  $: if (browser) document.body.style.overflow = sheetOpen ? 'hidden' : '';
-
+  // All planning entries share the full-page stepper and retain tour context.
   const openPlanner = (source = '') => {
     trackEvent('request_trip_opened', { tour_id: tour?.id, metadata: { source } });
-    sheetOpen = true;
+    void goto(planTripHref({ tour: tour?.slug, from: $page.url.pathname, placement: source }));
   };
 
   // "About this safari" prose is clamped to ~4 lines with a Read more toggle;
@@ -271,7 +267,6 @@
     error = '';
     relatedTours = [];
     recentPosts = [];
-    sheetOpen = false;
     overviewExpanded = false;
     overviewOverflows = false;
     try {
@@ -932,21 +927,6 @@
   </div>
   <div class="h-20 lg:hidden"></div>
 {/if}
-
-<!-- ── Planner overlay: bottom sheet on mobile, centered modal on desktop ──── -->
-{#if sheetOpen && tour}
-  <div class="fixed inset-0 z-[80] flex items-end justify-center overflow-y-auto sm:p-4 lg:items-center" role="dialog" aria-modal="true" aria-label="Plan this trip">
-    <button class="fixed inset-0 cursor-default bg-black/60 backdrop-blur-sm" type="button" aria-label="Close" on:click={closeSheet} transition:fade={{ duration: 150 }}></button>
-    <div class="relative z-10 w-full max-w-lg" transition:fly={{ y: 340, duration: 260 }}>
-      <button class="absolute -top-3 right-2 z-20 grid h-9 w-9 place-items-center rounded-full bg-surface text-ink shadow-md transition hover:bg-sand sm:right-0" type="button" aria-label="Close" on:click={closeSheet}>
-        <X size={18} />
-      </button>
-      <BookingForm {tour} />
-    </div>
-  </div>
-{/if}
-
-<svelte:window on:keydown={(e) => e.key === 'Escape' && closeSheet()} />
 
 {#if touristTripLd}<JsonLd data={touristTripLd} />{/if}
 {#if breadcrumbLd}<JsonLd data={breadcrumbLd} />{/if}

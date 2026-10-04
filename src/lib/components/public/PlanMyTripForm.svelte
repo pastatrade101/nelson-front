@@ -1,646 +1,174 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { get } from 'svelte/store';
-  import { AlertCircle, CheckCircle2, Copy, MapPin, Scale, ShieldCheck } from '@lucide/svelte';
+  import { fly } from 'svelte/transition';
+  import { cubicOut } from 'svelte/easing';
+  import { ArrowLeft, ArrowRight, Check, CheckCircle2, Compass, ShieldCheck, Download, RotateCcw } from '@lucide/svelte';
   import { page } from '$app/stores';
-  import { trackEvent } from '$lib/analytics';
-  import { api } from '$lib/api/client';
+  import { api, ApiRequestError } from '$lib/api/client';
   import { currency } from '$lib/currency';
-  import { newIdempotencyKey } from '$lib/idempotency';
-
-  import type { Specialist } from '$lib/types';
-  import { publicSettings, settingText } from '$lib/settings';
   import { shortlist } from '$lib/shortlist';
-  import Button from './Button.svelte';
+  import { newIdempotencyKey } from '$lib/idempotency';
+  import { trackEvent } from '$lib/analytics';
+  import { STEPS, PARTIES, LENGTHS, PACES, STAGES, PRIORITIES, STAYS, emptyDraft, applyEntry, tripTypes, comfortOptions, toggle, validateStep, localToday, briefRows, recommendations, submission, readDraft, type PlannerCatalog, type Entry, type PlannerDraft } from '$lib/tripPlanner';
+  import PlannerChoices from './PlannerChoices.svelte';
   import CountrySelect from './CountrySelect.svelte';
-  import SpecialistCard from './SpecialistCard.svelte';
   import WhatsAppCta from './WhatsAppCta.svelte';
-
-  // One key per attempt: retries and double-taps resolve to the same booking.
-  let idempotencyKey = newIdempotencyKey();
-
-  $: bookCallUrl = settingText($publicSettings, 'booking_call_url');
-
-  // ── Options ────────────────────────────────────────────────────────────────
-  const destinationOptions = ['Tanzania', 'Kenya', 'Zanzibar', 'Multiple countries', 'Not sure yet'];
-  const experienceOptions = [
-    'Safari',
-    'Kilimanjaro climb',
-    'Beach holiday',
-    'Honeymoon',
-    'Family trip',
-    'Culture',
-    'Adventure',
-    'Luxury',
-    'Photography',
-    'Wildlife',
-    'Not sure yet'
-  ];
-  const monthOptions = ['Flexible', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'I know exact dates'];
-  const flexibilityOptions = ['Yes', 'No', 'Not sure'];
-  const budgetOptions = ['Under $1,000', '$1,000 – $2,500', '$2,500 – $5,000', '$5,000+', 'Not sure yet'];
-  const travellerOptions = ['Solo traveller', 'Couple', 'Family', 'Friends / group', 'Corporate / team', 'Honeymoon', 'Not sure yet'];
-  const durationOptions = ['1–3 days', '4–6 days', '7–10 days', '11–14 days', '15+ days', 'Not sure yet'];
-  const accommodationOptions = ['Budget lodge', 'Mid-range lodge/hotel', 'Luxury lodge/resort', 'Tented camp', 'Beach resort', 'Not sure yet'];
-
-  // ── Form state ───────────────────────────────────────────────────────────────
-  let full_name = '';
-  let email = '';
-  let phone = '';
-  let country = '';
-  let destination_interest = '';
-  let experience_interests: string[] = [];
-  let travel_month = '';
-  let exact_start_date = '';
-  let exact_end_date = '';
-  let date_flexibility = '';
-  let budget_per_person = '';
-  let traveller_type = '';
-  let number_of_adults = '2';
-  let number_of_children = '0';
-  let trip_duration = '';
-  let accommodation_preference = '';
-  let message = '';
-  let hp_company = ''; // honeypot — must stay empty
-
-  let submitting = false;
-  let errorMessage = '';
-  let bookingCode = '';
-  let submitted = false;
-  let copied = false;
-  let tripContext = ''; // tour name carried in from a tour/departure/persona link
-  let referrerTopic = ''; // free-form topic from a referring page (e.g. a /compare CTA)
-  let errors: Record<string, string> = {};
-  let bodyEl: HTMLDivElement;
-  let specialist: Specialist | null = null; // loaded from the API; card hidden until/unless present
-
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-
-  $: wantsExactDates = travel_month === 'I know exact dates';
-  $: sent = submitted;
-
-  // WhatsApp handoff — carry the submitted request into a prefilled chat so the
-  // guest can continue on the same details.
-  $: waText = [
-    "Hi Emnel Adventures, I've just submitted a trip request and would like to continue here.",
-    bookingCode ? `Reference: ${bookingCode}` : '',
-    tripContext || destination_interest ? `Trip: ${tripContext || destination_interest}` : '',
-    full_name ? `Name: ${full_name}` : '',
-    Number(number_of_adults) || Number(number_of_children)
-      ? `Travellers: ${number_of_adults} adults, ${number_of_children} children${traveller_type ? ` — ${traveller_type}` : ''}`
-      : '',
-    travel_month ? `Travel month: ${travel_month}${date_flexibility ? ` (flexible: ${date_flexibility})` : ''}` : '',
-    trip_duration ? `Duration: ${trip_duration}` : '',
-    budget_per_person ? `Budget: ${budget_per_person}` : ''
-  ]
-    .filter(Boolean)
-    .join('\n');
-
-  const inputBase = 'w-full rounded-md border bg-surface px-3 py-3 text-sm text-ink outline-none transition focus:ring-2';
-  $: cls = (field: string) =>
-    `${inputBase} ${errors[field] ? 'border-red-300 focus:border-red-400 focus:ring-red-200' : 'border-ink/15 focus:border-forest focus:ring-forest/15'}`;
-
-  const clearErr = (key: string) => {
-    if (errors[key]) {
-      const { [key]: _removed, ...rest } = errors;
-      errors = rest;
-    }
-  };
-
-  const toggleExperience = (value: string) => {
-    experience_interests = experience_interests.includes(value)
-      ? experience_interests.filter((v) => v !== value)
-      : [...experience_interests, value];
-    clearErr('experience_interests');
-  };
-
-  // ── Context carry: a visitor arriving from a tour/persona/experience link
-  //    brings that intent into the form (defaults otherwise stay empty). ───────
-  const matchOption = (options: string[], value: unknown) =>
-    options.find((o) => o.toLowerCase() === String(value).toLowerCase());
-
-  // Load the trip specialist shown on the success screen. If none is published
-  // (or the request fails) the card stays hidden — no static fallback.
-  onMount(async () => {
+  export let catalog: PlannerCatalog;
+  export let entry: Entry;
+  const STORAGE = 'emnel_trip_planner_v2';
+  const headings = ['What would you love to do?', 'Who’s coming along?', 'When shall the adventure begin?', 'Make time for what matters.', 'Let’s find your kind of comfort.', 'Where are you in your planning?', 'Your safari, taking shape.'];
+  const intros = ['Choose one or combine a few. We’ll help make the route work.', 'A little about your group helps us plan the right pace, rooms and activities.', 'Exact dates or a rough idea—either is a great start.', 'Think about the whole journey, including any time by the beach.', 'These are preferences, not commitments. Your specialist will explain the options.', 'Tell us what a great trip looks like. We’ll read every detail.', 'Check your brief, then tell us where to reach you. No payment is needed.'];
+  let d: PlannerDraft = applyEntry(emptyDraft(), entry, catalog);
+  let entries: Entry[] = [entry];
+  let savedTrips: unknown[] = [];
+  let step = 0, furthest = 0, direction = 1;
+  let mounted = false, reducedMotion = false, busy = false, restored = false, copied = false;
+  let key = newIdempotencyKey();
+  let pending: ReturnType<typeof submission> | null = null;
+  let bookingCode = '', submitError = '', storageWarning = '', hp = '', sentBrief = '';
+  let errors: string[] = [];
+  let heading: HTMLHeadingElement;
+  let errorsEl: HTMLDivElement;
+  let lastEntry = entry.url;
+  onMount(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)'); reducedMotion = media.matches;
+    const motion = () => reducedMotion = media.matches; media.addEventListener('change', motion);
     try {
-      const res = await api.specialists.list({ status: 'published', limit: 50 });
-      const items = (res.data.items ?? []) as Specialist[];
-      specialist = items.find((s) => s.is_featured) ?? items[0] ?? null;
-    } catch {
-      specialist = null;
-    }
+      const stored = readDraft(sessionStorage.getItem(STORAGE));
+      if (stored) {
+        d = stored.draft; entries = stored.entries; savedTrips = stored.savedTrips; step = stored.step; furthest = step; key = stored.key; pending = stored.pending || null; restored = true;
+        if (pending) step = 6;
+        if (!pending && !entries.some((e) => e.url === entry.url)) { d = applyEntry(d, entry, catalog); entries = [...entries, entry]; }
+      }
+    } catch { storageWarning = 'This browser cannot save a draft. Keep this tab open until your request is confirmed.'; }
+    if (!pending) savedTrips = [...savedTrips, ...$shortlist.filter((item) => !savedTrips.some((existing) => (existing as { slug?: string }).slug === item.slug))];
+    mounted = true; trackEvent('plan_my_trip_opened');
+    return () => media.removeEventListener('change', motion);
   });
-
-  onMount(async () => {
-    trackEvent('plan_my_trip_opened');
-    const p = $page.url.searchParams;
-    const persona = p.get('persona');
-    const experience = p.get('experience');
-    const destination = p.get('destination');
-    const monthParam = p.get('month') || p.get('date');
-    const tourSlug = p.get('tour');
-    const lodgeSlug = p.get('lodge');
-
-    const personaMap: Record<string, string> = {
-      family: 'Family',
-      couple: 'Couple',
-      solo: 'Solo traveller',
-      group: 'Friends / group',
-      honeymoon: 'Honeymoon'
-    };
-    const expMap: Record<string, string> = {
-      safari: 'Safari',
-      kilimanjaro: 'Kilimanjaro climb',
-      beach: 'Beach holiday',
-      'beach-holiday': 'Beach holiday',
-      cultural: 'Culture',
-      culture: 'Culture',
-      honeymoon: 'Honeymoon',
-      photography: 'Photography',
-      wildlife: 'Wildlife'
-    };
-
-    if (persona && personaMap[persona.toLowerCase()]) traveller_type = personaMap[persona.toLowerCase()];
-    if (experience) {
-      const e = expMap[experience.toLowerCase()] || matchOption(experienceOptions, experience);
-      if (e && !experience_interests.includes(e)) experience_interests = [...experience_interests, e];
+  $: if (mounted && entry.url !== lastEntry) { lastEntry = entry.url; if (!pending) { d = applyEntry(d, entry, catalog); if (!entries.some((e) => e.url === entry.url)) entries = [...entries, entry]; } }
+  $: if (mounted && !bookingCode) persist(d, entries, savedTrips, step, key, pending);
+  function persist(draft: PlannerDraft, entryPoints: Entry[], saved: unknown[], active: number, attempt: string, request: typeof pending) {
+    try { sessionStorage.setItem(STORAGE, JSON.stringify({ v: 2, at: Date.now(), draft, entries: entryPoints, savedTrips: saved, step: active, key: attempt, pending: request })); }
+    catch { storageWarning = 'Draft saving is unavailable. Keep this tab open, or download your brief before leaving.'; }
+  }
+  $: types = [...tripTypes(catalog.tours), ...d.experiences.filter((v) => !tripTypes(catalog.tours).some((o) => o.label === v)).map((label) => ({ label, description: 'Carried from your earlier selection.', match: /(?:)/ }))];
+  $: comforts = [...new Set([...comfortOptions(catalog.tours), ...(d.comfort ? [d.comfort] : [])])];
+  $: rows = briefRows(d);
+  $: picks = recommendations(d, catalog.tours, [...entries].reverse().find((e) => e.tour)?.tour?.id);
+  $: finderBudget = entries.flatMap((e) => e.params.budget_band || []).at(-1) || '';
+  $: contextLabels = [...new Set(entries.flatMap((e) => [e.tour?.title || (e.params.tour?.length ? `Tour: ${e.params.tour.join(', ')}` : ''), e.lodge?.name || (e.params.lodge?.length ? `Stay: ${e.params.lodge.join(', ')}` : ''), ...(e.params.topic || []), ...(e.params.place || [])]).filter(Boolean))];
+  function chooseParty(value: string) { d = { ...d, party: value, adults: value === 'Solo traveller' ? 1 : d.adults }; }
+  function setChildren(value: number) { d = { ...d, children: value, childAges: Array.from({ length: Math.max(0, Math.min(50, Math.floor(value || 0))) }, (_, i) => d.childAges[i] ?? '') }; }
+  async function focusHeading() { await tick(); heading?.focus({ preventScroll: true }); heading?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth', block: 'start' }); }
+  async function move(next: number) {
+    if (busy || pending) return;
+    if (next > step) { errors = validateStep(d, step); if (errors.length) { await tick(); errorsEl?.focus(); return; } }
+    errors = []; direction = next > step ? 1 : -1; step = next; furthest = Math.max(furthest, next); await focusHeading();
+  }
+  const humanBrief = () => ['EMNEL ADVENTURES · YOUR TRIP BRIEF', bookingCode ? `Reference: ${bookingCode}` : '', ...rows.map(([label, value]) => `${label}: ${value}`), ...contextLabels.map((label) => `Starting point: ${label}`), `Name: ${d.fullName}`, `Email: ${d.email}`, `Phone: ${d.phone || 'Not provided'}`, `Country: ${d.country}`, `Preferred contact: ${d.preferredContact}`, `Special requests: ${d.specialRequests || 'None specified'}`, `Notes: ${d.notes || 'None specified'}`, 'Saved trips:', JSON.stringify(savedTrips, null, 2), 'Entry context:', JSON.stringify(entries, null, 2)].filter(Boolean).join('\n');
+  function downloadBrief() { const blob = new Blob([sentBrief || humanBrief()], { type: 'text/plain;charset=utf-8' }); const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'emnel-trip-brief.txt'; anchor.click(); URL.revokeObjectURL(url); }
+  async function submit() {
+    if (busy || bookingCode) return;
+    if (!pending) {
+      for (let index = 0; index < STEPS.length; index++) { const issues = validateStep(d, index); if (issues.length) { step = index; errors = issues; await tick(); errorsEl?.focus(); return; } }
+      pending = submission(d, entries, savedTrips, key, $currency.selectedCurrency, $page.url.href, hp); persist(d, entries, savedTrips, step, key, pending);
     }
-    if (destination) {
-      const direct = matchOption(destinationOptions, destination);
-      if (direct) {
-        // Already a country-level value (e.g. "Tanzania", "Zanzibar").
-        destination_interest = direct;
-      } else {
-        // A specific park/destination slug (e.g. "serengeti", "ruaha"). Resolve it
-        // to the right country option and carry the park name into the brief so the
-        // specialist sees exactly what the traveller clicked.
-        try {
-          const res = await api.destinations.get(destination);
-          const dd = res.data as Record<string, unknown>;
-          const name = String(dd.name ?? '').trim();
-          const region = String(dd.region ?? '');
-          destination_interest =
-            matchOption(destinationOptions, String(dd.country ?? '')) ||
-            (/island|coast|zanzibar|pemba|mafia/i.test(`${region} ${name}`) ? 'Zanzibar' : 'Tanzania');
-          if (name) {
-            tripContext = tripContext || name;
-            if (!message.trim()) message = `I'm interested in a trip to ${name}.`;
-          }
-        } catch {
-          // Destination lookup failed — still select a sensible country and keep
-          // the slug (prettified) as context so nothing is lost.
-          destination_interest = destination_interest || 'Tanzania';
-          const pretty = destination.replace(/-/g, ' ');
-          tripContext = tripContext || pretty;
-          if (!message.trim()) message = `I'm interested in a trip to ${pretty}.`;
-        }
-      }
-    }
-    if (monthParam) {
-      let m = monthParam;
-      if (/^\d{4}-\d{2}/.test(monthParam)) {
-        const iso = monthParam.length === 7 ? `${monthParam}-01` : monthParam;
-        m = new Date(iso).toLocaleString('en', { month: 'long' });
-      }
-      const mm = matchOption(monthOptions, m);
-      if (mm) travel_month = mm;
-    }
-    if (tourSlug) {
-      try {
-        const res = await api.tours.get(tourSlug);
-        const t = res.data as Record<string, unknown>;
-        tripContext = String(t.title ?? '');
-        const dName = (t.destinations as Record<string, unknown> | undefined)?.name;
-        const cName = (t.tour_categories as Record<string, unknown> | undefined)?.name;
-        if (dName) {
-          const d = matchOption(destinationOptions, dName);
-          if (d) destination_interest = d;
-        }
-        if (cName) {
-          const e = matchOption(experienceOptions, cName);
-          if (e && !experience_interests.includes(e)) experience_interests = [...experience_interests, e];
-        }
-      } catch {
-        tripContext = tourSlug.replace(/-/g, ' ');
-      }
-      if (tripContext && !message.trim()) message = `I'm interested in: ${tripContext}.`;
-    } else if (lodgeSlug) {
-      // "Plan a trip around this stay": carry the property into the brief.
-      try {
-        const res = await api.lodges.get(lodgeSlug);
-        const l = res.data as unknown as Record<string, unknown>;
-        tripContext = String(l.name ?? '');
-        const country = String(l.country ?? '');
-        const dName = String((l.destinations as Record<string, unknown> | undefined)?.name ?? '');
-        destination_interest =
-          matchOption(destinationOptions, country) ||
-          matchOption(destinationOptions, dName) ||
-          destination_interest ||
-          'Tanzania';
-      } catch {
-        tripContext = lodgeSlug.replace(/-/g, ' ');
-      }
-      if (tripContext && !message.trim()) message = `I'd like a trip that includes a stay at ${tripContext}.`;
-    } else {
-      const saved = get(shortlist);
-      if (saved.length) {
-        tripContext = saved.length === 1 ? saved[0].title : `${saved.length} saved trips`;
-        if (!message.trim()) message = `I'm interested in: ${saved.map((sv) => sv.title).join(', ')}.`;
-      }
-    }
-
-    // Free-form context from a referring page (e.g. a /compare "X vs Y" CTA).
-    const topic = p.get('topic');
-    if (topic) {
-      referrerTopic = topic;
-      if (!message.trim()) message = `I'd like help deciding: ${topic}.`;
-    }
-  });
-
-  const validate = (): boolean => {
-    const e: Record<string, string> = {};
-    if (full_name.trim().length < 2) e.full_name = 'Please enter your full name.';
-    if (!email.trim()) e.email = 'Email is required.';
-    else if (!isEmail(email.trim())) e.email = 'Please enter a valid email address.';
-    if (phone.trim().length < 6) e.phone = 'A phone or WhatsApp number is required.';
-    if (!country.trim()) e.country = 'Please select your country.';
-    if (!destination_interest) e.destination_interest = 'Where would you like to go?';
-    if (experience_interests.length === 0) e.experience_interests = 'Pick at least one experience.';
-    if (!travel_month) e.travel_month = 'When are you thinking of travelling?';
-    if (wantsExactDates) {
-      if (!exact_start_date) e.exact_start_date = 'Add a start date.';
-      else if (exact_start_date < todayStr) e.exact_start_date = "Start date can't be in the past.";
-      if (!exact_end_date) e.exact_end_date = 'Add an end date.';
-      else if (exact_start_date && exact_end_date <= exact_start_date) e.exact_end_date = 'End date must be after the start date.';
-    }
-    if (!budget_per_person) e.budget_per_person = 'Choose a budget range.';
-    if (!traveller_type) e.traveller_type = 'Who is travelling?';
-    if (Number(number_of_adults) < 1) e.number_of_adults = 'At least one adult is required.';
-    if (number_of_children === '' || Number(number_of_children) < 0) e.number_of_children = "Can't be negative.";
-    errors = e;
-    return Object.keys(e).length === 0;
-  };
-
-  const submit = async () => {
-    if (submitting) return;
-    errorMessage = '';
-
-    // Honeypot tripped → behave like a normal success without sending anything.
-    if (hp_company.trim()) {
-      submitted = true;
-      return;
-    }
-
-    if (!validate()) {
-      errorMessage = 'Please check the highlighted fields and try again.';
-      await tick();
-      (bodyEl?.querySelector('[data-error]') as HTMLElement | null)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      return;
-    }
-
-    // Structured lead brief → lead_context (HubSpot/CRM-ready, shown to specialist).
-    const lead_context: Record<string, unknown> = {
-      destination_interest,
-      travel_interests: experience_interests.join(', '),
-      travel_month,
-      budget_per_person,
-      traveller_type,
-      source_page_url: $page.url.href,
-      submitted_at: new Date().toISOString(),
-      lead_source: 'Website Plan My Safari'
-    };
-    if (wantsExactDates) {
-      lead_context.exact_start_date = exact_start_date;
-      lead_context.exact_end_date = exact_end_date;
-    }
-    if (date_flexibility) lead_context.date_flexibility = date_flexibility;
-    if (trip_duration) lead_context.trip_duration = trip_duration;
-    if (accommodation_preference) lead_context.accommodation_preference = accommodation_preference;
-    if (tripContext) lead_context.tour_interest = tripContext;
-    if (referrerTopic) lead_context.topic = referrerTopic;
-
-    submitting = true;
+    busy = true; submitError = '';
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 30000);
     try {
-      const res = await api.bookings.create({
-        idempotency_key: idempotencyKey,
-        selected_currency: $currency.selectedCurrency,
-        full_name: full_name.trim(),
-        email: email.trim(),
-        phone: phone.trim() || null,
-        country: country.trim() || null,
-        travel_date: wantsExactDates ? exact_start_date || null : null,
-        number_of_adults: Number(number_of_adults) || 1,
-        number_of_children: Number(number_of_children) || 0,
-        message: message.trim() || null,
-        source: 'plan_my_trip',
-        lead_context,
-        hp_company // honeypot — backend inspects then drops it
-      });
-      bookingCode = String((res.data as Record<string, unknown>)?.booking_code ?? '');
-      submitted = true;
-      trackEvent('plan_my_trip_submitted', {
-        destination: destination_interest,
-        budget_range: budget_per_person,
-        traveller_type,
-        experience_type: experience_interests.join(', '),
-        lead_type: 'plan_my_trip',
-        transaction_id: bookingCode || undefined
-      });
+      const response = await api.bookings.create(pending, controller.signal);
+      const code = (response.data as { booking_code?: string } | null)?.booking_code;
+      if (!code) throw new Error('We could not verify a saved request. Your brief is still here; please retry.');
+      bookingCode = code; sentBrief = humanBrief(); pending = null;
+      try { sessionStorage.removeItem(STORAGE); } catch { /* Confirmation remains visible if storage is disabled. */ }
+      trackEvent('plan_my_trip_submitted', { transaction_id: code, lead_type: 'trip_planner' }); await tick(); document.getElementById('planner-confirmation')?.focus();
     } catch (error) {
-      trackEvent('form_submit_error', { form_name: 'plan_my_trip', error_type: 'submit_failed' });
-      errorMessage =
-        error instanceof Error && error.message
-          ? error.message
-          : 'Something went wrong. Please try again or contact us directly on WhatsApp.';
-    } finally {
-      submitting = false;
+      // A validation rejection is definitely not saved. An uncertain network/5xx
+      // result stays frozen, so retry always resends the identical payload/key.
+      if (error instanceof ApiRequestError && [400, 422].includes(error.status)) { pending = null; key = newIdempotencyKey(); }
+      submitError = controller.signal.aborted ? 'The connection took too long. Your brief is safe here; retry to confirm delivery.' : error instanceof Error ? error.message : 'We could not confirm your request. Please retry.';
+      trackEvent('form_submit_error', { form_name: 'trip_planner', error_type: 'submission' });
     }
-  };
-
-  const resetForm = () => {
-    submitted = false;
-    bookingCode = '';
-    errors = {};
-    errorMessage = '';
-  };
-
-  const copyCode = async () => {
-    try {
-      await navigator.clipboard.writeText(bookingCode);
-      copied = true;
-      setTimeout(() => (copied = false), 2000);
-    } catch {
-      // ignore
-    }
-  };
+    finally { window.clearTimeout(timeout); busy = false; }
+  }
+  async function copyCode() { try { await navigator.clipboard.writeText(bookingCode); copied = true; } catch { copied = false; } }
 </script>
 
-{#if sent}
-  <div class="grid gap-5 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-surface p-6 shadow-soft md:p-8">
-    <div class="flex items-center gap-3">
-      <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-600"><CheckCircle2 size={26} /></span>
-      <div>
-        <h3 class="text-xl font-bold text-heading">Thank you. Your trip request has been received.</h3>
-        <p class="mt-1 text-sm text-ink/70">A Emnel safari specialist will contact you shortly.</p>
-      </div>
-    </div>
-
-    {#if bookingCode}
-      <div class="rounded-xl border border-emerald-200 bg-surface p-4">
-        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/70">Your request reference</p>
-        <div class="mt-1 flex items-center gap-3">
-          <p class="text-2xl font-extrabold tracking-wide text-heading">{bookingCode}</p>
-          <button class="inline-flex items-center gap-1.5 rounded-lg border border-ink/15 bg-surface px-2.5 py-1 text-xs font-semibold text-ink/70 transition hover:bg-sand" type="button" on:click={copyCode}>
-            <Copy size={13} />{copied ? 'Copied' : 'Copy'}
-          </button>
-        </div>
-      </div>
-    {/if}
-
-    <!-- what happens next -->
-    <div class="rounded-xl border border-emerald-200 bg-surface p-4">
-      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/70">What happens next</p>
-      <ol class="mt-3 grid gap-3">
-        {#each [{ t: 'We review your request', s: 'A specialist reads your details — usually within one business day.' }, { t: 'We craft a tailored itinerary', s: 'Shaped around your dates, budget and travel style.' }, { t: 'You refine it with us', s: 'Adjust pace, lodges and activities until it feels right.' }, { t: 'Confirm when you are ready', s: 'No pressure — you decide if and when to book.' }] as step, i}
-          <li class="flex gap-3">
-            <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-forest text-[11px] font-bold text-white">{i + 1}</span>
-            <span>
-              <span class="block text-sm font-semibold text-ink">{step.t}</span>
-              <span class="block text-xs leading-5 text-ink/70">{step.s}</span>
-            </span>
-          </li>
-        {/each}
-      </ol>
-    </div>
-
-    {#if specialist}
-      <SpecialistCard {specialist} heading="Who will be in touch" />
-    {/if}
-
-    <div class="flex flex-col gap-3 sm:flex-row">
-      {#if bookCallUrl}
-        <a class="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-deep-green px-5 font-bold text-white transition hover:bg-forest" href={bookCallUrl} target="_blank" rel="noopener noreferrer">
-          Book a call now
-        </a>
-      {/if}
-      <div class="grid gap-3">
-        <WhatsAppCta
-          message={waText}
-          label="Continue on WhatsApp"
-          context="plan_my_trip_success"
-          className="w-full"
-        />
-        <Button type="button" variant="secondary" on:click={resetForm}>Start another request</Button>
-      </div>
-    </div>
-    <p class="text-center text-xs text-ink/70">A confirmation email is on its way to the address you provided.</p>
+{#if bookingCode}
+  <div class="confirmation" id="planner-confirmation" tabindex="-1">
+    <CheckCircle2 size={42} strokeWidth={1.3} /><p class="eyebrow">Your request is saved</p><h2>Now, let’s make it yours.</h2>
+    <p>Thank you, {d.fullName.split(' ')[0]}. Your full brief is with Emnel’s team. We’ll use your contact details to discuss the route, availability and a personal quote.</p>
+    <div class="reference"><span>Your reference</span><strong>{bookingCode}</strong><button type="button" on:click={copyCode}>{copied ? 'Copied' : 'Copy reference'}</button></div>
+    <p class="fine">This is a planning request, not a confirmed booking. No payment has been taken.</p>
+    <div class="success-actions"><button type="button" class="primary" on:click={downloadBrief}><Download size={16} /> Download your brief</button><WhatsAppCta message={`Hello Emnel Adventures, I submitted trip request ${bookingCode}. My name is ${d.fullName}. I’d like to discuss my saved brief.`} label="Continue on WhatsApp" /></div>
+    <a class="text-link" href="/tours">Explore more journeys <ArrowRight size={15} /></a>
   </div>
 {:else}
-  <form class="relative rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft md:p-6" on:submit|preventDefault={submit} novalidate>
-    <div>
-      <p class="text-sm font-semibold uppercase tracking-[0.14em] text-goldfinch-gold">Plan My Safari</p>
-      <h3 class="mt-1 text-2xl font-bold tracking-normal text-heading">Tell us about your dream trip</h3>
-      {#if tripContext}
-        <p class="mt-1 text-sm leading-6 text-ink/65">We've carried your trip across — adjust anything below and a local specialist will tailor it to you.</p>
-      {:else}
-        <p class="mt-1 text-sm leading-6 text-ink/65">Don't know the exact tour yet? Perfect. Share the basics and a local specialist will shape a confident Tanzania safari plan.</p>
-      {/if}
-    </div>
-
-    {#if tripContext}
-      <div class="mt-4 flex items-center gap-2 rounded-xl border border-forest/20 bg-forest/[0.06] px-3.5 py-2.5 text-sm font-semibold text-forest">
-        <MapPin size={16} class="shrink-0" />
-        Planning: {tripContext}
-      </div>
-    {/if}
-
-    {#if referrerTopic}
-      <div class="mt-4 flex items-center gap-2 rounded-xl border border-goldfinch-gold/30 bg-goldfinch-gold/[0.08] px-3.5 py-2.5 text-sm font-semibold text-clay">
-        <Scale size={16} class="shrink-0" />
-        You're planning around: {referrerTopic}
-      </div>
-    {/if}
-
-    <div class="mt-5 grid gap-5" bind:this={bodyEl}>
-      <!-- ── Contact details ───────────────────────────────────────────────── -->
-      <fieldset class="grid gap-4">
-        <legend class="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">Contact details</legend>
-        <div class="grid gap-4 md:grid-cols-2">
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Full name</span>
-            <input class={cls('full_name')} bind:value={full_name} on:input={() => clearErr('full_name')} placeholder="Your name" autocomplete="name" aria-invalid={Boolean(errors.full_name)} aria-describedby={errors.full_name ? 'pmt-full_name-err' : undefined} />
-            {#if errors.full_name}<span id="pmt-full_name-err" data-error class="text-xs text-red-600">{errors.full_name}</span>{/if}
-          </label>
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Email</span>
-            <input class={cls('email')} type="email" bind:value={email} on:input={() => clearErr('email')} placeholder="you@example.com" autocomplete="email" aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'pmt-email-err' : undefined} />
-            {#if errors.email}<span id="pmt-email-err" data-error class="text-xs text-red-600">{errors.email}</span>{/if}
-          </label>
-        </div>
-        <div class="grid gap-4 md:grid-cols-2">
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Phone / WhatsApp</span>
-            <input class={cls('phone')} type="tel" bind:value={phone} on:input={() => clearErr('phone')} placeholder="+255 ..." autocomplete="tel" aria-invalid={Boolean(errors.phone)} aria-describedby={errors.phone ? 'pmt-phone-err' : undefined} />
-            {#if errors.phone}<span id="pmt-phone-err" data-error class="text-xs text-red-600">{errors.phone}</span>{/if}
-          </label>
-          <div class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Country</span>
-            <CountrySelect bind:value={country} invalid={Boolean(errors.country)} on:change={() => clearErr('country')} placeholder="Where are you travelling from?" />
-            {#if errors.country}<span data-error class="text-xs text-red-600">{errors.country}</span>{/if}
+  <div class="planner-layout">
+    <div class="planner-main">
+      <nav aria-label="Trip planning steps" class="progress-nav">{#each STEPS as label, index}<button type="button" class:complete={index < step} class:active={index === step} aria-current={index === step ? 'step' : undefined} aria-label={`Step ${index + 1}: ${label}`} disabled={index > furthest || !!pending || busy} on:click={() => move(index)}><span class="progress-line"></span><span class="step-label">{label}</span></button>{/each}</nav>
+      <div class="form-body">
+        {#if restored}<p class="draft-note"><Check size={14} /> Your saved draft is back. Continue where you left off.</p>{/if}
+        {#if storageWarning}<p class="warning" role="status">{storageWarning}</p>{/if}
+        {#if !catalog.available}<p class="warning">Trip suggestions are temporarily unavailable. You can still send your full brief to the team.</p>{/if}
+        <div class="step-meta"><span>Step {step + 1} of 7</span><span>{STEPS[step]}</span></div>
+        {#key step}
+          <div in:fly={{ x: reducedMotion ? 0 : direction * 16, duration: reducedMotion ? 0 : 260, easing: cubicOut }}>
+            <h2 bind:this={heading} tabindex="-1">{headings[step]}</h2><p class="intro">{intros[step]}</p>
+            {#if errors.length}<div class="error-box" role="alert" tabindex="-1" bind:this={errorsEl}><strong>A little more detail, please</strong><ul>{#each errors as error}<li>{error}</li>{/each}</ul></div>{/if}
+            <fieldset disabled={busy || !!pending} class="step-fields"><legend class="sr-only">{STEPS[step]}</legend>
+              {#if step === 0}
+                <PlannerChoices options={types} selected={d.experiences} on:choose={(e) => d.experiences = e.detail === 'Not sure yet' ? ['Not sure yet'] : toggle(d.experiences, e.detail)} />
+                <details class="destination-picker field-section" open={d.destinations.length > 0}><summary>Anywhere you have in mind? <span>Optional · choose destinations</span></summary><div class="mt-4"><PlannerChoices compact options={[...new Set([...catalog.destinations.map((v) => v.name), ...d.destinations])]} selected={d.destinations} on:choose={(e) => d.destinations = toggle(d.destinations, e.detail)} /></div></details>
+              {:else if step === 1}
+                <PlannerChoices options={[...new Set([...PARTIES, ...(d.party ? [d.party] : [])])]} selected={[d.party]} on:choose={(e) => chooseParty(e.detail)} />
+                <div class="fields two field-section"><label>Adults <span>18 years and over</span><input type="number" min="1" max="100" step="1" value={d.adults} on:input={(e) => d.adults = Number(e.currentTarget.value)} inputmode="numeric" /></label><label>Children <span>Under 18 at the time of travel</span><input type="number" min="0" max="50" step="1" value={d.children} on:input={(e) => setChildren(Number(e.currentTarget.value))} inputmode="numeric" /></label></div>
+                {#if d.children > 0 && d.children <= 50}<div class="field-section"><h3>Children’s ages at travel <span>Optional · leave blank if unsure</span></h3><div class="age-grid">{#each Array.from({ length: Math.floor(d.children) }) as _, i}<label>Child {i + 1}<input aria-label={`Age of child ${i + 1}`} type="number" min="0" max="17" step="1" value={d.childAges[i] ?? ''} on:input={(e) => { d.childAges[i] = e.currentTarget.value; }} placeholder="Age" /></label>{/each}</div></div>{/if}
+              {:else if step === 2}
+                <PlannerChoices options={['I have exact dates', 'I have a month in mind', 'I’m not sure yet']} selected={[d.dateMode === 'exact' ? 'I have exact dates' : d.dateMode === 'flexible' ? 'I have a month in mind' : 'I’m not sure yet']} on:choose={(e) => d.dateMode = e.detail === 'I have exact dates' ? 'exact' : e.detail === 'I have a month in mind' ? 'flexible' : 'unsure'} />
+                {#if d.dateMode === 'exact'}<div class="fields two field-section"><label>Start date<input type="date" min={localToday()} bind:value={d.startDate} /></label><label>End date<input type="date" min={d.startDate || localToday()} bind:value={d.endDate} /></label></div>{:else if d.dateMode === 'flexible'}<div class="field-section"><label>Travel month and year<input type="month" min={localToday().slice(0, 7)} bind:value={d.month} /></label></div>{:else}<p class="help-note">That’s absolutely fine. We can help you choose a time that suits your route and priorities.</p>{/if}
+                <div class="field-section"><h3>How flexible are your dates?</h3><PlannerChoices compact options={['Dates are fixed', 'Flexible by a few days', 'Flexible by a few weeks', 'Completely flexible']} selected={[d.flexibility]} on:choose={(e) => d.flexibility = e.detail} /></div>
+              {:else if step === 3}
+                <h3>How long would you like to travel?</h3><PlannerChoices options={[...new Set([...LENGTHS, ...(d.duration ? [d.duration] : [])])]} selected={[d.duration]} on:choose={(e) => d.duration = e.detail} />
+                <div class="field-section"><h3>And your preferred pace?</h3><PlannerChoices options={PACES} selected={[d.pace]} on:choose={(e) => d.pace = e.detail} /></div>
+              {:else if step === 4}
+                <h3>Your comfort level <span>Based on Emnel’s current tour collection</span></h3><PlannerChoices compact options={comforts} selected={[d.comfort]} on:choose={(e) => d.comfort = e.detail} />
+                <div class="field-section"><h3>Where would you like to stay? <span>Optional</span></h3><PlannerChoices compact options={STAYS} selected={[d.accommodation]} on:choose={(e) => d.accommodation = e.detail} /></div>
+                {#if finderBudget}<p class="help-note">Your trip-finder budget: <strong>{finderBudget}</strong>. We’ve kept this in your brief. Refine it below, or ask us to help.</p>{/if}
+                <div class="field-section"><label>Budget per person · USD<span>For the whole trip, excluding international flights. A guide, not a quote.</span><input type="number" min="1" max="1000000" step="0.01" inputmode="decimal" placeholder="For example, 3500" value={d.budget} disabled={d.budgetUnsure} on:input={(e) => d.budget = e.currentTarget.value} /></label><label class="check-label"><input type="checkbox" bind:checked={d.budgetUnsure} /> Help me set a budget</label></div>
+                <div class="field-section"><h3>What matters most? <span>Optional · choose a few</span></h3><PlannerChoices compact options={PRIORITIES} selected={d.priorities} on:choose={(e) => d.priorities = toggle(d.priorities, e.detail)} /></div>
+              {:else if step === 5}
+                <PlannerChoices options={STAGES} selected={[d.stage]} on:choose={(e) => d.stage = e.detail} />
+                <div class="fields field-section"><label>What would make this trip special? <span>Optional · ideas, places, celebrations or questions</span><textarea rows="4" bind:value={d.notes} placeholder="Tell us what you are dreaming of…"></textarea></label><label>Anything else we should plan around?<span>Optional · room setup, dietary, access or other practical requests. Share only what you are comfortable sharing.</span><textarea rows="3" bind:value={d.specialRequests} placeholder="The small details matter, too."></textarea></label></div>
+              {:else}
+                <div class="review"><div class="review-heading"><h3>Your travel brief</h3>{#if !pending}<button type="button" on:click={() => move(0)}>Edit choices</button>{/if}</div><dl>{#each rows as [label, value]}<div><dt>{label}</dt><dd>{value}</dd></div>{/each}</dl>
+                  {#if contextLabels.length}<h4>Starting points you selected</h4><ul>{#each contextLabels as label}<li>{label}</li>{/each}</ul>{/if}
+                  {#if savedTrips.length}<h4>Your saved trips</h4><ul>{#each savedTrips as item}<li>{String((item as { title?: string }).title || (item as { slug?: string }).slug || 'Saved item')}</li>{/each}</ul>{/if}
+                  {#if d.notes}<h4>Your ideas & notes</h4><p class="preserve">{d.notes}</p>{/if}{#if d.specialRequests}<h4>Practical requests</h4><p class="preserve">{d.specialRequests}</p>{/if}
+                </div>
+                <div class="field-section"><h3>Where can we reach you?</h3><div class="fields two"><label>Full name<input autocomplete="name" bind:value={d.fullName} /></label><label>Email address<input type="email" autocomplete="email" bind:value={d.email} /></label><label>Phone / WhatsApp <span>Optional for email replies</span><input type="tel" autocomplete="tel" placeholder="Include country code, e.g. +255…" bind:value={d.phone} /></label><div class="country-field"><label for="planner-country">Country of residence</label><CountrySelect id="planner-country" bind:value={d.country} /></div></div></div>
+                <div class="field-section"><h3>How would you prefer to hear from us?</h3><PlannerChoices compact options={['Email', 'WhatsApp', 'Phone']} selected={[d.preferredContact]} on:choose={(e) => d.preferredContact = e.detail} /></div>
+                <label class="check-label consent"><input type="checkbox" bind:checked={d.contactConsent} /><span>Emnel may use these details to respond to this trip request. This does not sign me up for marketing. <a href="/privacy" target="_blank" rel="noopener">Privacy policy</a></span></label>
+                <div class="honeypot" aria-hidden="true"><label>Company<input tabindex="-1" autocomplete="off" bind:value={hp} /></label></div>
+              {/if}
+            </fieldset>
           </div>
-        </div>
-      </fieldset>
-
-      <!-- ── Trip idea ─────────────────────────────────────────────────────── -->
-      <fieldset class="grid gap-4 border-t border-ink/10 pt-4">
-        <legend class="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">Trip idea</legend>
-        <label class="grid gap-1.5 text-sm font-medium text-ink">
-          <span>Destination interest</span>
-          <select class={cls('destination_interest')} bind:value={destination_interest} on:change={() => clearErr('destination_interest')} aria-invalid={Boolean(errors.destination_interest)}>
-            <option value="" disabled>Select destination…</option>
-            {#each destinationOptions as opt}<option value={opt}>{opt}</option>{/each}
-          </select>
-          {#if errors.destination_interest}<span data-error class="text-xs text-red-600">{errors.destination_interest}</span>{/if}
-        </label>
-
-        <div class="grid gap-2 text-sm font-medium text-ink">
-          <span>What would you love to do? <span class="font-normal text-ink/70">(select any)</span></span>
-          <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {#each experienceOptions as exp}
-              <label
-                class={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
-                  experience_interests.includes(exp)
-                    ? 'border-forest bg-forest/[0.07] font-semibold text-heading'
-                    : 'border-ink/12 bg-surface text-ink/70 hover:border-forest/40'
-                }`}
-              >
-                <input type="checkbox" class="h-4 w-4 accent-forest" checked={experience_interests.includes(exp)} on:change={() => toggleExperience(exp)} />
-                {exp}
-              </label>
-            {/each}
-          </div>
-          {#if errors.experience_interests}<span data-error class="text-xs text-red-600">{errors.experience_interests}</span>{/if}
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-2">
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>When do you want to travel?</span>
-            <select class={cls('travel_month')} bind:value={travel_month} on:change={() => clearErr('travel_month')} aria-invalid={Boolean(errors.travel_month)}>
-              <option value="" disabled>Select…</option>
-              {#each monthOptions as opt}<option value={opt}>{opt}</option>{/each}
-            </select>
-            {#if errors.travel_month}<span data-error class="text-xs text-red-600">{errors.travel_month}</span>{/if}
-          </label>
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Trip duration</span>
-            <select class={cls('trip_duration')} bind:value={trip_duration}>
-              <option value="">Not sure yet</option>
-              {#each durationOptions.filter((d) => d !== 'Not sure yet') as opt}<option value={opt}>{opt}</option>{/each}
-            </select>
-          </label>
-        </div>
-
-        {#if wantsExactDates}
-          <div class="grid gap-4 rounded-xl border border-forest/15 bg-forest/[0.03] p-3 md:grid-cols-2">
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
-              <span>Start date</span>
-              <input class={cls('exact_start_date')} type="date" min={todayStr} bind:value={exact_start_date} on:input={() => clearErr('exact_start_date')} aria-invalid={Boolean(errors.exact_start_date)} />
-              {#if errors.exact_start_date}<span data-error class="text-xs text-red-600">{errors.exact_start_date}</span>{/if}
-            </label>
-            <label class="grid gap-1.5 text-sm font-medium text-ink">
-              <span>End date</span>
-              <input class={cls('exact_end_date')} type="date" min={exact_start_date || todayStr} bind:value={exact_end_date} on:input={() => clearErr('exact_end_date')} aria-invalid={Boolean(errors.exact_end_date)} />
-              {#if errors.exact_end_date}<span data-error class="text-xs text-red-600">{errors.exact_end_date}</span>{/if}
-            </label>
-          </div>
-        {/if}
-      </fieldset>
-
-      <!-- ── Travel preferences ────────────────────────────────────────────── -->
-      <fieldset class="grid gap-4 border-t border-ink/10 pt-4">
-        <legend class="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">Travel preferences</legend>
-        <div class="grid gap-4 md:grid-cols-2">
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Are your dates flexible?</span>
-            <select class={cls('date_flexibility')} bind:value={date_flexibility}>
-              <option value="">Select…</option>
-              {#each flexibilityOptions as opt}<option value={opt}>{opt}</option>{/each}
-            </select>
-          </label>
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Budget per person</span>
-            <select class={cls('budget_per_person')} bind:value={budget_per_person} on:change={() => clearErr('budget_per_person')} aria-invalid={Boolean(errors.budget_per_person)}>
-              <option value="" disabled>Select budget…</option>
-              {#each budgetOptions as opt}<option value={opt}>{opt}</option>{/each}
-            </select>
-            {#if errors.budget_per_person}<span data-error class="text-xs text-red-600">{errors.budget_per_person}</span>{/if}
-          </label>
-        </div>
-        <div class="grid gap-4 md:grid-cols-2">
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Who is travelling?</span>
-            <select class={cls('traveller_type')} bind:value={traveller_type} on:change={() => clearErr('traveller_type')} aria-invalid={Boolean(errors.traveller_type)}>
-              <option value="" disabled>Select traveller type…</option>
-              {#each travellerOptions as opt}<option value={opt}>{opt}</option>{/each}
-            </select>
-            {#if errors.traveller_type}<span data-error class="text-xs text-red-600">{errors.traveller_type}</span>{/if}
-          </label>
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Accommodation preference</span>
-            <select class={cls('accommodation_preference')} bind:value={accommodation_preference}>
-              <option value="">No preference</option>
-              {#each accommodationOptions.filter((a) => a !== 'Not sure yet') as opt}<option value={opt}>{opt}</option>{/each}
-            </select>
-          </label>
-        </div>
-        <div class="grid gap-4 md:grid-cols-2">
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Adults</span>
-            <input class={cls('number_of_adults')} type="number" min="1" bind:value={number_of_adults} on:input={() => clearErr('number_of_adults')} aria-invalid={Boolean(errors.number_of_adults)} />
-            {#if errors.number_of_adults}<span data-error class="text-xs text-red-600">{errors.number_of_adults}</span>{/if}
-          </label>
-          <label class="grid gap-1.5 text-sm font-medium text-ink">
-            <span>Children</span>
-            <input class={cls('number_of_children')} type="number" min="0" bind:value={number_of_children} on:input={() => clearErr('number_of_children')} aria-invalid={Boolean(errors.number_of_children)} />
-            {#if errors.number_of_children}<span data-error class="text-xs text-red-600">{errors.number_of_children}</span>{/if}
-          </label>
-        </div>
-      </fieldset>
-
-      <!-- ── Notes ─────────────────────────────────────────────────────────── -->
-      <fieldset class="grid gap-4 border-t border-ink/10 pt-4">
-        <legend class="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">Notes</legend>
-        <label class="grid gap-1.5 text-sm font-medium text-ink">
-          <span>Trip notes</span>
-          <textarea
-            class={inputBase + ' border-ink/15 focus:border-forest focus:ring-forest/15'}
-            rows={3}
-            bind:value={message}
-            placeholder="Tell us anything important: must-see places, special occasions, dietary needs, accessibility needs, preferred pace, room preferences…"
-          ></textarea>
-        </label>
-      </fieldset>
-    </div>
-
-    <!-- Honeypot: hidden from humans, tempting to bots. -->
-    <div class="absolute left-[-9999px] top-0 h-0 w-0 overflow-hidden" aria-hidden="true">
-      <label>Company<input type="text" name="hp_company" tabindex="-1" autocomplete="off" bind:value={hp_company} /></label>
-    </div>
-
-    {#if errorMessage}
-      <div class="mt-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
-        <AlertCircle size={18} class="mt-0.5 shrink-0" />
-        <span>{errorMessage}</span>
+        {/key}
+        {#if pending && !busy}<div class="warning" role="status">Your brief is kept unchanged while we confirm delivery. Retrying uses the same request reference, so a lost connection won’t create another request.</div>{/if}
+        {#if submitError}<div class="error-box" role="alert">{submitError}<p>Your details have not been cleared. Retry below, or download your brief to keep a copy.</p><button type="button" class="text-link" on:click={downloadBrief}><Download size={14} /> Download brief</button></div>{/if}
+        <div class="step-footer"><button class="back" type="button" disabled={step === 0 || busy || !!pending} on:click={() => move(step - 1)}><ArrowLeft size={16} /> Back</button>{#if step < 6}<button type="button" class="primary" on:click={() => move(step + 1)}>Continue <ArrowRight size={17} /></button>{:else}<button type="button" class="primary" disabled={busy} on:click={submit}>{#if busy}Sending your brief…{:else if pending}<RotateCcw size={16} /> Retry safely{:else}Send my trip request <ArrowRight size={16} />{/if}</button>{/if}</div>
+        <p class="privacy-note"><ShieldCheck size={14} /><span>No payment. No obligation. Your draft stays in this browser tab for up to 24 hours; close the tab on a shared device. Unconfirmed requests remain until delivery is confirmed or the tab is closed.</span></p>
       </div>
-    {/if}
-
-    <div class="mt-5">
-      <Button type="submit" className="w-full">{submitting ? 'Sending your request...' : 'Send My Trip Request'}</Button>
-      <p class="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-ink/70">
-        <ShieldCheck size={13} class="text-forest" />
-        Your details are kept private and used only to plan your trip.
-      </p>
     </div>
-  </form>
+    <aside class="sidebar" aria-label="Your trip so far">
+      <div class="trip-summary"><div class="summary-top"><Compass size={25} strokeWidth={1.2} /><span>Made around you</span></div><h2>Your trip so far.</h2><p>A starting point, not a fixed itinerary.</p><dl>{#each rows.filter(([label]) => ['Trip type', 'Travellers', 'When', 'Length', 'Comfort', 'Budget per person'].includes(label)) as [label, value]}<div><dt>{label}</dt><dd>{value}</dd></div>{/each}</dl>{#if contextLabels.length}<div class="context-tags">{#each contextLabels as label}<span>{label}</span>{/each}</div>{/if}<div class="summary-bottom"><ShieldCheck size={18} /><span>A local specialist will review your route, stays and practical details.</span></div></div>
+      {#if step > 1 && picks.length}<div class="suggestions"><p class="eyebrow">Ideas from our collection</p><p class="fine">Starting points, not availability or price guarantees.</p>{#each picks as pick}<a href={`/tours/${pick.tour.slug}`} target="_blank" rel="noopener">{#if pick.tour.main_image_url}<img src={pick.tour.main_image_url} alt="" loading="lazy" />{/if}<span><small>{pick.tour.duration_days} days · {pick.reason}</small><strong>{pick.tour.title}</strong><span>Explore itinerary ↗</span></span></a>{/each}</div>{/if}
+    </aside>
+  </div>
 {/if}
+
+<style>
+  .destination-picker{border-top:1px solid rgb(var(--c-ink) / .12);padding-top:20px}.destination-picker summary{cursor:pointer;font-size:13px;font-weight:600;color:rgb(var(--c-clay));min-height:44px;line-height:1.6}.destination-picker summary span{display:block;font-weight:400;font-size:11px;color:rgb(var(--c-ink) / .6)}
+  .planner-layout{display:grid;align-items:start;gap:24px;min-width:0}.planner-main{min-width:0;background:rgb(var(--c-surface));border:1px solid rgb(var(--c-ink) / .12)}.progress-nav{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;padding:24px 24px 0}.progress-nav button{min-width:0;text-align:left;min-height:44px;padding:0;color:rgb(var(--c-ink) / .5)}.progress-line{display:block;height:3px;background:rgb(var(--c-ink) / .1);margin-bottom:10px}.complete .progress-line,.active .progress-line{background:rgb(var(--c-goldfinch-gold))}.step-label{font-size:10px;line-height:1.4;display:block}.active .step-label{color:rgb(var(--c-heading));font-weight:700}.form-body{padding:24px}.step-meta{display:flex;justify-content:space-between;gap:12px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--c-ink) / .65);margin-bottom:14px}h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(28px,3vw,38px);font-weight:400;line-height:1.14;color:rgb(var(--c-heading));margin:0;scroll-margin-top:110px}h2:focus{outline:none}.intro{font-size:14px;line-height:1.8;color:rgb(var(--c-ink) / .65);margin:14px 0 28px}.step-fields{border:0;margin:0;padding:0;min-width:0}.step-fields:disabled{opacity:.7;pointer-events:none}.field-section{margin-top:28px}h3{font-size:14px;font-weight:600;line-height:1.6;margin:0 0 14px;color:rgb(var(--c-ink))}h3 span,label>span{display:block;font-size:12px;color:rgb(var(--c-ink) / .6);font-weight:400;line-height:1.6;margin-top:3px}.fields{display:grid;gap:18px}label{display:block;min-width:0;font-size:13px;font-weight:600;color:rgb(var(--c-ink))}input:not([type=checkbox]),textarea{display:block;width:100%;min-width:0;box-sizing:border-box;margin-top:8px;border:1px solid rgb(var(--c-ink) / .18);background:rgb(var(--c-surface));padding:13px;font-size:16px;font-weight:400;line-height:1.5;color:rgb(var(--c-ink));border-radius:0}input:focus,textarea:focus{outline:2px solid rgb(var(--c-goldfinch-gold));outline-offset:1px}textarea{resize:vertical}input:disabled{background:rgb(var(--c-savanna) / .3)}.age-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.check-label{display:flex;align-items:flex-start;gap:12px;line-height:1.6;font-size:13px;font-weight:400;margin-top:18px;min-height:44px}.check-label input{width:18px;height:18px;flex-shrink:0;margin-top:3px;accent-color:rgb(var(--c-deep-green))}.check-label span{font-size:12px;margin:0;color:rgb(var(--c-ink) / .65)}.consent a{text-decoration:underline}.help-note,.warning{background:rgb(var(--c-goldfinch-gold) / .1);border-left:2px solid rgb(var(--c-goldfinch-gold));padding:16px;font-size:13px;line-height:1.8;color:rgb(var(--c-forest));margin:18px 0}.draft-note{display:flex;align-items:center;gap:8px;font-size:12px;color:rgb(var(--c-clay));margin:0 0 20px}.error-box{background:#fff4f1;border:1px solid #dfb9ac;color:#903d26;padding:16px;font-size:13px;line-height:1.7;margin:20px 0}.error-box ul{padding-left:18px;list-style:disc}.step-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid rgb(var(--c-ink) / .12);padding-top:24px;margin-top:32px}.primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:14px 22px;background:rgb(var(--c-deep-green));color:white;font-size:13px;font-weight:600;border:1px solid rgb(var(--c-deep-green))}.primary:hover{background:rgb(var(--c-forest))}.primary:disabled{opacity:.65;cursor:wait}.back{display:flex;align-items:center;gap:8px;min-height:46px;font-size:13px;color:rgb(var(--c-ink) / .7)}.back:disabled{opacity:.3}.privacy-note{display:flex;gap:8px;margin-top:20px;font-size:10px;line-height:1.8;color:rgb(var(--c-ink) / .65)}.privacy-note :global(svg){flex-shrink:0;margin-top:2px}.sidebar{min-width:0}.trip-summary{padding:28px;background:rgb(var(--c-deep-green));color:#fff}.summary-top{display:flex;align-items:center;gap:12px;color:rgb(var(--c-goldfinch-gold));font-size:10px;text-transform:uppercase;letter-spacing:.17em}.trip-summary h2{color:#fff;margin-top:22px;font-size:32px}.trip-summary>p{font-size:12px;line-height:1.6;color:rgb(var(--c-savanna) / .82);margin:10px 0 26px}dl{margin:0}dl>div{border-bottom:1px solid #ffffff1a;padding:12px 0}dt{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgb(var(--c-savanna) / .8)}dd{font-size:14px;line-height:1.6;margin:4px 0 0;overflow-wrap:anywhere}.summary-bottom{display:flex;align-items:flex-start;gap:10px;font-size:11px;line-height:1.8;color:rgb(var(--c-savanna) / .8);margin-top:26px}.summary-bottom :global(svg){flex-shrink:0}.context-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.context-tags span{padding:8px 10px;border:1px solid #ffffff26;font-size:11px;line-height:1.5}.suggestions{margin-top:24px;padding:22px;background:rgb(var(--c-savanna) / .4)}.eyebrow{font-size:10px;letter-spacing:.17em;text-transform:uppercase;font-weight:600;color:rgb(var(--c-clay))}.fine{font-size:12px;line-height:1.7;color:rgb(var(--c-ink) / .65)}.suggestions>a{display:flex;gap:12px;border-top:1px solid rgb(var(--c-ink) / .12);margin-top:16px;padding-top:16px;min-width:0}.suggestions img{width:70px;height:84px;object-fit:cover;flex-shrink:0}.suggestions strong{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:17px;line-height:1.3;margin:5px 0}.suggestions small{font-size:9px;color:rgb(var(--c-ink) / .65)}.suggestions a>span>span{font-size:10px;color:rgb(var(--c-clay))}.review{padding:20px;background:rgb(var(--c-savanna) / .25)}.review-heading{display:flex;justify-content:space-between;gap:10px;align-items:center}.review-heading button{font-size:12px;color:rgb(var(--c-clay));text-decoration:underline;min-height:44px}.review dt{color:rgb(var(--c-ink) / .65)}.review dd{font-size:13px;color:rgb(var(--c-ink))}.review dl>div{border-color:rgb(var(--c-ink) / .12)}.review h4{font-size:11px;font-weight:600;margin-top:20px}.review p,.review li{font-size:13px;line-height:1.7;color:rgb(var(--c-ink) / .7)}.review ul{padding-left:16px;list-style:disc}.preserve{white-space:pre-wrap;overflow-wrap:anywhere}.country-field{min-width:0}.country-field>label{margin-bottom:8px}.honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}.confirmation{max-width:780px;background:rgb(var(--c-surface));border:1px solid rgb(var(--c-ink) / .12);padding:32px;margin:0 auto;color:rgb(var(--c-ink))}.confirmation>.eyebrow{margin:22px 0 14px}.confirmation>p:not(.eyebrow){font-size:15px;line-height:1.9;margin-top:20px}.reference{border-block:1px solid rgb(var(--c-ink) / .12);padding:22px 0;margin-top:24px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}.reference>span{font-size:12px}.reference strong{font-size:18px;letter-spacing:.1em}.reference button{font-size:12px;text-decoration:underline;margin-left:auto;min-height:44px}.success-actions{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.text-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;text-decoration:underline;font-size:13px}button:focus-visible,a:focus-visible{outline:3px solid rgb(var(--c-goldfinch-gold));outline-offset:3px}@media(min-width:600px){.fields.two{grid-template-columns:repeat(2,minmax(0,1fr))}.form-body{padding:32px}.progress-nav{padding:28px 32px 0;gap:10px}.step-label{font-size:11px}}@media(min-width:1000px){.planner-layout{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:32px}.sidebar{position:sticky;top:110px}.trip-summary{padding:32px}}@media(max-width:599px){.step-label{display:none}.progress-nav{padding:20px 20px 0}.progress-nav button{min-height:44px}.progress-line{margin:0}.form-body{padding:20px}.primary{padding:13px 16px;font-size:12px}.step-footer{gap:8px}.review{padding:14px}.age-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.confirmation{padding:24px}}
+</style>

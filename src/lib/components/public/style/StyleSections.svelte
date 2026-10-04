@@ -10,13 +10,13 @@
    * hairline separates two neighbours that would otherwise share a colour.
    */
   import { ArrowRight, ArrowUpRight, Check, Minus, Plus } from '@lucide/svelte';
-  import { fadeUpOnScroll } from '$lib/animations';
   import DestinationFeatureCard from '$lib/components/public/DestinationFeatureCard.svelte';
   import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
-  import LodgeCard from '$lib/components/public/LodgeCard.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import RichText from '$lib/components/public/RichText.svelte';
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
+  import GuideCard from './GuideCard.svelte';
+  import ComfortTierCard from './ComfortTierCard.svelte';
   import { splitPlace, splitSchedule, type Section } from './styleContent';
 
   export let sections: Section[] = [];
@@ -58,24 +58,27 @@
     const prev = i === 0 ? prevTone : tones[i - 1];
     return [
       BG[tone],
-      'py-20 md:py-28',
+      'py-14 md:py-24',
       tone === prev && tone !== 'dark' ? 'border-t border-ink/10' : '',
-      'scroll-mt-[calc(var(--nav-h,70px)+56px)]'
+      'scroll-mt-[calc(var(--nav-h,70px)+64px)]'
     ].join(' ');
   };
 
   const pad2 = (n: number) => String(n).padStart(2, '0');
-  const initials = (name: string) =>
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase())
-      .join('');
 
   /** Mosaic: the first image leads at 2×2 once there are enough to frame it. */
   const tileClass = (i: number, count: number) =>
     count >= 4 && i === 0 ? 'col-span-2 row-span-2' : '';
+
+  const faqGroups = (items: Extract<Section, { kind: 'faq' }>['items']) => {
+    const groups = new Map<string, typeof items>();
+    const hasTopics = items.some((item) => item.topic);
+    for (const item of items) {
+      const topic = item.topic || (hasTopics ? 'Other questions' : '');
+      groups.set(topic, [...(groups.get(topic) ?? []), item]);
+    }
+    return [...groups].map(([topic, questions]) => ({ topic, questions }));
+  };
 </script>
 
 {#snippet heading(eyebrow: string, title: string, dark = false, size = 'md')}
@@ -110,7 +113,7 @@
     </div>
   {:else}
   <section id={s.id} class={sectionClass(i)}>
-    <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
+    <div class="container-shell min-w-0">
       <!-- ── Prose ──────────────────────────────────────────────────────── -->
       {#if s.kind === 'prose'}
         {@const p = s.prose}
@@ -120,7 +123,7 @@
             <div class="lg:col-span-5">
               {@render heading(s.eyebrow || 'Overview', s.title, false, 'lg')}
               {#if p.callout}
-                <p class="mt-10 border-l-2 border-goldfinch-gold pl-6 font-serif text-[22px] font-light italic leading-[1.45] text-heading md:text-[26px]">
+                <p class="mt-8 border-l-2 border-goldfinch-gold bg-linen/60 p-6 font-serif text-[22px] font-light italic leading-[1.45] text-heading md:text-[26px]">
                   {p.callout}
                 </p>
               {/if}
@@ -174,9 +177,9 @@
                 <ol class="relative">
                   {#each p.rows as row, r (r)}
                     {@const stop = splitPlace(row.text)}
-                    <li class="relative grid grid-cols-[88px_1fr] gap-6 pb-9 last:pb-0 md:grid-cols-[112px_1fr]">
+                    <li class="relative grid grid-cols-[64px_minmax(0,1fr)] gap-4 pb-8 last:pb-0 md:grid-cols-[112px_minmax(0,1fr)] md:gap-6">
                       {#if r < p.rows.length - 1}
-                        <span class="absolute left-[95px] top-3 h-full w-px bg-ink/12 md:left-[119px]" aria-hidden="true"></span>
+                        <span class="absolute left-[87px] top-3 h-full w-px bg-ink/15 md:left-[143px]" aria-hidden="true"></span>
                       {/if}
                       <span class="pt-0.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-clay">{row.label}</span>
                       <div class="relative pl-7">
@@ -235,12 +238,12 @@
       <!-- ── Numbered reasons ───────────────────────────────────────────── -->
       {:else if s.kind === 'numbered'}
         <div class="max-w-3xl">{@render heading(s.eyebrow, s.title, true)}</div>
-        <div class="mt-14 grid gap-x-12 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 md:mt-20">
+        <div class={`mt-9 grid gap-4 sm:grid-cols-2 md:mt-12 ${s.columns === 4 ? 'xl:grid-cols-4' : s.columns === 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
           {#each s.items as item, n (n)}
-            <div class="border-t border-white/15 pt-6">
-              <span class="font-serif text-[15px] text-goldfinch-gold">{pad2(n + 1)}</span>
-              {#if item.title}<h3 class="mt-3 font-serif text-[24px] leading-snug text-white">{item.title}</h3>{/if}
-              {#if item.body}<p class="mt-3 text-[15px] leading-7 text-white/65">{item.body}</p>{/if}
+            <div class="min-w-0 border border-white/15 bg-white/[0.035] p-6 md:p-8">
+              <span class="inline-block border-b border-goldfinch-gold/60 pb-2 font-serif text-[25px] text-goldfinch-gold">{pad2(n + 1)}</span>
+              {#if item.title}<h3 class="mt-5 font-serif text-[24px] leading-snug text-white">{item.title}</h3>{/if}
+              {#if item.body}<p class="mt-3 text-[15px] leading-7 text-white/80">{item.body}</p>{/if}
             </div>
           {/each}
         </div>
@@ -300,18 +303,10 @@
           </div>
 
         {:else}
-          <div class={`mt-12 grid gap-6 md:mt-16 ${v.items.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
+          {@const showPortrait = v.items.some((person) => person.image)}
+          <div class={`mt-9 grid gap-6 md:mt-12 ${v.items.length === 1 ? 'max-w-md' : v.items.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
             {#each v.items as person, n (n)}
-              <article class="bg-surface p-8 shadow-card">
-                <div class="flex items-center gap-4">
-                  <span class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-deep-green font-serif text-xl text-goldfinch-gold">{initials(person.name)}</span>
-                  <div>
-                    <h3 class="font-serif text-[24px] leading-tight text-heading">{person.name}</h3>
-                    {#if person.role}<p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-clay">{person.role}</p>{/if}
-                  </div>
-                </div>
-                {#if person.bio}<p class="mt-6 text-[15px] leading-7 text-ink/65">{person.bio}</p>{/if}
-              </article>
+              <GuideCard {person} {showPortrait} />
             {/each}
           </div>
         {/if}
@@ -322,90 +317,20 @@
           <div class="lg:col-span-6">{@render heading(s.eyebrow, s.title)}</div>
           {#if s.intro}<p class="max-w-[60ch] text-[15px] leading-7 text-ink/65 lg:col-span-6">{s.intro}</p>{/if}
         </div>
-        {#if s.tiers.some((t) => t.lodges.length)}
-          <!-- Accommodation picked per level: one row per tier — the price on the
-               left, the actual lodges as cards on the right. -->
-          <div class="mt-12 divide-y divide-ink/10 border-y border-ink/10 md:mt-16">
-            {#each s.tiers as tier, n (n)}
-              <div class="grid gap-8 py-10 md:py-14 lg:grid-cols-12 lg:gap-12">
-                <div class="lg:col-span-3">
-                  <div class="lg:sticky lg:top-[calc(var(--nav-h,70px)+88px)]">
-                    <div class="flex flex-wrap items-center gap-3">
-                      <h3 class="text-[12px] font-semibold uppercase tracking-[0.22em] text-heading">{tier.title}</h3>
-                      {#if tier.label}
-                        <span class="bg-goldfinch-gold/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-clay">{tier.label}</span>
-                      {/if}
-                    </div>
-                    {#if tier.price}
-                      <p class="mt-5 text-[12px] text-ink/50">From</p>
-                      <p class="font-serif text-[44px] font-light leading-none text-heading md:text-[52px]">{tier.price}</p>
-                      {#if tier.unit}<p class="mt-2 text-[13px] text-ink/55">{tier.unit}</p>{/if}
-                    {/if}
-                    {#each tier.notes as note, k (k)}
-                      <p class="mt-4 max-w-[34ch] text-[14px] leading-6 text-ink/65">{note}</p>
-                    {/each}
-                  </div>
-                </div>
-
-                <div class="lg:col-span-9">
-                  {#if tier.lodges.length}
-                    <div class={`grid gap-5 sm:grid-cols-2 ${tier.lodges.length >= 3 ? 'xl:grid-cols-3' : ''}`}>
-                      {#each tier.lodges as lodge (lodge.id)}
-                        <LodgeCard {lodge} />
-                      {/each}
-                    </div>
-                  {:else if tier.image}
-                    <div class="aspect-[21/9] overflow-hidden bg-ink/5">
-                      <ResponsiveImage src={tier.image} alt={tier.title} sizes="(min-width:1024px) 70vw, 100vw" width={1200} imgClass="h-full w-full object-cover" />
-                    </div>
-                  {/if}
-                </div>
-              </div>
-            {/each}
-          </div>
-        {:else}
-          <div class={`mt-12 grid gap-6 md:mt-16 ${s.tiers.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
-            {#each s.tiers as tier, n (n)}
-              <article class="flex flex-col bg-surface shadow-card">
-                {#if tier.image}
-                  <div class="aspect-[16/9] overflow-hidden bg-ink/5">
-                    <ResponsiveImage src={tier.image} alt={tier.title} sizes="(min-width:768px) 33vw, 100vw" width={720} imgClass="h-full w-full object-cover" />
-                  </div>
-                {/if}
-                <div class="flex flex-1 flex-col p-7 md:p-8">
-                  <div class="flex items-center justify-between gap-3">
-                    <h3 class="text-[12px] font-semibold uppercase tracking-[0.22em] text-heading">{tier.title}</h3>
-                    {#if tier.label}
-                      <span class="bg-goldfinch-gold/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-clay">{tier.label}</span>
-                    {/if}
-                  </div>
-                  {#if tier.price}
-                    <p class="mt-6 text-[12px] text-ink/50">From</p>
-                    <p class="font-serif text-[48px] font-light leading-none text-heading">{tier.price}</p>
-                    {#if tier.unit}<p class="mt-2 text-[13px] text-ink/55">{tier.unit}</p>{/if}
-                  {/if}
-                  {#if tier.notes.length}
-                    <div class="mt-6 border-t border-ink/10 pt-5">
-                      {#each tier.notes as note, k (k)}
-                        <p class="text-[14px] leading-6 text-ink/65 [&+p]:mt-2">{note}</p>
-                      {/each}
-                    </div>
-                  {/if}
-                </div>
-              </article>
-            {/each}
-          </div>
-        {/if}
+        <div class={`mt-9 grid gap-6 md:mt-12 ${s.tiers.length === 1 ? 'max-w-md' : s.tiers.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
+          {#each s.tiers as tier, n (n)}
+            <ComfortTierCard {tier} {planHref} />
+          {/each}
+        </div>
 
       <!-- ── Steps ──────────────────────────────────────────────────────── -->
       {:else if s.kind === 'steps'}
         <div class="max-w-3xl">{@render heading(s.eyebrow, s.title)}</div>
-        <ol class={`mt-12 grid gap-10 md:mt-16 md:gap-6 ${s.steps.length >= 5 ? 'md:grid-cols-5' : s.steps.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+        <ol class={`mt-9 grid gap-4 sm:grid-cols-2 md:mt-12 ${s.steps.length >= 5 ? 'lg:grid-cols-3 xl:grid-cols-5' : s.steps.length === 4 ? 'xl:grid-cols-4' : 'lg:grid-cols-3'}`}>
           {#each s.steps as step, n (n)}
-            <li class="relative">
+            <li class="relative min-w-0 border border-ink/10 bg-canvas p-6">
               <div class="flex items-center gap-4">
-                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-goldfinch-gold font-serif text-[16px] text-heading">{n + 1}</span>
-                {#if n < s.steps.length - 1}<span class="hidden h-px flex-1 bg-ink/15 md:block" aria-hidden="true"></span>{/if}
+                <span class="grid h-10 w-10 shrink-0 place-items-center bg-deep-green font-serif text-[18px] text-goldfinch-gold">{pad2(n + 1)}</span>
               </div>
               <h3 class="mt-5 text-[15px] font-semibold text-heading">{step.title}</h3>
               {#if step.body}<p class="mt-2 text-[14px] leading-6 text-ink/65">{step.body}</p>{/if}
@@ -424,7 +349,7 @@
         <div class={`mt-12 grid auto-rows-[160px] grid-cols-2 gap-3 md:mt-16 md:auto-rows-[240px] md:gap-4 ${s.images.length >= 4 || s.images.length === 3 ? 'md:grid-cols-3' : s.images.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
           {#each s.images as im, n (n)}
             <figure class={`relative overflow-hidden bg-ink/5 ${tileClass(n, s.images.length)}`}>
-              <ResponsiveImage src={im.url} alt={im.caption} sizes={n === 0 ? '(min-width:768px) 66vw, 100vw' : '(min-width:768px) 33vw, 50vw'} width={n === 0 ? 1200 : 640} imgClass="h-full w-full object-cover transition duration-700 hover:scale-[1.03]" />
+              <ResponsiveImage src={im.url} alt={im.alt} sizes={n === 0 ? '(min-width:768px) 66vw, 100vw' : '(min-width:768px) 33vw, 50vw'} width={n === 0 ? 1200 : 640} imgClass="h-full w-full object-cover transition duration-700 hover:scale-[1.03]" />
               {#if im.caption}<figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/70 p-4 text-[13px] text-white">{im.caption}</figcaption>{/if}
             </figure>
           {/each}
@@ -434,9 +359,9 @@
       {:else if s.kind === 'inclusions'}
         <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
           <div class="lg:col-span-4">{@render heading(s.eyebrow, s.title || "What's included")}</div>
-          <div class="grid gap-10 sm:grid-cols-2 lg:col-span-8">
+          <div class="grid gap-4 sm:grid-cols-2 lg:col-span-8">
             {#if s.included.length}
-              <div>
+              <div class="min-w-0 border border-deep-green/15 bg-deep-green/[0.035] p-5 md:p-7">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Included</p>
                 <ul class="mt-5 divide-y divide-ink/10 border-t border-ink/10">
                   {#each s.included as item, k (k)}
@@ -446,11 +371,11 @@
               </div>
             {/if}
             {#if s.excluded.length}
-              <div>
-                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/50">Not included</p>
+              <div class="min-w-0 border border-ink/10 bg-linen/50 p-5 md:p-7">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/75">Not included</p>
                 <ul class="mt-5 divide-y divide-ink/10 border-t border-ink/10">
                   {#each s.excluded as item, k (k)}
-                    <li class="flex gap-3 py-3 text-[15px] leading-6 text-ink/55"><Minus class="mt-1 h-4 w-4 shrink-0 text-ink/30" strokeWidth={2.4} />{item}</li>
+                    <li class="flex gap-3 py-3 text-[15px] leading-6 text-ink/75"><Minus class="mt-1 h-4 w-4 shrink-0 text-clay" strokeWidth={2.4} />{item}</li>
                   {/each}
                 </ul>
               </div>
@@ -494,6 +419,7 @@
           <div class="lg:col-span-4">
             <div class="lg:sticky lg:top-[calc(var(--nav-h,70px)+88px)]">
               {@render heading(s.eyebrow || 'Questions', s.title || 'Frequently asked')}
+              <p class="mt-5 inline-flex border border-ink/15 bg-linen/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-clay">{s.items.length} questions answered</p>
               <p class="mt-6 text-[15px] leading-7 text-ink/65">Something we haven't covered? Ask us directly — a member of the team replies personally.</p>
               <a class="group mt-6 inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href="/contact">
                 Ask a question
@@ -503,17 +429,22 @@
           </div>
           <div class="lg:col-span-8">
             <!-- Native <details>: answers stay in the server HTML for search, only visually collapsed. -->
-            <div class="divide-y divide-ink/10 border-y border-ink/10">
-              {#each s.items as item, k (k)}
-                <details class="style-faq group">
-                  <summary class="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-left">
-                    <span class="font-serif text-[20px] leading-snug text-heading md:text-[22px]">{item.q}</span>
-                    <Plus class="mt-1 h-5 w-5 shrink-0 text-clay transition duration-300 group-open:rotate-45" />
-                  </summary>
-                  <p class="max-w-[66ch] pb-7 pr-10 text-[15px] leading-7 text-ink/70">{item.a}</p>
-                </details>
-              {/each}
-            </div>
+            {#each faqGroups(s.items) as group, g (g)}
+              <div class={g ? 'mt-8' : ''}>
+                {#if group.topic}<h3 class="mb-4 text-[12px] font-semibold uppercase tracking-[0.15em] text-clay">{group.topic}</h3>{/if}
+                <div class="space-y-2">
+                  {#each group.questions as item, k (k)}
+                    <details class="style-faq group border border-ink/12 bg-surface open:border-goldfinch-gold/60 open:bg-linen/30">
+                      <summary class="flex min-h-16 cursor-pointer list-none items-start justify-between gap-4 px-5 py-5 text-left md:px-6">
+                        <span class="text-[15px] font-medium leading-6 text-heading md:text-[16px]">{item.q}</span>
+                        <Plus class="mt-0.5 h-5 w-5 shrink-0 text-clay group-open:rotate-45" />
+                      </summary>
+                      <p class="max-w-[70ch] whitespace-pre-line px-5 pb-6 text-[15px] leading-7 text-ink/75 md:px-6">{item.a}</p>
+                    </details>
+                  {/each}
+                </div>
+              </div>
+            {/each}
           </div>
         </div>
       {/if}

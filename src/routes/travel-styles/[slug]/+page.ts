@@ -19,14 +19,16 @@ import { categoryForStyle } from '$lib/styleLinks';
 export const load: PageLoad = async ({ fetch, params }) => {
   let style: TravelStyle | null = null;
 
+  // An API outage is temporary, not evidence that a published page disappeared.
+  const response = await fetch(`/api/travel-styles/${encodeURIComponent(params.slug)}`)
+    .catch(() => null);
+  if (response?.status === 404) throw error(404, 'That travel style is not available.');
+  if (!response?.ok) throw error(503, 'This travel style is temporarily unavailable. Please try again shortly.');
   try {
-    const body = await cachedJson<{ data?: TravelStyle }>(
-      `/api/travel-styles/${encodeURIComponent(params.slug)}`,
-      fetch
-    );
+    const body = await response.json() as { data?: TravelStyle };
     style = body?.data ?? null;
   } catch {
-    style = null;
+    throw error(503, 'This travel style is temporarily unavailable. Please try again shortly.');
   }
 
   if (!style || (style.status && style.status !== 'published')) {

@@ -32,6 +32,10 @@ type CacheEntry = { at: number; result: unknown };
 const getCache = new Map<string, CacheEntry>();
 const GET_TTL = 5 * 60 * 1000; // 5 minutes
 
+export class ApiRequestError extends Error {
+  constructor(message: string, public status: number) { super(message); this.name = 'ApiRequestError'; }
+}
+
 export const apiRequest = async <T>(path: string, options: RequestOptions = {}) => {
   const token = authToken();
   const method = (options.method ?? 'GET').toUpperCase();
@@ -68,7 +72,7 @@ export const apiRequest = async <T>(path: string, options: RequestOptions = {}) 
   }))) as ApiResponse<T>;
 
   if (!response.ok || !result.success) {
-    throw new Error(result.message || 'API request failed.');
+    throw new ApiRequestError(result.message || 'API request failed.', response.status);
   }
 
   if (cacheable) getCache.set(path, { at: Date.now(), result });
@@ -401,7 +405,7 @@ export const api = {
     remove: (id: string) => apiRequest(`/categories/${id}`, { method: 'DELETE' })
   },
   bookings: {
-    create: (body: Record<string, unknown>) => apiRequest<Record<string, unknown>>('/bookings', { method: 'POST', body }),
+    create: (body: Record<string, unknown>, signal?: AbortSignal) => apiRequest<Record<string, unknown>>('/bookings', { method: 'POST', body, signal }),
     list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<Record<string, unknown>>>(`/bookings${queryString(params)}`),
     get: (id: string) => apiRequest<Record<string, unknown>>(`/bookings/${id}`),
     getByCode: (code: string) => apiRequest<Record<string, unknown>>(`/bookings/code/${code}`),

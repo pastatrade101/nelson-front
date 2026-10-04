@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BookingBrief from '$lib/components/admin/BookingBrief.svelte';
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import {
@@ -598,16 +599,7 @@
           <div><p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Special requests</p><p class="mt-1 whitespace-pre-line rounded-2xl border border-ink/10 bg-surface p-3 text-sm leading-6 text-ink/75">{viewing.special_requests}</p></div>
         {/if}
 
-        {#if Object.keys(lc).length > 0}
-          <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Lead context</p>
-            <div class="mt-1 flex flex-wrap gap-2">
-              {#each Object.entries(lc) as [key, value]}
-                {#if value}<span class="rounded-full bg-forest/10 px-2.5 py-1 text-xs font-medium text-forest">{key.replace(/_/g, ' ')}: {String(value)}</span>{/if}
-              {/each}
-            </div>
-          </div>
-        {/if}
+        {#if Object.keys(lc).length > 0}<BookingBrief context={lc} />{/if}
 
         <div class="grid gap-3 sm:grid-cols-2">
           <div>

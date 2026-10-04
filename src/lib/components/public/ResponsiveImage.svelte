@@ -47,5 +47,6 @@
     width={meta?.width ?? undefined}
     height={meta?.height ?? undefined}
     style={combinedStyle}
+    on:error
   />
 </picture>

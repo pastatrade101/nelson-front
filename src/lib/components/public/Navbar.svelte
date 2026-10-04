@@ -474,16 +474,16 @@
     : `bg-deep-green ${scrolled ? 'border-transparent shadow-[0_8px_28px_rgba(28,26,22,0.20)]' : 'border-white/10'}`
 }`} use:navbarEntrance>
   <!-- ── mobile top bar ─────────────────────────────────────────────────── -->
-  <div class="flex h-[70px] items-center justify-between gap-3 px-4 sm:px-5 xl:hidden">
-    <button class="grid h-11 w-11 place-items-center rounded-xl border border-white/15 bg-white/5 text-white" type="button" aria-label="Toggle menu" aria-expanded={menuOpen} on:click={() => (menuOpen = !menuOpen)}>
+  <div class="flex h-[70px] min-w-0 items-center justify-between gap-2 px-3 sm:gap-3 sm:px-5 xl:hidden">
+    <button class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/5 text-white" type="button" aria-label="Toggle menu" aria-expanded={menuOpen} on:click={() => (menuOpen = !menuOpen)}>
       <Menu size={24} strokeWidth={2.4} />
     </button>
 
-    <a href="/" class="flex shrink-0 items-center gap-2" aria-label="Emnel Adventures home">
-      <img src={logoSrc} alt={$branding.site_name} class="h-12 w-auto object-contain" />
+    <a href="/" class="flex min-w-0 flex-1 items-center justify-center" aria-label="Emnel Adventures home">
+      <img src={logoSrc} alt={$branding.site_name} class="h-10 w-full max-w-[150px] object-contain sm:h-12" />
     </a>
 
-    <div class="flex items-center gap-2">
+    <div class="flex shrink-0 items-center gap-2">
       <CurrencySelector compact />
       <WhatsAppCta variant="icon" message={waMessage} context="navbar" ariaLabel={waButtonText} />
     </div>

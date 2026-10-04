@@ -166,14 +166,17 @@
     kilimanjaro: 'kilimanjaro'
   };
 
-  $: specialistHref = (() => {
-    const p = new URLSearchParams();
-    if (answers.persona) p.set('persona', answers.persona);
-    if (answers.experience) p.set('experience', answers.experience);
-    if (answers.when && answers.when !== 'Flexible') p.set('month', answers.when);
-    const q = p.toString();
-    return `/plan-my-trip${q ? `?${q}` : ''}`;
-  })();
+  const plannerQuery = (slug = '', selection = answers) => {
+    const p = new URLSearchParams({ from: 'trip-finder' });
+    for (const [key, value] of Object.entries(selection)) if (value) p.set(key, value);
+    // Finder budgets are bands, not exact dollar amounts.
+    const budgetLabel = questions.find((q) => q.key === 'budget')?.options.find((o) => o.value === answers.budget)?.label;
+    p.delete('budget');
+    if (budgetLabel) p.set('budget_band', budgetLabel);
+    if (slug) p.set('tour', slug);
+    return '/plan-my-trip?' + p.toString();
+  };
+  $: specialistHref = plannerQuery('', answers);
   $: allToursHref = experienceCategorySlug[answers.experience]
     ? `/tours?category=${experienceCategorySlug[answers.experience]}`
     : '/tours';
