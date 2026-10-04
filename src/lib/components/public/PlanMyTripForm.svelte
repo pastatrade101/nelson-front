@@ -13,6 +13,8 @@
   import PlannerChoices from './PlannerChoices.svelte';
   import CountrySelect from './CountrySelect.svelte';
   import WhatsAppCta from './WhatsAppCta.svelte';
+  import { publicSettings, settingText } from '$lib/settings';
+  import { downloadTripBriefPdf, loadBriefLogo, type TripBrief } from '$lib/tripBriefPdf';
   export let catalog: PlannerCatalog;
   export let entry: Entry;
   const STORAGE = 'emnel_trip_planner_v2';
@@ -25,7 +27,9 @@
   let mounted = false, reducedMotion = false, busy = false, restored = false, copied = false;
   let key = newIdempotencyKey();
   let pending: ReturnType<typeof submission> | null = null;
-  let bookingCode = '', submitError = '', storageWarning = '', hp = '', sentBrief = '';
+  let bookingCode = '', submitError = '', storageWarning = '', hp = '';
+  let sentBrief: TripBrief | null = null;
+  let downloading = false;
   let errors: string[] = [];
   let heading: HTMLHeadingElement;
   let errorsEl: HTMLDivElement;
@@ -65,8 +69,36 @@
     if (next > step) { errors = validateStep(d, step); if (errors.length) { await tick(); errorsEl?.focus(); return; } }
     errors = []; direction = next > step ? 1 : -1; step = next; furthest = Math.max(furthest, next); await focusHeading();
   }
-  const humanBrief = () => ['EMNEL ADVENTURES · YOUR TRIP BRIEF', bookingCode ? `Reference: ${bookingCode}` : '', ...rows.map(([label, value]) => `${label}: ${value}`), ...contextLabels.map((label) => `Starting point: ${label}`), `Name: ${d.fullName}`, `Email: ${d.email}`, `Phone: ${d.phone || 'Not provided'}`, `Country: ${d.country}`, `Preferred contact: ${d.preferredContact}`, `Special requests: ${d.specialRequests || 'None specified'}`, `Notes: ${d.notes || 'None specified'}`, 'Saved trips:', JSON.stringify(savedTrips, null, 2), 'Entry context:', JSON.stringify(entries, null, 2)].filter(Boolean).join('\n');
-  function downloadBrief() { const blob = new Blob([sentBrief || humanBrief()], { type: 'text/plain;charset=utf-8' }); const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'emnel-trip-brief.txt'; anchor.click(); URL.revokeObjectURL(url); }
+  // The brief the traveller keeps: a branded one-page PDF (see $lib/tripBriefPdf).
+  // Snapshotted at submission so it always matches what the team received.
+  const briefData = (): TripBrief => ({
+    reference: bookingCode,
+    preparedFor: d.fullName.trim(),
+    rows,
+    startingPoints: contextLabels,
+    details: [['Name', d.fullName], ['Email', d.email], ['Phone', d.phone || 'Not provided'], ['Country', d.country], ['Preferred contact', d.preferredContact]],
+    specialRequests: d.specialRequests,
+    notes: d.notes,
+    contact: {
+      email: settingText($publicSettings, 'contact_email'),
+      phone: settingText($publicSettings, 'contact_phone'),
+      website: $page.url.host.replace(/^www\./, '')
+    }
+  });
+  async function downloadBrief() {
+    if (downloading) return;
+    downloading = true;
+    try {
+      const brief = sentBrief ?? briefData();
+      const logo = await loadBriefLogo();
+      await downloadTripBriefPdf({ ...brief, logo: logo?.dataUrl ?? null, logoRatio: logo?.ratio }, `emnel-trip-brief-${brief.reference || 'draft'}.pdf`);
+      trackEvent('cta_click', { cta_name: 'download_trip_brief', cta_location: 'plan_my_trip_confirmation' });
+    } catch {
+      submitError = 'We could not create the PDF just now. Your request is saved; please try again in a moment.';
+    } finally {
+      downloading = false;
+    }
+  }
   async function submit() {
     if (busy || bookingCode) return;
     if (!pending) {
@@ -80,7 +112,7 @@
       const response = await api.bookings.create(pending, controller.signal);
       const code = (response.data as { booking_code?: string } | null)?.booking_code;
       if (!code) throw new Error('We could not verify a saved request. Your brief is still here; please retry.');
-      bookingCode = code; sentBrief = humanBrief(); pending = null;
+      bookingCode = code; sentBrief = briefData(); pending = null;
       try { sessionStorage.removeItem(STORAGE); } catch { /* Confirmation remains visible if storage is disabled. */ }
       trackEvent('plan_my_trip_submitted', { transaction_id: code, lead_type: 'trip_planner' }); await tick(); document.getElementById('planner-confirmation')?.focus();
     } catch (error) {
@@ -101,7 +133,8 @@
     <p>Thank you, {d.fullName.split(' ')[0]}. Your full brief is with Emnel’s team. We’ll use your contact details to discuss the route, availability and a personal quote.</p>
     <div class="reference"><span>Your reference</span><strong>{bookingCode}</strong><button type="button" on:click={copyCode}>{copied ? 'Copied' : 'Copy reference'}</button></div>
     <p class="fine">This is a planning request, not a confirmed booking. No payment has been taken.</p>
-    <div class="success-actions"><button type="button" class="primary" on:click={downloadBrief}><Download size={16} /> Download your brief</button><WhatsAppCta message={`Hello Emnel Adventures, I submitted trip request ${bookingCode}. My name is ${d.fullName}. I’d like to discuss my saved brief.`} label="Continue on WhatsApp" /></div>
+    <div class="success-actions"><button type="button" class="primary" on:click={downloadBrief} disabled={downloading} aria-busy={downloading}><Download size={16} /> {downloading ? 'Preparing your PDF…' : 'Download your brief (PDF)'}</button><WhatsAppCta message={`Hello Emnel Adventures, I submitted trip request ${bookingCode}. My name is ${d.fullName}. I’d like to discuss my saved brief.`} label="Continue on WhatsApp" /></div>
+    {#if submitError}<p class="fine" role="alert">{submitError}</p>{/if}
     <a class="text-link" href="/tours">Explore more journeys <ArrowRight size={15} /></a>
   </div>
 {:else}
