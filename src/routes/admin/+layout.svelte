@@ -14,6 +14,7 @@
     '/admin/pricing-options': 'Pricing Options',
     '/admin/categories': 'Tour Categories',
     '/admin/destinations': 'Destinations',
+    '/admin/lodges': 'Lodges & Camps',
     '/admin/bookings': 'Bookings',
     '/admin/quotations': 'Quotations',
     '/admin/whatsapp': 'WhatsApp Inbox',

@@ -18,6 +18,9 @@
   import { applyBranding, branding, brandColorStyleTag } from '$lib/branding';
   import { cdnUrl } from '$lib/img';
   import { SITE_URL } from '$lib/config/env';
+  import { destinationSeo } from '$lib/destination-seo';
+  import { accommodationSeo } from '$lib/accommodation-seo';
+  import type { Destination, Lodge } from '$lib/types';
   import type { LayoutData } from './$types';
 
   export let data: LayoutData;
@@ -39,6 +42,14 @@
   // Site origin from PUBLIC_SITE_URL (.env), falling back to the live request origin.
   $: siteOrigin = SITE_URL || $page.url.origin;
   $: canonicalUrl = `${siteOrigin}${$page.url.pathname}`;
+  $: destinationMeta = /^\/destinations\/[^/]+\/?$/.test($page.url.pathname) && $page.data.destination
+    ? destinationSeo($page.data.destination as Destination) : null;
+  $: destinationIndex = $page.url.pathname === '/destinations';
+  $: accommodationMeta = /^\/accommodation\/[^/]+\/?$/.test($page.url.pathname) && $page.data.lodge ? accommodationSeo($page.data.lodge as Lodge) : null;
+  $: accommodationIndex = $page.url.pathname === '/accommodation';
+  $: socialTitle = accommodationMeta?.title || destinationMeta?.title || (accommodationIndex ? 'Tanzania Safari Lodges, Camps & Beach Stays | Emnel Adventures' : destinationIndex ? 'Tanzania Safari Destinations & National Parks | Emnel Adventures' : $branding.site_name);
+  $: socialDescription = accommodationMeta?.description || destinationMeta?.description || (accommodationIndex ? 'Find your Tanzania stay. Browse hand-picked safari lodges, tented camps and island retreats by destination, comfort and property type.' : destinationIndex ? 'Explore Tanzania’s safari parks, mountain regions and islands. Find the right destination for your private journey with Emnel Adventures.' : $branding.positioning);
+  $: socialImage = accommodationMeta?.image || destinationMeta?.image || `${siteOrigin}/emnel-icon.png`;
   $: orgUrl = `${siteOrigin}/`;
 
   let smoothScrollCleanup: (() => void) | undefined;
@@ -205,19 +216,18 @@
   <!-- No site-wide <meta name="description"> here. It used to be emitted
        unconditionally, so every page that wrote its own ended up with TWO, and
        Google picks one of those unpredictably or ignores both. Each page now owns
-       its description; the og:description below stays global because a single
-       social preview is the intent. -->
-  <meta property="og:title" content={$branding.site_name} />
-  <meta property="og:description" content={$branding.positioning} />
+       its description. Social tags live here once, with destination-specific data. -->
+  <meta property="og:title" content={socialTitle} />
+  <meta property="og:description" content={socialDescription} />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content={$branding.site_name} />
   <meta property="og:url" content={canonicalUrl} />
-  <meta property="og:image" content={`${siteOrigin}/emnel-icon.png`} />
-  <meta property="og:image:alt" content={$branding.site_name} />
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content={$branding.site_name} />
-  <meta name="twitter:description" content={$branding.positioning} />
-  <meta name="twitter:image" content={`${siteOrigin}/emnel-icon.png`} />
+  <meta property="og:image" content={socialImage} />
+  <meta property="og:image:alt" content={accommodationMeta ? ($page.data.lodge as Lodge).name : destinationMeta ? ($page.data.destination as Destination).name : $branding.site_name} />
+  <meta name="twitter:card" content={accommodationMeta?.image || destinationMeta?.image ? 'summary_large_image' : 'summary'} />
+  <meta name="twitter:title" content={socialTitle} />
+  <meta name="twitter:description" content={socialDescription} />
+  <meta name="twitter:image" content={socialImage} />
   <link rel="canonical" href={canonicalUrl} />
   {#if $branding.favicon_url}
     <link rel="icon" href={cdnUrl($branding.favicon_url)} />

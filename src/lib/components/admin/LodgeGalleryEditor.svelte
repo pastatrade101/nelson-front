@@ -43,6 +43,7 @@
 
   let picked = '';
   let notice = '';
+  let undoSnapshot = '';
 
   const add = (url: string) => {
     const clean = (url ?? '').trim();
@@ -72,11 +73,13 @@
   };
 
   const remove = (index: number) => {
+    undoSnapshot = JSON.stringify(images);
     images = images.filter((_, at) => at !== index);
   };
 </script>
 
 <div class="grid gap-3 border border-ink/10 bg-sand/20 p-4">
+  {#if undoSnapshot}<div role="status" class="flex items-center justify-between gap-3 bg-sand p-3 text-sm"><span>Photo removed. Undo restores the previous gallery.</span><button type="button" class="font-semibold text-forest underline" on:click={() => { images = JSON.parse(undoSnapshot); undoSnapshot = ''; }}>Undo removal</button></div>{/if}
   <div class="flex flex-wrap items-start justify-between gap-3">
     <div>
       <h3 class="text-base font-semibold text-ink">Photo gallery</h3>

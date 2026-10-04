@@ -1,4 +1,5 @@
 import type { PageLoad } from './$types';
+import { error, isHttpError } from '@sveltejs/kit';
 import type { Destination, FAQ, Lodge, Tour } from '$lib/types';
 
 // SSR-load the destination so the page arrives with content already rendered,
@@ -8,6 +9,7 @@ import type { Destination, FAQ, Lodge, Tour } from '$lib/types';
 export const load: PageLoad = async ({ params, fetch }) => {
   try {
     const res = await fetch(`/api/destinations/${params.slug}`);
+    if (res.status === 404) error(404, 'This destination could not be found.');
     if (res.ok) {
       const body = await res.json();
       if (body?.data) {
@@ -39,11 +41,23 @@ export const load: PageLoad = async ({ params, fetch }) => {
         const tourIds = new Set(tours.map((t) => t.id));
         const popularTours = tours.length >= 3 ? [] : featured.filter((t) => !tourIds.has(t.id)).slice(0, 6 - Math.min(tours.length, 3));
         const otherDestinations = others.filter((d) => d.id !== destination.id && d.slug !== destination.slug).slice(0, 6);
-        return { destination, faqs, lodges, tours, popularTours, otherDestinations };
+        // Records the guide's Tours / Accommodation blocks point at, so their cards
+        // are in the server HTML too. Published only — a draft is never shown.
+        const guideIds = (key: 'tour_ids' | 'lodge_ids') =>
+          (destination.guide ?? []).flatMap((b) => ((b as Record<string, unknown>)[key] as string[] | undefined) ?? []);
+        const wantTours = guideIds('tour_ids');
+        const wantLodges = guideIds('lodge_ids');
+        const [allTours, allLodges] = await Promise.all([
+          wantTours.length ? list<Tour>('/api/tours?status=published&limit=200') : Promise.resolve([] as Tour[]),
+          wantLodges.length ? list<Lodge>('/api/lodges?status=published&limit=200') : Promise.resolve([] as Lodge[])
+        ]);
+        const guideTours = allTours.filter((t) => wantTours.includes(t.id));
+        const guideLodges = allLodges.filter((l) => wantLodges.includes(l.id));
+        return { destination, faqs, lodges, tours, popularTours, otherDestinations, guideTours, guideLodges };
       }
     }
-  } catch {
-    // Fall through — the page component falls back to a bundled placeholder.
+  } catch (cause) {
+    if (isHttpError(cause)) throw cause;
   }
-  return { destination: null, faqs: [] as FAQ[], lodges: [] as Lodge[], tours: [] as Tour[], popularTours: [] as Tour[], otherDestinations: [] as Destination[] };
+  error(503, 'This destination is temporarily unavailable. Please try again shortly.');
 };

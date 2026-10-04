@@ -47,7 +47,7 @@
 </script>
 
 <!-- Cinematic full-bleed hero -->
-<section class="relative min-h-[60vh] overflow-hidden bg-deep-green text-white md:min-h-[64vh]">
+<section class="relative overflow-hidden bg-deep-green text-white">
   {#if heroImage}
     <ResponsiveImage
       src={origUrl(destination, 'banner_image_url', 'main_image_url', 'image_url')}
@@ -66,27 +66,20 @@
   <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.28)_0%,transparent_38%,rgba(28,26,22,0.78)_100%)]"></div>
   <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.32)_0%,transparent_55%)]"></div>
 
-  <div class="container-shell relative flex min-h-[60vh] flex-col justify-end pb-12 pt-28 [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] md:min-h-[64vh] md:pb-16">
-    <nav class="mb-5 flex items-center gap-2 text-sm text-white/70">
+  <div class="container-shell relative flex min-h-[420px] flex-col justify-end py-12 [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] md:min-h-[500px] md:py-16">
+    <nav aria-label="Breadcrumb" class="mb-5 flex flex-wrap items-center gap-2 text-sm text-white/80">
       <a class="font-medium transition hover:text-white" href="/destinations">Destinations</a>
       <span class="text-white/40">/</span>
       <span class="font-medium text-white/90">{destination.name}</span>
     </nav>
     <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">{regionLine}</p>
-    <h1 class="mt-4 max-w-3xl font-serif text-[40px] font-light leading-[1.05] sm:text-[56px] lg:text-[68px]">{destination.name}</h1>
+    <h1 class="mt-4 max-w-4xl font-serif text-[40px] font-light leading-[1.08] sm:text-[56px] lg:text-[64px]">{destination.name}</h1>
     {#if destination.short_description}
       <p class="mt-5 max-w-2xl text-base leading-8 text-white/85 md:text-lg">{destination.short_description}</p>
     {/if}
-    {#if heroChips.length}
-      <div class="mt-6 flex flex-wrap gap-2">
-        {#each heroChips as chip}
-          <span class="border border-goldfinch-gold/40 bg-goldfinch-gold/10 px-3 py-1.5 text-[12px] font-semibold text-goldfinch-gold backdrop-blur">{chip}</span>
-        {/each}
-      </div>
-    {/if}
     <div class="mt-8 flex flex-wrap gap-3">
       <a class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-deep-green transition hover:bg-savanna" href={`/plan-my-trip?destination=${destination.slug}`}>
-        Plan a trip to {destination.name} <ArrowRight size={17} strokeWidth={2.4} />
+        Plan a trip here <ArrowRight size={17} strokeWidth={2.4} />
       </a>
       <a class="inline-flex h-12 items-center gap-2 border border-white/30 px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-white transition hover:bg-white/10" href="/contact">
         Talk to a Specialist
@@ -95,16 +88,21 @@
   </div>
 </section>
 
+<slot />
+
 <!-- Overview & at-a-glance -->
-<section class="container-shell py-12 md:py-16">
-  <div class={destScores ? 'grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14' : ''}>
-    <div>
+<section id="overview" class="container-shell scroll-mt-[calc(var(--nav-h)+96px)] py-12 md:py-16">
+  <div class={destScores ? 'grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16' : ''}>
+    <div class="min-w-0 max-w-3xl">
       <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-clay">Overview</p>
       <h2 class="mt-3 font-serif text-3xl font-light text-heading md:text-[40px]">Why go to {destination.name}</h2>
         <!-- RichText, so links written in the CMS render as real anchors. It
              also handles the plain text that predates the editor, so existing
              descriptions keep working unchanged. -->
         <RichText value={destination.description} className="mt-5 text-base leading-8 text-ink/75" />
+      {#if heroChips.length}
+        <p class="mt-5 text-xs font-medium leading-6 text-forest">{heroChips.join(' · ')}</p>
+      {/if}
       <div class="mt-7 flex flex-wrap gap-3">
         {#if destination.country}
           <div class="flex items-center gap-3 border border-ink/10 bg-surface px-4 py-3 shadow-soft">

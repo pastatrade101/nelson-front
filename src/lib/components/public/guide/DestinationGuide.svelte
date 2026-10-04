@@ -7,12 +7,31 @@
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
-  import type { GuideBlock } from '$lib/types';
+  import GuidePick from './GuidePick.svelte';
+  import { thumbUrl } from '$lib/img';
+  import { currency, formatUsd } from '$lib/currency';
+  import { lodgeImage, levelLabel, typeLabel } from '$lib/lodge';
+  import { tierLabel } from '$lib/tiers';
+  import type { GuideBlock, Lodge, Tour } from '$lib/types';
+  import { plainText } from '$lib/seo';
 
   export let blocks: GuideBlock[] = [];
   export let reviewedAt: string | null = null;
+  export let destinationName = '';
   /** The page's own FAQs, folded into this guide's FAQPage so the page carries one. */
   export let extraFaqs: { q: string; a: string }[] = [];
+  /** Published records the Tours / Accommodation blocks point at (loaded by the page). */
+  export let tours: Tour[] = [];
+  export let lodges: Lodge[] = [];
+
+  // In the editor's order; anything unpublished or deleted is simply skipped.
+  const pickTours = (ids: string[] = []) => ids.map((id) => tours.find((t) => t.id === id)).filter((t): t is Tour => Boolean(t));
+  const pickLodges = (ids: string[] = []) => ids.map((id) => lodges.find((l) => l.id === id)).filter((l): l is Lodge => Boolean(l));
+  const tourMeta = (t: Tour) =>
+    [t.duration_days ? `${t.duration_days} days${t.duration_nights ? ` · ${t.duration_nights} nights` : ''}` : '', tierLabel(t.budget_tier)]
+      .filter(Boolean)
+      .join(' · ');
+  const lodgeMeta = (l: Lodge) => [typeLabel(l), (l as { destinations?: { name?: string } | null }).destinations?.name].filter(Boolean).join(' · ');
 
   // Split a body string into paragraphs on blank lines. Rendered as escaped text.
   const paras = (s: string): string[] =>
@@ -31,8 +50,13 @@
 
   const slugify = (s: string) =>
     (s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  const partId = (b: { part?: number; title: string }): string =>
-    'part-' + (b.part != null ? b.part : slugify(b.title));
+  const partBase = (b: GuideBlock): string =>
+    'part-' + ('part' in b && b.part != null ? b.part : slugify('title' in b ? String(b.title ?? '') : 'section'));
+  const partId = (b: GuideBlock, index: number): string => {
+    const base = partBase(b);
+    // Keep existing incoming anchor links; disambiguate repeated headings only.
+    return bodyBlocks.slice(0, index).some((other) => other.type === 'part' && partBase(other) === base) ? `${base}-${index}` : base;
+  };
 
   const toAccordion = (items: { q: string; a: string }[] = []) =>
     items.map((it, i) => ({ id: `${(it.q ?? '').slice(0, 48)}-${i}`, question: it.q, answer: it.a }));
@@ -52,7 +76,7 @@
   // promoted into the floating quick-facts bar, so it isn't repeated inline.
   $: quickFacts = blocks.find(
     (b): b is Extract<GuideBlock, { type: 'facts' }> =>
-      b?.type === 'facts' && (b.items ?? []).some((it) => /best time|ideal visit/i.test(it.label ?? ''))
+      b?.type === 'facts' && (/quick facts|at a glance/i.test(b.title ?? '') || (b.items ?? []).some((it) => /best time|ideal visit/i.test(it.label ?? '')))
   );
 
   // Blocks actually rendered inline: drop artifacts, the promoted quick-facts
@@ -62,15 +86,17 @@
   );
 
   // Table of contents, built from the `part` blocks.
-  $: toc = blocks
-    .filter((b): b is Extract<GuideBlock, { type: 'part' }> => b?.type === 'part')
-    .map((b) => ({ id: partId(b), num: b.part, title: b.title }));
+  $: toc = bodyBlocks.flatMap((b, i) =>
+    b.type === 'part' ? [{ id: partId(b, i), num: b.part, title: b.title }] : []
+  );
 
   // Aggregate every FAQ item across all faq blocks into one FAQPage schema.
   $: faqItems = blocks
     .filter((b): b is Extract<GuideBlock, { type: 'faq' }> => b?.type === 'faq')
     .flatMap((b) => b.items ?? [])
-    .concat(extraFaqs);
+    .concat(extraFaqs)
+    .map((item) => ({ q: plainText(item.q), a: plainText(item.a) }))
+    .filter((item, i, items) => item.q && item.a && items.findIndex((other) => other.q === item.q) === i);
   $: faqLd = faqItems.length
     ? {
         '@type': 'FAQPage',
@@ -94,10 +120,13 @@
   // (the detail page reuses this component across destinations).
   let activeId = '';
   let observer: IntersectionObserver | undefined;
+  let spyVersion = 0;
   const setupSpy = async () => {
     if (!browser) return;
+    const version = ++spyVersion;
     observer?.disconnect();
     await tick();
+    if (version !== spyVersion) return;
     observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
@@ -110,10 +139,10 @@
       const el = document.getElementById(t.id);
       if (el) observer?.observe(el);
     });
-    if (!activeId && toc.length) activeId = toc[0].id;
+    if (!toc.some((item) => item.id === activeId)) activeId = toc[0]?.id ?? '';
   };
   $: if (browser && blocks) void setupSpy();
-  onDestroy(() => observer?.disconnect());
+  onDestroy(() => { spyVersion++; observer?.disconnect(); });
 </script>
 
 {#if faqLd}
@@ -121,12 +150,16 @@
 {/if}
 
 {#if bodyBlocks.length}
-  <section id="guide-top" class="border-t border-ink/[0.06] py-14 md:py-20">
+  <section id="guide-top" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] bg-canvas py-14 md:py-16">
     <div class="container-shell">
+      <div class="mb-8 flex flex-wrap items-end justify-between gap-3 border-b border-ink/10 pb-6">
+        <div><p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-clay">The travel guide</p><h2 class="mt-2 font-serif text-3xl font-medium text-heading">{destinationName ? `Get to know ${destinationName}` : 'Plan with local insight'}</h2></div>
+        {#if reviewedLabel(reviewedAt)}<p class="text-xs text-ink/50">Last reviewed {reviewedLabel(reviewedAt)}</p>{/if}
+      </div>
       <!-- Floating quick-facts bar (real "Quick Facts" from the guide) -->
       {#if quickFacts?.items?.length}
-        <div class="mb-12 border border-goldfinch-gold/25 bg-sand/40 p-6 shadow-soft md:p-8">
-          <p class="brand-eyebrow text-clay">Quick facts</p>
+        <div class="mb-10 rounded-lg border border-ink/10 bg-surface p-6 md:p-7">
+          <p class="text-xs font-semibold text-clay">{quickFacts.title || 'At a glance'}</p>
           <dl class="mt-5 grid gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
             {#each quickFacts.items as it}
               <div class="border-t border-ink/10 pt-3">
@@ -138,15 +171,17 @@
         </div>
       {/if}
 
-      <div class="lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-12">
+      <!-- Two columns only when there is a contents list to fill the first one;
+           without Part headings the body used to fall into the 240px column. -->
+      <div class={toc.length ? 'lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-14' : 'mx-auto max-w-3xl'}>
         <!-- Table of contents -->
         {#if toc.length}
           <aside class="mb-8 lg:mb-0">
-            <div class="lg:sticky lg:top-28">
+            <div class="lg:sticky lg:top-[calc(var(--nav-h)+88px)]">
               <!-- mobile: collapsible -->
               <details class="rounded-xl border border-ink/10 bg-surface lg:hidden">
                 <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-heading">On this page</summary>
-                <nav class="grid gap-0.5 border-t border-ink/10 p-2">
+                <nav aria-label="Travel guide contents" class="grid max-h-80 gap-0.5 overflow-y-auto border-t border-ink/10 p-2">
                   {#each toc as t}
                     <a
                       href={`#${t.id}`}
@@ -160,10 +195,11 @@
               <!-- desktop: sticky rail -->
               <div class="hidden lg:block">
                 <p class="brand-eyebrow mb-3">On this page</p>
-                <nav class="grid gap-0.5 border-l border-ink/10">
+                <nav aria-label="Travel guide contents" class="grid max-h-[calc(100dvh-var(--nav-h)-150px)] gap-1 overflow-y-auto border-l border-ink/10">
                   {#each toc as t}
                     <a
                       href={`#${t.id}`}
+                      aria-current={activeId === t.id ? 'location' : undefined}
                       class={`-ml-px border-l-2 py-1.5 pl-3 text-sm leading-snug transition ${
                         activeId === t.id
                           ? 'border-goldfinch-gold font-semibold text-forest'
@@ -180,17 +216,11 @@
         {/if}
 
         <!-- Guide body -->
-        <div class="min-w-0 max-w-3xl">
-          {#if reviewedLabel(reviewedAt)}
-            <p class="mb-10 text-xs font-semibold uppercase tracking-[0.14em] text-ink/40">
-              Guide last reviewed · {reviewedLabel(reviewedAt)}
-            </p>
-          {/if}
-
+        <div class="guide-body min-w-0 max-w-3xl [&>*:first-child]:mt-0">
           {#each bodyBlocks as block, i (i)}
             {#if block.type === 'part'}
-              <div id={partId(block)} class="mt-16 scroll-mt-28 first:mt-0">
-                <p class="brand-eyebrow">{block.part ? `Part ${block.part}` : 'Guide'}</p>
+              <div id={partId(block, i)} class="mt-14 scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/10 pt-8 first:mt-0 first:border-0 first:pt-0">
+                {#if block.part}<p class="text-[10px] font-semibold uppercase tracking-wider text-clay">Part {block.part}</p>{/if}
                 <h2 class="mt-2 font-serif text-3xl font-normal tracking-normal text-heading md:text-[34px]">
                   {block.title}
                 </h2>
@@ -243,9 +273,9 @@
                 {/if}
                 <dl class="mt-3 grid gap-x-10 sm:grid-cols-2">
                   {#each block.items ?? [] as item}
-                    <div class="flex justify-between gap-4 border-b border-ink/[0.06] py-2.5">
+                    <div class="border-b border-ink/[0.06] py-3">
                       <dt class="text-sm font-semibold text-ink/60">{item.label}</dt>
-                      <dd class="text-right text-sm font-medium text-ink">{item.value}</dd>
+                      <dd class="mt-1 text-sm leading-6 text-ink">{item.value}</dd>
                     </div>
                   {/each}
                 </dl>
@@ -277,6 +307,47 @@
                 {/if}
                 <FAQAccordion faqs={toAccordion(block.items)} />
               </div>
+            {:else if block.type === 'tours'}
+              {@const picked = pickTours(block.tour_ids)}
+              {#if picked.length}
+                <div class="mt-10">
+                  {#if block.title}<h3 class="font-serif text-xl font-normal text-heading">{block.title}</h3>{/if}
+                  {#if block.intro}<p class="mt-2 text-[15px] leading-7 text-ink/70">{block.intro}</p>{/if}
+                  <div class="mt-5 grid gap-3 md:grid-cols-2">
+                    {#each picked as tour (tour.id)}
+                      <GuidePick
+                        href={`/tours/${tour.slug}`}
+                        title={tour.title}
+                        image={tour.main_image_url ?? ''}
+                        fallbackImage={thumbUrl(tour, 'main_image_url')}
+                        eyebrow="Safari"
+                        meta={tourMeta(tour)}
+                        price={tour.price_from ? formatUsd(tour.price_from, $currency) : ''}
+                        priceNote={tour.price_from ? 'pp' : ''}
+                      />
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+            {:else if block.type === 'lodges'}
+              {@const picked = pickLodges(block.lodge_ids)}
+              {#if picked.length}
+                <div class="mt-10">
+                  {#if block.title}<h3 class="font-serif text-xl font-normal text-heading">{block.title}</h3>{/if}
+                  {#if block.intro}<p class="mt-2 text-[15px] leading-7 text-ink/70">{block.intro}</p>{/if}
+                  <div class="mt-5 grid gap-3 md:grid-cols-2">
+                    {#each picked as lodge (lodge.id)}
+                      <GuidePick
+                        href={`/accommodation/${lodge.slug}`}
+                        title={lodge.name}
+                        image={lodgeImage(lodge)}
+                        eyebrow={levelLabel(lodge) || 'Stay'}
+                        meta={lodgeMeta(lodge)}
+                      />
+                    {/each}
+                  </div>
+                </div>
+              {/if}
             {/if}
           {/each}
 
@@ -293,3 +364,8 @@
     </div>
   </section>
 {/if}
+
+<style>
+  .guide-body { overflow-wrap: anywhere; }
+  .guide-body :global(.rich table) { max-width: 100%; }
+</style>

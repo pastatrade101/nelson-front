@@ -3,6 +3,8 @@
   import { ArrowRight } from '@lucide/svelte';
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
+  import { SITE_URL } from '$lib/config/env';
+  import { destinationSeo, destinationStructuredData } from '$lib/destination-seo';
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
   import { staggeredCardReveal } from '$lib/animations/motion';
@@ -24,13 +26,14 @@
 
   export let data: PageData;
 
-  $: origin = $page.url.origin;
+  $: origin = (SITE_URL || $page.url.origin).replace(/\/$/, '');
   $: slug = $page.params.slug ?? '';
 
   // Destination comes from the SSR load (fast first paint). Null when the API
   // failed or the slug does not exist — the page shows an honest error state,
   // never fabricated content.
   $: destination = (data.destination as Destination | null) ?? null;
+  $: seo = destination ? destinationSeo(destination) : null;
 
   // Relevant content for onward navigation (loaded best-effort after the destination).
   // Tours, stays and other destinations come from the SSR load, so these onward
@@ -110,6 +113,12 @@
         { label: 'Plan a trip here', href: '/plan-my-trip', count: 0 }
       ].filter(Boolean) as { label: string; href: string; count: number }[]
     : [];
+  $: sectionLinks = [
+    { label: 'Overview', href: '#overview', count: 0 },
+    ...(destination?.guide?.length ? [{ label: 'Travel guide', href: '#guide-top', count: 0 }] : []),
+    ...quickLinks.filter((link) => link.href !== '/plan-my-trip'),
+    ...(hasSafety ? [{ label: 'Health & safety', href: '#health-safety', count: 0 }] : [])
+  ];
 
   // An ItemList of the tours and stays this page links to, so search engines
   // read the destination as a hub for them.
@@ -136,9 +145,12 @@
 <!-- Unique per-destination title and description. -->
 <!-- svelte:head must be top level, so the guard lives inside it. -->
 <svelte:head>
-  <title>{destination ? `${destination.name} Safaris — Tanzania | Emnel Adventures` : 'Emnel Adventures'}</title>
-  {#if destination?.short_description}
-    <meta name="description" content={destination.short_description.slice(0, 158)} />
+  <title>{seo?.title || 'Destination unavailable | Emnel Adventures'}</title>
+  {#if seo?.description}
+    <meta name="description" content={seo.description} />
+  {/if}
+  {#if !destination}
+    <meta name="robots" content="noindex, follow" />
   {/if}
 </svelte:head>
 
@@ -151,20 +163,19 @@
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Destinations', path: '/destinations' }, { name: destination.name, path: `/destinations/${destination.slug}` }])} />
   <!-- With a guide, its FAQPage already includes these; otherwise the page carries its own. -->
   {#if !destination.guide?.length && faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
-  <DestinationHero {destination} />
+  <JsonLd data={destinationStructuredData(destination, origin)} />
+  <DestinationHero {destination}>
   {#if itemListLd}<JsonLd data={itemListLd} />{/if}
 
   <!-- Plan your time here: the page's onward routes in one place, as real links. -->
-  {#if quickLinks.length}
-    <nav class="border-b border-ink/10 bg-canvas" aria-label={`Plan your time in ${destination.name}`}>
-      <div class="container-shell flex flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
-        <p class="text-[11px] font-medium uppercase tracking-[0.26em] text-clay">Plan your time in {destination.name}</p>
-        <ul class="flex flex-wrap gap-x-6 gap-y-3">
-          {#each quickLinks as link (link.href)}
+  {#if sectionLinks.length}
+    <nav class="sticky top-[var(--nav-h)] z-20 border-b border-ink/10 bg-surface" aria-label={`Explore ${destination.name}`}>
+      <div class="container-shell">
+        <ul class="flex gap-6 overflow-x-auto py-5">
+          {#each sectionLinks as link (link.href)}
             <li>
-              <a class="group inline-flex items-center gap-1.5 border-b border-deep-green/25 pb-0.5 text-sm font-semibold text-deep-green transition hover:border-deep-green" href={link.href}>
+              <a class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold text-deep-green hover:underline hover:underline-offset-4" href={link.href}>
                 {link.label}{#if link.count}<span class="font-normal text-ink/45">({link.count})</span>{/if}
-                <ArrowRight size={14} class="transition group-hover:translate-x-0.5" />
               </a>
             </li>
           {/each}
@@ -172,17 +183,18 @@
       </div>
     </nav>
   {/if}
+  </DestinationHero>
 {/if}
 
 {#if destination}
   <!-- Long-form destination guide (the editorial "destination template") -->
   {#if destination.guide?.length}
-    <DestinationGuide blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={faqPairs(faqs)} />
+    <DestinationGuide destinationName={destination.name} blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={faqPairs(faqs)} tours={(data.guideTours ?? []) as Tour[]} lodges={(data.guideLodges ?? []) as Lodge[]} />
   {/if}
 
   <!-- Safaris through this destination: connected tours first, then popular ones -->
   {#if relatedTours.length || popularTours.length}
-    <section id="tours" class="scroll-mt-28 border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
+    <section id="tours" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
       <div class="container-shell">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <SectionHeader
@@ -240,7 +252,7 @@
 
   <!-- Where to stay (recommended lodges & camps) -->
   {#if lodges.length}
-    <section id="stays" class="scroll-mt-28 border-t border-ink/[0.06] bg-canvas py-14 md:py-20">
+    <section id="stays" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] bg-canvas py-14 md:py-20">
       <div class="container-shell">
         <SectionHeader
           eyebrow="Where to stay"
@@ -261,7 +273,7 @@
 
   <!-- Health & safety -->
   {#if hasSafety}
-    <section class="py-14 md:py-20">
+    <section id="health-safety" class="scroll-mt-[calc(var(--nav-h)+96px)] py-14 md:py-20">
       <div class="container-shell">
         <SectionHeader
           eyebrow="Health &amp; safety"
@@ -315,7 +327,7 @@
 
   <!-- Getting there (start & end points) -->
   {#if tripPoints.length}
-    <section id="getting-there" class="border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
+    <section id="getting-there" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
       <div class="container-shell">
         <SectionHeader
           eyebrow="Getting there"
@@ -351,7 +363,7 @@
 
   <!-- FAQs attached to this destination (dynamic, imported per-destination) -->
   {#if faqs.length}
-    <section id="faqs" class="border-t border-ink/[0.06] py-14 md:py-20">
+    <section id="faqs" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] py-14 md:py-20">
       <div class="container-shell">
         <SectionHeader
           eyebrow="Good to know"

@@ -29,6 +29,14 @@
 
   export let details: WorkingDetails = { highlights: [], rooms: [], rates: [], inclusions: [] };
   export let currency = 'USD';
+  export let section = 'rooms';
+  let undoSnapshot = '';
+  const remember = () => { undoSnapshot = JSON.stringify(details); };
+  const undo = () => { details = JSON.parse(undoSnapshot); undoSnapshot = ''; openRoom = -1; touch(); };
+  export function revealField(field: string) {
+    section = field.startsWith('rate_') ? 'rates' : field.startsWith('highlight_') ? 'highlights' : field.startsWith('inclusion_') ? 'inclusions' : 'rooms';
+    if (section === 'rooms') openRoom = Number(field.split('_').at(-1));
+  }
 
   const dispatch = createEventDispatcher<{ change: WorkingDetails }>();
 
@@ -56,6 +64,7 @@
   // ── Highlights ───────────────────────────────────────────────────────────
   const addHighlight = () => { details.highlights = [...details.highlights, { title: '' }]; touch(); };
   const removeHighlight = (i: number) => {
+    remember();
     details.highlights = details.highlights.filter((_, n) => n !== i);
     touch();
   };
@@ -66,6 +75,7 @@
     touch();
   };
   const removeInclusion = (i: number) => {
+    remember();
     details.inclusions = details.inclusions.filter((_, n) => n !== i);
     touch();
   };
@@ -83,6 +93,7 @@
     touch();
   };
   const removeRoom = (i: number) => {
+    remember();
     details.rooms = details.rooms.filter((_, n) => n !== i);
     if (openRoom === i) openRoom = -1;
     touch();
@@ -109,6 +120,7 @@
     touch();
   };
   const removeRoomImage = (i: number, n: number) => {
+    remember();
     const images: Row[] = details.rooms[i].lodge_room_images ?? [];
     details.rooms[i].lodge_room_images = images.filter((_, x) => x !== n);
     touch();
@@ -121,6 +133,7 @@
   });
   const addRate = () => { details.rates = [...details.rates, emptyRate()]; touch(); };
   const removeRate = (i: number) => {
+    remember();
     details.rates = details.rates.filter((_, n) => n !== i);
     touch();
   };
@@ -133,8 +146,16 @@
 </script>
 
 <div class="grid gap-6">
+  <div class="flex flex-wrap gap-2" role="group" aria-label="Property details sections">
+    {#each [{ id: 'rooms', label: 'Rooms & tents' }, { id: 'rates', label: 'Seasonal rates' }, { id: 'highlights', label: 'Highlights' }, { id: 'inclusions', label: 'Inclusions' }] as tab}
+      <button type="button" aria-pressed={section === tab.id} on:click={() => section = tab.id} class={`rounded-md border px-3 py-2 text-sm font-semibold ${section === tab.id ? 'border-forest bg-forest text-white' : 'border-ink/15 bg-surface text-ink/65'}`}>{tab.label} <span class="ml-1 opacity-60">{details[tab.id as keyof WorkingDetails].length}</span></button>
+    {/each}
+  </div>
+  {#if undoSnapshot}
+    <div role="status" class="flex items-center justify-between gap-3 rounded-md bg-sand p-3 text-sm"><span>Item removed. Undo restores details to just before that removal.</span><button type="button" class="font-semibold text-forest underline" on:click={undo}>Undo removal</button></div>
+  {/if}
   <!-- ── Highlights ──────────────────────────────────────────────────────── -->
-  <section class="grid gap-3 border border-ink/10 bg-sand/20 p-4">
+  <section style:display={section === 'highlights' ? undefined : 'none'} class="grid gap-3 border border-ink/10 bg-sand/20 p-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h3 class="text-base font-semibold text-ink">Highlights</h3>
@@ -162,7 +183,7 @@
   </section>
 
   <!-- ── Rooms ───────────────────────────────────────────────────────────── -->
-  <section class="grid gap-3 border border-ink/10 bg-sand/20 p-4">
+  <section style:display={section === 'rooms' ? undefined : 'none'} class="grid gap-3 border border-ink/10 bg-sand/20 p-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h3 class="text-base font-semibold text-ink">Rooms &amp; tents</h3>
@@ -182,7 +203,7 @@
     {#each details.rooms as room, i (i)}
       <div class="border border-ink/10 bg-surface">
         <div class="flex items-center gap-2 px-3 py-2">
-          <button class="flex flex-1 items-center gap-2 text-left" type="button" on:click={() => (openRoom = openRoom === i ? -1 : i)}>
+          <button class="flex flex-1 items-center gap-2 text-left" type="button" aria-expanded={openRoom === i} on:click={() => (openRoom = openRoom === i ? -1 : i)}>
             <span class="text-xs font-semibold uppercase tracking-wide text-ink/45">{i + 1}</span>
             <span class="text-sm font-semibold text-ink">{room.name || 'Untitled room'}</span>
             {#if room.max_guests}<span class="text-xs text-ink/50">sleeps {room.max_guests}</span>{/if}
@@ -275,7 +296,7 @@
   </section>
 
   <!-- ── Seasonal rates ──────────────────────────────────────────────────── -->
-  <section class="grid gap-3 border border-ink/10 bg-sand/20 p-4">
+  <section style:display={section === 'rates' ? undefined : 'none'} class="grid gap-3 border border-ink/10 bg-sand/20 p-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h3 class="text-base font-semibold text-ink">Seasonal rates</h3>
@@ -316,16 +337,16 @@
         </div>
 
         <div class="grid gap-4 sm:grid-cols-4">
-          <AdminFormInput label="Rack rate" name={`rate_rack_${i}`} type="number" bind:value={rate.rack_rate} on:input={touch} />
-          <AdminFormInput label="Net rate" name={`rate_net_${i}`} type="number" bind:value={rate.net_rate} on:input={touch} />
-          <AdminFormInput label="Single" name={`rate_single_${i}`} type="number" bind:value={rate.single_rate} on:input={touch} />
-          <AdminFormInput label="Double" name={`rate_double_${i}`} type="number" bind:value={rate.double_rate} on:input={touch} />
+          <AdminFormInput label="Rack rate" name={`rate_rack_${i}`} type="number" step="any" bind:value={rate.rack_rate} on:input={touch} />
+          <AdminFormInput label="Net rate" name={`rate_net_${i}`} type="number" step="any" bind:value={rate.net_rate} on:input={touch} />
+          <AdminFormInput label="Single" name={`rate_single_${i}`} type="number" step="any" bind:value={rate.single_rate} on:input={touch} />
+          <AdminFormInput label="Double" name={`rate_double_${i}`} type="number" step="any" bind:value={rate.double_rate} on:input={touch} />
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
-          <AdminFormInput label="Triple" name={`rate_triple_${i}`} type="number" bind:value={rate.triple_rate} on:input={touch} />
-          <AdminFormInput label="Child" name={`rate_child_${i}`} type="number" bind:value={rate.child_rate} on:input={touch} />
-          <AdminFormInput label="Single supplement" name={`rate_supp_${i}`} type="number" bind:value={rate.single_supplement} on:input={touch} />
+          <AdminFormInput label="Triple" name={`rate_triple_${i}`} type="number" step="any" bind:value={rate.triple_rate} on:input={touch} />
+          <AdminFormInput label="Child" name={`rate_child_${i}`} type="number" step="any" bind:value={rate.child_rate} on:input={touch} />
+          <AdminFormInput label="Single supplement" name={`rate_supp_${i}`} type="number" step="any" bind:value={rate.single_supplement} on:input={touch} />
         </div>
 
         <AdminTextArea label="Notes" name={`rate_notes_${i}`} bind:value={rate.notes} rows={2} on:input={touch} placeholder="Minimum stay, blackout dates, anything a consultant needs to know." />
@@ -334,7 +355,7 @@
   </section>
 
   <!-- ── Inclusions ──────────────────────────────────────────────────────── -->
-  <section class="grid gap-3 border border-ink/10 bg-sand/20 p-4">
+  <section style:display={section === 'inclusions' ? undefined : 'none'} class="grid gap-3 border border-ink/10 bg-sand/20 p-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h3 class="text-base font-semibold text-ink">What the rate covers</h3>

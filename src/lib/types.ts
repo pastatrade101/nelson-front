@@ -269,7 +269,11 @@ export type GuideBlock =
   | { type: 'table'; title?: string; columns: string[]; rows: string[][] }
   | { type: 'photo'; caption: string; url?: string; alt?: string }
   | { type: 'facts'; title?: string; items: { label: string; value: string }[] }
-  | { type: 'faq'; title?: string; items: { q: string; a: string }[] };
+  | { type: 'faq'; title?: string; items: { q: string; a: string }[] }
+  /** Picked itineraries, rendered as tour cards. Ids only — the tour is never copied in. */
+  | { type: 'tours'; title?: string; intro?: string; tour_ids: string[] }
+  /** Picked stays, rendered as lodge cards. */
+  | { type: 'lodges'; title?: string; intro?: string; lodge_ids: string[] };
 
 export type Destination = {
   id: string;

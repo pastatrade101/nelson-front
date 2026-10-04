@@ -7,6 +7,7 @@
     Table as TableIcon, Undo2, Redo2, RemoveFormatting, X, Upload, Search, Trash2, Plus
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { mountAdminOverlay } from '$lib/admin/overlay';
   import {
     checkLink, cleanUrl, describeCheck, isInternal, loadLinkIndex, withPath,
     type LinkCheck, type LinkIndex, type LinkTarget
@@ -21,6 +22,7 @@
   export let media: MediaItem[] = [];
   export let uploadFolder = 'blog';
   export let minHeight = '440px';
+  export let allowPageHeading = true;
 
   const dispatch = createEventDispatcher<{ change: string }>();
 
@@ -329,8 +331,7 @@
   // Render modals on <body> so the transformed admin shell can't clip fixed
   // positioning, and so their inputs live outside the parent <form>.
   const portal = (node: HTMLElement) => {
-    document.body.appendChild(node);
-    return { destroy: () => node.remove() };
+    return mountAdminOverlay(node, () => { showLink = false; showImage = false; });
   };
 
   const btn = (active: boolean) =>
@@ -349,7 +350,7 @@
       <span class="mx-1 h-5 w-px bg-ink/10"></span>
 
       <button type="button" class={btn(s.paragraph && !s.h1 && !s.h2 && !s.h3)} on:click={setParagraph} title="Paragraph" aria-label="Paragraph"><Pilcrow size={16} /></button>
-      <button type="button" class={btn(s.h1)} on:click={() => toggleHeading(1)} title="Heading 1" aria-label="Heading 1"><Heading1 size={17} /></button>
+      {#if allowPageHeading}<button type="button" class={btn(s.h1)} on:click={() => toggleHeading(1)} title="Heading 1" aria-label="Heading 1"><Heading1 size={17} /></button>{/if}
       <button type="button" class={btn(s.h2)} on:click={() => toggleHeading(2)} title="Heading 2" aria-label="Heading 2"><Heading2 size={17} /></button>
       <button type="button" class={btn(s.h3)} on:click={() => toggleHeading(3)} title="Heading 3" aria-label="Heading 3"><Heading3 size={17} /></button>
 
@@ -431,7 +432,7 @@
 
 <!-- link modal -->
 {#if showLink}
-  <div use:portal class="fixed inset-0 z-[80] grid place-items-center p-4" role="dialog" aria-modal="true">
+  <div use:portal class="fixed inset-0 z-[80] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="Insert link">
     <button class="absolute inset-0 cursor-default bg-ink/55 backdrop-blur-sm" type="button" aria-label="Close" on:click={() => (showLink = false)}></button>
     <div class="relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden border border-ink/10 bg-surface shadow-2xl">
       <div class="flex items-center justify-between border-b border-ink/10 p-4">
@@ -510,7 +511,7 @@
 
 <!-- image modal -->
 {#if showImage}
-  <div use:portal class="fixed inset-0 z-[80] grid place-items-center p-4" role="dialog" aria-modal="true">
+  <div use:portal class="fixed inset-0 z-[80] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="Insert image">
     <button class="absolute inset-0 cursor-default bg-ink/55 backdrop-blur-sm" type="button" aria-label="Close" on:click={() => (showImage = false)}></button>
     <div class="relative flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden border border-ink/10 bg-surface shadow-2xl">
       <div class="flex items-center gap-3 border-b border-ink/10 p-4">

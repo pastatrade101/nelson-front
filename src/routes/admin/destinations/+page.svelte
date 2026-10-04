@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { fade, scale } from 'svelte/transition';
-  import { Edit, Plus, Search, Trash2, X } from '@lucide/svelte';
+  import { onMount, tick } from 'svelte';
+  import { beforeNavigate } from '$app/navigation';
+  import { BookOpen, Check, ChevronRight, Edit, ExternalLink, FileText, Image, MapPin, Plus, Save, Search, Settings2, ShieldCheck, Trash2, X } from '@lucide/svelte';
+  import { destinationChanges, validateDestination, type DestinationIssue } from '$lib/admin/destination-form';
   import { api } from '$lib/api/client';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
@@ -32,6 +33,7 @@
     short_description?: string | null;
     description?: string | null;
     main_image_url?: string | null;
+    image_url?: string | null;
     banner_image_url?: string | null;
     latitude?: number | string | null;
     longitude?: number | string | null;
@@ -151,6 +153,68 @@
   let mediaItems: MediaItem[] = [];
   let loadingMedia = false;
   let toasts: Toast[] = [];
+  const sections = [
+    { id: 'overview', label: 'Overview', hint: 'Name, location & introduction', icon: FileText },
+    { id: 'images', label: 'Photography', hint: 'Cards, banner & sharing', icon: Image },
+    { id: 'guide', label: 'Travel guide', hint: 'Build the destination story', icon: BookOpen },
+    { id: 'planning', label: 'Trip planning', hint: 'Ratings, budget & map', icon: MapPin },
+    { id: 'safety', label: 'Health & safety', hint: 'Practical travel advice', icon: ShieldCheck },
+    { id: 'publishing', label: 'Publishing & SEO', hint: 'Visibility & search results', icon: Settings2 }
+  ];
+  let activeSection = 'overview';
+  let initialForm = '';
+  let initialPayload: ReturnType<typeof payload> | null = null;
+  let discardOpen = false;
+  let saveError = '';
+  let issues: DestinationIssue[] = [];
+  let editorScroll: HTMLDivElement;
+  let editorForm: HTMLFormElement;
+  $: dirty = modalOpen && JSON.stringify(form) !== initialForm;
+  $: currentSection = sections.find((section) => section.id === activeSection) ?? sections[0];
+
+  const beginEditing = () => {
+    activeSection = 'overview';
+    discardOpen = false;
+    saveError = '';
+    issues = [];
+    initialForm = JSON.stringify(form);
+    // Nested guide blocks must not share references with the editable form.
+    initialPayload = JSON.parse(JSON.stringify(payload()));
+    modalOpen = true;
+  };
+  const selectSection = (id: string) => {
+    activeSection = id;
+    editorScroll?.scrollTo({ top: 0 });
+  };
+  const focusIssue = async (issue: DestinationIssue) => {
+    selectSection(issue.section);
+    await tick();
+    editorForm?.querySelector<HTMLElement>(`[name="${issue.field}"]`)?.focus();
+  };
+  const requestClose = () => {
+    if (saving) return;
+    if (dirty) discardOpen = true;
+    else closeModal();
+  };
+  const mountDialog = (node: HTMLDialogElement) => {
+    const previousOverflow = document.body.style.overflow;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    document.body.style.overflow = 'hidden';
+    node.showModal();
+    return { destroy() {
+      node.close();
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus();
+    } };
+  };
+  const protectUnload = (event: BeforeUnloadEvent) => {
+    if (!dirty) return;
+    event.preventDefault();
+    event.returnValue = '';
+  };
+  beforeNavigate(({ cancel }) => {
+    if (dirty) { cancel(); discardOpen = true; }
+  });
 
   const slugify = (value: string) =>
     value
@@ -211,7 +275,7 @@
     form = emptyForm();
     void loadMedia();
     slugManuallyEdited = false;
-    modalOpen = true;
+    beginEditing();
   };
 
   /** Row id whose full record is being fetched, so its button can show progress. */
@@ -232,6 +296,7 @@
    * a form that cannot see the existing content is a form that will delete it.
    */
   const openEditModal = async (listRow: Destination) => {
+    if (loadingDestination) return;
     loadingDestination = listRow.id;
     let destination: Destination;
     try {
@@ -267,7 +332,7 @@
       latitude: destination.latitude === null || destination.latitude === undefined ? '' : String(destination.latitude),
       location: destination.location ?? '',
       longitude: destination.longitude === null || destination.longitude === undefined ? '' : String(destination.longitude),
-      main_image_url: destination.main_image_url ?? '',
+      main_image_url: destination.main_image_url || destination.image_url || '',
       meta_description: destination.meta_description ?? '',
       meta_title: destination.meta_title ?? '',
       name: destination.name,
@@ -284,7 +349,7 @@
     };
     void loadMedia();
     slugManuallyEdited = true;
-    modalOpen = true;
+    beginEditing();
   };
 
   const closeModal = () => {
@@ -339,11 +404,18 @@
   };
 
   const saveDestination = async () => {
+    if (saving) return;
+    issues = validateDestination(form);
+    saveError = '';
+    if (issues.length) { await focusIssue(issues[0]); return; }
     saving = true;
 
     try {
       if (editingDestination) {
-        await api.destinations.update(editingDestination.id, payload());
+        const changes = destinationChanges(initialPayload!, payload());
+        if (Object.keys(changes).length) {
+          await api.destinations.update(editingDestination.id, changes);
+        }
         showToast('Destination updated successfully.');
       } else {
         await api.destinations.create(payload());
@@ -353,7 +425,7 @@
       closeModal();
       await loadDestinations();
     } catch (requestError) {
-      showToast(requestError instanceof Error ? requestError.message : 'Unable to save destination.', 'error');
+      saveError = requestError instanceof Error ? requestError.message : 'Unable to save destination. Please try again.';
     } finally {
       saving = false;
     }
@@ -388,6 +460,8 @@
 
   onMount(loadDestinations);
 </script>
+
+<svelte:window on:beforeunload={protectUnload} />
 
 <ToastStack {toasts} on:dismiss={dismissToast} />
 
@@ -481,153 +555,170 @@
 </div>
 
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <div class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-none border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(28,26,22,0.18)]" transition:scale={{ duration: 160, start: 0.98 }}>
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editingDestination ? 'Edit destination' : 'New destination'}</p>
-          <h2 class="mt-2 text-2xl font-bold tracking-normal text-ink">{editingDestination ? editingDestination.name : 'Create Destination'}</h2>
+  <dialog use:mountDialog on:cancel|preventDefault={requestClose} aria-labelledby="destination-editor-title" class="destination-editor">
+    <header class="editor-header">
+      <div class="min-w-0">
+        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-forest">Destination workspace</p>
+        <h2 id="destination-editor-title" class="mt-1 truncate text-xl font-semibold text-ink">{editingDestination ? editingDestination.name : 'New destination'}</h2>
+      </div>
+      <div class="flex shrink-0 items-center gap-3">
+        <span class="hidden sm:block"><StatusBadge status={form.status} /></span>
+        {#if editingDestination?.status === 'published'}
+          <a class="hidden items-center gap-1.5 text-sm font-semibold text-forest sm:inline-flex" href={`/destinations/${editingDestination.slug}`} target="_blank" rel="noreferrer">View live <ExternalLink size={15} /></a>
+        {/if}
+        <button class="grid h-10 w-10 place-items-center rounded-lg border border-ink/15 hover:bg-sand disabled:opacity-40" type="button" aria-label="Close destination editor" disabled={saving} on:click={requestClose}><X size={18} /></button>
+      </div>
+    </header>
+
+    <form class="editor-form" bind:this={editorForm} novalidate on:submit|preventDefault={saveDestination}>
+      <div class="editor-body">
+        <nav class="editor-nav" aria-label="Destination editor sections">
+          <p class="mb-3 hidden px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45 md:block">Edit destination</p>
+          {#each sections as section, i}
+            <button type="button" class:active={activeSection === section.id} aria-current={activeSection === section.id ? 'step' : undefined} aria-controls={`editor-${section.id}`} on:click={() => selectSection(section.id)}>
+              <svelte:component this={section.icon} size={18} />
+              <span class="min-w-0"><span class="block font-semibold">{section.label}</span><span class="mt-1 hidden text-[11px] font-normal opacity-65 md:block">{section.hint}</span></span>
+              {#if issues.some((issue) => issue.section === section.id)}<span class="ml-auto text-red-600" aria-label="Needs attention">!</span>{/if}
+            </button>
+          {/each}
+          <div class="mt-auto hidden border-t border-ink/10 px-3 pt-5 text-xs leading-6 text-ink/55 md:block">
+            <p class="font-semibold text-ink">Make it easy to explore.</p>
+            Start with an introduction and a strong photo. Add detail in the travel guide when you're ready.
+          </div>
+        </nav>
+
+        <div class="editor-scroll" bind:this={editorScroll}>
+          <fieldset disabled={saving} class="mx-auto min-w-0 max-w-[880px] border-0 p-0">
+            <div class="mb-7 border-b border-ink/10 pb-5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/45">Section {sections.findIndex((section) => section.id === activeSection) + 1} of {sections.length}</p>
+              <h3 class="mt-1.5 text-2xl font-semibold text-heading">{currentSection.label}</h3>
+              <p class="mt-1 text-sm text-ink/60">{currentSection.hint}. Changes are saved together.</p>
+            </div>
+            {#if issues.length}
+              <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">
+                <p class="font-semibold">Please check these details before saving</p>
+                <ul class="mt-2 grid gap-1">
+                  {#each issues as issue}<li><button class="text-left underline underline-offset-2" type="button" on:click={() => focusIssue(issue)}>{issue.message}</button></li>{/each}
+                </ul>
+              </div>
+            {/if}
+
+            <section id="editor-overview" hidden={activeSection !== 'overview'} class="editor-section">
+              <div class="grid gap-5 sm:grid-cols-2">
+                <AdminFormInput label="Destination name *" name="name" bind:value={form.name} required placeholder="e.g. Serengeti National Park" />
+                <AdminFormInput label="Country *" name="country" bind:value={form.country} required />
+                <AdminFormInput label="Region / circuit" name="region" bind:value={form.region} placeholder="e.g. Northern Circuit" />
+                <AdminFormInput label="Location" name="location" bind:value={form.location} placeholder="e.g. Northern Tanzania" />
+              </div>
+              <label class="grid gap-2 text-[13px] font-semibold text-ink/65">
+                Page address *
+                <span class="flex min-w-0 items-center overflow-hidden rounded-md border border-ink/15 focus-within:ring-2 focus-within:ring-forest/20">
+                  <span class="shrink-0 bg-sand/50 px-3 py-3 text-xs font-normal">/destinations/</span>
+                  <input class="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm text-ink outline-none" name="slug" bind:value={form.slug} required on:input={() => (slugManuallyEdited = true)} />
+                </span>
+                <span class="text-xs font-normal text-ink/50">{editingDestination ? 'Changing this address may break existing links to this destination.' : 'Created automatically from the name. You can edit it if needed.'}</span>
+              </label>
+              <div>
+                <AdminTextArea label="Short introduction" name="short_description" bind:value={form.short_description} rows={3} placeholder="What makes this place special? A few sentences for the banner and destination cards." />
+                <p class="mt-2 text-xs text-ink/50">Keep it easy to scan. Around 160–240 characters works well.</p>
+              </div>
+              <div>
+                <RichTextEditor label="Destination overview" allowPageHeading={false} bind:value={form.description} media={mediaItems} uploadFolder="destinations" minHeight="240px" placeholder="Introduce the destination. Add links using the toolbar." />
+                <p class="mt-2 text-xs text-ink/50">Appears under “Why go”. Use the Travel guide section for your detailed destination story.</p>
+              </div>
+            </section>
+
+            <section id="editor-images" hidden={activeSection !== 'images'} class="editor-section">
+              <p class="section-note">Choose images from your library, upload a photograph, or paste its URL. Existing images stay in place until you change them.</p>
+              <div class="grid items-start gap-5 sm:grid-cols-2">
+                <div class="editor-card">
+                  <h4>Destination card</h4><p>The image travellers see when browsing destinations. A landscape crop works best.</p>
+                  <MediaPicker label="Card image" media={mediaItems} uploadFolder="destinations" bind:value={form.main_image_url} />
+                </div>
+                <div class="editor-card">
+                  <h4>Page banner</h4><p>A wide photograph for the top of this destination's page. Falls back to the card image.</p>
+                  <MediaPicker label="Banner image" media={mediaItems} uploadFolder="destinations" bind:value={form.banner_image_url} />
+                </div>
+              </div>
+              <div class="editor-card">
+                <h4>Social sharing image</h4><p>Optional. Used when someone shares the destination link.</p>
+                <MediaPicker label="Social sharing image" media={mediaItems} uploadFolder="destinations" bind:value={form.og_image_url} />
+              </div>
+            </section>
+
+            <section id="editor-guide" hidden={activeSection !== 'guide'} class="editor-section">
+              <div class="flex flex-wrap items-start justify-between gap-4">
+                <p class="max-w-lg text-sm leading-6 text-ink/60">Build your guide in the order travellers should read it. Open a block to edit, use the arrows to reorder, and add sections as needed.</p>
+                <div class="w-44"><AdminFormInput label="Last reviewed" name="guide_reviewed_at" type="date" bind:value={form.guide_reviewed_at} /></div>
+              </div>
+              <DestinationGuideEditor bind:blocks={form.guide} media={mediaItems} />
+            </section>
+
+            <section id="editor-planning" hidden={activeSection !== 'planning'} class="editor-section">
+              <div class="editor-card">
+                <h4>Who is this destination best for?</h4><p>Rate each experience from 0 to 10. Leave a score empty if it has not been assessed.</p>
+                <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {#each [{ key: 'score_wildlife', label: 'Wildlife' }, { key: 'score_luxury', label: 'Luxury' }, { key: 'score_family', label: 'Families' }, { key: 'score_photography', label: 'Photography' }, { key: 'score_adventure', label: 'Adventure' }] as score}
+                    <label class="grid gap-2 text-[13px] font-semibold text-ink/65">{score.label}<span class="flex items-center rounded-md border border-ink/15 bg-surface"><input class="h-11 w-full min-w-0 bg-transparent px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-forest/20" type="number" min="0" max="10" step="any" name={score.key} bind:value={form[score.key as 'score_wildlife']} placeholder="Not rated" /><span class="shrink-0 pr-3 text-xs text-ink/40">/ 10</span></span></label>
+                  {/each}
+                  <AdminFormInput label="Budget from (USD / person)" name="score_budget_from" type="number" min={0} step="any" bind:value={form.score_budget_from} placeholder="Optional" />
+                </div>
+              </div>
+              <div class="editor-card">
+                <h4>Map location</h4><p>Optional decimal coordinates. Latitude: −90 to 90. Longitude: −180 to 180.</p>
+                <div class="grid gap-5 sm:grid-cols-2">
+                  <AdminFormInput label="Latitude" name="latitude" type="number" step="any" bind:value={form.latitude} placeholder="-2.333333" />
+                  <AdminFormInput label="Longitude" name="longitude" type="number" step="any" bind:value={form.longitude} placeholder="34.833333" />
+                </div>
+              </div>
+            </section>
+
+            <section id="editor-safety" hidden={activeSection !== 'safety'} class="editor-section">
+              <p class="section-note">Practical advice shown on this destination's page and the health &amp; safety hub. Empty fields are simply hidden from visitors.</p>
+              <AdminTextArea label="Safety overview" name="safety_overview" bind:value={form.safety_overview} rows={4} placeholder="An honest, reassuring overview for travellers." />
+              <AdminTextArea label="Health & vaccinations" name="health_vaccinations" bind:value={form.health_vaccinations} rows={4} />
+              <AdminTextArea label="Security advice" name="security_advice" bind:value={form.security_advice} rows={4} />
+              <AdminTextArea label="Travel insurance" name="travel_insurance_note" bind:value={form.travel_insurance_note} rows={3} />
+              <AdminTextArea label="Emergency contacts" name="emergency_contacts" bind:value={form.emergency_contacts} rows={3} />
+            </section>
+
+            <section id="editor-publishing" hidden={activeSection !== 'publishing'} class="editor-section">
+              <div class="editor-card">
+                <h4>Visibility</h4><p>{form.status === 'published' ? 'Saving will update this destination on the public website.' : form.status === 'archived' ? 'Archived destinations are hidden from public listings.' : 'Drafts let you prepare this destination before publishing.'}</p>
+                <div class="grid items-end gap-5 sm:grid-cols-2">
+                  <AdminSelect label="Publication status" name="status" bind:value={form.status} options={statusOptions} />
+                  <label class="flex min-h-11 items-center gap-3 rounded-md border border-ink/15 px-4 py-3 text-sm font-medium"><input class="h-4 w-4 accent-forest" type="checkbox" bind:checked={form.is_featured} />Featured destination</label>
+                </div>
+              </div>
+              <AdminFormInput label="Search title" name="meta_title" bind:value={form.meta_title} counter={60} placeholder={form.name || 'Destination name'} />
+              <AdminTextArea label="Search description" name="meta_description" bind:value={form.meta_description} rows={3} placeholder="Give travellers a clear reason to explore this destination." />
+              <div class="editor-card">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-ink/45">Search preview</p>
+                <p class="break-all text-xs text-ink/50">emneladventures.com / destinations / {form.slug || 'destination'}</p>
+                <h4 class="text-lg text-forest">{form.meta_title || (form.name ? `${form.name} Safaris — Tanzania | Emnel Adventures` : 'Your destination title')}</h4>
+                <p class="line-clamp-3">{form.meta_description || form.short_description || 'Your search description will appear here. Search engines may display a different excerpt.'}</p>
+              </div>
+            </section>
+          </fieldset>
         </div>
-        <button class="grid h-10 w-10 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close modal" on:click={closeModal}>
-          <X size={18} />
-        </button>
       </div>
 
-      <form class="mt-6 grid gap-5" on:submit|preventDefault={saveDestination}>
-        <div class="grid gap-4 md:grid-cols-2">
-          <AdminFormInput label="Name" name="name" bind:value={form.name} required />
-
-          <label class="grid gap-2 text-sm font-medium text-ink">
-            <span>Slug</span>
-            <input
-              class="h-11 rounded-2xl border border-ink/10 bg-surface px-3 text-sm outline-none shadow-sm transition focus:border-forest focus:ring-2 focus:ring-forest/15"
-              name="slug"
-              bind:value={form.slug}
-              required
-              on:input={() => (slugManuallyEdited = true)}
-            />
-          </label>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-3">
-          <AdminFormInput label="Country" name="country" bind:value={form.country} required />
-          <AdminFormInput label="Region" name="region" bind:value={form.region} />
-          <AdminFormInput label="Location" name="location" bind:value={form.location} />
-        </div>
-
-        <AdminTextArea label="Short description" name="short_description" bind:value={form.short_description} rows={3} placeholder="Concise destination summary for cards and search." />
-        <!-- Rich text, so writers can link a phrase straight to another page.
-             Internal links are the point: the toolbar's link button searches every
-             itinerary, destination, travel style, comparison and journal post, so a
-             paragraph can reference the page it is talking about without anyone
-             typing a URL. RichText on the public side renders plain text that
-             predates this unchanged, so nothing already written breaks. -->
-        <RichTextEditor
-          label="Description"
-          bind:value={form.description}
-          media={mediaItems}
-          uploadFolder="destinations"
-          minHeight="260px"
-          placeholder="Destination overview for the public page — link place names and safaris to their own pages as you write."
-        />
-
-        <div class="rounded-2xl border border-ink/10 bg-sand/20 p-4">
-          <p class="text-sm font-bold text-ink">Health &amp; safety</p>
-          <p class="mt-0.5 text-xs text-ink/55">Shown as a "Health &amp; safety" section on this destination's page and summarised on the /safety hub. Leave blank to hide.</p>
-          <div class="mt-4 grid gap-4">
-            <AdminTextArea label="Safety overview" name="safety_overview" bind:value={form.safety_overview} rows={3} placeholder="Is it safe? An honest, reassuring overview." />
-            <div class="grid gap-4 md:grid-cols-2">
-              <AdminTextArea label="Health & vaccinations" name="health_vaccinations" bind:value={form.health_vaccinations} rows={3} />
-              <AdminTextArea label="Security advice" name="security_advice" bind:value={form.security_advice} rows={3} />
-            </div>
-            <div class="grid gap-4 md:grid-cols-2">
-              <AdminTextArea label="Travel insurance note" name="travel_insurance_note" bind:value={form.travel_insurance_note} rows={2} />
-              <AdminTextArea label="Emergency contacts" name="emergency_contacts" bind:value={form.emergency_contacts} rows={2} />
-            </div>
+      <footer class="editor-footer">
+        {#if saveError}<p role="alert" class="w-full rounded-md bg-red-50 px-3 py-2 text-sm text-red-800">{saveError} Your changes are still here.</p>{/if}
+        {#if discardOpen}
+          <div role="alert" class="flex w-full flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+            <div><p class="text-sm font-semibold text-ink">Discard your unsaved changes?</p><p class="mt-1 text-xs text-ink/60">The saved destination will stay as it was.</p></div>
+            <div class="flex gap-2"><AdminButton variant="secondary" on:click={() => (discardOpen = false)}>Keep editing</AdminButton><AdminButton variant="danger" on:click={closeModal}>Discard changes</AdminButton></div>
           </div>
-        </div>
-
-        <div class="rounded-2xl border border-ink/10 bg-sand/20 p-4">
-          <p class="text-sm font-bold text-ink">Destination scores</p>
-          <p class="mt-0.5 text-xs text-ink/55">Honest 0–10 ratings shown on the /destination-scores page. Leave blank to hide.</p>
-          <div class="mt-4 grid gap-4 sm:grid-cols-3">
-            <AdminFormInput label="Wildlife (0–10)" name="score_wildlife" type="number" bind:value={form.score_wildlife} />
-            <AdminFormInput label="Luxury (0–10)" name="score_luxury" type="number" bind:value={form.score_luxury} />
-            <AdminFormInput label="Family (0–10)" name="score_family" type="number" bind:value={form.score_family} />
-            <AdminFormInput label="Photography (0–10)" name="score_photography" type="number" bind:value={form.score_photography} />
-            <AdminFormInput label="Adventure (0–10)" name="score_adventure" type="number" bind:value={form.score_adventure} />
-            <AdminFormInput label="Budget from (USD pp)" name="score_budget_from" type="number" bind:value={form.score_budget_from} />
-          </div>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <AdminSelect label="Status" name="status" bind:value={form.status} options={statusOptions} />
-          <AdminFormInput label="Latitude" name="latitude" type="number" bind:value={form.latitude} placeholder="-6.3690" />
-          <AdminFormInput label="Longitude" name="longitude" type="number" bind:value={form.longitude} placeholder="34.8888" />
-          <label class="flex h-full min-h-[74px] items-center gap-3 rounded-2xl border border-ink/10 bg-sand/20 px-4 py-3 text-sm font-medium text-ink">
-            <input class="h-4 w-4 rounded border-ink/20 text-forest focus:ring-forest" type="checkbox" bind:checked={form.is_featured} />
-            Featured destination
-          </label>
-        </div>
-
-        <div class="grid gap-4 lg:grid-cols-3">
-          <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
-            <div>
-              <h3 class="text-base font-semibold text-ink">Main image</h3>
-              <p class="mt-1 text-sm text-ink/55">Used for destination cards and list views.</p>
-            </div>
-            <MediaPicker label="Main image" media={mediaItems} uploadFolder="destinations" bind:value={form.main_image_url} />
-          </section>
-
-          <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
-            <div>
-              <h3 class="text-base font-semibold text-ink">Banner image</h3>
-              <p class="mt-1 text-sm text-ink/55">Used for public destination page headers.</p>
-            </div>
-            <MediaPicker label="Banner image" media={mediaItems} uploadFolder="destinations" bind:value={form.banner_image_url} />
-          </section>
-
-          <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
-            <div>
-              <h3 class="text-base font-semibold text-ink">Open Graph image</h3>
-              <p class="mt-1 text-sm text-ink/55">Used when the destination is shared online.</p>
-            </div>
-            <MediaPicker label="Open Graph image" media={mediaItems} uploadFolder="destinations" bind:value={form.og_image_url} />
-          </section>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-2">
-          <AdminFormInput label="SEO title" name="meta_title" bind:value={form.meta_title} />
-          <AdminTextArea label="SEO description" name="meta_description" bind:value={form.meta_description} rows={3} />
-        </div>
-
-        <section class="grid gap-4 rounded-none border border-ink/10 bg-sand/20 p-4">
-          <div class="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h3 class="text-base font-semibold text-ink">Destination guide</h3>
-              <p class="mt-1 text-sm text-ink/55">
-                The long-form guide, built from content blocks. Add, reorder and edit blocks below —
-                Photo blocks have an image picker. Leave empty if this destination has no guide.
-              </p>
-            </div>
-            <div class="w-full sm:w-48">
-              <AdminFormInput label="Guide last reviewed" name="guide_reviewed_at" type="date" bind:value={form.guide_reviewed_at} />
-            </div>
-          </div>
-          <DestinationGuideEditor bind:blocks={form.guide} media={mediaItems} />
-        </section>
-
-        <div class="flex justify-end gap-3 pt-2">
-          <AdminButton variant="secondary" type="button" on:click={closeModal}>Cancel</AdminButton>
-          <AdminButton type="submit" disabled={saving}>
-            {saving ? 'Saving...' : editingDestination ? 'Save Changes' : 'Create Destination'}
-          </AdminButton>
-        </div>
-      </form>
-    </div>
-  </div>
+        {:else}
+          <p class="mr-auto flex items-center gap-2 text-xs text-ink/60" aria-live="polite">{#if dirty}<span class="h-2 w-2 rounded-full bg-amber-500"></span>Unsaved changes{:else}<Check size={15} class="text-forest" />{editingDestination ? 'No unsaved changes' : 'Ready to create a draft'}{/if}</p>
+          <AdminButton variant="secondary" disabled={saving} on:click={requestClose}>Cancel</AdminButton>
+          <AdminButton type="submit" disabled={saving || (!!editingDestination && !dirty)}><Save size={16} />{saving ? 'Saving…' : form.status === 'published' ? 'Save & publish' : form.status === 'draft' ? 'Save draft' : 'Save changes'}</AdminButton>
+        {/if}
+      </footer>
+    </form>
+  </dialog>
 {/if}
-
 <ConfirmModal
   open={confirmOpen}
   title="Delete destination"
@@ -644,3 +735,34 @@
     Deleting destination...
   </div>
 {/if}
+
+<style>
+  .destination-editor { width: min(1380px, calc(100vw - 40px)); height: min(920px, calc(100dvh - 40px)); max-width: none; max-height: none; margin: auto; padding: 0; overflow: hidden; border: 1px solid rgb(var(--c-ink) / .12); border-radius: 14px; background: rgb(var(--c-surface)); color: rgb(var(--c-ink)); box-shadow: 0 32px 100px #0004; }
+  .destination-editor::backdrop { background: #131b16aa; backdrop-filter: blur(3px); }
+  .editor-header { height: 88px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 28px; border-bottom: 1px solid rgb(var(--c-ink) / .1); }
+  .editor-form { height: calc(100% - 88px); display: flex; flex-direction: column; }
+  .editor-body { display: grid; grid-template-columns: 240px minmax(0, 1fr); flex: 1; min-height: 0; }
+  .editor-nav { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; background: rgb(var(--c-sand) / .22); padding: 24px 14px; border-right: 1px solid rgb(var(--c-ink) / .08); }
+  .editor-nav button { display: flex; align-items: center; gap: 12px; padding: 13px 12px; border-radius: 8px; text-align: left; color: rgb(var(--c-ink) / .65); font-size: 13px; }
+  .editor-nav button:hover { background: rgb(var(--c-sand) / .6); }
+  .editor-nav button.active { background: rgb(var(--c-forest) / .09); color: rgb(var(--c-forest)); box-shadow: inset 3px 0 rgb(var(--c-forest)); }
+  .editor-scroll { min-width: 0; overflow-y: auto; overscroll-behavior: contain; padding: 30px 36px 48px; }
+  .editor-section:not([hidden]) { display: grid; gap: 24px; }
+  .editor-card { display: grid; gap: 14px; border: 1px solid rgb(var(--c-ink) / .12); border-radius: 10px; padding: 20px; }
+  .editor-card h4 { font-weight: 600; font-size: 15px; }
+  .editor-card p { font-size: 13px; line-height: 1.65; color: rgb(var(--c-ink) / .6); }
+  .section-note { background: rgb(var(--c-sand) / .3); border-left: 3px solid rgb(var(--c-goldfinch-gold)); padding: 12px 16px; font-size: 13px; line-height: 1.7; color: rgb(var(--c-ink) / .7); }
+  .editor-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 28px; border-top: 1px solid rgb(var(--c-ink) / .1); background: rgb(var(--c-surface)); }
+  @media (max-width: 767px) {
+    .destination-editor { width: 100vw; height: 100dvh; border: 0; border-radius: 0; }
+    .editor-header { height: 76px; padding: 12px 16px; }
+    .editor-form { height: calc(100% - 76px); }
+    .editor-body { display: flex; flex-direction: column; }
+    .editor-nav { flex-direction: row; flex-shrink: 0; gap: 4px; overflow-x: auto; padding: 10px 12px; border-right: 0; border-bottom: 1px solid rgb(var(--c-ink) / .1); }
+    .editor-nav button { flex-shrink: 0; gap: 7px; padding: 10px 12px; }
+    .editor-nav button.active { box-shadow: inset 0 -2px rgb(var(--c-forest)); }
+    .editor-scroll { padding: 24px 18px 36px; }
+    .editor-footer { padding: 12px 16px max(12px, env(safe-area-inset-bottom)); gap: 8px; }
+    .editor-footer > p { width: 100%; }
+  }
+</style>

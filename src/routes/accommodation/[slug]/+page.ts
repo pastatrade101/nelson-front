@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { error, isHttpError } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import type { Lodge, Tour } from '$lib/types';
 
@@ -9,12 +9,15 @@ export const load: PageLoad = async ({ params, fetch }) => {
   let lodge: Lodge | null = null;
   try {
     const res = await fetch(`/api/lodges/${params.slug}`);
+    if (res.status === 404) throw error(404, 'Property not found');
+    if (!res.ok) throw error(503, 'Accommodation is temporarily unavailable. Please try again.');
     if (res.ok) {
       const body = await res.json();
       lodge = (body?.data ?? null) as Lodge | null;
     }
-  } catch {
-    // fall through to 404 below
+  } catch (cause) {
+    if (isHttpError(cause)) throw cause;
+    throw error(503, 'Accommodation is temporarily unavailable. Please try again.');
   }
   // The single-record endpoint does not filter by status, so a draft or
   // archived property would otherwise be readable (and indexable) at its URL.

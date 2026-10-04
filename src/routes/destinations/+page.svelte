@@ -1,20 +1,17 @@
 <script lang="ts">
   import FinalCtaSection from '$lib/components/public/FinalCtaSection.svelte';
   import { onMount } from 'svelte';
-  import { ArrowRight, MessageCircle } from '@lucide/svelte';
-  import { goto } from '$app/navigation';
+  import { ArrowRight, MessageCircle, Search } from '@lucide/svelte';
   import { page } from '$app/stores';
+  import { SITE_URL } from '$lib/config/env';
   import { api } from '$lib/api/client';
   import { imgUrl, origUrl, thumbUrl } from '$lib/img';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
-  import { groupByCircuit } from '$lib/destination-facts';
+  import DestinationCard from '$lib/components/public/DestinationCard.svelte';
   import DestinationSpotlight from '$lib/components/public/DestinationSpotlight.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
-  import CircuitMosaic from '$lib/components/public/CircuitMosaic.svelte';
-  import CircuitTable from '$lib/components/public/CircuitTable.svelte';
-  import IslandsShowcase from '$lib/components/public/IslandsShowcase.svelte';
   import JournalFeatureSection from '$lib/components/public/JournalFeatureSection.svelte';
   import FounderStorySection from '$lib/components/public/FounderStorySection.svelte';
   import GuestReviewsSection from '$lib/components/public/GuestReviewsSection.svelte';
@@ -34,6 +31,18 @@
   // destinations + loadFailed are SSR-loaded in +page.ts.
   $: destinations = (data.destinations ?? []) as Destination[];
   $: loadFailed = data.loadFailed;
+  $: collectionSchema = {
+    '@type': 'CollectionPage',
+    name: 'Tanzania safari destinations',
+    url: `${(SITE_URL || $page.url.origin).replace(/\/$/, '')}/destinations`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: destinations.map((destination, index) => ({
+        '@type': 'ListItem', position: index + 1, name: destination.name,
+        url: `${(SITE_URL || $page.url.origin).replace(/\/$/, '')}/destinations/${destination.slug}`
+      }))
+    }
+  };
   let posts: BlogPost[] = [];
   let testimonials: Testimonial[] = [];
   $: allFaqs = (data.faqs ?? []) as FAQ[];
@@ -73,7 +82,13 @@
     }
   });
 
-  $: circuits = groupByCircuit(destinations);
+  let searchQuery = '';
+  let selectedRegion = '';
+  $: regions = [...new Set(destinations.map((d) => d.region?.trim()).filter((region): region is string => Boolean(region)))].sort();
+  $: filteredDestinations = destinations.filter((d) =>
+    (!selectedRegion || d.region?.trim() === selectedRegion) &&
+    (!searchQuery.trim() || [d.name, d.country, d.region, d.location, d.short_description].filter(Boolean).join(' ').toLowerCase().includes(searchQuery.trim().toLowerCase()))
+  );
 
   // Hero banner: prefer a featured destination's photo, else any destination
   // with an image; deep-green branded fallback when none has one yet.
@@ -92,12 +107,6 @@
   // The loader already picked them for this view (see +page.ts).
   $: faqs = allFaqs;
 
-  const selectTab = (slug: string) =>
-    goto(slug === 'all' ? '/destinations' : `/destinations?d=${slug}`, {
-      replaceState: true,
-      noScroll: true,
-      keepFocus: true
-    });
 </script>
 
 <svelte:head>
@@ -109,6 +118,7 @@
 </svelte:head>
 
 <!-- Schema for the FAQs this view shows (general, or the spotlighted destination's). -->
+{#if !loadFailed && destinations.length}<JsonLd data={collectionSchema} />{/if}
 {#if faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
 
 <!-- page header -->
@@ -151,66 +161,49 @@
     <EmptyState title="Destinations coming soon" message="Our destinations are being prepared. Please check back again shortly." />
   </section>
 {:else}
-  <!-- Sticky destination tabs — deep-linkable via ?d=slug -->
-  <section class="sticky top-[var(--nav-h)] z-30 border-b border-ink/10 bg-surface/95 backdrop-blur">
-    <div class="container-shell py-3">
-      <div class="hide-scroll flex gap-2 overflow-x-auto" role="tablist" aria-label="Destinations">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={!spotlight}
-          class={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition ${!spotlight ? 'bg-deep-green text-white shadow-sm' : 'bg-sand/60 text-ink/65 hover:bg-sand'}`}
-          on:click={() => selectTab('all')}
-        >
-          All destinations
-        </button>
-        {#each destinations as d (d.slug)}
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedSlug === d.slug}
-            class={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition ${selectedSlug === d.slug ? 'bg-deep-green text-white shadow-sm' : 'bg-sand/60 text-ink/65 hover:bg-sand'}`}
-            on:click={() => selectTab(d.slug)}
-          >
-            {d.name}
-          </button>
-        {/each}
+  <section id="circuits" class="scroll-mt-[calc(var(--nav-h)+24px)] bg-canvas py-12 md:py-16">
+    <div class="container-shell">
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-clay">Find your next chapter</p>
+          <h2 class="mt-3 font-serif text-3xl font-medium text-heading md:text-[42px]">Explore Tanzania, place by place</h2>
+          <p class="mt-3 max-w-2xl text-sm leading-7 text-ink/60">Wildlife, mountain air or a slower island pace. Explore the places that make your journey yours.</p>
+        </div>
+        <a href="/plan-my-trip" class="inline-flex items-center gap-2 border-b border-forest/30 pb-1 text-sm font-semibold text-forest">Help me choose <ArrowRight size={15} /></a>
       </div>
+      <div class="mt-8 grid gap-4 rounded-lg border border-ink/10 bg-surface p-4 sm:grid-cols-[1fr_240px]">
+        <label class="flex items-center gap-3 rounded-md border border-ink/15 px-3.5 focus-within:ring-2 focus-within:ring-forest/20">
+          <Search size={18} class="shrink-0 text-ink/45" /><span class="sr-only">Search destinations</span>
+          <input class="h-12 w-full min-w-0 bg-transparent text-sm outline-none" type="search" bind:value={searchQuery} placeholder="Find a park, island or destination…" />
+        </label>
+        <label class="flex items-center gap-2 rounded-md border border-ink/15 px-3 text-sm text-ink/65">
+          <span class="shrink-0">Region</span>
+          <select class="h-12 min-w-0 flex-1 bg-transparent font-semibold text-ink outline-none focus:ring-2 focus:ring-forest/20" bind:value={selectedRegion}>
+            <option value="">All regions</option>
+            {#each regions as region}<option value={region}>{region}</option>{/each}
+          </select>
+        </label>
+      </div>
+      <div class="my-5 flex items-center justify-between gap-4">
+        <p class="text-xs text-ink/55" role="status">{filteredDestinations.length} {filteredDestinations.length === 1 ? 'destination' : 'destinations'}{searchQuery || selectedRegion ? ' found' : ' to discover'}</p>
+        {#if searchQuery || selectedRegion}<button type="button" class="text-xs font-semibold text-forest underline underline-offset-4" on:click={() => { searchQuery = ''; selectedRegion = ''; }}>Clear filters</button>{/if}
+      </div>
+      {#if filteredDestinations.length}
+        <div class="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {#each filteredDestinations as destination (destination.id)}<DestinationCard {destination} />{/each}
+        </div>
+      {:else}
+        <div class="rounded-lg border border-dashed border-ink/20 p-10 text-center">
+          <h3 class="font-serif text-2xl text-heading">No destinations match just yet</h3>
+          <p class="mt-3 text-sm text-ink/60">Try another name or select a different region.</p>
+          <button class="mt-5 text-sm font-semibold text-forest underline underline-offset-4" type="button" on:click={() => { searchQuery = ''; selectedRegion = ''; }}>Show all destinations</button>
+        </div>
+      {/if}
     </div>
   </section>
 
-  <!-- Spotlight for the selected destination (editorial layout stays below) -->
   {#if spotlight}
-    {#key spotlight.slug}
-      <DestinationSpotlight destination={spotlight} stat={tourStats[spotlight.id]} />
-    {/key}
-  {/if}
-
-  <!-- Northern circuit — iconic parks mosaic -->
-  {#if circuits.northern.length}
-    <div id="circuits" class="scroll-mt-24">
-      <CircuitMosaic destinations={circuits.northern} stats={tourStats} />
-    </div>
-  {/if}
-
-  <!-- Combine-parks CTA -->
-  <section class="border-y border-ink/[0.06] bg-savanna/20">
-    <div class="container-shell flex flex-col items-start justify-between gap-4 py-8 sm:flex-row sm:items-center">
-      <p class="font-serif text-xl italic text-heading md:text-2xl">Not sure which parks to combine? We'll tell you — honestly.</p>
-      <a class="inline-flex h-11 shrink-0 items-center gap-2 bg-deep-green px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:bg-forest" href="/plan-my-trip">
-        Speak to a specialist <ArrowRight size={15} strokeWidth={2.5} />
-      </a>
-    </div>
-  </section>
-
-  <!-- Southern & western circuits — table -->
-  {#if circuits.beyond.length}
-    <CircuitTable destinations={circuits.beyond} stats={tourStats} />
-  {/if}
-
-  <!-- Islands -->
-  {#if circuits.islands.length}
-    <IslandsShowcase destinations={circuits.islands} stats={tourStats} />
+    <DestinationSpotlight destination={spotlight} stat={tourStats[spotlight.id]} />
   {/if}
 
   <!-- Planning hub — journal guides -->
@@ -281,13 +274,3 @@
     secondaryHref="/contact"
   />
 {/if}
-
-<style>
-  .hide-scroll {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .hide-scroll::-webkit-scrollbar {
-    display: none;
-  }
-</style>

@@ -25,12 +25,12 @@
     on:click={toggle}
   >
     <Heart size={18} fill={saved ? 'currentColor' : 'none'} />
-    {saved ? 'Saved' : 'Save trip'}
+    {saved ? 'Saved' : item.kind === 'lodge' ? 'Save stay' : 'Save trip'}
   </button>
 {:else}
   <button
     type="button"
-    aria-label={saved ? 'Remove from saved trips' : 'Save this trip'}
+    aria-label={saved ? (item.kind === 'lodge' ? 'Remove saved stay' : 'Remove from saved trips') : item.kind === 'lodge' ? 'Save this stay' : 'Save this trip'}
     aria-pressed={saved}
     class={`grid h-9 w-9 place-items-center rounded-full shadow-sm backdrop-blur transition ${
       saved ? 'bg-clay text-white' : 'bg-surface/85 text-ink/70 hover:bg-surface hover:text-clay'

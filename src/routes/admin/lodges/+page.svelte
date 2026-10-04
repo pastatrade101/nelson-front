@@ -1,6 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { fade, scale } from 'svelte/transition';
+  import { beforeNavigate } from '$app/navigation';
+  import AccommodationWorkspace from '$lib/components/admin/AccommodationWorkspace.svelte';
+  import { accommodationSnapshot, accommodationDetailsPayload, changedAccommodationFields, saveAccommodationSections, validateAccommodation } from '$lib/admin/accommodation-form';
+  import { accommodationSeo } from '$lib/accommodation-seo';
   import { Edit, Hotel, Plus, Search, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
   import { mediaLibrary } from '$lib/mediaLibrary';
@@ -152,6 +155,7 @@
   let editing: Lodge | null = null;
   let toDelete: Lodge | null = null;
   let form = emptyForm();
+  $: preview = accommodationSeo({ ...(editing ?? {}), ...form } as unknown as Lodge);
   let toasts: Toast[] = [];
 
   const slugify = (v: string) => v.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -216,8 +220,14 @@
   // Snapshots of what was loaded, to tell a clean form from unsaved changes.
   // Numbers and nulls are compared as strings: a number input hands back 3 for
   // the '3' it was given, which is not a change.
-  const snap = (v: unknown) => JSON.stringify(v, (_k, x) => (x === null || x === undefined ? '' : typeof x === 'number' ? String(x) : x));
+  const snap = accommodationSnapshot;
   const gallerySnap = (items: GalleryItem[]) => snap(items.map(({ image_url, alt_text, caption }) => ({ image_url, alt_text, caption })));
+  let savedPayload: Record<string, unknown> = {};
+  let section = 'overview';
+  let discardOpen = false;
+  let saveError = '';
+  let workspace: AccommodationWorkspace;
+  let detailsEditor: LodgeDetailsEditor;
   let savedForm = '';
   let savedGallery = '';
   let savedDetails = '';
@@ -318,6 +328,7 @@
 
   const openCreate = () => {
     openSeq += 1;
+    section = 'overview'; discardOpen = false; saveError = '';
     editing = null;
     form = emptyForm();
     gallery = [];
@@ -327,6 +338,7 @@
     galleryState = 'ready';
     detailsState = 'idle';
     savedForm = snap(form);
+    savedPayload = buildPayload();
     savedGallery = gallerySnap(gallery);
     savedDetails = snap(details);
     slugManuallyEdited = false;
@@ -335,6 +347,7 @@
 
   const openEdit = async (l: Lodge) => {
     const seq = ++openSeq;
+    section = 'overview'; discardOpen = false; saveError = '';
     editing = l;
     form = formFrom(l);
     gallery = [];
@@ -356,9 +369,12 @@
       form = formFrom(editing);
     } catch {
       if (seq !== openSeq) return;
-      recordWarning = 'The latest copy of this lodge could not be loaded, so the form shows the list values. Check them before saving.';
+      recordWarning = 'We could not load the full property. Editing is locked to protect your saved content. Close and reopen to retry.';
+      recordState = 'failed';
+      return;
     }
     savedForm = snap(form);
+    savedPayload = buildPayload();
     recordState = 'ready';
   };
 
@@ -386,13 +402,12 @@
 
   const closeModal = () => {
     if (saving) return;
-    if (dirty && !window.confirm('Discard your unsaved changes to this lodge?')) return;
+    if (dirty) { discardOpen = true; return; }
     forceClose();
   };
 
-  const onKeydown = (e: KeyboardEvent) => {
-    if (modalOpen && e.key === 'Escape' && !confirmOpen) closeModal();
-  };
+  const protectUnload = (event: BeforeUnloadEvent) => { if (dirty) { event.preventDefault(); event.returnValue = ''; } };
+  beforeNavigate(({ cancel }) => { if (dirty) { cancel(); discardOpen = true; } });
 
   // A typed-in destination that is no longer live (unpublished, or a deleted
   // duplicate) is still shown, labelled, instead of the select going blank.
@@ -430,15 +445,7 @@
     return Number.isFinite(n) ? n : null;
   };
 
-  const save = async () => {
-    if (saving || recordState !== 'ready') return;
-    if (!form.name.trim()) { showToast('Name is required.', 'error'); return; }
-    // Everything that can throw lives inside the try — including building the
-    // payload. It used to sit outside, so a TypeError there skipped the finally
-    // and left the Save button stuck on "Saving..." with no message.
-    try {
-      saving = true;
-      const payload = {
+  const buildPayload = () => ({
         name: form.name.trim(),
         slug: form.slug.trim(),
         destination_id: form.destination_id || null,
@@ -490,62 +497,59 @@
         traveler_notes: form.traveler_notes.trim() || null,
         show_rates_publicly: form.show_rates_publicly,
         indexable: form.indexable
-      };
-      // The gallery is a separate table, so it is written after the lodge — and a
-      // new lodge has no id until the create returns.
+  });
+
+  const save = async () => {
+    if (saving || recordState !== 'ready') return;
+    const issues = validateAccommodation(form, detailsState === 'ready' && snap(details) !== savedDetails ? details : undefined);
+    if (issues.length) {
+      saveError = issues.map(issue => issue.message).join(' ');
+      if (issues[0].section === 'details') detailsEditor?.revealField(issues[0].field);
+      await workspace.focusField(issues[0].field, issues[0].section);
+      return;
+    }
+    saving = true;
+    saveError = '';
+    try {
+      const payload = buildPayload();
+      const changes = changedAccommodationFields(savedPayload, payload);
+      const wasNew = !editing;
       let lodgeId = editing?.id ?? '';
-      if (editing) {
-        await api.lodges.update(editing.id, payload);
-        showToast('Lodge updated.');
-      } else {
-        const created = await api.lodges.create(payload);
-        lodgeId = String((created.data as { id?: string })?.id ?? '');
-        showToast('Lodge created.');
-      }
-
-      if (lodgeId) {
-        // Written only when the saved gallery actually loaded (always true for a
-        // new lodge). Otherwise it is left exactly as it is.
-        if (galleryState === 'ready') {
-          const images = gallery
-            .filter((g) => g.image_url.trim())
-            .map((g) => ({ image_url: g.image_url.trim(), alt_text: g.alt_text, caption: g.caption }));
-          try {
-            await api.lodgeImages.replace(lodgeId, images);
-          } catch {
-            // The lodge itself saved; say so rather than implying nothing happened.
-            showToast('Lodge saved, but its gallery could not be updated.', 'error');
+      const result = await saveAccommodationSections({
+        ...(wasNew || Object.keys(changes).length ? { property: async () => {
+          if (editing) await api.lodges.update(editing.id, changes);
+          else {
+            const response = await api.lodges.create(payload);
+            lodgeId = response.data.id;
+            if (!lodgeId) throw new Error('The server did not return a property ID. Reopen the list before trying again.');
+            editing = response.data as Lodge;
           }
-        } else if (editing) {
-          showToast('Lodge saved. Its gallery had not loaded, so it was left unchanged.', 'error');
-        }
-
-        // Only on edit, and only when the rooms and rates actually loaded: a
-        // failed load must not be written back as "no rooms".
-        if (editing && detailsState !== 'ready') {
-          showToast('Lodge saved. Its rooms and rates had not loaded, so they were left unchanged.', 'error');
-        } else if (editing) {
-          try {
-            await api.lodges.saveDetails(lodgeId, {
-              highlights: details.highlights.filter((h) => String(h.title ?? '').trim()),
-              rooms: details.rooms
-                .filter((r) => String(r.name ?? '').trim())
-                .map((r) => ({ ...r, images: r.lodge_room_images ?? [] })),
-              rates: details.rates,
-              inclusions: details.inclusions.filter((c) => String(c.title ?? '').trim())
-            });
-          } catch {
-            showToast('Lodge saved, but its rooms and rates could not be updated.', 'error');
-          }
-        }
+          savedPayload = JSON.parse(JSON.stringify(payload));
+          savedForm = snap(form);
+          if (editing) editing = { ...editing, ...payload } as Lodge;
+          rows = rows.map(row => row.id === lodgeId ? { ...row, ...payload } as Lodge : row);
+        } } : {}),
+        ...(galleryState === 'ready' && gallerySnap(gallery) !== savedGallery ? { gallery: async () => {
+          await api.lodgeImages.replace(lodgeId, gallery.map(({ image_url, alt_text, caption }) => ({ image_url, alt_text, caption })));
+          savedGallery = gallerySnap(gallery);
+        } } : {}),
+        ...(detailsState === 'ready' && snap(details) !== savedDetails ? { details: async () => {
+          await api.lodges.saveDetails(lodgeId, accommodationDetailsPayload(details));
+          savedDetails = snap(details);
+        } } : {})
+      });
+      if (result.failed) {
+        const completed = result.completed.length ? result.completed.join(', ') + ' saved. ' : '';
+        saveError = completed + 'Could not save ' + result.failed + '. Your unsaved edits are still here; retry when the connection is available. ' + (result.error instanceof Error ? result.error.message : '');
+        section = result.failed === 'gallery' ? 'images' : result.failed === 'details' ? 'details' : section;
+        return;
       }
+      showToast(wasNew ? 'Property created. Add rooms and rates when you are ready.' : 'Accommodation changes saved.');
       forceClose();
       await load();
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Unable to save lodge.', 'error');
-    } finally {
-      saving = false;
-    }
+      saveError = err instanceof Error ? err.message : 'Unable to save accommodation. Your edits are still here.';
+    } finally { saving = false; }
   };
 
   const openDelete = (l: Lodge) => { toDelete = l; confirmOpen = true; };
@@ -571,7 +575,7 @@
   onMount(() => { load(); loadDestinations(); });
 </script>
 
-<svelte:window on:keydown={onKeydown} />
+<svelte:window on:beforeunload={protectUnload} />
 
 <ToastStack {toasts} on:dismiss={dismissToast} />
 
@@ -650,30 +654,15 @@
 </div>
 
 {#if modalOpen}
-  <div class="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" transition:fade={{ duration: 140 }}>
-    <form
-      class="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-none border border-ink/10 bg-surface p-6 shadow-[0_24px_80px_rgba(28,26,22,0.18)]"
-      transition:scale={{ duration: 160, start: 0.98 }}
-      on:submit|preventDefault={save}
-    >
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">{editing ? 'Edit lodge' : 'New lodge'}</p>
-          <h2 class="mt-1 text-2xl font-bold text-ink">{editing ? editing.name : 'Create Lodge'}</h2>
-        </div>
-        <button class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:bg-sand" type="button" aria-label="Close" on:click={closeModal}>
-          <X size={18} />
-        </button>
-      </div>
-
+  <AccommodationWorkspace bind:this={workspace} title={editing?.name || 'New accommodation'} bind:section {dirty} {saving} ready={recordState === 'ready'} loadFailed={recordState === 'failed'} creating={!editing} published={form.status === 'published'} discard={discardOpen} error={saveError} liveHref={editing?.status === 'published' ? '/accommodation/' + editing.slug : ''} on:close={closeModal} on:save={save} on:keep={() => discardOpen = false} on:discard={forceClose}>
       {#if recordState === 'loading'}
         <p class="mt-6 border border-dashed border-ink/20 px-4 py-16 text-center text-sm text-ink/55">Loading the latest copy of this lodge&hellip;</p>
       {:else}
       {#if recordWarning}
         <p class="mt-6 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">{recordWarning}</p>
       {/if}
-      <div class="mt-6 grid gap-5">
-      <section class="grid gap-4 border border-ink/10 bg-surface p-5">
+      <div class="grid gap-5">
+      <section style:display={section === 'overview' ? undefined : 'none'} class="grid gap-4 border border-ink/10 bg-surface p-5">
         <div>
           <h3 class="font-serif text-lg font-light text-ink">The property</h3>
           <p class="mt-1 text-sm text-ink/55">Its name, where it sits in the catalogue, and how you would describe it to a guest.</p>
@@ -681,8 +670,9 @@
         <div class="grid gap-4 sm:grid-cols-2">
           <AdminFormInput label="Name" name="name" bind:value={form.name} required />
           <label class="grid gap-2 text-sm font-medium text-ink">
-            <span>Slug</span>
-            <input class="h-11 rounded-2xl border border-ink/10 bg-surface px-3 font-mono text-sm shadow-sm outline-none transition focus:border-forest/40" bind:value={form.slug} on:input={() => (slugManuallyEdited = true)} placeholder="auto-generated from the name" />
+            <span>Page address</span>
+            <input class="h-11 rounded-2xl border border-ink/10 bg-surface px-3 font-mono text-sm shadow-sm outline-none transition focus:border-forest/40" name="slug" bind:value={form.slug} on:input={() => (slugManuallyEdited = true)} placeholder="auto-generated from the name" />
+            <span class="text-xs text-ink/50">/accommodation/{form.slug || "your-property"} · Changing this can break existing links.</span>
           </label>
         </div>
 
@@ -697,12 +687,12 @@
           <AdminSelect label="Property type" name="lodge_type" bind:value={form.lodge_type} options={typeOptions} />
         </div>
 
-        <AdminFormInput label="One-line summary" name="short_description" bind:value={form.short_description} placeholder="A ten-tent camp on a private Seronera concession." />
+        <AdminFormInput label="One-line summary" name="short_description" counter={200} maxLength={500} bind:value={form.short_description} placeholder="A ten-tent camp on a private Seronera concession." />
         <AdminTextArea label="Description" name="description" bind:value={form.description} rows={4} placeholder="What it is like to stay here." />
         <AdminTextArea label="Why we recommend it" name="why_we_recommend" bind:value={form.why_we_recommend} rows={3} placeholder="The honest reason this property is on the list." />
       </section>
 
-      <section class="grid gap-4 border border-ink/10 bg-surface p-5">
+      <section style:display={section === 'location' ? undefined : 'none'} class="grid gap-4 border border-ink/10 bg-surface p-5">
         <div>
           <h3 class="font-serif text-lg font-light text-ink">Where it is</h3>
           <p class="mt-1 text-sm text-ink/55">Used by the destination pages and the property filters.</p>
@@ -735,7 +725,7 @@
         </fieldset>
       </section>
 
-      <section class="grid gap-4 border border-ink/10 bg-surface p-5">
+      <section style:display={section === 'location' ? undefined : 'none'} class="grid gap-4 border border-ink/10 bg-surface p-5">
         <div>
           <h3 class="font-serif text-lg font-light text-ink">Getting there</h3>
           <p class="mt-1 text-sm text-ink/55">The logistics a consultant is asked about before anything else.</p>
@@ -769,7 +759,7 @@
         </div>
       </section>
 
-      <section class="grid gap-4 border border-ink/10 bg-surface p-5">
+      <section style:display={section === 'guests' ? undefined : 'none'} class="grid gap-4 border border-ink/10 bg-surface p-5">
         <div>
           <h3 class="font-serif text-lg font-light text-ink">Who it suits</h3>
           <p class="mt-1 text-sm text-ink/55">Drives the persona filters on the accommodation index.</p>
@@ -777,8 +767,8 @@
         <AdminFormInput label="Best for (comma-separated)" name="best_for" bind:value={form.best_for} placeholder="honeymoon, families, photographers" />
 
         <div class="grid gap-4 sm:grid-cols-3">
-          <AdminFormInput label="Romantic rating (0-10)" name="romantic_rating" type="number" bind:value={form.romantic_rating} />
-          <AdminFormInput label="Family rating (0-10)" name="family_rating" type="number" bind:value={form.family_rating} />
+          <AdminFormInput label="Romantic rating (0-10)" name="romantic_rating" type="number" step="any" bind:value={form.romantic_rating} />
+          <AdminFormInput label="Family rating (0-10)" name="family_rating" type="number" step="any" bind:value={form.family_rating} />
           <AdminFormInput label="Minimum child age" name="minimum_child_age" type="number" bind:value={form.minimum_child_age} placeholder="6" />
         </div>
 
@@ -804,7 +794,7 @@
         <AdminSelect label="Accessibility" name="accessibility" bind:value={form.accessibility} options={accessibilityOptions} />
       </section>
 
-      <section class="grid gap-4 border border-ink/10 bg-surface p-5">
+      <section style:display={section === 'guests' ? undefined : 'none'} class="grid gap-4 border border-ink/10 bg-surface p-5">
         <div>
           <h3 class="font-serif text-lg font-light text-ink">Practicalities</h3>
           <p class="mt-1 text-sm text-ink/55">The questions guests ask once they have chosen. Power and signal matter more in camp than anywhere else.</p>
@@ -819,7 +809,7 @@
         <AdminTextArea label="Traveller notes" name="traveler_notes" bind:value={form.traveler_notes} rows={3} placeholder="Anything worth knowing before arrival — altitude, dress, seasonal closures." />
       </section>
 
-      <section class="grid gap-4 border border-ink/10 bg-surface p-5">
+      <section style:display={section === 'images' ? undefined : 'none'} class="grid gap-4 border border-ink/10 bg-surface p-5">
         <div>
           <h3 class="font-serif text-lg font-light text-ink">Photography</h3>
           <p class="mt-1 text-sm text-ink/55">The hero leads the property page; the gallery is reused on every itinerary day that stays here.</p>
@@ -840,7 +830,7 @@
           />
       </section>
 
-      <section class="grid gap-4 border border-ink/10 bg-surface p-5">
+      <section style:display={section === 'details' ? undefined : 'none'} class="grid gap-4 border border-ink/10 bg-surface p-5">
         <div>
           <h3 class="font-serif text-lg font-light text-ink">Rooms, rates and what is included</h3>
           <p class="mt-1 text-sm text-ink/55">Saved separately from the property itself, and only after it exists.</p>
@@ -855,7 +845,7 @@
           {:else if detailsState !== 'ready'}
             <p class="border border-dashed border-ink/20 px-4 py-6 text-center text-sm text-ink/55">Loading&hellip;</p>
           {:else}
-            <LodgeDetailsEditor bind:details currency={form.currency || 'USD'} />
+            <LodgeDetailsEditor bind:this={detailsEditor} bind:details currency={form.currency || 'USD'} />
           {/if}
         {:else}
           <p class="border border-dashed border-ink/20 px-4 py-6 text-center text-sm text-ink/55">
@@ -863,20 +853,20 @@
           </p>
         {/if}
       </section>
-      <section class="grid gap-4 border border-ink/10 bg-surface p-5">
+      <section style:display={section === 'publishing' ? undefined : 'none'} class="grid gap-4 border border-ink/10 bg-surface p-5">
         <div>
           <h3 class="font-serif text-lg font-light text-ink">Commercial &amp; publishing</h3>
-          <p class="mt-1 text-sm text-ink/55">Rates stay private unless you say otherwise.</p>
+          <p class="mt-1 text-sm text-ink/55">Public rates are opt-in. Net rates and internal seasonal notes are never shown to visitors.</p>
         </div>
         <div class="grid gap-4 sm:grid-cols-3">
-          <AdminFormInput label="Price/night from" name="price_per_night_from" type="number" bind:value={form.price_per_night_from} />
+          <AdminFormInput label="Price/night from" name="price_per_night_from" type="number" step="any" bind:value={form.price_per_night_from} />
           <AdminFormInput label="Currency" name="currency" bind:value={form.currency} placeholder="USD" />
           <AdminFormInput label="Website URL" name="website_url" bind:value={form.website_url} placeholder="https://..." />
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <AdminFormInput label="SEO title" name="seo_title" bind:value={form.seo_title} />
-          <AdminFormInput label="Meta description" name="meta_description" bind:value={form.meta_description} />
+          <AdminFormInput label="Search title" name="seo_title" counter={60} bind:value={form.seo_title} />
+          <AdminTextArea label="Search description" name="meta_description" bind:value={form.meta_description} rows={3} />
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
@@ -896,21 +886,20 @@
             </label>
           </div>
         </div>
+        <div class="rounded-md border border-ink/10 bg-sand/30 p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-ink/45">Search preview</p>
+          <p class="mt-3 break-all text-xs text-forest">emneladventures.com / accommodation / {form.slug || 'your-property'}</p>
+          <h4 class="mt-2 text-lg text-[#23477b]">{preview.title}</h4>
+          <p class="mt-2 text-sm leading-6 text-ink/65">{preview.description}</p>
+          {#if !form.indexable}<p class="mt-3 text-xs font-semibold text-clay">Search indexing is switched off for this property.</p>{/if}
+        </div>
+
       </section>
 
       </div>
       {/if}
 
-      <!-- Always in reach on a long form. -->
-      <div class="sticky -bottom-6 z-10 -mx-6 mt-6 flex flex-col-reverse gap-3 border-t border-ink/10 bg-surface/95 px-6 py-4 backdrop-blur sm:flex-row sm:items-center sm:justify-end">
-        {#if dirty}<span class="text-xs font-semibold text-clay sm:mr-auto">Unsaved changes</span>{/if}
-        <AdminButton variant="secondary" type="button" on:click={closeModal}>Cancel</AdminButton>
-        <AdminButton type="submit" disabled={saving || recordState !== 'ready'}>
-          {saving ? 'Saving...' : editing ? 'Save Changes' : 'Create Lodge'}
-        </AdminButton>
-      </div>
-    </form>
-  </div>
+  </AccommodationWorkspace>
 {/if}
 
 <ConfirmModal

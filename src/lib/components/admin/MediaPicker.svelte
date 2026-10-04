@@ -3,6 +3,7 @@
   import { ChevronLeft, ChevronRight, Film, Image as ImageIcon, Link as LinkIcon, Search, Trash2, Upload, X } from '@lucide/svelte';
   import { cdnUrl, imgUrl } from '$lib/img';
   import { api } from '$lib/api/client';
+  import { mountAdminOverlay } from '$lib/admin/overlay';
   import type { Pagination } from '$lib/types';
 
   type MediaItem = {
@@ -175,8 +176,7 @@
   // Render the modal on <body> so a transformed admin ancestor can't break
   // position:fixed (which would push the dialog out of the viewport).
   const portal = (node: HTMLElement) => {
-    document.body.appendChild(node);
-    return { destroy: () => node.remove() };
+    return mountAdminOverlay(node, () => (open = false));
   };
 
   onDestroy(() => {
@@ -233,7 +233,7 @@
 
 <!-- library picker modal -->
 {#if open}
-  <div use:portal class="fixed inset-0 z-[70] grid place-items-center p-3 sm:p-4" role="dialog" aria-modal="true">
+  <div use:portal class="fixed inset-0 z-[70] grid place-items-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-label="Media library">
     <button class="absolute inset-0 cursor-default bg-ink/55 backdrop-blur-sm" type="button" aria-label="Close" on:click={() => (open = false)}></button>
     <div class="relative flex h-[88vh] max-h-[920px] w-full max-w-7xl flex-col overflow-hidden rounded-[10px] border border-ink/10 bg-surface shadow-[0_28px_90px_rgba(57,61,50,0.22)]">
       <div class="flex flex-col gap-4 border-b border-ink/10 bg-sand/25 p-4 lg:flex-row lg:items-center">
