@@ -39,6 +39,7 @@
   import InclusionsGrid from '$lib/components/public/InclusionsGrid.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import { faqLd, faqPairs } from '$lib/seo';
+  import { ownedFaqs } from '$lib/faqEntities';
   import RichText from '$lib/components/public/RichText.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
@@ -91,10 +92,14 @@
   const postCardImage = (post: BlogPost) =>
     thumbUrl(post as unknown as Record<string, unknown>, 'featured_image_url') || post.featured_image_url || DEFAULT_TOUR_IMAGE;
 
-  let tour: Tour | null = null;
-  /** SSR-loaded copy, used only for the document head. */
+  // Seeded from the SSR load, so the server HTML carries the whole itinerary —
+  // overview, days, inclusions and FAQs — not a "Loading itinerary..." shell
+  // that crawlers and AI assistants, which do not run the client fetch, read as
+  // an empty page. The client still refetches (below) for live data.
+  let tour: Tour | null = ($page.data?.tour as Tour | null) ?? null;
+  /** SSR-loaded copy, used for the document head. */
   $: seoTour = ($page.data?.tour as Tour | null) ?? tour;
-  let loading = true;
+  let loading = !tour;
   let error = '';
 
   // All planning entries share the full-page stepper and retain tour context.
@@ -263,7 +268,12 @@
   };
 
   const load = async (slug: string) => {
-    loading = true;
+    // The route's own load has usually fetched this tour already (first paint,
+    // or a client navigation): show it at once and refresh quietly behind it.
+    const loaded = $page.data?.tour as Tour | null | undefined;
+    if (loaded?.slug === slug) tour = loaded;
+    const seeded = tour?.slug === slug;
+    loading = !seeded;
     error = '';
     relatedTours = [];
     recentPosts = [];
@@ -274,7 +284,8 @@
       tour = response.data;
     } catch (requestError) {
       error = requestError instanceof Error ? requestError.message : 'Unable to load tour.';
-      tour = null;
+      // A failed refresh keeps the tour already on screen.
+      if (!seeded) tour = null;
     } finally {
       loading = false;
     }
@@ -877,8 +888,8 @@
                 {#if i < faqs.length - 1}
                   <span class={`absolute left-[19px] top-11 bottom-1 w-px transition-colors duration-300 ${state === 'complete' ? 'bg-clay' : 'bg-ink/12'}`}></span>
                 {/if}
-                <h3 class="font-serif text-[19px] font-light leading-snug text-heading md:text-[22px]">{faq.question}</h3>
-                <RichText value={faq.answer} className="mt-2.5 text-[15px] leading-[1.7] text-ink/70" />
+                <h3 class="font-serif text-[19px] font-light leading-snug text-heading [overflow-wrap:anywhere] md:text-[22px]">{faq.question}</h3>
+                <RichText value={faq.answer} className="mt-2.5 text-[15px] leading-[1.7] text-ink/70 [overflow-wrap:anywhere]" />
               </li>
             {/each}
           </ol>
@@ -930,7 +941,9 @@
 
 {#if touristTripLd}<JsonLd data={touristTripLd} />{/if}
 {#if breadcrumbLd}<JsonLd data={breadcrumbLd} />{/if}
-{#if faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
+<!-- Only this tour's own questions are marked up here; its category's and the
+     general ones are shown in full but marked up on the page that owns them. -->
+{#if faqPairs(ownedFaqs(faqs, { type: 'tours', id: seoTour?.id })).length}<JsonLd data={faqLd(faqPairs(ownedFaqs(faqs, { type: 'tours', id: seoTour?.id })))} />{/if}
 
 <style>
   /* Day accordion: hide the native marker; reveal the body with a soft slide. */

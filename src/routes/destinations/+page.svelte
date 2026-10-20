@@ -18,7 +18,6 @@
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import type { BlogPost, Destination, FAQ, Testimonial, Tour } from '$lib/types';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
-  import { faqLd, faqPairs } from '$lib/seo';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -109,9 +108,10 @@
 
 </script>
 
-<!-- Schema for the FAQs this view shows (general, or the spotlighted destination's). -->
 {#if !loadFailed && destinations.length}<JsonLd data={collectionSchema} />{/if}
-{#if faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
+<!-- The FAQs below are shown in full but not marked up here: a spotlit
+     destination's are marked up on its own page, general ones on the expert
+     advice page (ownedFaqs) — one FAQPage instance per question, site-wide. -->
 
 <!-- page header -->
 <section class="relative overflow-hidden bg-deep-green text-white">

@@ -1,5 +1,6 @@
 import type { PageLoad } from './$types';
 import { cachedJson } from '$lib/cache';
+import { generalFaqQuery } from '$lib/faqEntities';
 import type { Destination, FAQ, GalleryItem, Paginated, Testimonial, Tour } from '$lib/types';
 
 type ApiEnvelope<T> = { data?: T };
@@ -12,6 +13,20 @@ const safeJson = async <T>(url: string, fetch: typeof globalThis.fetch, fallback
   } catch {
     return fallback;
   }
+};
+
+const NO_FAQS: Paginated<FAQ> = { items: [], pagination: { page: 1, limit: 6, total: 0, totalPages: 0 } };
+
+/**
+ * The homepage shows the general FAQ library — questions about Tanzania travel
+ * as a whole, not one park or lodge. Until any general questions exist it falls
+ * back to what it showed before attachments: published questions filed under
+ * the "General" category, wherever they are attached.
+ */
+const homepageFaqs = async (fetch: typeof globalThis.fetch): Promise<Paginated<FAQ>> => {
+  const general = await safeJson<Paginated<FAQ>>(`/api/faqs?${generalFaqQuery()}&limit=6`, fetch, NO_FAQS);
+  if (general.items.length) return general;
+  return safeJson<Paginated<FAQ>>('/api/faqs?category=General&status=published&limit=6', fetch, NO_FAQS);
 };
 
 // SSR-load the homepage CMS and its sales-critical collections so the hero and
@@ -32,10 +47,7 @@ export const load: PageLoad = async ({ fetch }) => {
       items: [],
       pagination: { page: 1, limit: 12, total: 0, totalPages: 0 }
     }),
-    safeJson<Paginated<FAQ>>('/api/faqs?category=General&status=published&limit=6', fetch, {
-      items: [],
-      pagination: { page: 1, limit: 6, total: 0, totalPages: 0 }
-    }),
+    homepageFaqs(fetch),
     safeJson<Paginated<GalleryItem>>('/api/gallery?status=published&limit=8', fetch, {
       items: [],
       pagination: { page: 1, limit: 8, total: 0, totalPages: 0 }

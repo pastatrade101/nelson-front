@@ -1,6 +1,7 @@
 import type { PageLoad } from './$types';
 import type { Destination, FAQ } from '$lib/types';
 import { cachedJson } from '$lib/cache';
+import { loadFaqsFor } from '$lib/faqEntities';
 
 // SSR-load the destinations list so the circuit cards are in the initial HTML
 // (no "Loading destinations…" flash after hydration). Supporting content for the
@@ -13,12 +14,9 @@ export const load: PageLoad = async ({ fetch, url }) => {
   const faqsFor = (destinations: Destination[]) => {
     const slug = url.searchParams.get('d');
     const spot = slug && slug !== 'all' ? destinations.find((d) => d.slug === slug) : undefined;
-    return cachedJson<{ data?: { items?: FAQ[] } }>(
-      `/api/faqs?status=published&limit=60&destination_id=${spot ? spot.id : 'null'}`,
-      fetch
-    )
-      .then((b) => b?.data?.items ?? [])
-      .catch(() => [] as FAQ[]);
+    // The spotlit destination's questions with general ones to round them out;
+    // with no spotlight, the general library on its own.
+    return loadFaqsFor(fetch, spot ? { type: 'destinations', id: spot.id } : null, { fill: spot ? 8 : 12 });
   };
   try {
     const body = await cachedJson<{ data?: { items?: Destination[] } }>('/api/destinations?status=published&limit=100', fetch);

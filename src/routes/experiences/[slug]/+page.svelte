@@ -8,7 +8,9 @@
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
-  import { breadcrumbLd } from '$lib/seo';
+  import { breadcrumbLd, faqLd, faqPairs } from '$lib/seo';
+  import { ownedFaqs } from '$lib/faqEntities';
+  import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import type { Tour } from '$lib/types';
   import type { PageData } from './$types';
 
@@ -58,12 +60,17 @@
   })();
   $: name = exp ? String(exp.name ?? slug) : slug;
   $: image = exp ? String(exp.image_url ?? '') : '';
+  $: faqs = data.faqs ?? [];
+  // Marked up here: the questions attached to this category. Its tours show them
+  // too, but the markup belongs to the page that owns them (ownedFaqs).
+  $: ownFaqPairs = faqPairs(ownedFaqs(faqs, { type: 'tour_categories', id: exp?.id ? String(exp.id) : null }));
 </script>
 
 {#if loading}
   <section class="container-shell py-20"><LoadingState message="Loading experience..." /></section>
 {:else if exp}
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Experiences', path: '/experiences' }, { name, path: `/experiences/${slug}` }])} />
+  {#if ownFaqPairs.length}<JsonLd data={faqLd(ownFaqPairs)} />{/if}
   <section class="relative overflow-hidden bg-deep-green text-white">
     {#if image}
       <ResponsiveImage imgClass="absolute inset-0 h-full w-full object-cover opacity-45" src={image} fallbackSrc={thumbUrl(exp, 'image_url')} alt={name} sizes="100vw" eager priority />
@@ -124,6 +131,16 @@
             <TourCardRich {tour} />
           {/each}
         </div>
+      </div>
+    {/if}
+
+    {#if faqs.length}
+      <div id="faqs" class="mt-12 grid scroll-mt-28 gap-6 md:grid-cols-[0.7fr_1.3fr] md:gap-10">
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">Good to know</p>
+          <h2 class="mt-2 text-2xl font-serif font-light text-heading md:text-3xl">{name}: your questions, answered</h2>
+        </div>
+        <FAQAccordion {faqs} />
       </div>
     {/if}
   </section>

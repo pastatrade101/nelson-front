@@ -1,3 +1,4 @@
+import { plainText } from '$lib/seo';
 import type { Section } from './styleContent';
 
 /** Describe only content the page actually renders; no invented offers or ratings. */
@@ -12,16 +13,26 @@ export function styleStructuredData(input: {
   } catch { /* Invalid optional media must not prevent the page from rendering. */ }
   const parts: Record<string, unknown>[] = [];
   const pageId = `${url}#webpage`;
+  // One FAQPage for the whole page, however many FAQ blocks the editor added:
+  // a page is one FAQ page to a search engine, and two FAQPage nodes compete.
+  // Only the questions this page owns; a general one shown here is marked up
+  // on its own page (FaqItem.markup), once per site.
+  const faqSections = sections.filter((section): section is Extract<Section, { kind: 'faq' }> => section.kind === 'faq');
+  const owned = faqSections
+    .flatMap((section) => section.items)
+    .filter((item) => item.markup !== false)
+    .map((item) => ({ q: plainText(item.q), a: plainText(item.a) }))
+    .filter((item, i, all) => item.q && item.a && all.findIndex((other) => other.q === item.q) === i);
+  if (owned.length) {
+    parts.push({
+      '@type': 'FAQPage', '@id': `${url}#${faqSections[0].id}`, name: faqSections[0].title || 'Frequently asked questions',
+      isPartOf: { '@id': pageId },
+      mainEntity: owned.map((item) => ({
+        '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a }
+      }))
+    });
+  }
   for (const section of sections) {
-    if (section.kind === 'faq') {
-      parts.push({
-        '@type': 'FAQPage', '@id': `${url}#${section.id}`, name: section.title || 'Frequently asked questions',
-        isPartOf: { '@id': pageId },
-        mainEntity: section.items.map((item) => ({
-          '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a }
-        }))
-      });
-    }
     if (section.kind === 'tours' || section.kind === 'destinations') {
       const items = section.kind === 'tours'
         ? section.tours.map((tour) => ({ name: tour.title, url: `${origin}/tours/${tour.slug}` }))

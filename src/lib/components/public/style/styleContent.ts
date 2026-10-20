@@ -366,7 +366,14 @@ export type Section =
   | { kind: 'inclusions'; id: string; nav: string; eyebrow: string; title: string; included: string[]; excluded: string[] }
   | { kind: 'destinations'; id: string; nav: string; eyebrow: string; title: string; intro: string; destinations: Destination[] }
   | { kind: 'tours'; id: string; nav: string; eyebrow: string; title: string; intro: string; tours: Tour[] }
-  | { kind: 'faq'; id: string; nav: string; eyebrow: string; title: string; items: { q: string; a: string; topic: string }[] };
+  | { kind: 'faq'; id: string; nav: string; eyebrow: string; title: string; items: FaqItem[] };
+
+/**
+ * One question on a style page. `markup: false` marks a question that is shown
+ * here but owned (and marked up as FAQPage) by another page — a general
+ * question from the central FAQ library. Absent means this page owns it.
+ */
+export type FaqItem = { q: string; a: string; topic: string; markup?: boolean };
 
 export type StylePage = { trust: string[]; sections: Section[] };
 
@@ -573,4 +580,47 @@ export const buildStylePage = (blocks: Raw[], tours: Tour[], lodges: Lodge[] = [
   }
 
   return { trust, sections };
+};
+
+/**
+ * Fold questions from the central FAQ library into the page's FAQ section, so
+ * a style page has one FAQ block and one FAQPage, not two competing ones.
+ *
+ * The editor's own block keeps its place and order; library questions follow
+ * it, skipping any it already asks. With no block of its own, the page gets a
+ * FAQ section ahead of its closing call to action. Questions attached to this
+ * style are this page's to mark up; general ones are shown but marked up only
+ * where they live (see ownedFaqs in $lib/faqEntities).
+ */
+export const withLibraryFaqs = (
+  sections: Section[],
+  faqs: Array<{ question?: string | null; answer?: string | null; entity_type?: string | null; entity_id?: string | null }>,
+  styleId: string | null | undefined
+): Section[] => {
+  const items: FaqItem[] = faqs
+    .map((faq) => ({
+      q: String(faq.question ?? '').trim(),
+      a: String(faq.answer ?? '').trim(),
+      topic: '',
+      markup: Boolean(styleId) && faq.entity_type === 'travel_styles' && faq.entity_id === styleId
+    }))
+    .filter((item) => item.q && item.a);
+  if (!items.length) return sections;
+
+  const index = sections.findIndex((section) => section.kind === 'faq');
+  if (index >= 0) {
+    const own = sections[index] as Extract<Section, { kind: 'faq' }>;
+    const asked = new Set(own.items.map((item) => item.q.toLowerCase()));
+    const extra = items.filter((item) => !asked.has(item.q.toLowerCase()));
+    if (!extra.length) return sections;
+    // A topic-grouped block files untopiced questions under "Other questions".
+    return sections.map((section, i) => (i === index ? { ...own, items: [...own.items, ...extra] } : section));
+  }
+
+  const ids = new Set(sections.map((section) => section.id));
+  let id = 'faq';
+  for (let k = 2; ids.has(id); k += 1) id = `faq-${k}`;
+  const section: Section = { kind: 'faq', id, nav: NAV.faq, eyebrow: 'Questions', title: 'Frequently asked', items };
+  const closing = sections.findIndex((entry) => entry.kind === 'cta' && entry.final);
+  return closing >= 0 ? [...sections.slice(0, closing), section, ...sections.slice(closing)] : [...sections, section];
 };

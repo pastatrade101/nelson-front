@@ -13,6 +13,7 @@
   import type { PageData } from './$types';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import { faqLd, faqPairs } from '$lib/seo';
+  import { ownedFaqs } from '$lib/faqEntities';
 
   export let data: PageData;
 
@@ -34,7 +35,8 @@
   });
 </script>
 
-{#if faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
+<!-- GENERAL_FAQ_HOME: the general library is marked up here and nowhere else. -->
+{#if faqPairs(ownedFaqs(faqs, 'general')).length}<JsonLd data={faqLd(faqPairs(ownedFaqs(faqs, 'general')))} />{/if}
 
 <!-- Hero -->
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">

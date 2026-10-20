@@ -305,7 +305,7 @@
                 {#if block.title}
                   <h3 class="mb-4 font-serif text-xl font-normal text-heading">{block.title}</h3>
                 {/if}
-                <FAQAccordion faqs={toAccordion(block.items)} />
+                <FAQAccordion faqs={toAccordion(block.items)} headingLevel={block.title ? 4 : 3} />
               </div>
             {:else if block.type === 'tours'}
               {@const picked = pickTours(block.tour_ids)}

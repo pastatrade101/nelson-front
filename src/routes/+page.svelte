@@ -3,8 +3,6 @@
   import { ArrowRight } from '@lucide/svelte';
   import DestinationFeatureCard from '$lib/components/public/DestinationFeatureCard.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
-  import JsonLd from '$lib/components/public/JsonLd.svelte';
-  import { faqLd } from '$lib/seo';
   import FounderStorySection from '$lib/components/public/FounderStorySection.svelte';
   import HomeProofStrip from '$lib/components/public/HomeProofStrip.svelte';
   import HeroSection from '$lib/components/public/HeroSection.svelte';
@@ -186,8 +184,10 @@
   />
 </div>
 
+<!-- Shown in full in the server HTML, but not marked up as FAQPage here: every
+     question on the homepage is marked up on the page that owns it (see
+     ownedFaqs in $lib/faqEntities), and Google asks for one instance per site. -->
 {#if sectionOn('faq') && faqs.length}
-  <JsonLd data={faqLd(faqs.map((f) => ({ q: f.question, a: f.answer })))} />
   <section id="faq" class="scroll-mt-20 bg-canvas py-16 md:py-24" use:sectionReveal>
     <div class="container-shell grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-12">
       <SectionHeader

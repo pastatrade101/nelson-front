@@ -39,7 +39,7 @@
   import { currency, formatUsd } from '$lib/currency';
   import type { CurrencyStoreState } from '$lib/currency';
   import { imgUrl, origUrl, thumbUrl } from '$lib/img';
-  import { breadcrumbLd, faqLd } from '$lib/seo';
+  import { breadcrumbLd, faqLd, plainText } from '$lib/seo';
   import { tierLabel } from '$lib/tiers';
   import type { FAQ, MarketPackageOverride, MarketPageBlock, Tour } from '$lib/types';
   import type { PageData } from './$types';
@@ -151,8 +151,8 @@
   // Every FAQ answer on the page, for FAQPage structured data.
   $: faqEntries = sections
     .flatMap((block) => (block.type === 'faq' ? (block.items ?? []) : []))
-    .filter((item) => item.question && item.answer)
-    .map((item) => ({ q: item.question as string, a: item.answer as string }));
+    .map((item) => ({ q: plainText(item.question as string), a: plainText(item.answer as string) }))
+    .filter((item) => item.q && item.a);
 
   // FAQAccordion keys its open state by id; the blocks store plain Q/A pairs, so
   // synthesise a stable id per block + position.

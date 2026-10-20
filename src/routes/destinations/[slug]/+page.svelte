@@ -20,6 +20,7 @@
   import DestinationGuide from '$lib/components/public/guide/DestinationGuide.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import { breadcrumbLd, faqLd, faqPairs } from '$lib/seo';
+  import { ownedFaqs } from '$lib/faqEntities';
   import { FileCheck, HeartPulse, Phone, Plane, Shield, ShieldCheck } from '@lucide/svelte';
   import type { Activity, BlogPost, Destination, FAQ, Lodge, Tour, TripPoint } from '$lib/types';
   import type { PageData } from './$types';
@@ -48,6 +49,9 @@
   let activities: Activity[] = [];
   let tripPoints: TripPoint[] = [];
   $: faqs = ((data.faqs ?? []) as FAQ[]);
+  // The questions this page marks up: its own. General ones that round the list
+  // out are shown, but marked up on the page that owns them (ownedFaqs).
+  $: ownFaqPairs = destination ? faqPairs(ownedFaqs(faqs, { type: 'destinations', id: destination.id })) : [];
 
   // This destination's FAQs, grouped by their (optional) category for display.
   $: faqGroups = (() => {
@@ -152,7 +156,7 @@
 {:else}
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Destinations', path: '/destinations' }, { name: destination.name, path: `/destinations/${destination.slug}` }])} />
   <!-- With a guide, its FAQPage already includes these; otherwise the page carries its own. -->
-  {#if !destination.guide?.length && faqPairs(faqs).length}<JsonLd data={faqLd(faqPairs(faqs))} />{/if}
+  {#if !destination.guide?.length && ownFaqPairs.length}<JsonLd data={faqLd(ownFaqPairs)} />{/if}
   <JsonLd data={destinationStructuredData(destination, origin)} />
   <DestinationHero {destination}>
   {#if itemListLd}<JsonLd data={itemListLd} />{/if}
@@ -179,7 +183,7 @@
 {#if destination}
   <!-- Long-form destination guide (the editorial "destination template") -->
   {#if destination.guide?.length}
-    <DestinationGuide destinationName={destination.name} blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={faqPairs(faqs)} tours={(data.guideTours ?? []) as Tour[]} lodges={(data.guideLodges ?? []) as Lodge[]} />
+    <DestinationGuide destinationName={destination.name} blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={ownFaqPairs} tours={(data.guideTours ?? []) as Tour[]} lodges={(data.guideLodges ?? []) as Lodge[]} />
   {/if}
 
   <!-- Safaris through this destination: connected tours first, then popular ones -->
@@ -364,9 +368,9 @@
           {#each faqGroups as group (group.category)}
             <div>
               {#if faqGroups.length > 1}
-                <p class="mb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{group.category}</p>
+                <h3 class="mb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{group.category}</h3>
               {/if}
-              <FAQAccordion faqs={group.items} />
+              <FAQAccordion faqs={group.items} headingLevel={faqGroups.length > 1 ? 4 : 3} />
             </div>
           {/each}
         </div>

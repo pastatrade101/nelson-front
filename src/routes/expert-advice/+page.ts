@@ -1,17 +1,15 @@
 import type { PageLoad } from './$types';
-import type { FAQ } from '$lib/types';
-import { cachedJson } from '$lib/cache';
+import { generalFaqQuery, readAllFaqs } from '$lib/faqEntities';
 
 /**
  * The page's FAQs, server-rendered. They were fetched in onMount, so the HTML a
  * crawler received had none of the questions or answers on the page whose job
  * is to answer them.
+ *
+ * This is GENERAL_FAQ_HOME: the one page that marks the general library up as
+ * FAQPage, so it carries the whole library (every page of it) rather than a
+ * sample: a general question cut here would be marked up nowhere.
  */
-export const load: PageLoad = async ({ fetch }) => {
-  try {
-    const body = await cachedJson<{ data?: { items?: FAQ[] } }>('/api/faqs?destination_id=null&status=published&limit=8', fetch);
-    return { faqs: body?.data?.items ?? [] };
-  } catch {
-    return { faqs: [] as FAQ[] };
-  }
-};
+export const load: PageLoad = async ({ fetch }) => ({
+  faqs: await readAllFaqs(fetch, generalFaqQuery())
+});

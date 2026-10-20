@@ -1,5 +1,6 @@
 import type { PageLoad } from './$types';
-import type { FAQ, Tour } from '$lib/types';
+import type { Tour } from '$lib/types';
+import { loadFaqsFor } from '$lib/faqEntities';
 
 /**
  * SSR-load the tour so the page's <title> and description are in the HTML that
@@ -17,13 +18,6 @@ import type { FAQ, Tour } from '$lib/types';
  * which is what makes this work server-side (see src/routes/api/[...path]).
  */
 export const load: PageLoad = async ({ params, fetch }) => {
-  // The page's FAQs (the general ones) load here too, so every question and
-  // answer is in the first response instead of arriving after hydration, where
-  // crawlers that do not run JavaScript never saw them.
-  const faqs = fetch('/api/faqs?destination_id=null&status=published&limit=10')
-    .then((r) => (r.ok ? r.json() : null))
-    .then((b) => ((b?.data?.items ?? []) as FAQ[]))
-    .catch(() => [] as FAQ[]);
   let tour: Tour | null = null;
   try {
     const res = await fetch(`/api/tours/${params.slug}`);
@@ -34,5 +28,15 @@ export const load: PageLoad = async ({ params, fetch }) => {
   } catch {
     // Fall through — the component's own fetch still populates the page.
   }
-  return { tour, faqs: await faqs };
+
+  // The page's FAQs load here too, so every question and answer is in the
+  // first response instead of arriving after hydration, where crawlers that do
+  // not run JavaScript never saw them. Narrowest first: this tour's own
+  // questions, then its category's, then the general library to fill.
+  const faqs = await loadFaqsFor(fetch, { type: 'tours', id: tour?.id }, {
+    borrow: [{ type: 'tour_categories', id: tour?.category_id }],
+    limit: 10
+  });
+
+  return { tour, faqs };
 };

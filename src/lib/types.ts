@@ -641,6 +641,9 @@ export type Specialist = {
   photo?: string;
 };
 
+/** What an FAQ can be attached to — table names, as the API filters on them. */
+export type FaqEntityType = 'destinations' | 'tours' | 'tour_categories' | 'lodges' | 'travel_styles';
+
 export type FAQ = {
   id: string;
   question: string;
@@ -648,6 +651,11 @@ export type FAQ = {
   category?: string | null;
   destination_id?: string | null;
   destinations?: { name: string; slug: string } | null;
+  /** Null pair = a general question, shown wherever a page has room for it. */
+  entity_type?: FaqEntityType | null;
+  entity_id?: string | null;
+  /** Resolved by the API on list reads, for the admin. */
+  entity?: { id: string; label: string; slug: string | null; type: FaqEntityType } | null;
   status?: string;
   sort_order?: number;
 };

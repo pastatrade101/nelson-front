@@ -7,7 +7,7 @@
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import StyleSections from '$lib/components/public/style/StyleSections.svelte';
-  import { buildStylePage } from '$lib/components/public/style/styleContent';
+  import { buildStylePage, withLibraryFaqs } from '$lib/components/public/style/styleContent';
   import { breadcrumbLd } from '$lib/seo';
   import { SITE_URL } from '$lib/config/env';
   import { canonicalForPath, safeSiteOrigin } from '$lib/seo-policy';
@@ -27,7 +27,10 @@
   $: canonical = canonicalForPath(origin, $page.url.pathname, data.seoOverride?.canonical_url);
 
   $: blocks = (Array.isArray(style.sections) ? style.sections : []) as Record<string, unknown>[];
-  $: model = buildStylePage(blocks, tours, lodges, destinations);
+  $: built = buildStylePage(blocks, tours, lodges, destinations);
+  // The editor's sections plus the central FAQ library's questions for this
+  // style, folded into one FAQ section (withLibraryFaqs).
+  $: model = { ...built, sections: withLibraryFaqs(built.sections, data.faqs ?? [], style.id) };
   $: desires = (style.desires ?? []).filter((d) => d && d.trim());
   $: concerns = (style.concerns ?? []).filter((c) => c && c.trim());
 
@@ -35,7 +38,9 @@
   // then everything else in the editor's order.
   $: leadSection = model.sections[0]?.kind === 'prose' && model.sections[0].lead ? model.sections[0] : null;
   $: restSections = leadSection ? model.sections.slice(1) : model.sections;
-  $: hasFaq = model.sections.some((s) => s.kind === 'faq');
+  // The editor's own FAQ block, not library questions: only a written answer to
+  // these concerns makes listing them again redundant.
+  $: hasFaq = built.sections.some((s) => s.kind === 'faq');
   $: hasCuratedTours = model.sections.some((s) => s.kind === 'tours');
   $: hasClosingCta = model.sections.some((s) => s.kind === 'cta' && s.final);
   $: fallbackTours = hasCuratedTours ? [] : tours.filter((t) => t.is_featured).slice(0, 3);

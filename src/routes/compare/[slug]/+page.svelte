@@ -8,8 +8,11 @@
   import LoadingState from '$lib/components/public/LoadingState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
-  import { breadcrumbLd, faqLd } from '$lib/seo';
+  import { breadcrumbLd, faqLd, plainText } from '$lib/seo';
   import type { Comparison } from '$lib/types';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   type NormCmp = {
     slug: string;
@@ -36,11 +39,6 @@
   };
   $: ctaHref = cmp ? withTopic(cmp.cta.href, cmp.title) : '/plan-my-trip';
 
-  let cmp: NormCmp | null = null;
-  let others: { slug: string; eyebrow: string; title: string }[] = [];
-  let loading = true;
-  let loadFailed = false;
-
   const fromApi = (c: Comparison): NormCmp => ({
     slug: c.slug,
     eyebrow: c.eyebrow ?? '',
@@ -54,19 +52,38 @@
     faqs: c.faqs ?? []
   });
 
+  // Seeded from the SSR load (+page.ts), so the verdict, the dimensions and the
+  // FAQ answers are in the server HTML rather than behind a loading spinner.
+  let cmp: NormCmp | null = data.comparison ? fromApi(data.comparison) : null;
+  let others: { slug: string; eyebrow: string; title: string }[] = [];
+  let loading = !cmp;
+  let loadFailed = false;
+
+  // FAQPage needs both halves of every pair, as plain text.
+  $: faqMarkup = (cmp?.faqs ?? [])
+    .map((f) => ({ q: plainText(f.q), a: plainText(f.a) }))
+    .filter((f) => f.q && f.a);
+
   const loadCmp = async (slug: string) => {
-    loading = true;
     loadFailed = false;
-    cmp = null;
     others = [];
-    try {
-      const res = await api.comparisons.get(slug);
-      cmp = fromApi(res.data);
-    } catch {
-      loadFailed = true;
-      cmp = null;
-    } finally {
+    // The route's load has already fetched it (first paint or a client
+    // navigation); only fall back to the browser fetch when it could not.
+    if (data.comparison?.slug === slug) {
+      cmp = fromApi(data.comparison);
       loading = false;
+    } else {
+      loading = true;
+      cmp = null;
+      try {
+        const res = await api.comparisons.get(slug);
+        cmp = fromApi(res.data);
+      } catch {
+        loadFailed = true;
+        cmp = null;
+      } finally {
+        loading = false;
+      }
     }
 
     if (cmp) {
@@ -91,7 +108,7 @@
   <section class="container-shell py-20"><LoadingState message="Loading comparison..." /></section>
 {:else if cmp}
   <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Compare', path: '/compare' }, { name: cmp.title, path: `/compare/${cmp.slug}` }])} />
-  {#if cmp.faqs?.length}<JsonLd data={faqLd(cmp.faqs)} />{/if}
+  {#if faqMarkup.length}<JsonLd data={faqLd(faqMarkup)} />{/if}
   <!-- hero -->
   <section class="relative overflow-hidden bg-deep-green text-white">
     {#if cmp.a.image}
@@ -154,9 +171,9 @@
         <div class="mt-4 grid gap-3">
           {#each cmp.faqs as faq}
             <div class="rounded-2xl border border-ink/10 bg-surface p-5">
-              <p class="flex items-start gap-2 font-semibold text-ink">
+              <h3 class="flex items-start gap-2 text-base font-semibold text-ink">
                 <Check size={16} class="mt-1 shrink-0 text-forest" />{faq.q}
-              </p>
+              </h3>
               <p class="mt-1.5 pl-6 text-sm leading-6 text-ink/65">{faq.a}</p>
             </div>
           {/each}

@@ -1,6 +1,7 @@
 import { error, isHttpError } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import type { Lodge, Tour } from '$lib/types';
+import { loadFaqsFor } from '$lib/faqEntities';
 
 // SSR-load the property (and its destination-mates) so the page arrives rendered
 // — better for SEO and first paint than a client round-trip. Runs on the server
@@ -38,11 +39,14 @@ export const load: PageLoad = async ({ params, fetch }) => {
   // to a destination page that actually resolves.
   const destinationId = lodge.destination_id;
   const destinationSlug = lodge.destinations?.slug ?? '';
-  const [staysBody, lodgesBody, toursBody, destinationBody] = await Promise.all([
+  const [staysBody, lodgesBody, toursBody, destinationBody, faqs] = await Promise.all([
     json<{ data?: { items?: Tour[] } }>(`/api/lodges/${lodge.id}/itineraries`),
     destinationId ? json<{ data?: { items?: Lodge[] } }>(`/api/lodges?destination_id=${destinationId}&status=published&limit=7`) : null,
     destinationId ? json<{ data?: { items?: Tour[] } }>(`/api/tours?destination_id=${destinationId}&status=published&limit=12`) : null,
-    destinationSlug ? json<{ data?: unknown }>(`/api/destinations/${destinationSlug}`) : null
+    destinationSlug ? json<{ data?: unknown }>(`/api/destinations/${destinationSlug}`) : null,
+    // Questions attached to this property first, general ones to round them out
+    // — in the first response, so crawlers and AI assistants read the answers.
+    loadFaqsFor(fetch, { type: 'lodges', id: lodge.id }, { fill: 6 })
   ]);
 
   const staysHere = (staysBody?.data?.items ?? []).slice(0, 6);
@@ -51,5 +55,5 @@ export const load: PageLoad = async ({ params, fetch }) => {
   const relatedLodges = (lodgesBody?.data?.items ?? []).filter((l) => l.id !== lodge!.id).slice(0, 3);
   const destinationLive = Boolean(destinationBody?.data);
 
-  return { lodge, relatedLodges, safaris, staysHere, destinationLive };
+  return { lodge, relatedLodges, safaris, staysHere, destinationLive, faqs };
 };

@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
+import { loadFaqsFor } from '$lib/faqEntities';
 
 /**
  * Check the experience exists before the page renders, so a dead address
@@ -33,5 +34,12 @@ export const load: PageLoad = async ({ fetch, params }) => {
     throw error(404, 'That experience is not available.');
   }
 
-  return { category };
+  // Questions attached to this category, general ones to round them out — in
+  // the first response, so crawlers and AI assistants read the answers.
+  const faqs =
+    category && typeof category.id === 'string'
+      ? await loadFaqsFor(fetch, { type: 'tour_categories', id: category.id }, { fill: 6 })
+      : [];
+
+  return { category, faqs };
 };

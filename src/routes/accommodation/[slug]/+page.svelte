@@ -3,7 +3,9 @@
   import { page } from '$app/stores';
   import { SITE_URL } from '$lib/config/env';
   import { accommodationSeo, accommodationStructuredData } from '$lib/accommodation-seo';
-  import { breadcrumbLd } from '$lib/seo';
+  import { breadcrumbLd, faqLd, faqPairs } from '$lib/seo';
+  import { ownedFaqs } from '$lib/faqEntities';
+  import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import { toMetaText } from '$lib/richtext';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import RichText from '$lib/components/public/RichText.svelte';
@@ -175,6 +177,9 @@
   $: hasPractical = Boolean(practicalRows.length || (l.traveler_notes ?? '').trim());
   $: stays = data.staysHere ?? [];
   $: nearby = data.safaris ?? [];
+  $: faqs = data.faqs ?? [];
+  // Marked up here: only the questions attached to this property (ownedFaqs).
+  $: ownFaqPairs = faqPairs(ownedFaqs(faqs, { type: 'lodges', id: l.id }));
   $: destinationName = l.destinations?.name ?? '';
 
   $: planHref = `/plan-my-trip?lodge=${encodeURIComponent(l.slug)}`;
@@ -194,6 +199,7 @@
     hasPractical && { id: 'good-to-know', label: 'Good to know' },
     inclusions.length && { id: 'included', label: "What's included" },
     rates.length && { id: 'rates', label: 'Rates' },
+    faqs.length && { id: 'faqs', label: 'FAQs' },
     { id: 'safari-itineraries', label: 'Itineraries' }
   ].filter(Boolean) as { id: string; label: string }[];
 
@@ -231,6 +237,7 @@
 </script>
 
 <JsonLd data={schema} />
+{#if ownFaqPairs.length}<JsonLd data={faqLd(ownFaqPairs)} />{/if}
 <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Accommodation', path: '/accommodation' }, { name: l.name, path: '/accommodation/' + l.slug }])} />
 
 {#snippet heading(eyebrow: string, title: string, dark = false)}
@@ -515,6 +522,16 @@
           {/each}
         </div>
       </div>
+    </div>
+  </section>
+{/if}
+
+<!-- ── questions ───────────────────────────────────────────────────────────── -->
+{#if faqs.length}
+  <section id="faqs" class="scroll-mt-[calc(var(--nav-h,70px)+56px)] border-t border-ink/10 bg-canvas py-12 md:py-16">
+    <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-16" use:fadeUpOnScroll={{ y: 14 }}>
+      <div class="lg:col-span-4">{@render heading('Questions', `${l.name}: your questions, answered`)}</div>
+      <div class="lg:col-span-8"><FAQAccordion {faqs} /></div>
     </div>
   </section>
 {/if}

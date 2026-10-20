@@ -3,6 +3,7 @@ import type { PageLoad } from './$types';
 import type { Destination, Lodge, Tour, TravelStyle } from '$lib/types';
 import { cachedJson } from '$lib/cache';
 import { categoryForStyle } from '$lib/styleLinks';
+import { loadFaqsFor } from '$lib/faqEntities';
 
 /**
  * A travel style, server-rendered.
@@ -37,7 +38,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 
   // Siblings and the tour pool are secondary: a failure hides a section rather
   // than losing the page.
-  const [others, tours, categories] = await Promise.all([
+  const [others, tours, categories, faqs] = await Promise.all([
     cachedJson<{ data?: { items?: TravelStyle[] } }>('/api/travel-styles?status=published&limit=100', fetch)
       .then((b) => (b?.data?.items ?? []).filter((s) => s.slug !== params.slug))
       .catch(() => [] as TravelStyle[]),
@@ -46,7 +47,10 @@ export const load: PageLoad = async ({ fetch, params }) => {
       .catch(() => [] as Tour[]),
     cachedJson<{ data?: { items?: Array<{ id: string; name: string; slug: string }> } }>('/api/categories?status=published&limit=100', fetch)
       .then((b) => b?.data?.items ?? [])
-      .catch(() => [] as Array<{ id: string; name: string; slug: string }>)
+      .catch(() => [] as Array<{ id: string; name: string; slug: string }>),
+    // Questions attached to this style from the central FAQ library, general
+    // ones to round them out. Folded into the page's own FAQ section.
+    loadFaqsFor(fetch, { type: 'travel_styles', id: style.id }, { fill: 6 })
   ]);
 
   // Lodges picked inside price tiers. Same request as the accommodation index,
@@ -79,5 +83,5 @@ export const load: PageLoad = async ({ fetch, params }) => {
   // that style's tours rather than a looser persona match.
   const category = categoryForStyle(style, categories);
 
-  return { style, others, tours, lodges, destinations, categorySlug: category?.slug ?? null };
+  return { style, others, tours, lodges, destinations, faqs, categorySlug: category?.slug ?? null };
 };

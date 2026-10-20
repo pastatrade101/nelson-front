@@ -436,10 +436,12 @@
                   {#each group.questions as item, k (k)}
                     <details class="style-faq group border border-ink/12 bg-surface open:border-goldfinch-gold/60 open:bg-linen/30">
                       <summary class="flex min-h-16 cursor-pointer list-none items-start justify-between gap-4 px-5 py-5 text-left md:px-6">
-                        <span class="text-[15px] font-medium leading-6 text-heading md:text-[16px]">{item.q}</span>
+                        <!-- A real heading per question: the page's Q&A structure is readable
+                             by search engines and AI assistants without running script. -->
+                        <svelte:element this={group.topic ? 'h4' : 'h3'} class="min-w-0 text-[15px] font-medium leading-6 text-heading [overflow-wrap:anywhere] md:text-[16px]">{item.q}</svelte:element>
                         <Plus class="mt-0.5 h-5 w-5 shrink-0 text-clay group-open:rotate-45" />
                       </summary>
-                      <p class="max-w-[70ch] whitespace-pre-line px-5 pb-6 text-[15px] leading-7 text-ink/75 md:px-6">{item.a}</p>
+                      <p class="max-w-[70ch] whitespace-pre-line px-5 pb-6 text-[15px] leading-7 text-ink/75 [overflow-wrap:anywhere] md:px-6">{item.a}</p>
                     </details>
                   {/each}
                 </div>

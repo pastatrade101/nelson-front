@@ -1,6 +1,7 @@
 import type { PageLoad } from './$types';
 import { error, isHttpError } from '@sveltejs/kit';
-import type { Destination, FAQ, Lodge, Tour } from '$lib/types';
+import type { Destination, Lodge, Tour } from '$lib/types';
+import { loadFaqsFor } from '$lib/faqEntities';
 
 // SSR-load the destination so the page arrives with content already rendered,
 // instead of shipping a blank shell that then fetches the ~70KB guide over a
@@ -32,7 +33,9 @@ export const load: PageLoad = async ({ params, fetch }) => {
         // at one of its lodges), the stays here, and other destinations. Featured
         // safaris top the tour list up when few are connected yet.
         const [faqs, lodges, tours, featured, others] = await Promise.all([
-          list<FAQ>(`/api/faqs?destination_id=${destination.id}&status=published&limit=60`),
+          // Its own questions (all of them), then general ones only to round out
+          // a destination that has fewer than eight.
+          loadFaqsFor(fetch, { type: 'destinations', id: destination.id }, { fill: 8 }),
           list<Lodge>(`/api/lodges?destination_id=${destination.id}&status=published&limit=13`),
           list<Tour & { match?: string }>(`/api/destinations/${destination.id}/tours?limit=9`),
           list<Tour>(`/api/tours?status=published&is_featured=true&limit=9`),
