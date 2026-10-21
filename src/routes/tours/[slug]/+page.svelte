@@ -41,6 +41,7 @@
   import { faqLd, faqPairs } from '$lib/seo';
   import { ownedFaqs } from '$lib/faqEntities';
   import RichText from '$lib/components/public/RichText.svelte';
+  import { PERSONAS } from '$lib/data/personas';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
@@ -170,10 +171,16 @@
         url: `${origin}/tours/${tour.slug}`
       }
     : null;
-  $: personaTypes = String(tour?.persona_tags ?? '')
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean);
+  // schema.org touristType names an audience ("Families"), so only tags that
+  // are personas are used, by their label; trip attributes such as
+  // "short-break" describe the trip, not the traveller, and are left out.
+  $: personaTypes = [...new Set(
+    String(tour?.persona_tags ?? '')
+      .split(',')
+      .map((t) => t.trim().toLowerCase())
+      .map((t) => PERSONAS[t]?.label ?? PERSONAS[t.replace(/s$/, '')]?.label ?? (t === 'families' ? PERSONAS.family?.label : undefined))
+      .filter((label): label is string => Boolean(label))
+  )];
   $: breadcrumbLd = tour
     ? {
         '@type': 'BreadcrumbList',

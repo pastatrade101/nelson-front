@@ -72,13 +72,13 @@ export const apiRequest = async <T>(path: string, options: RequestOptions = {}) 
   }))) as ApiResponse<T>;
 
   if (!response.ok || !result.success) {
-    // A stored admin token the API no longer accepts is a stale session: the
-    // layout only checks that a token exists, so without this every panel
-    // would show "Invalid or expired authentication token" until the editor
-    // worked out to log in again.
+    // A stored admin token the API no longer accepts is a stale session. The
+    // layout only checks that a token exists, so it is announced here and the
+    // admin layout asks for a fresh login in another tab. Never a redirect: the
+    // request that hit the 401 may be a save, and leaving the page would throw
+    // away the very work it was saving.
     if (browser && token && response.status === 401 && window.location.pathname.startsWith('/admin')) {
-      localStorage.removeItem('admin_token');
-      window.location.assign(`/admin/login?next=${encodeURIComponent(window.location.pathname)}`);
+      window.dispatchEvent(new CustomEvent('admin:session-expired'));
     }
     throw new ApiRequestError(result.message || 'API request failed.', response.status);
   }

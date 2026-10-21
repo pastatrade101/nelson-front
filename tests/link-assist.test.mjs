@@ -91,3 +91,20 @@ test('link budget scales with length', () => {
   assert.equal(linkBudget(400), 5);
   assert.equal(linkBudget(5000), 8);
 });
+
+import { carryLinks } from '../src/lib/richtext.ts';
+
+test('an AI rewrite keeps links whose words survive, with their references', () => {
+  const before = '<p>Drive to <a href="/destinations/tarangire-national-park" data-link-type="destinations" data-link-id="d1">Tarangire National Park</a> and sleep at <a href="/accommodation/kati-kati">Kati Kati</a>.</p>';
+  const after = '<p>Head for Tarangire National Park, famed for elephants.</p><p>Overnight in a tented camp.</p>';
+  const { html, kept, lost } = carryLinks(before, after);
+  assert.equal(kept, 1);
+  assert.deepEqual(lost, ['Kati Kati']);
+  assert.match(html, /<a href="\/destinations\/tarangire-national-park" data-link-type="destinations" data-link-id="d1">Tarangire National Park<\/a>, famed/);
+});
+
+test('carried links land on whole words only, never inside another link or tag', () => {
+  const { html, kept } = carryLinks('<p><a href="/destinations/arusha-tanzania">Arusha</a></p>', '<p>Arushas aside, Arusha is the gateway.</p>');
+  assert.equal(kept, 1);
+  assert.equal(html, '<p>Arushas aside, <a href="/destinations/arusha-tanzania">Arusha</a> is the gateway.</p>');
+});

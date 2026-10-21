@@ -33,6 +33,48 @@ export const plainTextToHtml = (content?: string | null): string => {
     .join('');
 };
 
+/**
+ * Carry the links of `before` into `after` (plain paragraphs from an AI rewrite):
+ * each link is put back on its exact words, at their first unlinked mention,
+ * with its address and page reference unchanged. Links whose words did not
+ * survive the rewrite are reported, not guessed at.
+ */
+export const carryLinks = (before: string, after: string): { html: string; kept: number; lost: string[] } => {
+  const anchors = [...String(before ?? '').matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)].map((m) => ({
+    attrs: m[1],
+    text: m[2].replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim()
+  }));
+  let html = String(after ?? '');
+  let kept = 0;
+  const lost: string[] = [];
+  const esc = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const isWordChar = (ch: string) => /[\p{L}\p{N}]/u.test(ch);
+  for (const anchor of anchors) {
+    if (anchor.text.length < 2) continue;
+    const needle = esc(anchor.text);
+    let from = 0;
+    let placed = false;
+    while (!placed) {
+      const at = html.indexOf(needle, from);
+      if (at === -1) break;
+      const end = at + needle.length;
+      const head = html.slice(0, at);
+      const insideTag = head.lastIndexOf('<') > head.lastIndexOf('>');
+      const insideLink = head.toLowerCase().lastIndexOf('<a ') > head.toLowerCase().lastIndexOf('</a>');
+      const bounded = !isWordChar(html.charAt(at - 1)) && !isWordChar(html.charAt(end));
+      if (!insideTag && !insideLink && bounded) {
+        html = `${head}<a${anchor.attrs}>${needle}</a>${html.slice(end)}`;
+        kept += 1;
+        placed = true;
+      } else {
+        from = at + 1;
+      }
+    }
+    if (!placed) lost.push(anchor.text);
+  }
+  return { html, kept, lost };
+};
+
 // ---------------------------------------------------------------------------
 // Public rich-text RENDER helpers (used by RichText.svelte). A self-contained,
 // dependency-free sanitizer that re-serialises from an allowlist rather than
@@ -45,7 +87,10 @@ const ALLOWED_TAGS = new Set(['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'o
 const VOID_TAGS = new Set(['br']);
 const BLOCK_TAGS = new Set(['p', 'h2', 'h3', 'h4', 'ul', 'ol', 'blockquote']);
 const DROP_WITH_CONTENT = new Set(['script', 'style', 'iframe', 'object', 'embed', 'noscript', 'template', 'svg', 'math', 'textarea', 'title']);
-const ALLOWED_ATTRS: Record<string, Set<string>> = { a: new Set(['href', 'title', 'target']) };
+const ALLOWED_ATTRS: Record<string, Set<string>> = { a: new Set(['href', 'title', 'target', 'rel']) };
+// rel values an editor may set on a link to another site. Internal links never
+// carry rel: they stay followed.
+const KEPT_REL = new Set(['nofollow', 'sponsored', 'ugc']);
 const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', colon: ':', tab: '\t', newline: '\n', sol: '/' };
 
 const decodeEntities = (value: string): string =>
@@ -77,7 +122,11 @@ const fullyDecode = (raw: string): string | null => {
 const safeHref = (raw: string): string | null => {
   const unwrapped = fullyDecode(raw);
   if (unwrapped === null) return null;
-  const decoded = unwrapped.replace(/[\u0000-\u0020\u007f-\u00a0\u2028\u2029\ufeff]/g, '').trim();
+  const stripped = unwrapped.replace(/[\u0000-\u0020\u007f-\u00a0\u2028\u2029\ufeff]/g, '').trim();
+  // Browsers read a backslash at the start of a URL as a slash, so `/\evil.com`
+  // and `\\evil.com` are really `//evil.com` — another site. Normalise them to
+  // what the browser will follow, so the check below calls them external.
+  const decoded = stripped.replace(/^((?:https?:)?)([\\/]+)/i, (_m, scheme: string, slashes: string) => scheme + slashes.replace(/\\/g, '/'));
   if (!decoded) return null;
   if (/^(?:https?|mailto|tel):/i.test(decoded)) return decoded;
   if (/^[/#?]/.test(decoded)) return decoded;
@@ -142,6 +191,7 @@ const renderOpenTag = (name: string, attrSource: string): string => {
   const allowed = ALLOWED_ATTRS[name];
   if (!allowed) return `<${name}>`;
   const parts: string[] = [];
+  const rel = new Set<string>();
   let external = false;
   for (const attr of parseAttrs(attrSource)) {
     if (!allowed.has(attr.name)) continue;
@@ -157,10 +207,18 @@ const renderOpenTag = (name: string, attrSource: string): string => {
       if (attr.value.trim().toLowerCase() === '_blank') parts.push('target="_blank"');
       continue;
     }
+    if (attr.name === 'rel') {
+      for (const token of attr.value.toLowerCase().split(/\s+/)) if (KEPT_REL.has(token)) rel.add(token);
+      continue;
+    }
     parts.push(`${attr.name}="${escapeAttr(attr.value)}"`);
   }
   if (!parts.some((part) => part.startsWith('href='))) return '';
-  if (external || parts.includes('target="_blank"')) parts.push('rel="noopener noreferrer"');
+  // Another site: safe-opening rel plus whatever the editor chose (nofollow).
+  // A site link keeps no rel at all, so it passes link equity.
+  if (external || parts.includes('target="_blank"')) {
+    parts.push(`rel="${['noopener', 'noreferrer', ...(external ? [...rel] : [])].join(' ')}"`);
+  }
   return `<${name} ${parts.join(' ')}>`;
 };
 

@@ -258,6 +258,10 @@
   let loadedFor = '';
   $: if (browser && tourId && tourId !== loadedFor) {
     loadedFor = tourId;
+    // The previous tour's address and destination must not leak into this one's
+    // link checks and suggestions.
+    tourSlug = '';
+    destinationId = '';
     void loadContext();
     void loadDays();
   }
@@ -515,11 +519,11 @@
         <RichTextEditor
           label="Description"
           bind:value={form.description}
-          media={mediaItems}
-          uploadFolder="tours"
           allowPageHeading={false}
           minHeight="180px"
           placeholder="Describe what happens on this day…"
+          basic
+          assistant
           hints={dayLinkHints}
           selfPath={tourSlug ? `/tours/${tourSlug}` : ''}
         />

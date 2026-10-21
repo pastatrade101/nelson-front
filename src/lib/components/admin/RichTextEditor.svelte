@@ -10,7 +10,7 @@
   import { api } from '$lib/api/client';
   import { mountAdminOverlay } from '$lib/admin/overlay';
   import {
-    checkLink, cleanUrl, describeCheck, isInternal, loadLinkIndex, splitUrl, withPath,
+    checkLink, cleanUrl, describeCheck, isInternal, loadLinkIndex, splitUrl, withPath, SECTION_TYPES,
     type LinkCheck, type LinkIndex, type LinkTarget
   } from '$lib/linkTargets';
   import {
@@ -33,8 +33,15 @@
   export let selfPath = '';
   /** Related records worth a link when the text mentions them (the day's lodge, the tour's destination). */
   export let hints: LinkHint[] = [];
-  /** Show the SEO link assistant under the editor. */
-  export let assistant = true;
+  /** Show the SEO link assistant under the editor (tour and itinerary copy). */
+  export let assistant = false;
+  /**
+   * Only the formatting the public tour pages render: paragraphs, h2/h3, bold,
+   * italic, underline, strike, lists, quotes and links. Images, tables, code,
+   * dividers and alignment are dropped by the public sanitiser, so offering them
+   * would let an editor build something visitors never see.
+   */
+  export let basic = false;
 
   const dispatch = createEventDispatcher<{ change: string }>();
 
@@ -113,10 +120,24 @@
     // at (content type + id), beside the address visitors follow. The address
     // is what crawlers see; the reference is how the link is found and moved
     // when that page's slug changes, without touching the words it is on.
+    //
+    // target/rel are computed at render time for links that never went through
+    // the dialog (typed URLs that autolink, pasted links): another site opens in
+    // a new tab, nofollow; a site link stays same-tab and followed.
     const LinkWithRef = Link.extend({
       addAttributes() {
         return {
           ...this.parent?.(),
+          target: {
+            default: null,
+            renderHTML: (attrs: Record<string, string | null>) =>
+              attrs.target ? { target: attrs.target } : isExternalHref(attrs.href) ? { target: '_blank' } : {}
+          },
+          rel: {
+            default: null,
+            renderHTML: (attrs: Record<string, string | null>) =>
+              attrs.rel ? { rel: attrs.rel } : isExternalHref(attrs.href) ? { rel: 'noopener noreferrer nofollow' } : {}
+          },
           'data-link-type': { default: null },
           'data-link-id': { default: null }
         };
@@ -126,7 +147,11 @@
     editor = new Editor({
       element,
       extensions: [
-        StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+        StarterKit.configure(
+          basic
+            ? { heading: { levels: [2, 3] }, code: false, codeBlock: false, horizontalRule: false }
+            : { heading: { levels: [1, 2, 3] } }
+        ),
         Underline,
         LinkWithRef.configure({
           openOnClick: false,
@@ -140,13 +165,19 @@
           // saved internal link would come back with them on the next edit.
           HTMLAttributes: { target: null, rel: null }
         }),
-        Image.configure({ inline: false, HTMLAttributes: { class: 'rich-img' } }),
-        TextAlign.configure({ types: ['heading', 'paragraph'] }),
         Placeholder.configure({ placeholder }),
-        Table.configure({ resizable: true }),
-        TableRow,
-        TableHeader,
-        TableCell
+        // Left out of the basic editor, so pasted images and tables are
+        // dropped on the way in rather than saved and silently never shown.
+        ...(basic
+          ? []
+          : [
+              Image.configure({ inline: false, HTMLAttributes: { class: 'rich-img' } }),
+              TextAlign.configure({ types: ['heading', 'paragraph'] }),
+              Table.configure({ resizable: true }),
+              TableRow,
+              TableHeader,
+              TableCell
+            ])
       ],
       content: value || '',
       editorProps: { attributes: { class: 'rich-content pm-editor', spellcheck: 'true' } },
@@ -187,6 +218,10 @@
   }
   // Hints arrive after the form loads its record; re-rank when they do.
   $: if (ready && hints) scheduleScan();
+
+  /** Another website: http(s) and not this site's own domain. */
+  const isExternalHref = (href?: string | null) =>
+    /^https?:\/\//i.test(href ?? '') && !/^https?:\/\/(www\.)?emneladventures\.com(?=[/:?#]|$)/i.test(href ?? '');
 
   // ─── command helpers ────────────────────────────────────────────────────
   const chain = () => editor.chain().focus();
@@ -239,6 +274,8 @@
   let linkSearch = '';
   let linkFilter: LinkType | 'all' = 'all';
   let searchResults: InternalLinkTarget[] = [];
+  /** The query + filter `searchResults` answer — Enter must never pick a stale answer. */
+  let resultsFor = '';
   let searchTotal = 0;
   let searchPage = 1;
   let searching = false;
@@ -258,6 +295,7 @@
         controller.signal
       );
       if (controller.signal.aborted) return;
+      resultsFor = `${linkFilter}|${linkSearch.trim()}`;
       searchResults = page === 1 ? res.data.items : [...searchResults, ...res.data.items];
       searchTotal = res.data.pagination.total;
       searchPage = page;
@@ -267,6 +305,18 @@
     } finally {
       if (!controller.signal.aborted) searching = false;
     }
+  };
+
+  /** Enter in the search box: the first result for exactly what is typed now. */
+  const pickFirst = async () => {
+    const want = `${linkFilter}|${linkSearch.trim()}`;
+    if (searching || resultsFor !== want) {
+      clearTimeout(searchTimer);
+      await runSearch(1);
+      if (resultsFor !== `${linkFilter}|${linkSearch.trim()}`) return;
+    }
+    const first = searchResults.find((r) => !isSelf(r.path));
+    if (first) pickPage(first);
   };
 
   // Debounced: a search per keystroke would race itself and hammer the API.
@@ -297,6 +347,7 @@
     linkSearch = '';
     linkFilter = 'all';
     searchResults = [];
+    resultsFor = '';
     searchTotal = 0;
     const { from, to } = editor.state.selection;
     selectionText = editor.state.doc.textBetween(from, to, ' ').replace(/\s+/g, ' ').trim();
@@ -339,7 +390,11 @@
     if (!url) { chain().extendMarkRange('link').unsetLink().run(); showLink = false; return true; }
     if (isSelf(url)) return false;
     const attrs = linkAttrs(url, ref ?? refForPath(url));
-    if (editor.state.selection.empty && textIfEmpty) {
+    // Cursor inside an existing link with nothing selected: repoint that link,
+    // keeping its words, rather than inserting a second link in the middle.
+    if (editor.state.selection.empty && editor.isActive('link')) {
+      chain().extendMarkRange('link').setLink(attrs).run();
+    } else if (editor.state.selection.empty && textIfEmpty) {
       chain().insertContent({ type: 'text', text: textIfEmpty, marks: [{ type: 'link', attrs }] }).run();
     } else {
       chain().extendMarkRange('link').setLink(attrs).run();
@@ -353,8 +408,17 @@
     if (linkBlocked) return;
     applyHref(cleaned.url, cleaned.url.replace(/^https?:\/\/(www\.)?/i, ''));
   };
-  const pickPage = (target: { path: string; title?: string; label?: string; type?: LinkType; id?: string }) =>
-    applyHref(target.path, target.title ?? target.label ?? target.path, target.type && target.id ? { type: target.type, id: target.id } : null);
+  const pickPage = (target: { path: string; title?: string; label?: string; type?: LinkType; id?: string }) => {
+    // The picker searches the live API; the page index is a cache (2 min). A
+    // page published since it loaded must not be reported as "not published"
+    // the moment it is linked.
+    if (linkIndex && target.type && target.id && !linkIndex.byRef.has(`${target.type}:${target.id}`)) {
+      const known: LinkTarget = { label: target.title ?? target.label ?? target.path, path: target.path, group: typeLabel(target.type), type: target.type, id: target.id };
+      linkIndex.byRef.set(`${target.type}:${target.id}`, known);
+      if (!linkIndex.byPath.has(target.path)) linkIndex.byPath.set(target.path, known);
+    }
+    return applyHref(target.path, target.title ?? target.label ?? target.path, target.type && target.id ? { type: target.type, id: target.id } : null);
+  };
   const useSuggestion = (target: LinkTarget) => (linkUrl = withPath(cleaned.url, target.path));
   const removeLink = () => { chain().extendMarkRange('link').unsetLink().run(); showLink = false; };
 
@@ -432,7 +496,7 @@
         }
         continue;
       }
-      if (run.type && run.id && linkIndex.verified.size) {
+      if (run.type && run.id && SECTION_OF[run.type] && linkIndex.verified.has(SECTION_OF[run.type])) {
         const stillThere = checkLink(tidy.url, linkIndex);
         issues.push({
           href: run.href,
@@ -517,8 +581,9 @@
           text += child.text ?? '';
           if (child.marks.some((m) => m.type.name === 'link')) linked.push([start, text.length]);
         } else {
-          // An inline atom (a hard break) takes one position and never matches.
-          text += '\n'.repeat(child.nodeSize);
+          // An inline atom (a hard break) takes its positions with a character
+          // no phrase can match through, so a suggestion never spans a break.
+          text += '\u0000'.repeat(child.nodeSize);
         }
       });
       blocks.push({ text, linked });
@@ -599,6 +664,9 @@
   const btn = (active: boolean) =>
     `grid h-8 min-w-[2rem] place-items-center px-1.5 text-ink/70 transition hover:bg-sand hover:text-ink disabled:cursor-not-allowed disabled:opacity-30 ${active ? 'bg-forest/12 text-forest' : ''}`;
 
+  /** Route section of each content type, the reverse of SECTION_TYPES. */
+  const SECTION_OF: Record<string, string> = Object.fromEntries(Object.entries(SECTION_TYPES).map(([section, type]) => [type, section]));
+
   const typeLabel = (type?: string | null) => TYPE_FILTERS.find((f) => f.value === type)?.label ?? 'Page';
 </script>
 
@@ -624,32 +692,36 @@
       <button type="button" class={btn(s.italic)} on:click={() => chain().toggleItalic().run()} title="Italic" aria-label="Italic"><Italic size={16} /></button>
       <button type="button" class={btn(s.underline)} on:click={() => chain().toggleUnderline().run()} title="Underline" aria-label="Underline"><UnderlineIcon size={16} /></button>
       <button type="button" class={btn(s.strike)} on:click={() => chain().toggleStrike().run()} title="Strikethrough" aria-label="Strikethrough"><Strikethrough size={16} /></button>
-      <button type="button" class={btn(s.code)} on:click={() => chain().toggleCode().run()} title="Inline code" aria-label="Inline code"><Code size={16} /></button>
+      {#if !basic}<button type="button" class={btn(s.code)} on:click={() => chain().toggleCode().run()} title="Inline code" aria-label="Inline code"><Code size={16} /></button>{/if}
 
       <span class="mx-1 h-5 w-px bg-ink/10"></span>
 
       <button type="button" class={btn(s.bulletList)} on:click={() => chain().toggleBulletList().run()} title="Bullet list" aria-label="Bullet list"><List size={16} /></button>
       <button type="button" class={btn(s.orderedList)} on:click={() => chain().toggleOrderedList().run()} title="Numbered list" aria-label="Numbered list"><ListOrdered size={16} /></button>
       <button type="button" class={btn(s.blockquote)} on:click={() => chain().toggleBlockquote().run()} title="Quote" aria-label="Quote"><Quote size={16} /></button>
-      <button type="button" class={btn(s.codeBlock)} on:click={() => chain().toggleCodeBlock().run()} title="Code block" aria-label="Code block"><Braces size={16} /></button>
-      <button type="button" class={btn(false)} on:click={() => chain().setHorizontalRule().run()} title="Divider" aria-label="Divider"><Minus size={16} /></button>
+      {#if !basic}
+        <button type="button" class={btn(s.codeBlock)} on:click={() => chain().toggleCodeBlock().run()} title="Code block" aria-label="Code block"><Braces size={16} /></button>
+        <button type="button" class={btn(false)} on:click={() => chain().setHorizontalRule().run()} title="Divider" aria-label="Divider"><Minus size={16} /></button>
 
-      <span class="mx-1 h-5 w-px bg-ink/10"></span>
+        <span class="mx-1 h-5 w-px bg-ink/10"></span>
 
-      <button type="button" class={btn(s.left)} on:click={() => chain().setTextAlign('left').run()} title="Align left" aria-label="Align left"><AlignLeft size={16} /></button>
-      <button type="button" class={btn(s.center)} on:click={() => chain().setTextAlign('center').run()} title="Align center" aria-label="Align center"><AlignCenter size={16} /></button>
-      <button type="button" class={btn(s.right)} on:click={() => chain().setTextAlign('right').run()} title="Align right" aria-label="Align right"><AlignRight size={16} /></button>
+        <button type="button" class={btn(s.left)} on:click={() => chain().setTextAlign('left').run()} title="Align left" aria-label="Align left"><AlignLeft size={16} /></button>
+        <button type="button" class={btn(s.center)} on:click={() => chain().setTextAlign('center').run()} title="Align center" aria-label="Align center"><AlignCenter size={16} /></button>
+        <button type="button" class={btn(s.right)} on:click={() => chain().setTextAlign('right').run()} title="Align right" aria-label="Align right"><AlignRight size={16} /></button>
+      {/if}
 
       <span class="mx-1 h-5 w-px bg-ink/10"></span>
 
       <button type="button" class={btn(s.link)} on:click={openLink} title="Link to a page" aria-label="Link to a page"><LinkIcon size={16} /></button>
-      <button type="button" class={btn(false)} on:click={() => (showImage = true)} title="Insert image" aria-label="Insert image"><ImageIcon size={16} /></button>
-      <button type="button" class={btn(s.inTable)} on:click={insertTable} title="Insert table" aria-label="Insert table"><TableIcon size={16} /></button>
+      {#if !basic}
+        <button type="button" class={btn(false)} on:click={() => (showImage = true)} title="Insert image" aria-label="Insert image"><ImageIcon size={16} /></button>
+        <button type="button" class={btn(s.inTable)} on:click={insertTable} title="Insert table" aria-label="Insert table"><TableIcon size={16} /></button>
+      {/if}
       <button type="button" class={btn(false)} on:click={() => chain().unsetAllMarks().clearNodes().run()} title="Clear formatting" aria-label="Clear formatting"><RemoveFormatting size={16} /></button>
     </div>
 
     <!-- contextual table controls -->
-    {#if s.inTable}
+    {#if s.inTable && !basic}
       <div class="flex flex-wrap items-center gap-1.5 border-b border-ink/10 bg-sand/40 px-3 py-1.5 text-xs">
         <span class="font-semibold text-ink/50">Table:</span>
         <button type="button" class="inline-flex items-center gap-1 border border-ink/12 bg-surface px-2 py-1 font-medium text-ink/70 transition hover:bg-sand" on:click={() => chain().addColumnAfter().run()}><Plus size={12} /> Col</button>
@@ -749,7 +821,7 @@
     </div>
   {/if}
 
-  <p class="text-xs text-ink/45">Rich text — headings, lists, links, images, tables. Formatting shows exactly as published.</p>
+  <p class="text-xs text-ink/45">{basic ? 'Headings, bold, lists, quotes and links — exactly what the public page shows.' : 'Rich text — headings, lists, links, images, tables. Formatting shows exactly as published.'}</p>
 </div>
 
 <!-- link dialog -->
@@ -806,7 +878,7 @@
             placeholder="Search pages — e.g. Serengeti, Tarangire, honeymoon…"
             bind:value={linkSearch}
             autofocus
-            on:keydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (searchResults[0]) pickPage(searchResults[0]); } }}
+            on:keydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void pickFirst(); } }}
           />
           {#if searching}<span class="text-[11px] text-ink/40">Searching…</span>{/if}
         </div>

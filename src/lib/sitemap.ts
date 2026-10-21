@@ -1,4 +1,3 @@
-import { COMPARISONS } from '$lib/data/comparisons';
 import { disallowsIndexing } from '$lib/seo-policy';
 
 // ---------------------------------------------------------------------------
@@ -23,7 +22,8 @@ export const STATIC_PAGES: string[] = [
   '/plan-my-trip',
   '/departures',
   '/trip-finder',
-  '/kilimanjaro',
+  // '/kilimanjaro' is a redirect to a destination that is not published: a
+  // sitemap URL must answer 200 itself, so it is not listed.
   '/blog',
   '/expert-advice',
   '/gallery',
@@ -44,15 +44,19 @@ export const STATIC_PAGES: string[] = [
 // collection has published items, so an empty hub is never advertised to Google
 // as a real page — the thin-page trap the site map's principle 9 warns about.
 export const DB_COLLECTIONS: { key: string; prefix: string; endpoint: string; hubPath?: string }[] = [
-  { key: 'tours', prefix: '/tours', endpoint: '/tours?status=published&limit=50000' },
-  { key: 'destinations', prefix: '/destinations', endpoint: '/destinations?limit=50000' },
-  { key: 'experiences', prefix: '/experiences', endpoint: '/categories?limit=50000' },
-  { key: 'accommodation', prefix: '/accommodation', endpoint: '/lodges?limit=50000' },
-  { key: 'blog', prefix: '/blog', endpoint: '/blog?status=published&limit=50000' },
+  { key: 'tours', prefix: '/tours', endpoint: '/tours?status=published' },
+  { key: 'destinations', prefix: '/destinations', endpoint: '/destinations?status=published' },
+  { key: 'experiences', prefix: '/experiences', endpoint: '/categories?status=published' },
+  { key: 'accommodation', prefix: '/accommodation', endpoint: '/lodges?status=published' },
+  { key: 'blog', prefix: '/blog', endpoint: '/blog?status=published' },
+  // Was the bundled COMPARISONS list, which drifted from the pages: it listed a
+  // comparison that 404s and missed one that is live. The pages read the API,
+  // so the sitemap does too.
+  { key: 'compare', prefix: '/compare', endpoint: '/comparisons?status=published' },
   {
     key: 'safari-essentials',
     prefix: '/safari-essentials',
-    endpoint: '/safari-essentials?status=published&limit=50000',
+    endpoint: '/safari-essentials?status=published',
     hubPath: '/safari-essentials'
   },
   {
@@ -61,7 +65,7 @@ export const DB_COLLECTIONS: { key: string; prefix: string; endpoint: string; hu
     // an unpublished one stayed listed. Read from the DB like everything else.
     key: 'travel-styles',
     prefix: '/travel-styles',
-    endpoint: '/travel-styles?status=published&limit=50000',
+    endpoint: '/travel-styles?status=published',
     hubPath: '/travel-styles'
   },
   {
@@ -70,15 +74,13 @@ export const DB_COLLECTIONS: { key: string; prefix: string; endpoint: string; hu
     // when it has something Google is allowed to crawl.
     key: 'market-pages',
     prefix: '/safaris',
-    endpoint: '/market-pages?status=published&limit=50000',
+    endpoint: '/market-pages?status=published',
     hubPath: '/safaris'
   }
 ];
 
 // Static-data collections (bundled at build; always available, no API needed).
-export const LOCAL_COLLECTIONS: { key: string; prefix: string; items: ReadonlyArray<{ slug: string }> }[] = [
-  { key: 'compare', prefix: '/compare', items: COMPARISONS }
-];
+export const LOCAL_COLLECTIONS: { key: string; prefix: string; items: ReadonlyArray<{ slug: string }> }[] = [];
 
 // Country hubs (/tanzania-safaris, later /kenya-safaris). Not a DB_COLLECTION
 // because the source returns country names rather than slugged records, and a
@@ -128,11 +130,23 @@ export const collectDb = async (
   prefix: string
 ): Promise<SitemapEntry[]> => {
   try {
-    const res = await fetchFn(`${backendOrigin}/api${endpoint}`);
-    if (!res.ok) return [];
-    const json = (await res.json()) as { data?: unknown };
-    const raw = json?.data;
-    const items = (Array.isArray(raw) ? raw : (raw as { items?: unknown[] })?.items) ?? [];
+    // Every page: the API caps a list at 100 rows, so one big `limit` quietly
+    // stopped the sitemap at the 100th record.
+    const items: unknown[] = [];
+    const join = endpoint.includes('?') ? '&' : '?';
+    for (let page = 1; page <= 50; page += 1) {
+      const res = await fetchFn(`${backendOrigin}/api${endpoint}${join}limit=100&page=${page}`);
+      if (!res.ok) {
+        if (page === 1) return [];
+        break; // keep the pages already read
+      }
+      const json = (await res.json()) as { data?: unknown };
+      const raw = json?.data;
+      const batch = (Array.isArray(raw) ? raw : (raw as { items?: unknown[] })?.items) ?? [];
+      items.push(...batch);
+      const totalPages = Array.isArray(raw) ? 1 : Number((raw as { pagination?: { totalPages?: number } })?.pagination?.totalPages ?? 1);
+      if (page >= totalPages || batch.length < 100) break;
+    }
     const seen = new Set<string>();
     const entries: SitemapEntry[] = [];
     for (const it of items as Record<string, unknown>[]) {

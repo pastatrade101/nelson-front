@@ -1,4 +1,5 @@
 import { SITE_URL } from '$lib/config/env';
+import { readAllPages } from '$lib/faqEntities';
 import { toMetaText } from '$lib/richtext';
 import { safeSiteOrigin } from '$lib/seo-policy';
 import type { RequestHandler } from './$types';
@@ -29,20 +30,37 @@ const SECTIONS: Array<{ heading: string; endpoint: string; base: string; title: 
   { heading: 'Safari essentials', endpoint: '/api/safari-essentials', base: '/safari-essentials', title: 'title' }
 ];
 
-const KEY_PAGES = [
-  ['Plan my trip', '/plan-my-trip', 'Tell us dates, budget and who is travelling; a local specialist replies with a route.'],
-  ['Expert advice and FAQs', '/expert-advice', 'Answers to the questions travellers ask most about a Tanzania safari.'],
-  ['Safari essentials', '/safari-essentials', 'Practical guides: visas, health, packing, money, seasons.'],
-  ['About', '/about', 'Who Emnel Adventures is and how the team works.'],
-  ['Contact', '/contact', 'Email, phone and WhatsApp.']
+// `needs`: a hub listed only once its section has published pages — the same
+// rule the sitemap follows, so an empty landing page is never advertised.
+const KEY_PAGES: Array<{ title: string; path: string; blurb: string; needs?: string }> = [
+  { title: 'Plan my trip', path: '/plan-my-trip', blurb: 'Tell us dates, budget and who is travelling; a local specialist replies with a route.' },
+  { title: 'Expert advice and FAQs', path: '/expert-advice', blurb: 'Answers to the questions travellers ask most about a Tanzania safari.' },
+  { title: 'Safari essentials', path: '/safari-essentials', blurb: 'Practical guides: visas, health, packing, money, seasons.', needs: '/api/safari-essentials' },
+  { title: 'About', path: '/about', blurb: 'Who Emnel Adventures is and how the team works.' },
+  { title: 'Contact', path: '/contact', blurb: 'Email, phone and WhatsApp.' }
 ];
 
+/**
+ * Every published, indexable row of a list — all pages of it (the API caps a
+ * page at 100). Same filter as the sitemap's collectDb: a record an editor
+ * marked noindex (lodges store it as `indexable: false`) is not offered to AI
+ * crawlers either.
+ */
 const list = async (fetch: typeof globalThis.fetch, endpoint: string): Promise<Row[]> => {
   try {
-    const res = await fetch(`${endpoint}?status=published&limit=100`);
-    if (!res.ok) return [];
-    const body = (await res.json()) as { data?: { items?: Row[] } };
-    return (body.data?.items ?? []).filter((row) => typeof row.slug === 'string' && row.slug && (!row.status || row.status === 'published'));
+    const rows = await readAllPages<Row>(async (page) => {
+      const res = await fetch(`${endpoint}?status=published&limit=100&page=${page}`);
+      if (!res.ok) throw new Error(`${endpoint} ${res.status}`);
+      return res.json();
+    });
+    return rows.filter(
+      (row) =>
+        typeof row.slug === 'string' &&
+        row.slug &&
+        (!row.status || row.status === 'published') &&
+        row.noindex !== true &&
+        row.indexable !== false
+    );
   } catch {
     return [];
   }
@@ -94,8 +112,12 @@ export const GET: RequestHandler = async ({ fetch, url }) => {
     out.push('');
   }
 
+  const live = new Set(sections.filter(({ rows }) => rows.length).map(({ section }) => section.endpoint));
   out.push('## Key pages', '');
-  for (const [title, path, blurb] of KEY_PAGES) out.push(line(title, `${origin}${path}`, blurb));
+  for (const page of KEY_PAGES) {
+    if (page.needs && !live.has(page.needs)) continue;
+    out.push(line(page.title, `${origin}${page.path}`, page.blurb));
+  }
   out.push('');
 
   return new Response(out.join('\n'), { headers });

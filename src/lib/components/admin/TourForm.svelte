@@ -11,7 +11,7 @@
   import AdminSelect from '$lib/components/admin/AdminSelect.svelte';
   import AdminTextArea from '$lib/components/admin/AdminTextArea.svelte';
   import RichTextEditor from '$lib/components/admin/RichTextEditor.svelte';
-  import { plainTextToHtml, richTextToStore, toPlainText } from '$lib/richtext';
+  import { carryLinks, plainTextToHtml, richTextToStore, toPlainText } from '$lib/richtext';
   import type { LinkHint } from '$lib/linkAssist';
   import AiAssistButton from '$lib/components/admin/AiAssistButton.svelte';
   import AdminToolbar from '$lib/components/admin/AdminToolbar.svelte';
@@ -129,6 +129,20 @@
     // The model reads prose, not the editor's HTML.
     full_description: toPlainText(form.full_description) || undefined
   });
+
+  // An AI rewrite comes back as plain prose. Its links are carried over onto
+  // the same words where they survived, and the editor is told about any that
+  // did not — a rewrite must never quietly strip the page's internal links.
+  const applyRewrite = (text?: string) => {
+    if (!text) return;
+    const { html, kept, lost } = carryLinks(form.full_description, plainTextToHtml(text));
+    form.full_description = html;
+    if (lost.length) {
+      showToast(`${kept ? `Kept ${kept} link${kept === 1 ? '' : 's'}; ` : ''}${lost.length === 1 ? 'one link' : `${lost.length} links`} lost with the rewritten words (${lost.slice(0, 3).join(', ')}) — re-add from Link suggestions.`, 'error');
+    } else if (kept) {
+      showToast(`Rewritten — all ${kept} link${kept === 1 ? '' : 's'} kept.`);
+    }
+  };
 
   // Pages this trip is about, for the editor's link suggestions, and its own
   // public address so the text can never link to itself.
@@ -413,19 +427,19 @@
           <div class="grid gap-1.5">
             <div class="flex justify-end gap-1.5">
               <AiAssistButton task="write_description" label="Write" getContext={aiContext} on:apply={(e) => (form.full_description = e.detail.text ? plainTextToHtml(e.detail.text) : form.full_description)} />
-              <AiAssistButton task="improve" label="Improve" getContext={aiContext} getText={() => toPlainText(form.full_description)} on:apply={(e) => (form.full_description = e.detail.text ? plainTextToHtml(e.detail.text) : form.full_description)} />
-              <AiAssistButton task="shorten" label="Shorten" getContext={aiContext} getText={() => toPlainText(form.full_description)} on:apply={(e) => (form.full_description = e.detail.text ? plainTextToHtml(e.detail.text) : form.full_description)} />
+              <AiAssistButton task="improve" label="Improve" getContext={aiContext} getText={() => toPlainText(form.full_description)} on:apply={(e) => applyRewrite(e.detail.text)} />
+              <AiAssistButton task="shorten" label="Shorten" getContext={aiContext} getText={() => toPlainText(form.full_description)} on:apply={(e) => applyRewrite(e.detail.text)} />
             </div>
             <!-- Rich text so the overview can link to the destinations, properties
                  and experiences it names — the links crawlers follow from this page. -->
             <RichTextEditor
               label="Full description"
               bind:value={form.full_description}
-              media={mediaItems}
-              uploadFolder="tours"
               allowPageHeading={false}
               minHeight="260px"
               placeholder="What makes this trip special, who it suits, and what the days feel like…"
+              basic
+              assistant
               hints={linkHints}
               {selfPath}
             />
