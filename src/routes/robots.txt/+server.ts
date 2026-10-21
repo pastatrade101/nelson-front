@@ -29,6 +29,30 @@ Disallow: /quote/
 Disallow: /guest-details/
 
 Sitemap: ${origin}/sitemap.xml
+
+# AI assistants are welcome to read the public site: an answer about a Tanzania
+# safari that cites our pages is worth more than hiding them. Same rules as above.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Amazonbot
+User-agent: Bytespider
+User-agent: CCBot
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /trip/
+Disallow: /shortlist
+Disallow: /enquiry
+Disallow: /booking/
+Disallow: /quote/
+Disallow: /guest-details/
 `
     : `User-agent: *
 Disallow: /

@@ -6,8 +6,15 @@
 import { browser } from '$app/environment';
 import { api } from '$lib/api/client';
 import { SITE_URL } from '$lib/config/env';
+import { readAllPages } from '$lib/faqEntities';
+import type { LinkType } from '$lib/linkAssist';
 
-export type LinkTarget = { label: string; path: string; group: string };
+/**
+ * A page a link can point at. Records also carry their content type and id —
+ * the stable reference a link stores beside its address, so it can be found
+ * and repointed when the page's slug changes.
+ */
+export type LinkTarget = { label: string; path: string; group: string; type?: LinkType; id?: string };
 
 /**
  * Pages that exist as folders under src/routes. `listed: false` keeps a real
@@ -51,6 +58,19 @@ const REDIRECTS: Record<string, string> = {
   '/kilimanjaro': '/destinations/kilimanjaro'
 };
 
+/** Content type of each listable route, by first path segment. */
+export const SECTION_TYPES: Record<string, LinkType> = {
+  tours: 'tours',
+  destinations: 'destinations',
+  'travel-styles': 'travel_styles',
+  experiences: 'tour_categories',
+  accommodation: 'lodges',
+  compare: 'comparisons',
+  blog: 'blog_posts',
+  'safari-essentials': 'safari_essentials',
+  safaris: 'market_pages'
+};
+
 /** Routes with a slug whose pages we can list, by first path segment. */
 const DYNAMIC_GROUPS: Record<string, string> = {
   tours: 'Itineraries',
@@ -83,6 +103,8 @@ export type LinkIndex = {
   byPath: Map<string, LinkTarget>;
   /** First segments whose list loaded, so a missing slug there is truly missing. */
   verified: Set<string>;
+  /** Published records by `${type}:${id}` — what a link's stored reference resolves to. */
+  byRef: Map<string, LinkTarget>;
 };
 
 // ─── loading ──────────────────────────────────────────────────────────────
@@ -107,33 +129,45 @@ const hubSlug = (country: string) =>
   `${country.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '')}-safaris`;
 
 const buildIndex = async (): Promise<LinkIndex> => {
-  const published = { status: 'published', limit: 200 };
+  // Every page of each list: the API caps a page at 100, and a checker that
+  // only saw the first 100 would call the 101st article a broken link.
+  const all = (list: (params: Record<string, string | number>) => Promise<unknown>) =>
+    readAllPages<Row>((page) => list({ status: 'published', limit: 100, page }) as never).then((items) => ({ data: { items } }));
   const sources: Array<[string, Promise<unknown>]> = [
-    ['tours', api.tours.list(published)],
-    ['destinations', api.destinations.list(published)],
+    ['tours', all(api.tours.list)],
+    ['destinations', all(api.destinations.list)],
     // The travel-styles list returns drafts too unless asked for published only.
-    ['travel-styles', api.travelStyles.list(published)],
-    ['experiences', api.categories.list(published)],
-    ['accommodation', api.lodges.list(published)],
-    ['compare', api.comparisons.list(published)],
-    ['blog', api.blog.list(published)],
-    ['safari-essentials', api.safariEssentials.list(published)],
-    ['safaris', api.marketPages.list(published)]
+    ['travel-styles', all(api.travelStyles.list)],
+    ['experiences', all(api.categories.list)],
+    ['accommodation', all(api.lodges.list)],
+    ['compare', all(api.comparisons.list)],
+    ['blog', all(api.blog.list)],
+    ['safari-essentials', all(api.safariEssentials.list)],
+    ['safaris', all(api.marketPages.list)]
   ];
   const settled = await Promise.allSettled(sources.map(([, p]) => p));
 
   const targets: LinkTarget[] = [];
   const verified = new Set<string>();
   const countries = new Set<string>();
+  // The markets hub (/safaris) 404s until a market page is published.
+  let marketsLive = false;
 
   settled.forEach((result, i) => {
     const prefix = sources[i][0];
     const rows = rowsOf(result);
     if (!rows) return;
     verified.add(prefix);
+    if (prefix === 'safaris' && rows.length) marketsLive = true;
     for (const it of rows) {
       if (!it?.slug || (it.status && it.status !== 'published')) continue;
-      targets.push({ label: titleOf(it), path: `/${prefix}/${it.slug}`, group: DYNAMIC_GROUPS[prefix] });
+      targets.push({
+        label: titleOf(it),
+        path: `/${prefix}/${it.slug}`,
+        group: DYNAMIC_GROUPS[prefix],
+        type: SECTION_TYPES[prefix],
+        id: typeof it.id === 'string' ? it.id : undefined
+      });
       if (prefix === 'destinations' && it.country) countries.add(String(it.country));
       if (prefix === 'tours' && Array.isArray(it.countries)) it.countries.forEach((c: unknown) => c && countries.add(String(c)));
     }
@@ -146,7 +180,8 @@ const buildIndex = async (): Promise<LinkIndex> => {
   }
   if (verified.has('destinations') && verified.has('tours')) verified.add('hubs');
 
-  targets.push(...STATIC_PAGES.filter((p) => p.listed !== false).map(({ label, path, group }) => ({ label, path, group })));
+  const staticPages = STATIC_PAGES.filter((p) => p.path !== '/safaris' || marketsLive);
+  targets.push(...staticPages.filter((p) => p.listed !== false).map(({ label, path, group }) => ({ label, path, group })));
 
   const rank = (g: string) => {
     const i = GROUP_ORDER.indexOf(g);
@@ -155,9 +190,11 @@ const buildIndex = async (): Promise<LinkIndex> => {
   targets.sort((a, b) => rank(a.group) - rank(b.group));
 
   const byPath = new Map<string, LinkTarget>();
-  for (const t of [...targets, ...STATIC_PAGES]) if (!byPath.has(t.path)) byPath.set(t.path, t);
+  for (const t of [...targets, ...staticPages]) if (!byPath.has(t.path)) byPath.set(t.path, t);
+  const byRef = new Map<string, LinkTarget>();
+  for (const t of targets) if (t.type && t.id) byRef.set(`${t.type}:${t.id}`, t);
 
-  return { targets, byPath, verified };
+  return { targets, byPath, verified, byRef };
 };
 
 /** The shared page index; one fetch serves every editor on the page. */

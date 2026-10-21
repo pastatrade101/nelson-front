@@ -641,6 +641,40 @@ export type Specialist = {
   photo?: string;
 };
 
+/** A published page the admin link picker can insert (GET /internal-links/search). */
+export type InternalLinkTarget = {
+  type: import('$lib/linkAssist').LinkType;
+  id: string;
+  title: string;
+  path: string;
+  /** Visitor-facing name of the content type, e.g. "Destination". */
+  label: string;
+};
+
+/** Where a link's stored reference points now (GET /internal-links/resolve). */
+export type ResolvedLinkRef = {
+  type: import('$lib/linkAssist').LinkType;
+  id: string;
+  title: string | null;
+  path: string | null;
+  state: 'published' | 'draft' | 'archived' | 'deleted' | 'missing';
+};
+
+export type LinkHealthIssue = {
+  kind: 'broken' | 'unpublished' | 'moved' | 'duplicate' | 'self' | 'generic';
+  message: string;
+  href: string;
+  text: string;
+  tour: { id: string; title: string; slug: string };
+  day: { id: string; number: number; title: string } | null;
+  fixHref?: string;
+};
+
+export type LinkHealthReport = {
+  checked: { tours: number; days: number; links: number };
+  issues: LinkHealthIssue[];
+};
+
 /** What an FAQ can be attached to — table names, as the API filters on them. */
 export type FaqEntityType = 'destinations' | 'tours' | 'tour_categories' | 'lodges' | 'travel_styles';
 

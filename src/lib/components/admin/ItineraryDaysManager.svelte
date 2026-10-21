@@ -9,6 +9,9 @@
   import AdminFormInput from './AdminFormInput.svelte';
   import AdminSelect from './AdminSelect.svelte';
   import AdminTextArea from './AdminTextArea.svelte';
+  import RichTextEditor from './RichTextEditor.svelte';
+  import { plainTextToHtml, richTextToStore, toPlainText } from '$lib/richtext';
+  import type { LinkHint } from '$lib/linkAssist';
   import MediaPicker from './MediaPicker.svelte';
   import ConfirmModal from './ConfirmModal.svelte';
   import ToastStack from './ToastStack.svelte';
@@ -31,6 +34,9 @@
   export let tourTitle = '';
   export let destination = '';
   export let durationDays: number | string | null = null;
+  /** The tour's public slug and destination: for link suggestions and so a day never links to its own tour. */
+  let tourSlug = '';
+  let destinationId = '';
 
   type ItineraryDay = {
     accommodation?: string | null;
@@ -122,6 +128,12 @@
     }))
   ];
   const lodgeName = (id?: string | null) => lodgeOptions.find((l) => l.id === id)?.name ?? '';
+
+  // The records this day is about, for the editor's link suggestions.
+  $: dayLinkHints = [
+    form.accommodation_id ? { type: 'lodges', id: form.accommodation_id, reason: "Where this night is spent" } : null,
+    destinationId ? { type: 'destinations', id: destinationId, reason: "This trip's destination" } : null
+  ].filter((hint): hint is LinkHint => Boolean(hint));
   const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
   // Picking a lodge fills the text with its name — unless the editor has
@@ -192,10 +204,13 @@
   });
 
   const loadContext = async () => {
-    if (tourTitle) return; // caller provided it
+    if (tourTitle && tourSlug) return; // caller provided it
     try {
       const res = await api.tours.get(tourId);
       const t = res.data as Record<string, unknown>;
+      tourSlug = String(t.slug ?? '');
+      destinationId = String(t.destination_id ?? '');
+      if (tourTitle) return;
       tourTitle = String(t.title ?? '');
       destination = relationText(t.destinations, 'name') || String(t.destination ?? '');
       durationDays = (t.duration_days as number) ?? null;
@@ -266,7 +281,8 @@
       accommodation_id: day.accommodation_id ?? '',
       activities: day.activities ?? '',
       day_number: String(day.day_number),
-      description: day.description ?? '',
+      // A day written before the field was rich text keeps its paragraphs.
+      description: plainTextToHtml(day.description ?? ''),
       image_url: day.image_url ?? '',
       meals: day.meals ?? '',
       title: day.title
@@ -295,7 +311,7 @@
     accommodation_id: form.accommodation_id || null,
     activities: form.activities.trim() || null,
     day_number: Number(form.day_number),
-    description: form.description.trim() || null,
+    description: richTextToStore(form.description),
     image_url: form.image_url.trim() || null,
     meals: form.meals.trim() || null,
     title: form.title.trim(),
@@ -442,7 +458,7 @@
           </div>
           <div class="min-w-0">
             <h4 class="text-lg font-bold text-ink">{day.title}</h4>
-            {#if day.description}<p class="mt-2 max-w-4xl text-sm leading-6 text-ink/62">{day.description}</p>{/if}
+            {#if day.description}<p class="mt-2 max-w-4xl text-sm leading-6 text-ink/62">{toPlainText(day.description)}</p>{/if}
             <div class="mt-4 grid gap-3 md:grid-cols-3">
               <div class="rounded-2xl bg-sand/35 p-3">
                 <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-forest/70">Accommodation</p>
@@ -494,7 +510,19 @@
         <AdminFormInput label="Day title" name="title" bind:value={form.title} placeholder="Arrival in Arusha" required />
       </div>
       <div class="mt-4 grid gap-4">
-        <AdminTextArea label="Description" name="description" bind:value={form.description} rows={4} placeholder="Describe what happens on this day..." />
+        <!-- Rich text so a day can link to the park it visits and the property it
+             sleeps at — the links crawlers follow from the tour page. -->
+        <RichTextEditor
+          label="Description"
+          bind:value={form.description}
+          media={mediaItems}
+          uploadFolder="tours"
+          allowPageHeading={false}
+          minHeight="180px"
+          placeholder="Describe what happens on this day…"
+          hints={dayLinkHints}
+          selfPath={tourSlug ? `/tours/${tourSlug}` : ''}
+        />
       </div>
       <div class="mt-4 border border-ink/10 bg-sand/25 p-4">
         <div class="flex items-center gap-2 text-[13px] font-semibold text-ink"><BedDouble size={15} class="text-forest" /> Accommodation</div>

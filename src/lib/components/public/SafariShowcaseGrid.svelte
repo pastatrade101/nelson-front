@@ -3,7 +3,7 @@
   import { fadeUpOnScroll, staggeredCardReveal } from '$lib/animations';
   import { trackEvent } from '$lib/analytics';
   import ResponsiveImage from './ResponsiveImage.svelte';
-  import { isHtml } from '$lib/richtext';
+  import { isHtml, toPlainText } from '$lib/richtext';
   import { currency, formatUsd, type CurrencyStoreState } from '$lib/currency';
   import type { Tour } from '$lib/types';
 
@@ -48,7 +48,7 @@
       id: tour.id,
       eyebrow: destination,
       title: tour.title,
-      description: tour.short_description || tour.full_description || 'A private Tanzania itinerary shaped around your dates, pace, and travel style.',
+      description: toPlainText(tour.short_description || tour.full_description) || 'A private Tanzania itinerary shaped around your dates, pace, and travel style.',
       href: `/tours/${tour.slug}`,
       image: tour.main_image_url || tour.banner_image_url,
       meta: duration,

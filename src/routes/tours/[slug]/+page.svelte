@@ -30,7 +30,7 @@
   import { currency, formatUsd } from '$lib/currency';
   import { staggeredCardReveal } from '$lib/animations/motion';
   import { origUrl, thumbUrl } from '$lib/img';
-  import { hasRichContent } from '$lib/richtext';
+  import { hasRichContent, toMetaText, toPlainText } from '$lib/richtext';
   import { publicSettings, settingText } from '$lib/settings';
   import { tierLabel } from '$lib/tiers';
   import BookingForm from '$lib/components/public/BookingForm.svelte';
@@ -143,14 +143,37 @@
     ? {
         '@type': 'TouristTrip',
         name: tour.title,
-        description: tour.short_description ?? tour.full_description ?? '',
+        description: toMetaText(tour.short_description ?? tour.full_description ?? ''),
         ...(tour.main_image_url ? { image: tour.main_image_url } : {}),
         ...(tour.price_from
           ? { offers: { '@type': 'Offer', price: tour.price_from, priceCurrency: tour.currency ?? 'USD' } }
           : {}),
+        ...(tour.duration_days ? { duration: `P${tour.duration_days}D` } : {}),
+        ...(personaTypes.length ? { touristType: personaTypes } : {}),
+        // The day-by-day plan as structured data, so an assistant answering
+        // "what does day 3 of this safari look like?" reads it from the page
+        // rather than guessing. Plain text: the day notes are rich HTML.
+        ...(displayDays.length
+          ? {
+              itinerary: {
+                '@type': 'ItemList',
+                numberOfItems: displayDays.length,
+                itemListElement: displayDays.map((day, i) => ({
+                  '@type': 'ListItem',
+                  position: i + 1,
+                  name: `Day ${day.day_number}: ${day.title}`,
+                  ...(toPlainText(day.description) ? { description: toMetaText(day.description, 300) } : {})
+                }))
+              }
+            }
+          : {}),
         url: `${origin}/tours/${tour.slug}`
       }
     : null;
+  $: personaTypes = String(tour?.persona_tags ?? '')
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
   $: breadcrumbLd = tour
     ? {
         '@type': 'BreadcrumbList',
@@ -467,7 +490,7 @@
           {tour.title}
         </h1>
         <p class="mt-5 line-clamp-3 max-w-[560px] text-[15px] font-medium leading-7 text-white/72 md:text-base">
-          {tour.short_description ?? tour.full_description}
+          {toPlainText(tour.short_description ?? tour.full_description)}
         </p>
 
         <!-- key-facts stat chips -->

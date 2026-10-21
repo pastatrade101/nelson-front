@@ -37,6 +37,7 @@
 
 <section class="container-shell py-14">
   <SectionHeader
+    as="h1"
     eyebrow="Safari Essentials"
     title="Everything worth knowing before you go"
     description={description}

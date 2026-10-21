@@ -2,7 +2,7 @@
   import { page } from '$app/stores';
   import { onMount, type Component } from 'svelte';
   import { slide } from 'svelte/transition';
-  import { BookOpen, Bot, CalendarDays, ChartColumnBig, ChevronDown, ChevronLeft, CircleDollarSign, CircleHelp, ClipboardList, Compass, CreditCard, FileText, FolderTree, GitCompare, Globe, Heart, Home, Hotel, Image, Images, LayoutDashboard, LayoutTemplate, ListCheck, Mail, Map, MapPin, MessageCircle, MessageCircleHeart, Newspaper, Palette, Plane, Plug, Route, ScrollText, Settings, ShieldCheck, Tags, Upload, UserCheck, Users, UsersRound } from '@lucide/svelte';
+  import { BookOpen, Bot, CalendarDays, ChartColumnBig, ChevronDown, ChevronLeft, CircleDollarSign, CircleHelp, ClipboardList, Compass, CreditCard, FileText, FolderTree, GitCompare, Globe, Heart, Home, Hotel, Image, Images, LayoutDashboard, LayoutTemplate, Link2, ListCheck, Mail, Map, MapPin, MessageCircle, MessageCircleHeart, Newspaper, Palette, Plane, Plug, Route, ScrollText, Settings, ShieldCheck, Tags, Upload, UserCheck, Users, UsersRound } from '@lucide/svelte';
   import { brand } from '$lib/brand';
 
   export let collapsed = false;
@@ -39,6 +39,7 @@
         { href: '/admin/available-dates', label: 'Available Dates', icon: CalendarDays },
         { href: '/admin/pricing-options', label: 'Pricing Options', icon: CircleDollarSign },
         { href: '/admin/tour-details', label: 'Tour Details', icon: ListCheck },
+        { href: '/admin/link-health', label: 'Link Health', icon: Link2 },
         { href: '/admin/import', label: 'Import Content (CSV)', icon: Upload }
       ]
     },

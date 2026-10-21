@@ -3,16 +3,22 @@
   import {
     Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code, Braces,
     Heading1, Heading2, Heading3, Pilcrow, List, ListOrdered, Quote, Minus,
-    Link as LinkIcon, Unlink, Image as ImageIcon, AlignLeft, AlignCenter, AlignRight,
-    Table as TableIcon, Undo2, Redo2, RemoveFormatting, X, Upload, Search, Trash2, Plus
+    Link as LinkIcon, Image as ImageIcon, AlignLeft, AlignCenter, AlignRight,
+    Table as TableIcon, Undo2, Redo2, RemoveFormatting, X, Upload, Search, Trash2, Plus,
+    ChevronDown, ExternalLink, Sparkles
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
   import { mountAdminOverlay } from '$lib/admin/overlay';
   import {
-    checkLink, cleanUrl, describeCheck, isInternal, loadLinkIndex, withPath,
+    checkLink, cleanUrl, describeCheck, isInternal, loadLinkIndex, splitUrl, withPath,
     type LinkCheck, type LinkIndex, type LinkTarget
   } from '$lib/linkTargets';
+  import {
+    anchorAdvice, linkBudget, suggestLinks, wordCount,
+    type LinkHint, type LinkSuggestion, type LinkType, type TextBlock
+  } from '$lib/linkAssist';
   import { imgUrl } from '$lib/img';
+  import type { InternalLinkTarget } from '$lib/types';
 
   type MediaItem = { id: string; file_name: string; file_url: string; thumbnail_url?: string | null };
 
@@ -23,6 +29,12 @@
   export let uploadFolder = 'blog';
   export let minHeight = '440px';
   export let allowPageHeading = true;
+  /** The public page this text is published on, so it is never linked to itself. */
+  export let selfPath = '';
+  /** Related records worth a link when the text mentions them (the day's lodge, the tour's destination). */
+  export let hints: LinkHint[] = [];
+  /** Show the SEO link assistant under the editor. */
+  export let assistant = true;
 
   const dispatch = createEventDispatcher<{ change: string }>();
 
@@ -97,20 +109,36 @@
       import('@tiptap/extension-table-cell')
     ]);
 
+    // A link chosen from the page picker also remembers WHICH record it points
+    // at (content type + id), beside the address visitors follow. The address
+    // is what crawlers see; the reference is how the link is found and moved
+    // when that page's slug changes, without touching the words it is on.
+    const LinkWithRef = Link.extend({
+      addAttributes() {
+        return {
+          ...this.parent?.(),
+          'data-link-type': { default: null },
+          'data-link-id': { default: null }
+        };
+      }
+    });
+
     editor = new Editor({
       element,
       extensions: [
         StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
         Underline,
-        Link.configure({
+        LinkWithRef.configure({
           openOnClick: false,
           autolink: true,
           linkOnPaste: true,
           protocols: ['http', 'https', 'mailto', 'tel'],
           // No global target/rel. Internal links must stay followed + same-tab so
           // they pass SEO link equity; external links get target/rel per-link on
-          // insert (see applyHref).
-          HTMLAttributes: {}
+          // insert (see linkAttrs). Explicit nulls: configure() deep-merges, so
+          // `{}` would keep TipTap's own `_blank` + `nofollow` defaults, and a
+          // saved internal link would come back with them on the next edit.
+          HTMLAttributes: { target: null, rel: null }
         }),
         Image.configure({ inline: false, HTMLAttributes: { class: 'rich-img' } }),
         TextAlign.configure({ types: ['heading', 'paragraph'] }),
@@ -144,6 +172,8 @@
 
   onDestroy(() => {
     clearTimeout(scanTimer);
+    clearTimeout(searchTimer);
+    searchAbort?.abort();
     editor?.destroy();
   });
 
@@ -155,6 +185,8 @@
     refresh();
     scheduleScan();
   }
+  // Hints arrive after the form loads its record; re-rank when they do.
+  $: if (ready && hints) scheduleScan();
 
   // ─── command helpers ────────────────────────────────────────────────────
   const chain = () => editor.chain().focus();
@@ -162,26 +194,122 @@
   const toggleHeading = (level: 1 | 2 | 3) => chain().toggleHeading({ level }).run();
   const insertTable = () => chain().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
 
-  // ─── link modal (with internal-page picker for SEO) ─────────────────────
-  // Every address is cleaned as it is typed or pasted (tracking tags off, our own
-  // domain made a site path) and checked against the real public pages, so a
-  // link copied from a chatbot answer or an old URL cannot slip in unnoticed.
+  // ─── links: attributes ──────────────────────────────────────────────────
+  // Internal (starts with "/") stays followed and same-tab; external opens in a
+  // new tab with a safe rel. A picked page adds its stable reference.
+  const linkAttrs = (url: string, ref?: { type?: LinkType; id?: string } | null) =>
+    /^https?:\/\//i.test(url)
+      ? { href: url, target: '_blank', rel: 'noopener noreferrer nofollow', 'data-link-type': null, 'data-link-id': null }
+      : { href: url, target: null, rel: null, 'data-link-type': ref?.type ?? null, 'data-link-id': ref?.id ?? null };
+
+  /** The reference a site path implies, from the loaded page index. */
+  const refForPath = (url: string): { type?: LinkType; id?: string } | null => {
+    if (!linkIndex || !isInternal(url)) return null;
+    const target = linkIndex.byPath.get(splitUrl(url).base.replace(/\/+$/, '') || '/');
+    return target?.type && target.id ? { type: target.type, id: target.id } : null;
+  };
+
+  // ─── link dialog ────────────────────────────────────────────────────────
+  // Search-first: an editor highlights words, opens the dialog, types a few
+  // letters and picks a published page. Only published pages are offered, so
+  // a picked link resolves by construction. The address row stays for external
+  // sites; whatever is typed there is cleaned (tracking tags off, our own
+  // domain made a site path) and checked against the real public pages.
   let showLink = false;
   let linkUrl = '';
-  let linkSearch = '';
   let linkAnyway = false;
   let linkIndex: LinkIndex | null = null;
-  $: internalPages = linkIndex?.targets ?? [];
-  $: internalLoading = !linkIndex;
+  /** The words the link will sit on, or '' when the cursor is between words. */
+  let selectionText = '';
+  /** The link the cursor is in when the dialog opens, if any. */
+  let currentLink: { href: string; type: string | null; id: string | null } | null = null;
+
+  const TYPE_FILTERS: Array<{ value: LinkType | 'all'; label: string }> = [
+    { value: 'all', label: 'All' },
+    { value: 'tours', label: 'Itineraries' },
+    { value: 'destinations', label: 'Destinations' },
+    { value: 'lodges', label: 'Accommodation' },
+    { value: 'tour_categories', label: 'Experiences' },
+    { value: 'travel_styles', label: 'Travel styles' },
+    { value: 'blog_posts', label: 'Journal' },
+    { value: 'comparisons', label: 'Comparisons' },
+    { value: 'safari_essentials', label: 'Essentials' }
+  ];
+
+  let linkSearch = '';
+  let linkFilter: LinkType | 'all' = 'all';
+  let searchResults: InternalLinkTarget[] = [];
+  let searchTotal = 0;
+  let searchPage = 1;
+  let searching = false;
+  let searchError = '';
+  let searchTimer: ReturnType<typeof setTimeout> | undefined;
+  let searchAbort: AbortController | undefined;
+
+  const runSearch = async (page = 1) => {
+    searchAbort?.abort();
+    const controller = new AbortController();
+    searchAbort = controller;
+    searching = true;
+    searchError = '';
+    try {
+      const res = await api.internalLinks.search(
+        { q: linkSearch.trim(), type: linkFilter === 'all' ? undefined : linkFilter, page, limit: 20 },
+        controller.signal
+      );
+      if (controller.signal.aborted) return;
+      searchResults = page === 1 ? res.data.items : [...searchResults, ...res.data.items];
+      searchTotal = res.data.pagination.total;
+      searchPage = page;
+    } catch (err) {
+      if (controller.signal.aborted) return;
+      searchError = err instanceof Error ? err.message : 'Search failed.';
+    } finally {
+      if (!controller.signal.aborted) searching = false;
+    }
+  };
+
+  // Debounced: a search per keystroke would race itself and hammer the API.
+  const scheduleSearch = () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => void runSearch(1), 250);
+  };
+  $: if (showLink && (linkSearch !== undefined || linkFilter)) scheduleSearch();
+
+  // Fixed pages (Plan My Trip, Contact…) are not records the API searches, so
+  // they come from the page index, matched on the same words.
+  $: staticMatches = (() => {
+    if (linkFilter !== 'all' || !linkIndex) return [] as LinkTarget[];
+    const q = linkSearch.trim().toLowerCase();
+    return linkIndex.targets
+      .filter((t) => !t.type && (!q || t.label.toLowerCase().includes(q) || t.path.toLowerCase().includes(q)))
+      .slice(0, q ? 6 : 4);
+  })();
 
   const openLink = () => {
     if (!editor) return;
-    linkUrl = editor.getAttributes('link').href ?? '';
-    linkSearch = '';
+    const attrs = editor.getAttributes('link');
+    currentLink = attrs.href
+      ? { href: attrs.href, type: attrs['data-link-type'] ?? null, id: attrs['data-link-id'] ?? null }
+      : null;
+    linkUrl = '';
     linkAnyway = false;
+    linkSearch = '';
+    linkFilter = 'all';
+    searchResults = [];
+    searchTotal = 0;
+    const { from, to } = editor.state.selection;
+    selectionText = editor.state.doc.textBetween(from, to, ' ').replace(/\s+/g, ' ').trim();
     showLink = true;
     void loadLinkIndex().then((index) => (linkIndex = index));
   };
+
+  /** What the current link points at, read from the page index. */
+  $: currentTarget = (() => {
+    if (!currentLink || !linkIndex) return null;
+    const byRef = currentLink.type && currentLink.id ? linkIndex.byRef.get(`${currentLink.type}:${currentLink.id}`) : undefined;
+    return byRef ?? linkIndex.byPath.get(splitUrl(currentLink.href).base) ?? null;
+  })();
 
   $: cleaned = cleanUrl(linkUrl);
   $: linkCheck = checkLink(cleaned.url, linkIndex) as LinkCheck;
@@ -190,19 +318,27 @@
     linkCheck.kind === 'broken' ? 'text-red-700' : linkCheck.kind === 'ok' || linkCheck.kind === 'redirect' ? 'text-forest' : 'text-ink/50';
   // A new address needs a fresh decision about linking a missing page.
   $: if (linkUrl !== undefined) linkAnyway = false;
+  $: selectionAdvice = anchorAdvice(selectionText);
 
-  const linkAttrs = (url: string) =>
-    /^https?:\/\//i.test(url)
-      ? { href: url, target: '_blank', rel: 'noopener noreferrer nofollow' }
-      : { href: url, target: null, rel: null };
+  /** Paths already linked in this text, so the dialog can say "already linked". */
+  let linkedPaths = new Set<string>();
+  let linkedIds = new Set<string>();
 
-  // Apply a link: internal (starts with "/") stays clean; external opens in a
-  // new tab with safe rel. When nothing is selected, inserts the text as a link.
-  const applyHref = (rawUrl: string, textIfEmpty = '') => {
-    if (!editor) return;
+  const pathOfUrl = (url: string) => {
+    let path = splitUrl(url).base.replace(/\/{2,}/g, '/');
+    if (path.length > 1) path = path.replace(/\/+$/, '');
+    return path;
+  };
+  const isSelf = (path: string) => Boolean(selfPath) && pathOfUrl(path) === selfPath;
+
+  // Apply a link to the selection; with nothing selected, insert `textIfEmpty`
+  // as the link's words. Returns false when refused (a page linking to itself).
+  const applyHref = (rawUrl: string, textIfEmpty = '', ref?: { type?: LinkType; id?: string } | null): boolean => {
+    if (!editor) return false;
     const url = cleanUrl(rawUrl).url.trim();
-    if (!url) { chain().extendMarkRange('link').unsetLink().run(); showLink = false; return; }
-    const attrs = linkAttrs(url);
+    if (!url) { chain().extendMarkRange('link').unsetLink().run(); showLink = false; return true; }
+    if (isSelf(url)) return false;
+    const attrs = linkAttrs(url, ref ?? refForPath(url));
     if (editor.state.selection.empty && textIfEmpty) {
       chain().insertContent({ type: 'text', text: textIfEmpty, marks: [{ type: 'link', attrs }] }).run();
     } else {
@@ -210,69 +346,121 @@
     }
     showLink = false;
     linkSearch = '';
+    return true;
   };
 
   const applyLink = () => {
     if (linkBlocked) return;
     applyHref(cleaned.url, cleaned.url.replace(/^https?:\/\/(www\.)?/i, ''));
   };
+  const pickPage = (target: { path: string; title?: string; label?: string; type?: LinkType; id?: string }) =>
+    applyHref(target.path, target.title ?? target.label ?? target.path, target.type && target.id ? { type: target.type, id: target.id } : null);
   const useSuggestion = (target: LinkTarget) => (linkUrl = withPath(cleaned.url, target.path));
   const removeLink = () => { chain().extendMarkRange('link').unsetLink().run(); showLink = false; };
-
-  // Group filtered internal pages for the picker list.
-  $: linkResults = (() => {
-    const q = linkSearch.trim().toLowerCase();
-    const items = q
-      ? internalPages.filter((p) => p.label.toLowerCase().includes(q) || p.path.toLowerCase().includes(q))
-      : internalPages;
-    const groups: Array<{ group: string; items: LinkTarget[] }> = [];
-    for (const it of items.slice(0, 120)) {
-      let g = groups.find((x) => x.group === it.group);
-      if (!g) { g = { group: it.group, items: [] }; groups.push(g); }
-      g.items.push(it);
-    }
-    return groups;
-  })();
 
   // ─── link health: links already in the text ─────────────────────────────
   // Links typed straight into the text (autolink, paste) or saved before these
   // checks never went through the dialog, so the whole document is checked too.
   // Each problem gets a one-click fix that rewrites that address everywhere here.
-  type LinkIssue = { href: string; message: string; fixes: Array<{ label: string; href: string }> };
+  type LinkIssue = { href: string; message: string; fixes: Array<{ label: string; href?: string; unlink?: boolean }> };
   let linkIssues: LinkIssue[] = [];
   let scanTimer: ReturnType<typeof setTimeout> | undefined;
+  let linkCount = 0;
 
   const scheduleScan = () => {
     clearTimeout(scanTimer);
     scanTimer = setTimeout(scanLinks, 400);
   };
 
-  const scanLinks = () => {
-    if (!editor || !linkIndex) return;
-    const hrefs = new Set<string>();
-    editor.state.doc.descendants((node: { isText?: boolean; marks?: Array<{ type: { name: string }; attrs: { href?: string } }> }) => {
-      for (const mark of node.marks ?? []) if (mark.type.name === 'link' && mark.attrs.href) hrefs.add(mark.attrs.href);
+  type Mark = { type: { name: string }; attrs: Record<string, string | null | undefined> };
+  type Run = { href: string; type: string | null; id: string | null; text: string };
+
+  /** Each link in the document as one run of words (consecutive text nodes with the same href). */
+  const linkRuns = (): Run[] => {
+    const runs: Run[] = [];
+    let last: Run | null = null;
+    editor.state.doc.descendants((node: { isText?: boolean; text?: string; marks?: Mark[] }) => {
+      const mark = node.isText ? (node.marks ?? []).find((m) => m.type.name === 'link') : undefined;
+      if (!mark?.attrs.href) { last = null; return; }
+      if (last && last.href === mark.attrs.href) { last.text += node.text ?? ''; return; }
+      last = { href: mark.attrs.href, type: mark.attrs['data-link-type'] ?? null, id: mark.attrs['data-link-id'] ?? null, text: node.text ?? '' };
+      runs.push(last);
     });
+    return runs;
+  };
+
+  const scanLinks = () => {
+    if (!editor) return;
+    const runs = linkRuns();
+    linkCount = runs.length;
+    const paths = new Set<string>();
+    const ids = new Set<string>();
+    for (const run of runs) {
+      if (isInternal(run.href)) paths.add(pathOfUrl(run.href));
+      if (run.id) ids.add(run.id);
+    }
+    linkedPaths = paths;
+    linkedIds = ids;
+    refreshSuggestions();
+    if (!linkIndex) return;
+
     const issues: LinkIssue[] = [];
-    for (const href of hrefs) {
-      const tidy = cleanUrl(href);
+    const seen = new Set<string>();
+    const counts = new Map<string, number>();
+    for (const run of runs) counts.set(run.href, (counts.get(run.href) ?? 0) + 1);
+
+    for (const run of runs) {
+      const advice = anchorAdvice(run.text);
+      if (advice) issues.push({ href: run.href, message: advice, fixes: [] });
+      if (seen.has(run.href)) continue;
+      seen.add(run.href);
+
+      const tidy = cleanUrl(run.href);
+      if (isInternal(tidy.url) && isSelf(tidy.url)) {
+        issues.push({ href: run.href, message: 'Links to this same page.', fixes: [{ label: 'Remove the link', unlink: true }] });
+        continue;
+      }
+      if ((counts.get(run.href) ?? 0) > 1) {
+        issues.push({ href: run.href, message: `Linked ${counts.get(run.href)}× in this text — once is enough.`, fixes: [] });
+      }
+
+      // A link that remembers its page is judged by where that page is NOW.
+      const ref = run.type && run.id ? linkIndex.byRef.get(`${run.type}:${run.id}`) : undefined;
+      if (ref) {
+        if (ref.path !== pathOfUrl(tidy.url)) {
+          issues.push({ href: run.href, message: `That page moved to ${ref.path}.`, fixes: [{ label: 'Update the address', href: withPath(tidy.url, ref.path) }] });
+        }
+        continue;
+      }
+      if (run.type && run.id && linkIndex.verified.size) {
+        const stillThere = checkLink(tidy.url, linkIndex);
+        issues.push({
+          href: run.href,
+          message: stillThere.kind === 'ok'
+            ? 'The page this link was made for is gone, but another page now lives at this address.'
+            : 'The page this link was made for is no longer published — visitors would get a 404.',
+          fixes: stillThere.kind === 'broken' ? stillThere.suggestions.map((t) => ({ label: `Use ${t.label}`, href: withPath(tidy.url, t.path) })) : []
+        });
+        continue;
+      }
+
       const check = checkLink(tidy.url, linkIndex);
       if (check.kind === 'broken') {
         issues.push({
-          href,
+          href: run.href,
           message: tidy.removedTracking.length ? `${check.reason} — and it carries tracking (${tidy.removedTracking.join(', ')})` : check.reason,
           fixes: check.suggestions.map((t) => ({ label: `Use ${t.label}`, href: withPath(tidy.url, t.path) }))
         });
       } else if (tidy.changed && isInternal(tidy.url)) {
-        issues.push({ href, message: tidy.notice || 'Can be tidied', fixes: [{ label: 'Tidy it', href: tidy.url }] });
+        issues.push({ href: run.href, message: tidy.notice || 'Can be tidied', fixes: [{ label: 'Tidy it', href: tidy.url }] });
       } else if (tidy.removedTracking.length) {
-        issues.push({ href, message: `Carries tracking (${tidy.removedTracking.join(', ')})`, fixes: [{ label: 'Remove tracking', href: tidy.url }] });
+        issues.push({ href: run.href, message: `Carries tracking (${tidy.removedTracking.join(', ')})`, fixes: [{ label: 'Remove tracking', href: tidy.url }] });
       }
     }
     linkIssues = issues;
   };
 
-  /** Rewrite every link with `from` to point at `to`, as one undoable change. */
+  /** Rewrite every link with `from` to point at `to`, as one undoable change. The words stay. */
   const replaceHref = (from: string, to: string) => {
     if (!editor) return;
     const { state } = editor;
@@ -282,13 +470,87 @@
       if (!node.isText) return;
       for (const mark of node.marks) {
         if (mark.type === linkType && mark.attrs.href === from) {
+          const ref = { type: mark.attrs['data-link-type'] as LinkType | undefined, id: mark.attrs['data-link-id'] as string | undefined };
           tr.removeMark(pos, pos + node.nodeSize, mark as never);
-          tr.addMark(pos, pos + node.nodeSize, linkType.create({ ...mark.attrs, ...linkAttrs(to) }));
+          tr.addMark(pos, pos + node.nodeSize, linkType.create({ ...mark.attrs, ...linkAttrs(to, ref.type && ref.id ? ref : refForPath(to)) }));
         }
       }
     });
     if (tr.docChanged) editor.view.dispatch(tr);
   };
+
+  /** Remove every link with this address; the words stay as plain text. */
+  const unlinkHref = (href: string) => {
+    if (!editor) return;
+    const { state } = editor;
+    const linkType = state.schema.marks.link;
+    const tr = state.tr;
+    state.doc.descendants((node: { isText?: boolean; nodeSize: number; marks: Array<{ type: unknown; attrs: Record<string, unknown> }> }, pos: number) => {
+      if (!node.isText) return;
+      for (const mark of node.marks) {
+        if (mark.type === linkType && mark.attrs.href === href) tr.removeMark(pos, pos + node.nodeSize, mark as never);
+      }
+    });
+    if (tr.docChanged) editor.view.dispatch(tr);
+  };
+
+  // ─── SEO link assistant ─────────────────────────────────────────────────
+  // Pages the text already talks about but does not link to yet. Matching is
+  // deterministic (see $lib/linkAssist) against the published-page index, so a
+  // suggestion is always a real page; the editor still decides.
+  let suggestions: LinkSuggestion[] = [];
+  let blockStarts: number[] = [];
+  let words = 0;
+  let assistantOpen = true;
+
+  /** The document as runs of text, with each run's start position and its linked ranges. */
+  const textBlocks = (): { blocks: TextBlock[]; starts: number[] } => {
+    const blocks: TextBlock[] = [];
+    const starts: number[] = [];
+    editor.state.doc.descendants((node: { isTextblock?: boolean; forEach: (fn: (child: { isText?: boolean; text?: string; nodeSize: number; marks: Mark[] }) => void) => void }, pos: number) => {
+      if (!node.isTextblock) return true;
+      let text = '';
+      const linked: Array<[number, number]> = [];
+      node.forEach((child) => {
+        if (child.isText) {
+          const start = text.length;
+          text += child.text ?? '';
+          if (child.marks.some((m) => m.type.name === 'link')) linked.push([start, text.length]);
+        } else {
+          // An inline atom (a hard break) takes one position and never matches.
+          text += '\n'.repeat(child.nodeSize);
+        }
+      });
+      blocks.push({ text, linked });
+      starts.push(pos + 1);
+      return false;
+    });
+    return { blocks, starts };
+  };
+
+  const refreshSuggestions = () => {
+    if (!editor || !assistant) return;
+    const { blocks, starts } = textBlocks();
+    blockStarts = starts;
+    words = wordCount(blocks);
+    suggestions = linkIndex
+      ? suggestLinks({ blocks, targets: linkIndex.targets, linkedPaths, linkedIds, selfPath, hints, max: 8 })
+      : [];
+  };
+
+  const insertSuggestion = (sg: LinkSuggestion) => {
+    if (!editor) return;
+    const from = blockStarts[sg.block] + sg.start;
+    const to = blockStarts[sg.block] + sg.end;
+    // The text may have changed since the suggestion was computed; only link
+    // the words the suggestion was made for.
+    if (editor.state.doc.textBetween(from, to, ' ') !== sg.anchor) { scanLinks(); return; }
+    const ref = sg.target.type && sg.target.id ? { type: sg.target.type, id: sg.target.id } : null;
+    chain().setTextSelection({ from, to }).setLink(linkAttrs(sg.target.path, ref)).run();
+    scanLinks();
+  };
+
+  $: budget = linkBudget(words);
 
   // ─── image modal ────────────────────────────────────────────────────────
   let showImage = false;
@@ -336,6 +598,8 @@
 
   const btn = (active: boolean) =>
     `grid h-8 min-w-[2rem] place-items-center px-1.5 text-ink/70 transition hover:bg-sand hover:text-ink disabled:cursor-not-allowed disabled:opacity-30 ${active ? 'bg-forest/12 text-forest' : ''}`;
+
+  const typeLabel = (type?: string | null) => TYPE_FILTERS.find((f) => f.value === type)?.label ?? 'Page';
 </script>
 
 <div class="grid gap-2">
@@ -378,7 +642,7 @@
 
       <span class="mx-1 h-5 w-px bg-ink/10"></span>
 
-      <button type="button" class={btn(s.link)} on:click={openLink} title="Link" aria-label="Link"><LinkIcon size={16} /></button>
+      <button type="button" class={btn(s.link)} on:click={openLink} title="Link to a page" aria-label="Link to a page"><LinkIcon size={16} /></button>
       <button type="button" class={btn(false)} on:click={() => (showImage = true)} title="Insert image" aria-label="Insert image"><ImageIcon size={16} /></button>
       <button type="button" class={btn(s.inTable)} on:click={insertTable} title="Insert table" aria-label="Insert table"><TableIcon size={16} /></button>
       <button type="button" class={btn(false)} on:click={() => chain().unsetAllMarks().clearNodes().run()} title="Clear formatting" aria-label="Clear formatting"><RemoveFormatting size={16} /></button>
@@ -404,107 +668,250 @@
       <p class="px-4 py-3 text-sm text-ink/40">Loading editor…</p>
     {/if}
   </div>
+
   {#if linkIssues.length}
     <div class="border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs text-amber-950">
       <p class="font-semibold">{linkIssues.length === 1 ? '1 link needs attention' : `${linkIssues.length} links need attention`}</p>
       <ul class="mt-1.5 grid gap-2">
-        {#each linkIssues as issue (issue.href)}
+        {#each linkIssues as issue, i (`${issue.href}-${i}`)}
           <li class="grid gap-1">
             <span><span class="break-all font-mono">{issue.href}</span> — {issue.message}</span>
             {#if issue.fixes.length}
               <span class="flex flex-wrap gap-1.5">
-                {#each issue.fixes as fix (fix.href)}
-                  <button type="button" class="border border-amber-400 bg-white px-2 py-0.5 font-semibold text-amber-900 transition hover:bg-amber-100" on:click={() => replaceHref(issue.href, fix.href)}>
-                    {fix.label} <span class="font-mono font-normal text-amber-900/60">{fix.href}</span>
+                {#each issue.fixes as fix (fix.label + (fix.href ?? ''))}
+                  <button
+                    type="button"
+                    class="border border-amber-400 bg-white px-2 py-0.5 font-semibold text-amber-900 transition hover:bg-amber-100"
+                    on:click={() => (fix.unlink ? unlinkHref(issue.href) : fix.href && replaceHref(issue.href, fix.href))}
+                  >
+                    {fix.label}{#if fix.href} <span class="font-mono font-normal text-amber-900/60">{fix.href}</span>{/if}
                   </button>
                 {/each}
               </span>
-            {:else}
-              <span class="text-amber-900/70">No close match — open the link (select it, then the link button) and pick the right page.</span>
             {/if}
           </li>
         {/each}
       </ul>
     </div>
   {/if}
+
+  <!-- SEO link assistant -->
+  {#if assistant && ready}
+    <div class="border border-ink/10 bg-sand/25">
+      <button
+        type="button"
+        class="flex w-full items-center justify-between gap-3 px-3 py-2 text-left"
+        aria-expanded={assistantOpen}
+        on:click={() => (assistantOpen = !assistantOpen)}
+      >
+        <span class="inline-flex items-center gap-2 text-xs font-bold text-ink">
+          <Sparkles size={14} class="text-forest" /> Link suggestions
+          {#if suggestions.length}<span class="rounded-full bg-forest/10 px-2 py-0.5 text-[11px] text-forest">{suggestions.length}</span>{/if}
+        </span>
+        <span class="inline-flex items-center gap-2 text-[11px] text-ink/50">
+          {linkCount} {linkCount === 1 ? 'link' : 'links'} · about {budget} suit{budget === 1 ? 's' : ''} {words} words
+          <ChevronDown size={14} class={`transition-transform ${assistantOpen ? 'rotate-180' : ''}`} />
+        </span>
+      </button>
+      {#if assistantOpen}
+        <div class="border-t border-ink/10 px-3 py-2.5">
+          {#if !linkIndex}
+            <p class="text-xs text-ink/45">Loading the site's pages…</p>
+          {:else if !suggestions.length}
+            <p class="text-xs text-ink/50">
+              {words ? 'Every page this text mentions is already linked, or it mentions none yet. Name a destination, property or experience and a suggestion appears here.' : 'Write a little and pages the text mentions will be suggested here.'}
+            </p>
+          {:else}
+            {#if linkCount >= budget}
+              <p class="mb-2 text-[11px] text-ink/50">This text already carries {linkCount} links — enough for its length. Add more only where they help a reader.</p>
+            {/if}
+            <ul class="grid gap-1.5">
+              {#each suggestions as sg (sg.target.path)}
+                <li class="flex flex-wrap items-center gap-x-3 gap-y-1 border border-ink/10 bg-surface px-3 py-2 text-xs">
+                  <span class="min-w-0 flex-1">
+                    <span class="font-semibold text-ink">“{sg.anchor}”</span>
+                    <span class="text-ink/45"> → </span>
+                    <span class="font-semibold text-forest">{sg.target.label}</span>
+                    <span class="ml-1 rounded-full bg-sand px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/50">{typeLabel(sg.target.type)}</span>
+                    <span class="block truncate font-mono text-[11px] text-ink/45">{sg.target.path}</span>
+                    <span class="block text-[11px] text-ink/55">{sg.reason}</span>
+                  </span>
+                  <span class="flex shrink-0 items-center gap-1.5">
+                    <a class="grid h-7 w-7 place-items-center border border-ink/10 text-ink/50 transition hover:bg-sand" href={sg.target.path} target="_blank" rel="noopener noreferrer" title="Open the page" aria-label="Open the page"><ExternalLink size={12} /></a>
+                    <button type="button" class="h-7 border border-forest/30 bg-forest/5 px-2.5 font-bold text-forest transition hover:bg-forest hover:text-white" on:click={() => insertSuggestion(sg)}>Insert link</button>
+                  </span>
+                </li>
+              {/each}
+            </ul>
+          {/if}
+        </div>
+      {/if}
+    </div>
+  {/if}
+
   <p class="text-xs text-ink/45">Rich text — headings, lists, links, images, tables. Formatting shows exactly as published.</p>
 </div>
 
-<!-- link modal -->
+<!-- link dialog -->
 {#if showLink}
-  <div use:portal class="fixed inset-0 z-[80] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="Insert link">
+  <div use:portal class="fixed inset-0 z-[80] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="Link to a page">
     <button class="absolute inset-0 cursor-default bg-ink/55 backdrop-blur-sm" type="button" aria-label="Close" on:click={() => (showLink = false)}></button>
     <div class="relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden border border-ink/10 bg-surface shadow-2xl">
-      <div class="flex items-center justify-between border-b border-ink/10 p-4">
-        <p class="text-sm font-bold text-ink">Insert link</p>
-        <button type="button" class="grid h-8 w-8 place-items-center border border-ink/10 text-ink transition hover:bg-sand" on:click={() => (showLink = false)} aria-label="Close"><X size={16} /></button>
+      <div class="flex items-center justify-between gap-3 border-b border-ink/10 p-4">
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-ink">{currentLink ? 'Edit link' : 'Link to a page'}</p>
+          {#if selectionText}
+            <p class="mt-0.5 truncate text-xs text-ink/55">On the words <span class="font-semibold text-ink/80">“{selectionText}”</span></p>
+          {:else if !currentLink}
+            <p class="mt-0.5 text-xs text-ink/55">Nothing selected — the page's title will be inserted as the link.</p>
+          {/if}
+        </div>
+        <button type="button" class="grid h-8 w-8 shrink-0 place-items-center border border-ink/10 text-ink transition hover:bg-sand" on:click={() => (showLink = false)} aria-label="Close"><X size={16} /></button>
       </div>
 
-      <!-- URL row (external or manual) -->
-      <div class="border-b border-ink/10 p-4">
-        <span class="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-ink/50">Link URL</span>
-        <div class="flex items-center gap-2">
+      {#if selectionAdvice}
+        <p class="border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-900">{selectionAdvice}</p>
+      {/if}
+
+      <!-- the link the cursor is in -->
+      {#if currentLink}
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-ink/10 bg-sand/30 px-4 py-2.5 text-xs">
+          <span class="min-w-0">
+            <span class="text-ink/55">Currently links to</span>
+            {#if currentTarget}
+              <span class="font-semibold text-ink">{currentTarget.label}</span>
+              <span class="ml-1 rounded-full bg-sand px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/50">{typeLabel(currentTarget.type)}</span>
+            {/if}
+            <span class="block break-all font-mono text-[11px] text-ink/50">{currentLink.href}</span>
+            {#if currentLink.id && linkIndex && !currentTarget}
+              <span class="block font-semibold text-red-700">That page is no longer published.</span>
+            {/if}
+          </span>
+          <span class="flex shrink-0 items-center gap-1.5">
+            {#if isInternal(currentLink.href)}
+              <a class="inline-flex h-7 items-center gap-1 border border-ink/10 px-2 font-semibold text-ink/70 transition hover:bg-sand" href={currentLink.href} target="_blank" rel="noopener noreferrer">Open <ExternalLink size={11} /></a>
+            {/if}
+            <button type="button" class="h-7 border border-red-200 px-2 font-semibold text-red-600 transition hover:bg-red-50" on:click={removeLink}>Remove link</button>
+          </span>
+        </div>
+      {/if}
+
+      <!-- page search -->
+      <div class="border-b border-ink/10 px-4 pb-2.5 pt-3">
+        <div class="flex items-center gap-2 border border-ink/15 bg-surface px-3 focus-within:border-forest focus-within:ring-2 focus-within:ring-forest/15">
+          <Search size={15} class="shrink-0 text-ink/40" />
           <!-- svelte-ignore a11y-autofocus -->
           <input
-            class="min-w-0 flex-1 border border-ink/15 bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/15"
-            placeholder="https://example.com  ·  or  /tours/serengeti-migration"
-            bind:value={linkUrl}
+            class="h-9 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/40"
+            placeholder="Search pages — e.g. Serengeti, Tarangire, honeymoon…"
+            bind:value={linkSearch}
             autofocus
-            on:keydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); applyLink(); } }}
+            on:keydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (searchResults[0]) pickPage(searchResults[0]); } }}
           />
-          <button type="button" class="shrink-0 bg-forest px-3 py-2 text-xs font-bold text-white transition hover:bg-deep-green disabled:opacity-40" disabled={!linkUrl.trim() || linkBlocked} on:click={applyLink}>Apply</button>
+          {#if searching}<span class="text-[11px] text-ink/40">Searching…</span>{/if}
         </div>
-        {#if linkUrl.trim()}
-          <div class="mt-2 grid gap-1.5 text-[12px]">
-            {#if cleaned.changed}
-              <p class="text-ink/55">Will save as <span class="break-all font-mono text-ink/80">{cleaned.url}</span>{#if cleaned.notice} · {cleaned.notice}{/if}</p>
-            {/if}
-            <p class={`font-semibold ${linkTone}`}>{linkCheck.kind === 'ok' ? '✓ ' : linkCheck.kind === 'broken' ? '✗ ' : ''}{describeCheck(linkCheck)}</p>
-            {#if linkCheck.kind === 'broken'}
-              {#if linkCheck.suggestions.length}
-                <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="text-ink/55">Did you mean:</span>
-                  {#each linkCheck.suggestions as sug (sug.path)}
-                    <button type="button" class="border border-forest/30 px-2 py-0.5 font-semibold text-forest transition hover:bg-forest/10" on:click={() => useSuggestion(sug)}>{sug.label}</button>
-                  {/each}
-                </div>
-              {/if}
-              <label class="inline-flex items-center gap-2 text-ink/60">
-                <input type="checkbox" class="h-3.5 w-3.5 accent-forest" bind:checked={linkAnyway} /> Link anyway (the page will be published later)
-              </label>
-            {/if}
-          </div>
-        {/if}
-        <div class="mt-2 flex items-center justify-between gap-3 text-[11px]">
-          <span class="text-ink/45">Site links (starting with “/”) stay follow + same-tab for SEO.</span>
-          <button type="button" class="shrink-0 font-semibold text-red-600 transition hover:underline" on:click={removeLink}>Remove link</button>
+        <div class="mt-2 flex flex-wrap gap-1">
+          {#each TYPE_FILTERS as f (f.value)}
+            <button
+              type="button"
+              class={`rounded-full border px-2 py-0.5 text-[11px] font-semibold transition ${linkFilter === f.value ? 'border-forest bg-forest text-white' : 'border-ink/15 text-ink/60 hover:bg-sand'}`}
+              on:click={() => (linkFilter = f.value)}
+            >{f.label}</button>
+          {/each}
         </div>
-      </div>
-
-      <!-- internal page search -->
-      <div class="flex items-center gap-2 border-b border-ink/10 px-4 py-2.5">
-        <LinkIcon size={15} class="text-ink/40" />
-        <input class="h-8 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/40" placeholder="Search itineraries, destinations, journal…" bind:value={linkSearch} />
       </div>
 
       <!-- results -->
-      <div class="min-h-[8rem] overflow-y-auto p-2" data-lenis-prevent>
-        {#if internalLoading && !internalPages.length}
-          <p class="py-10 text-center text-sm text-ink/45">Loading pages…</p>
-        {:else if !linkResults.length}
-          <p class="py-10 text-center text-sm text-ink/45">No matching pages.</p>
+      <div class="min-h-[10rem] flex-1 overflow-y-auto p-2" data-lenis-prevent>
+        {#if searchError}
+          <div class="px-2 py-8 text-center text-sm">
+            <p class="text-red-700">{searchError}</p>
+            <button type="button" class="mt-2 border border-ink/15 px-3 py-1 text-xs font-semibold text-ink transition hover:bg-sand" on:click={() => runSearch(1)}>Try again</button>
+          </div>
+        {:else if searching && !searchResults.length}
+          <p class="py-10 text-center text-sm text-ink/45">Searching pages…</p>
+        {:else if !searchResults.length && !staticMatches.length}
+          <p class="py-10 text-center text-sm text-ink/45">No published page matches “{linkSearch.trim()}”. Only published pages can be linked.</p>
         {:else}
-          {#each linkResults as grp (grp.group)}
-            <p class="px-2 pb-1 pt-3 text-[11px] font-bold uppercase tracking-wide text-forest/70">{grp.group}</p>
-            {#each grp.items as it (it.path)}
-              <button type="button" class="flex w-full items-center justify-between gap-3 px-2 py-1.5 text-left transition hover:bg-sand" on:click={() => applyHref(it.path, it.label)}>
+          {#each searchResults as it (`${it.type}:${it.id}`)}
+            {@const already = linkedIds.has(it.id) || linkedPaths.has(it.path)}
+            {@const self = isSelf(it.path)}
+            <button
+              type="button"
+              class="flex w-full items-start justify-between gap-3 px-2 py-2 text-left transition hover:bg-sand disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={self}
+              title={self ? 'This is the page being edited' : ''}
+              on:click={() => pickPage(it)}
+            >
+              <span class="min-w-0">
+                <span class="block truncate text-sm text-ink/85">{it.title}</span>
+                <span class="block truncate font-mono text-[11px] text-ink/40">{it.path}</span>
+              </span>
+              <span class="flex shrink-0 flex-col items-end gap-0.5">
+                <span class="rounded-full bg-sand px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/50">{it.label}</span>
+                {#if self}<span class="text-[10px] font-semibold text-red-700">This page</span>
+                {:else if already}<span class="text-[10px] font-semibold text-amber-700">Already linked here</span>{/if}
+              </span>
+            </button>
+          {/each}
+          {#if searchResults.length < searchTotal}
+            <button type="button" class="mt-1 w-full border border-ink/10 py-1.5 text-xs font-semibold text-ink/70 transition hover:bg-sand" disabled={searching} on:click={() => runSearch(searchPage + 1)}>
+              {searching ? 'Loading…' : `Show more (${searchTotal - searchResults.length} more)`}
+            </button>
+          {/if}
+          {#if staticMatches.length}
+            <p class="px-2 pb-1 pt-3 text-[11px] font-bold uppercase tracking-wide text-forest/70">Site pages</p>
+            {#each staticMatches as it (it.path)}
+              <button type="button" class="flex w-full items-center justify-between gap-3 px-2 py-1.5 text-left transition hover:bg-sand disabled:opacity-50" disabled={isSelf(it.path)} on:click={() => pickPage(it)}>
                 <span class="truncate text-sm text-ink/85">{it.label}</span>
                 <span class="shrink-0 font-mono text-[11px] text-ink/40">{it.path}</span>
               </button>
             {/each}
-          {/each}
+          {/if}
         {/if}
       </div>
+
+      <!-- any other address -->
+      <details class="border-t border-ink/10">
+        <summary class="cursor-pointer list-none px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide text-ink/50 hover:bg-sand/50">Link to another website or type an address</summary>
+        <div class="px-4 pb-4">
+          <div class="flex items-center gap-2">
+            <input
+              class="min-w-0 flex-1 border border-ink/15 bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/15"
+              placeholder="https://example.com  ·  or  /tours/serengeti-migration"
+              bind:value={linkUrl}
+              on:keydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); applyLink(); } }}
+            />
+            <button type="button" class="shrink-0 bg-forest px-3 py-2 text-xs font-bold text-white transition hover:bg-deep-green disabled:opacity-40" disabled={!linkUrl.trim() || linkBlocked || isSelf(cleaned.url)} on:click={applyLink}>Apply</button>
+          </div>
+          {#if linkUrl.trim()}
+            <div class="mt-2 grid gap-1.5 text-[12px]">
+              {#if cleaned.changed}
+                <p class="text-ink/55">Will save as <span class="break-all font-mono text-ink/80">{cleaned.url}</span>{#if cleaned.notice} · {cleaned.notice}{/if}</p>
+              {/if}
+              {#if isSelf(cleaned.url)}
+                <p class="font-semibold text-red-700">✗ That is this page — a page should not link to itself.</p>
+              {:else}
+                <p class={`font-semibold ${linkTone}`}>{linkCheck.kind === 'ok' ? '✓ ' : linkCheck.kind === 'broken' ? '✗ ' : ''}{describeCheck(linkCheck)}</p>
+              {/if}
+              {#if linkCheck.kind === 'broken'}
+                {#if linkCheck.suggestions.length}
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-ink/55">Did you mean:</span>
+                    {#each linkCheck.suggestions as sug (sug.path)}
+                      <button type="button" class="border border-forest/30 px-2 py-0.5 font-semibold text-forest transition hover:bg-forest/10" on:click={() => useSuggestion(sug)}>{sug.label}</button>
+                    {/each}
+                  </div>
+                {/if}
+                <label class="inline-flex items-center gap-2 text-ink/60">
+                  <input type="checkbox" class="h-3.5 w-3.5 accent-forest" bind:checked={linkAnyway} /> Link anyway (the page will be published later)
+                </label>
+              {/if}
+            </div>
+          {/if}
+          <p class="mt-2 text-[11px] text-ink/45">Site links (starting with “/”) stay follow + same-tab for SEO. Other websites open in a new tab.</p>
+        </div>
+      </details>
     </div>
   </div>
 {/if}

@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { API_URL } from '$lib/config/env';
 import type { CurrencyApiState } from '$lib/types';
-import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, GalleryItem, LodgeDetails, Lodge, LodgeImage, MarketPage, PageSeo, Paginated, SafariEssential, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
+import type { Activity, AdvisorDonePayload, AdvisorMeta, AdvisorPageContext, AdvisorRecommendation, AiChatResponse, ApiResponse, BlogPost, Comparison, Destination, FAQ, GalleryItem, InternalLinkTarget, LinkHealthReport, LodgeDetails, Lodge, LodgeImage, MarketPage, PageSeo, Paginated, ResolvedLinkRef, SafariEssential, SafetyTopic, Testimonial, Tour, TravelStyle, TripPoint } from '$lib/types';
 
 type QueryValue = string | number | boolean | undefined | null;
 type RequestOptions = Omit<RequestInit, 'body'> & {
@@ -72,6 +72,14 @@ export const apiRequest = async <T>(path: string, options: RequestOptions = {}) 
   }))) as ApiResponse<T>;
 
   if (!response.ok || !result.success) {
+    // A stored admin token the API no longer accepts is a stale session: the
+    // layout only checks that a token exists, so without this every panel
+    // would show "Invalid or expired authentication token" until the editor
+    // worked out to log in again.
+    if (browser && token && response.status === 401 && window.location.pathname.startsWith('/admin')) {
+      localStorage.removeItem('admin_token');
+      window.location.assign(`/admin/login?next=${encodeURIComponent(window.location.pathname)}`);
+    }
     throw new ApiRequestError(result.message || 'API request failed.', response.status);
   }
 
@@ -501,6 +509,17 @@ export const api = {
     create: (body: Record<string, unknown>) => apiRequest('/specialists', { method: 'POST', body }),
     update: (id: string, body: Record<string, unknown>) => apiRequest(`/specialists/${id}`, { method: 'PUT', body }),
     remove: (id: string) => apiRequest(`/specialists/${id}`, { method: 'DELETE' })
+  },
+  // Admin link picker, link checks and slug-change repair (internal-links.routes.ts).
+  internalLinks: {
+    search: (params: { q?: string; type?: string; page?: number; limit?: number }, signal?: AbortSignal) =>
+      apiRequest<Paginated<InternalLinkTarget>>(`/internal-links/search${queryString(params)}`, { signal }),
+    resolve: (refs: Array<{ type: string; id: string }>) =>
+      apiRequest<Record<string, ResolvedLinkRef>>(
+        `/internal-links/resolve${queryString({ refs: refs.map((r) => `${r.type}:${r.id}`).join(',') })}`
+      ),
+    health: () => apiRequest<LinkHealthReport>('/internal-links/health'),
+    repair: () => apiRequest<{ changed: number }>('/internal-links/repair', { method: 'POST' })
   },
   faqs: {
     list: (params?: Record<string, QueryValue>) => apiRequest<Paginated<FAQ>>(`/faqs${queryString(params)}`),

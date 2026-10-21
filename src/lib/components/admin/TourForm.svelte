@@ -10,6 +10,9 @@
   import AdminPageHeader from '$lib/components/admin/AdminPageHeader.svelte';
   import AdminSelect from '$lib/components/admin/AdminSelect.svelte';
   import AdminTextArea from '$lib/components/admin/AdminTextArea.svelte';
+  import RichTextEditor from '$lib/components/admin/RichTextEditor.svelte';
+  import { plainTextToHtml, richTextToStore, toPlainText } from '$lib/richtext';
+  import type { LinkHint } from '$lib/linkAssist';
   import AiAssistButton from '$lib/components/admin/AiAssistButton.svelte';
   import AdminToolbar from '$lib/components/admin/AdminToolbar.svelte';
   import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
@@ -123,8 +126,17 @@
     budget_tier: form.budget_tier || undefined,
     highlights: form.highlights || undefined,
     short_description: form.short_description || undefined,
-    full_description: form.full_description || undefined
+    // The model reads prose, not the editor's HTML.
+    full_description: toPlainText(form.full_description) || undefined
   });
+
+  // Pages this trip is about, for the editor's link suggestions, and its own
+  // public address so the text can never link to itself.
+  $: linkHints = [
+    form.destination_id ? { type: 'destinations', id: form.destination_id, reason: "This trip's destination" } : null,
+    form.category_id ? { type: 'tour_categories', id: form.category_id, reason: "This trip's experience" } : null
+  ].filter((hint): hint is LinkHint => Boolean(hint));
+  $: selfPath = mode === 'edit' && form.slug ? `/tours/${form.slug}` : '';
 
   const showToast = (message: string, type: Toast['type'] = 'success') => {
     const id = crypto.randomUUID();
@@ -224,7 +236,9 @@
         duration_nights: String(tour.duration_nights ?? '0'),
         end_location: String(tour.end_location ?? ''),
         experience_type: String(tour.experience_type ?? ''),
-        full_description: String(tour.full_description ?? ''),
+        // Written before the field was rich text? Paragraph breaks are kept
+        // by wrapping them once, here; the editor would otherwise merge them.
+        full_description: plainTextToHtml(String(tour.full_description ?? '')),
         group_size_max: tour.group_size_max === null || tour.group_size_max === undefined ? '' : String(tour.group_size_max),
         group_size_min: tour.group_size_min === null || tour.group_size_min === undefined ? '' : String(tour.group_size_min),
         highlights: Array.isArray(tour.highlights) ? tour.highlights.join('\n') : '',
@@ -268,7 +282,7 @@
     duration_nights: Number(form.duration_nights || 0),
     end_location: form.end_location || null,
     experience_type: form.experience_type || null,
-    full_description: form.full_description || null,
+    full_description: richTextToStore(form.full_description),
     group_size_max: nullableNumber(form.group_size_max),
     group_size_min: nullableNumber(form.group_size_min),
     highlights: lineList(form.highlights),
@@ -398,11 +412,23 @@
           </div>
           <div class="grid gap-1.5">
             <div class="flex justify-end gap-1.5">
-              <AiAssistButton task="write_description" label="Write" getContext={aiContext} on:apply={(e) => (form.full_description = e.detail.text ?? form.full_description)} />
-              <AiAssistButton task="improve" label="Improve" getContext={aiContext} getText={() => form.full_description} on:apply={(e) => (form.full_description = e.detail.text ?? form.full_description)} />
-              <AiAssistButton task="shorten" label="Shorten" getContext={aiContext} getText={() => form.full_description} on:apply={(e) => (form.full_description = e.detail.text ?? form.full_description)} />
+              <AiAssistButton task="write_description" label="Write" getContext={aiContext} on:apply={(e) => (form.full_description = e.detail.text ? plainTextToHtml(e.detail.text) : form.full_description)} />
+              <AiAssistButton task="improve" label="Improve" getContext={aiContext} getText={() => toPlainText(form.full_description)} on:apply={(e) => (form.full_description = e.detail.text ? plainTextToHtml(e.detail.text) : form.full_description)} />
+              <AiAssistButton task="shorten" label="Shorten" getContext={aiContext} getText={() => toPlainText(form.full_description)} on:apply={(e) => (form.full_description = e.detail.text ? plainTextToHtml(e.detail.text) : form.full_description)} />
             </div>
-            <AdminTextArea label="Full description" name="full_description" bind:value={form.full_description} rows={6} />
+            <!-- Rich text so the overview can link to the destinations, properties
+                 and experiences it names — the links crawlers follow from this page. -->
+            <RichTextEditor
+              label="Full description"
+              bind:value={form.full_description}
+              media={mediaItems}
+              uploadFolder="tours"
+              allowPageHeading={false}
+              minHeight="260px"
+              placeholder="What makes this trip special, who it suits, and what the days feel like…"
+              hints={linkHints}
+              {selfPath}
+            />
           </div>
         </div>
       </section>
