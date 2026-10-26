@@ -9,6 +9,7 @@
   import Footer from '$lib/components/public/Footer.svelte';
   import ConsentBanner from '$lib/components/public/ConsentBanner.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
+  import { organizationGraph } from '$lib/organizationLd';
   import ShortlistFab from '$lib/components/public/ShortlistFab.svelte';
   import EnquiryModal from '$lib/components/public/EnquiryModal.svelte';
   import { consent, getConsent } from '$lib/consent';
@@ -260,27 +261,7 @@
 
 <!-- Org-wide schema (JsonLd injects via {@html}; a {mustache} inside <script> is
      not interpolated by Svelte, which is what broke the old inline block). -->
-<JsonLd
-  data={{
-    '@graph': [
-      {
-        '@id': `${orgUrl}#organization`,
-        '@type': 'TravelAgency',
-        name: $branding.company_name,
-        url: orgUrl,
-        slogan: $branding.tagline
-      },
-      {
-        '@id': `${orgUrl}#website`,
-        '@type': 'WebSite',
-        name: $branding.site_name,
-        url: orgUrl,
-        publisher: { '@id': `${orgUrl}#organization` },
-        inLanguage: 'en'
-      }
-    ]
-  }}
-/>
+<JsonLd data={organizationGraph({ origin: siteOrigin, settings: publicSettings, branding: $branding })} />
 {#if seoStructured}
   <JsonLd data={seoStructured} />
 {/if}

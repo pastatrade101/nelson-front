@@ -42,6 +42,8 @@
   import { ownedFaqs } from '$lib/faqEntities';
   import RichText from '$lib/components/public/RichText.svelte';
   import { PERSONAS } from '$lib/data/personas';
+  import { SITE_URL } from '$lib/config/env';
+  import { safeSiteOrigin } from '$lib/seo-policy';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
   import ShortlistButton from '$lib/components/public/ShortlistButton.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
@@ -139,17 +141,33 @@
     : '#';
 
   // SEO schema (SRS v2.0 §7.4): TouristTrip + BreadcrumbList.
-  $: origin = $page.url.origin;
+  // The canonical host (www), whichever host served this request: the
+  // provider reference must match the company entity's @id exactly.
+  $: origin = safeSiteOrigin(
+    (typeof $page.data?.publicSettings?.canonical_base_url === 'string' ? $page.data.publicSettings.canonical_base_url : '') || SITE_URL,
+    $page.url.origin
+  );
   $: touristTripLd = tour
     ? {
         '@type': 'TouristTrip',
         name: tour.title,
         description: toMetaText(tour.short_description ?? tour.full_description ?? ''),
         ...(tour.main_image_url ? { image: tour.main_image_url } : {}),
+        // Who runs the trip: the company entity every page carries.
+        provider: { '@id': `${origin}/#organization` },
         ...(tour.price_from
-          ? { offers: { '@type': 'Offer', price: tour.price_from, priceCurrency: tour.currency ?? 'USD' } }
+          ? {
+              offers: {
+                '@type': 'Offer',
+                price: tour.price_from,
+                priceCurrency: tour.currency ?? 'USD',
+                url: `${origin}/tours/${tour.slug}`,
+                availability: (tour as { is_available?: boolean }).is_available === false ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock'
+              }
+            }
           : {}),
-        ...(tour.duration_days ? { duration: `P${tour.duration_days}D` } : {}),
+        // No `duration`: schema.org defines none on a trip. The length is in the
+        // name and in the itinerary's day count, which assistants read.
         ...(personaTypes.length ? { touristType: personaTypes } : {}),
         // The day-by-day plan as structured data, so an assistant answering
         // "what does day 3 of this safari look like?" reads it from the page
