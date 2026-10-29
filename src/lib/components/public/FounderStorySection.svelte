@@ -19,19 +19,26 @@
   export let secondaryCta = 'Speak to Nelson';
   export let secondaryHref = '/contact';
   export let compact = false;
+  /** Cut the story to two paragraphs. Defaults to `compact`; a page showing CMS copy turns it off so every paragraph an editor writes appears. */
+  export let trim: boolean | undefined = undefined;
+  /** Show the second button. Compact layouts hide it unless asked. */
+  export let showSecondary: boolean | undefined = undefined;
 
-  const shortenHtml = (html: string): string => {
+  $: trimmed = trim ?? compact;
+  $: secondaryOn = showSecondary ?? !compact;
+
+  const shortenHtml = (html: string, cut: boolean): string => {
     const htmlParagraphs = html.match(/<p\b[^>]*>[\s\S]*?<\/p>/gi);
-    return compact && htmlParagraphs?.length ? htmlParagraphs.slice(0, 2).join('') : html;
+    return cut && htmlParagraphs?.length ? htmlParagraphs.slice(0, 2).join('') : html;
   };
 
-  $: displayHtml = isHtml(content) ? shortenHtml(content) : '';
+  $: displayHtml = isHtml(content) ? shortenHtml(content, trimmed) : '';
   $: paragraphs = content
     .replace(/\\n/g, '\n')
     .split(/\n{2,}/)
     .map((part) => part.trim())
     .filter(Boolean)
-    .slice(0, compact ? 2 : undefined);
+    .slice(0, trimmed ? 2 : undefined);
 </script>
 
 <section class={`bg-deep-green py-16 text-white ${compact ? 'md:py-20' : 'md:py-24'}`} use:fadeUpOnScroll={{ y: 14 }}>
@@ -76,7 +83,7 @@
           {primaryCta}
           <ArrowRight size={16} strokeWidth={2.5} />
         </a>
-        {#if !compact}
+        {#if secondaryOn}
           <a class="inline-flex h-[52px] items-center justify-center border border-white/22 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={secondaryHref}>
             {secondaryCta}
           </a>

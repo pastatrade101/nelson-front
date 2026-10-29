@@ -1,7 +1,7 @@
 import type { PageLoad } from './$types';
 import { cachedJson } from '$lib/cache';
 import { generalFaqQuery } from '$lib/faqEntities';
-import type { Destination, FAQ, GalleryItem, Paginated, Testimonial, Tour } from '$lib/types';
+import type { BlogPost, Destination, FAQ, GalleryItem, Paginated, Testimonial, Tour } from '$lib/types';
 
 type ApiEnvelope<T> = { data?: T };
 type HomeSection = Record<string, unknown> & { section_key: string };
@@ -29,6 +29,22 @@ const homepageFaqs = async (fetch: typeof globalThis.fetch): Promise<Paginated<F
   return safeJson<Paginated<FAQ>>('/api/faqs?category=General&status=published&limit=6', fetch, NO_FAQS);
 };
 
+const NO_TOURS: Paginated<Tour> = { items: [], pagination: { page: 1, limit: 6, total: 0, totalPages: 0 } };
+
+/**
+ * The itineraries grid ("Signature Journeys"): the tours flagged Featured in
+ * the tour editor, else those flagged Popular, else the latest published. It
+ * read only Popular — and no tour is flagged Popular — so the section saved in
+ * the CMS never rendered at all.
+ */
+const homepageTours = async (fetch: typeof globalThis.fetch): Promise<Paginated<Tour>> => {
+  for (const filter of ['is_featured=true&', 'is_popular=true&', '']) {
+    const page = await safeJson<Paginated<Tour>>(`/api/tours?status=published&${filter}limit=6`, fetch, NO_TOURS);
+    if (page.items.length) return page;
+  }
+  return NO_TOURS;
+};
+
 // SSR-load the homepage CMS and its sales-critical collections so the hero and
 // real safari routes are present in the initial HTML.
 export const load: PageLoad = async ({ fetch }) => {
@@ -37,12 +53,9 @@ export const load: PageLoad = async ({ fetch }) => {
   // initial HTML and avoids a large post-hydration layout shift. The remaining
   // homepage collections are fetched in the same pass so the V2 page arrives
   // complete instead of assembling itself through six client-side requests.
-  const [sectionRows, tourPage, destinationPage, faqPage, galleryPage, testimonialPage] = await Promise.all([
+  const [sectionRows, tourPage, destinationPage, faqPage, galleryPage, testimonialPage, blogPage] = await Promise.all([
     safeJson<HomeSection[]>('/api/homepage', fetch, []),
-    safeJson<Paginated<Tour>>('/api/tours?status=published&is_popular=true&limit=6', fetch, {
-      items: [],
-      pagination: { page: 1, limit: 6, total: 0, totalPages: 0 }
-    }),
+    homepageTours(fetch),
     safeJson<Paginated<Destination>>('/api/destinations?status=published&limit=12', fetch, {
       items: [],
       pagination: { page: 1, limit: 12, total: 0, totalPages: 0 }
@@ -55,6 +68,11 @@ export const load: PageLoad = async ({ fetch }) => {
     safeJson<Paginated<Testimonial>>('/api/testimonials?status=published&limit=12', fetch, {
       items: [],
       pagination: { page: 1, limit: 12, total: 0, totalPages: 0 }
+    }),
+    // The journal preview section (blog_preview) shows the latest articles.
+    safeJson<Paginated<BlogPost>>('/api/blog?status=published&limit=3', fetch, {
+      items: [],
+      pagination: { page: 1, limit: 3, total: 0, totalPages: 0 }
     })
   ]);
 
@@ -75,11 +93,14 @@ export const load: PageLoad = async ({ fetch }) => {
     .map(({ testimonial }) => testimonial);
 
   return {
+    // Every row, for the section order; `sections` keyed for field lookups.
+    sectionRows,
     sections,
     tours: tourPage.items,
     destinations,
     faqs: faqPage.items,
     gallery: galleryPage.items,
-    testimonials
+    testimonials,
+    posts: blogPage.items.filter((post) => !post.status || post.status === 'published')
   };
 };

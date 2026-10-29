@@ -22,6 +22,7 @@
   import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
   import RichTextEditor from '$lib/components/admin/RichTextEditor.svelte';
   import { plainTextToHtml, richTextToStore } from '$lib/richtext';
+  import { HOME_SECTIONS, OTHER_SECTION_LABELS, homeSectionDef, type HomeExtra, type HomeField } from '$lib/homeSections';
   import ConfirmModal from '$lib/components/admin/ConfirmModal.svelte';
   import ToastStack from '$lib/components/admin/ToastStack.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
@@ -45,27 +46,30 @@
   type Option = { label: string; value: string };
   type Toast = { id: string; message: string; type: 'error' | 'success' };
 
-  // The homepage renders a FIXED set of section components. A new section must use
-  // one of these keys — anything else becomes an "orphan" that never renders, so
-  // creation is restricted to this list (editing keeps an existing key untouched).
+  // The sections the homepage renders, and the fields each one uses, come from
+  // $lib/homeSections — the same list the public homepage reads — so a section
+  // or field offered here is one the page shows. About-page sections (about_*)
+  // share this table but are edited under Admin › About Page.
   const SECTION_LABELS: Record<string, string> = {
-    hero: 'Hero',
-    safari_parks_intro: 'Safari parks intro',
-    safari_showcase: 'Safari showcase (itineraries)',
-    founder_story: 'Founder story',
-    how_it_works: 'How it works',
-    blog_preview: 'Journal / blog preview',
-    testimonials: 'Testimonials',
-    cost_ranges: 'Typical costs',
-    featured_destinations: 'Featured destinations',
-    featured_tours: 'Featured tours / deals',
-    faq: 'FAQ',
-    final_cta: 'Final CTA',
-    partners: 'Partners',
-    stats: 'Stats counter',
-    login_slider: 'Login screen slider'
+    ...Object.fromEntries(HOME_SECTIONS.map((def) => [def.key, def.label])),
+    ...OTHER_SECTION_LABELS
   };
   const ALLOWED_KEYS = Object.keys(SECTION_LABELS);
+
+  // The section being edited, as the homepage sees it: which standard fields it
+  // shows (the rest are hidden here) and which heading extras it reads.
+  $: formDef = homeSectionDef(form.section_key.trim());
+  const uses = (def: ReturnType<typeof homeSectionDef>, field: HomeField) => !def || def.fields.includes(field);
+  // Parks intro, how it works and founder story edit their extras in their own blocks.
+  const OWN_EXTRAS_BLOCK = ['safari_parks_intro', 'how_it_works', 'founder_story'];
+  $: genericExtras = (formDef && !OWN_EXTRAS_BLOCK.includes(formDef.key) ? formDef.extras : []) as HomeExtra[];
+  const emptyHeadingExtras = (): Record<HomeExtra, string> => ({ eyebrow: '', accent_title: '', quote: '' });
+  let headingExtras = emptyHeadingExtras();
+  const EXTRA_LABELS: Record<HomeExtra, { label: string; placeholder: string }> = {
+    eyebrow: { label: 'Eyebrow (small label above the heading)', placeholder: 'e.g. Explore Real Itineraries' },
+    accent_title: { label: 'Accent (italic end of the heading)', placeholder: 'Leave empty for none' },
+    quote: { label: 'Quote', placeholder: 'Optional pull quote' }
+  };
 
   const emptyForm = () => ({
     button_text: '',
@@ -313,9 +317,12 @@
     return out;
   };
 
-  $: sorted = [...rows].sort((a, b) => a.sort_order - b.sort_order || a.section_key.localeCompare(b.section_key));
+  // Homepage sections (and the login slider) only — not the About page's rows.
+  const isHere = (key: string) => Boolean(homeSectionDef(key)) || key in OTHER_SECTION_LABELS;
+  $: sorted = rows.filter((r) => isHere(r.section_key)).sort((a, b) => a.sort_order - b.sort_order || a.section_key.localeCompare(b.section_key));
   // Renderable section keys not already used — the choices offered when adding a section.
-  $: availableKeys = ALLOWED_KEYS.filter((k) => !rows.some((r) => r.section_key === k));
+  // A section exists once, under its current key or a renamed one.
+  $: availableKeys = ALLOWED_KEYS.filter((k) => !rows.some((r) => r.section_key === k || homeSectionDef(r.section_key)?.key === k));
 
   const showToast = (message: string, type: Toast['type'] = 'success') => {
     const id = crypto.randomUUID();
@@ -363,6 +370,7 @@
     logos = [];
     slides = [];
     costRanges = [];
+    headingExtras = emptyHeadingExtras();
     void loadMedia();
     modalOpen = true;
   };
@@ -392,13 +400,18 @@
     processIntro = extraToProcessIntro(ed);
     stepRows = extraToStepRows(ed);
     founderIntro = extraToFounderIntro(ed);
+    headingExtras = {
+      eyebrow: typeof ed.eyebrow === 'string' ? ed.eyebrow : '',
+      accent_title: typeof ed.accent_title === 'string' ? ed.accent_title : '',
+      quote: typeof ed.quote === 'string' ? ed.quote : ''
+    };
     const rest = Object.fromEntries(Object.entries(ed).filter(([key]) => !MANAGED_KEYS.includes(key)));
     extraDataText = Object.keys(rest).length ? JSON.stringify(rest, null, 2) : '{}';
     void loadMedia();
     modalOpen = true;
   };
 
-  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); extraDataText = '{}'; bg = emptyBg(); logos = []; slides = []; costRanges = []; parksIntro = emptyParksIntro(); parkRows = []; processIntro = emptyProcessIntro(); stepRows = []; founderIntro = emptyFounderIntro(); mediaPicker = null; };
+  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); extraDataText = '{}'; bg = emptyBg(); logos = []; slides = []; costRanges = []; parksIntro = emptyParksIntro(); parkRows = []; processIntro = emptyProcessIntro(); stepRows = []; founderIntro = emptyFounderIntro(); headingExtras = emptyHeadingExtras(); mediaPicker = null; };
 
   const save = async () => {
     const key = form.section_key.trim();
@@ -461,6 +474,13 @@
     // Merge the founder story section (eyebrow/accent/quote/caption + secondary CTA).
     if (form.section_key.trim() === 'founder_story') {
       extra = { ...extra, ...founderIntroToExtra() };
+    }
+
+    // Heading extras for sections without their own block: a blank field clears it.
+    for (const key of genericExtras) {
+      const value = headingExtras[key].trim();
+      if (value) extra[key] = value;
+      else delete extra[key];
     }
 
     saving = true;
@@ -613,6 +633,7 @@
               {/if}
             </div>
             <h3 class="mt-2 truncate text-lg font-bold text-ink">{section.title || prettyKey(section.section_key)}</h3>
+            <p class="mt-0.5 text-xs text-ink/45">{SECTION_LABELS[homeSectionDef(section.section_key)?.key ?? section.section_key] ?? prettyKey(section.section_key)}{section.section_key === 'login_slider' ? ' · shown on the admin login screen' : ' · shown on the homepage'}</p>
             {#if section.subtitle}<p class="mt-0.5 line-clamp-1 text-sm text-ink/60">{section.subtitle}</p>{/if}
             {#if section.button_text}
               <span class="mt-2 inline-flex items-center gap-1 rounded-lg bg-goldfinch-gold/20 px-2 py-0.5 text-[11px] font-semibold text-heading">Button: {section.button_text}</span>
@@ -661,7 +682,7 @@
             <div class="grid gap-1.5 text-sm font-medium text-ink">
               <span>Section type</span>
               <div class="flex h-11 items-center rounded-lg border border-ink/10 bg-sand/30 px-3 font-mono text-sm text-ink/55">{form.section_key}</div>
-              <span class="text-xs text-ink/45">A section's type can't be changed once created.</span>
+              <span class="text-xs text-ink/45">{formDef ? `${formDef.label} — ${formDef.help}` : "A section's type can't be changed once created."}</span>
             </div>
           {:else if availableKeys.length}
             <AdminSelect
@@ -677,9 +698,21 @@
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
+          {#if uses(formDef, 'title')}
           <AdminFormInput label="Title" name="title" bind:value={form.title} placeholder="Section heading" />
+          {/if}
+          {#if uses(formDef, 'subtitle')}
           <AdminFormInput label="Subtitle" name="subtitle" bind:value={form.subtitle} placeholder="Supporting line" />
+          {/if}
         </div>
+        {#if genericExtras.length}
+          <div class="grid gap-4 sm:grid-cols-2">
+            {#each genericExtras as key (key)}
+              <AdminFormInput label={EXTRA_LABELS[key].label} name={key} bind:value={headingExtras[key]} placeholder={EXTRA_LABELS[key].placeholder} />
+            {/each}
+          </div>
+        {/if}
+        {#if uses(formDef, 'content')}
 
         <RichTextEditor
           label="Content"
@@ -689,13 +722,17 @@
           minHeight="220px"
           placeholder="Optional body text — add headings, links (internal links keep SEO value), lists and images…"
         />
+        {/if}
 
         <!-- image -->
+        {#if uses(formDef, 'image_url')}
         <div class="rounded-none border border-ink/10 bg-sand/25 p-4">
           <MediaPicker label="Section image" media={mediaItems} uploadFolder="homepage" bind:value={form.image_url} />
         </div>
+        {/if}
 
         <!-- background video + overlay -->
+        {#if uses(formDef, 'background')}
         <div class="grid gap-4 rounded-none border border-ink/10 bg-sand/25 p-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Background &amp; overlay</p>
@@ -721,6 +758,7 @@
             <span class="text-sm font-semibold text-ink">Gradient overlay <span class="font-normal text-ink/50">(fades diagonally for depth)</span></span>
           </label>
         </div>
+        {/if}
 
         <!-- partner logos repeater -->
         {#if form.section_key.trim() === 'partners'}
@@ -912,8 +950,10 @@
         {/if}
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <AdminFormInput label="Button text" name="button_text" bind:value={form.button_text} placeholder="e.g. Plan My Safari" />
-          <AdminFormInput label="Button URL" name="button_url" bind:value={form.button_url} placeholder="e.g. /plan-my-trip" />
+          {#if uses(formDef, 'button')}
+            <AdminFormInput label="Button text" name="button_text" bind:value={form.button_text} placeholder="e.g. Plan My Safari" />
+            <AdminFormInput label="Button URL" name="button_url" bind:value={form.button_url} placeholder="e.g. /plan-my-trip" />
+          {/if}
         </div>
 
         <label class="grid gap-2 text-sm font-medium text-ink">

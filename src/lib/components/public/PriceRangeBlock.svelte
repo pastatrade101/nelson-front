@@ -28,7 +28,8 @@
   {#if title}<h2 class="type-h2 text-center text-ink">{title}</h2>{/if}
   {#if subtitle}<p class="mx-auto mt-3 max-w-2xl text-center text-base leading-[1.75] text-ink/65">{subtitle}</p>{/if}
 
-  <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <!-- As many columns as there are price levels (up to four), so three cards fill the row. -->
+  <div class={`mt-10 grid gap-4 sm:grid-cols-2 ${rows.length === 3 ? 'lg:grid-cols-3' : rows.length === 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-4'}`}>
     {#each rows as row}
       <div class="group relative flex min-h-[200px] flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_20px_44px_rgba(28,26,22,0.14)]">
         <!-- very faint photo texture -->
