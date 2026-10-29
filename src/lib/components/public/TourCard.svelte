@@ -39,8 +39,8 @@
     </div>
     <div class="flex flex-1 flex-col p-5">
       <p class="text-sm font-semibold text-clay">{tour.duration_days ?? 1} days</p>
-      <h3 class="mt-2 text-xl font-bold tracking-normal text-ink">{tour.title}</h3>
-      <p class="mt-2 line-clamp-3 text-sm leading-6 text-ink/70">{tour.short_description}</p>
+      <h3 class="type-card mt-2 text-ink">{tour.title}</h3>
+      <p class="mt-2 line-clamp-3 text-sm leading-[1.6] text-ink/70">{tour.short_description}</p>
       <div class="mt-auto flex items-center justify-between pt-5 text-sm">
         <span class="font-semibold text-forest">From {formatUsd(tour.price_from ?? 0, $currency)}</span>
         <span class="font-semibold text-ink">View</span>

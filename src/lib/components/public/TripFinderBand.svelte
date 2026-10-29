@@ -76,11 +76,11 @@
           </span>
         </div>
 
-        <h2 class="mt-4 text-3xl font-serif font-light leading-[1.08] text-white sm:text-4xl lg:text-[42px]">
+        <h2 class="type-h2 mt-4 text-white">
           Find your perfect Tanzania trip in <span class="text-goldfinch-gold">60 seconds</span>.
         </h2>
 
-        <p class="mt-4 max-w-lg text-[15px] leading-7 text-white/75 md:text-base">
+        <p class="mt-4 max-w-lg text-base leading-[1.75] text-white/75">
           Answer a few quick questions and we'll match you with the best safari, beach, Kilimanjaro,
           or culture experience for your travel style.
         </p>

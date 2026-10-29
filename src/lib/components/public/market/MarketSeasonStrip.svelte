@@ -27,10 +27,10 @@
             <p class="brand-eyebrow">{eyebrow}</p>
           {/if}
           {#if title}
-            <h2 class="mt-4 font-serif text-[32px] font-light leading-[1.1] text-heading md:text-[44px]">{title}</h2>
+            <h2 class="type-h2 mt-4 text-heading">{title}</h2>
           {/if}
           {#if intro}
-            <p class="mt-5 text-[15px] leading-8 text-ink/70">{intro}</p>
+            <p class="mt-5 text-base leading-[1.75] text-ink/70">{intro}</p>
           {/if}
         </div>
       {/if}
@@ -42,17 +42,17 @@
               <p class="font-serif text-[26px] font-light leading-none text-goldfinch-gold md:text-[30px]">{season.months}</p>
             {/if}
             {#if season.label}
-              <h3 class="mt-4 text-[11px] font-bold uppercase tracking-[0.16em] text-heading">{season.label}</h3>
+              <p class="eyebrow mt-4 text-heading">{season.label}</p>
             {/if}
             {#if season.body}
-              <p class="mt-3 text-[14.5px] leading-7 text-ink/70">{season.body}</p>
+              <p class="mt-3 text-base leading-[1.75] text-ink/70">{season.body}</p>
             {/if}
           </div>
         {/each}
       </div>
 
       {#if note}
-        <p class="mt-8 border-l-2 border-goldfinch-gold pl-5 text-[14px] leading-7 text-ink/65">{note}</p>
+        <p class="mt-8 border-l-2 border-goldfinch-gold pl-5 text-base leading-[1.75] text-ink/65">{note}</p>
       {/if}
     </div>
   </section>

@@ -80,13 +80,13 @@
     <div class="mb-10 flex flex-col gap-8 md:mb-12 md:flex-row md:items-end md:justify-between md:gap-12">
       <div class="max-w-[720px]">
         <p class="brand-eyebrow">{eyebrow}</p>
-        <h2 class="mt-5 font-serif text-[36px] font-light leading-[1.08] tracking-normal text-heading sm:text-[48px] lg:text-[56px]">
+        <h2 class="type-h2 mt-5 text-heading">
           {title} <span class="italic text-goldfinch-gold">{accentTitle}</span>
         </h2>
         {#if isHtml(content)}
-          <div class="cms-rich mt-6 text-[15px] font-medium leading-8 text-ink/70 md:text-base">{@html content}</div>
+          <div class="cms-rich mt-6 text-base leading-[1.75] font-medium text-ink/70">{@html content}</div>
         {:else}
-          <p class="mt-6 text-[15px] font-medium leading-8 text-ink/70 md:text-base">{content}</p>
+          <p class="mt-6 text-base leading-[1.75] font-medium text-ink/70">{content}</p>
         {/if}
       </div>
       <a class="inline-flex shrink-0 items-center gap-2 pb-1 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold transition hover:text-heading" href={ctaHref}>
@@ -134,15 +134,12 @@
             </div>
 
             <div>
-              <h3
-                class={`font-serif font-light leading-[1.05] tracking-normal text-white ${
-                  i === 0 ? 'text-[38px] sm:text-[48px] lg:text-[58px]' : isCompact(i) ? 'text-[24px] sm:text-[27px]' : 'text-[27px] sm:text-[31px]'
-                }`}
-              >
+              <!-- The large feature tile carries an H3-step title; the other tiles are card titles. -->
+              <h3 class={`text-white ${i === 0 ? 'type-h3' : 'type-card'}`}>
                 {card.title}
               </h3>
               {#if !isCompact(i)}
-                <p class={`mt-3 max-w-[900px] font-medium leading-7 text-white/85 ${i === 0 ? 'line-clamp-3 text-[15px] md:text-base' : 'line-clamp-2 text-[14px]'}`}>
+                <p class={`mt-3 max-w-[900px] font-medium text-white/85 ${i === 0 ? 'line-clamp-3 text-base leading-[1.75]' : 'line-clamp-2 text-sm leading-[1.6]'}`}>
                   {card.description}
                 </p>
               {/if}

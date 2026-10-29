@@ -52,10 +52,10 @@
       <span class="px-2">/</span>
       <span class="text-goldfinch-gold">{country} Safaris</span>
     </nav>
-    <h1 class="mt-5 max-w-3xl font-serif text-4xl font-light leading-tight md:text-6xl">
+    <h1 class="type-h1 mt-5 max-w-3xl">
       Private {country} Safaris
     </h1>
-    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-white/75">
+    <p class="type-lead mt-6 max-w-2xl text-white/75">
       Every Emnel journey is private and built around you — your dates, your pace, your budget.
       No fixed departures, no strangers in the vehicle, and a local team who has driven these
       roads for years.

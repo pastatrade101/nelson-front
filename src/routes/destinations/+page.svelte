@@ -120,9 +120,9 @@
     <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.5)_0%,rgba(28,26,22,0.22)_48%,transparent_100%)]"></div>
   {/if}
   <div class="container-shell relative py-16 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-24">
-    <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">Safari destinations</p>
-    <h1 class="mt-4 max-w-3xl font-serif text-4xl font-light leading-[1.08] md:text-6xl">Where to go on safari in Tanzania</h1>
-    <p class="mt-5 max-w-2xl text-base leading-8 text-white/80 md:text-lg">
+    <p class="eyebrow text-goldfinch-gold">Safari destinations</p>
+    <h1 class="type-h1 mt-4 max-w-3xl">Where to go on safari in Tanzania</h1>
+    <p class="type-lead mt-5 max-w-2xl text-white/80">
       One country, endless safari worlds. From the northern circuit's iconic parks to the wild, uncrowded south and the
       beaches of the Indian Ocean — here's how it all fits together, and how we help you choose.
     </p>
@@ -157,9 +157,9 @@
     <div class="container-shell">
       <div class="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-clay">Find your next chapter</p>
-          <h2 class="mt-3 font-serif text-3xl font-medium text-heading md:text-[42px]">Explore Tanzania, place by place</h2>
-          <p class="mt-3 max-w-2xl text-sm leading-7 text-ink/60">Wildlife, mountain air or a slower island pace. Explore the places that make your journey yours.</p>
+          <p class="eyebrow text-clay">Find your next chapter</p>
+          <h2 class="type-h2 mt-3 text-heading">Explore Tanzania, place by place</h2>
+          <p class="mt-3 max-w-2xl text-base leading-[1.75] text-ink/60">Wildlife, mountain air or a slower island pace. Explore the places that make your journey yours.</p>
         </div>
         <a href="/plan-my-trip" class="inline-flex items-center gap-2 border-b border-forest/30 pb-1 text-sm font-semibold text-forest">Help me choose <ArrowRight size={15} /></a>
       </div>
@@ -186,8 +186,8 @@
         </div>
       {:else}
         <div class="rounded-lg border border-dashed border-ink/20 p-10 text-center">
-          <h3 class="font-serif text-2xl text-heading">No destinations match just yet</h3>
-          <p class="mt-3 text-sm text-ink/60">Try another name or select a different region.</p>
+          <h3 class="type-h3 text-heading">No destinations match just yet</h3>
+          <p class="mt-3 text-base text-ink/60">Try another name or select a different region.</p>
           <button class="mt-5 text-sm font-semibold text-forest underline underline-offset-4" type="button" on:click={() => { searchQuery = ''; selectedRegion = ''; }}>Show all destinations</button>
         </div>
       {/if}
@@ -244,7 +244,7 @@
         <div class="mt-9 grid gap-8 lg:grid-cols-[1fr_0.4fr]">
           <FAQAccordion faqs={faqs} />
           <div class="h-max border border-goldfinch-gold/30 bg-surface p-6 shadow-soft">
-            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">Still have questions?</p>
+            <p class="eyebrow text-clay">Still have questions?</p>
             <p class="mt-2 font-serif text-xl text-heading">Speak directly with our Arusha team.</p>
             <a class="mt-5 inline-flex h-11 items-center gap-2 bg-deep-green px-5 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:bg-forest" href="/contact">
               <MessageCircle size={16} /> Start a conversation

@@ -60,7 +60,7 @@
   <aside class="lg:sticky lg:top-24">
     <p class="font-serif text-xl italic text-clay">Booking</p>
     {#key tour.title}
-      <h1 class="mt-2 text-3xl font-bold tracking-normal text-heading md:text-4xl" use:revealHeading>{tour.title}</h1>
+      <h1 class="type-h1 mt-2 text-heading" use:revealHeading>{tour.title}</h1>
     {/key}
 
     <div class="mt-6 overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-soft">
@@ -91,7 +91,7 @@
         </div>
 
         {#if tour.short_description}
-          <p class="text-sm leading-6 text-ink/65">{tour.short_description}</p>
+          <p class="text-sm leading-[1.6] text-ink/65">{tour.short_description}</p>
         {/if}
 
         {#if tour.price_from}
@@ -103,13 +103,16 @@
       </div>
     </div>
 
-    <p class="mt-4 text-xs leading-5 text-ink/70">
+    <p class="mt-4 text-sm leading-[1.6] text-ink/70">
       Submitting a request does not charge you. A Emnel specialist confirms availability, finalises your itinerary, and shares secure payment options separately.
     </p>
   </aside>
 
   <!-- booking form -->
   <div>
+    <!-- The form's panel title is an H3 (card step); this keeps the page's
+         heading order H1 → H2 → H3 without a second visible title. -->
+    <h2 class="type-h2 sr-only">Request this safari</h2>
     <BookingForm {tour} />
   </div>
 </section>

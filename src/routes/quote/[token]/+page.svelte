@@ -84,8 +84,8 @@
 <main class="min-h-screen bg-canvas py-8 md:py-14">
   <div class="mx-auto w-full max-w-2xl px-4">
     <header class="text-center">
-      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-clay">Your quotation</p>
-      <h1 class="mt-2 font-serif text-3xl font-semibold leading-tight text-heading md:text-[40px]">{quote.title}</h1>
+      <p class="eyebrow text-clay">Your quotation</p>
+      <h1 class="type-h1 mt-2 text-heading">{quote.title}</h1>
       <div class="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-ink/55">
         <span>Reference {quote.quote_code}</span>
         <span
@@ -153,7 +153,7 @@
         {#if quote.notes}
           <div class="border-t border-ink/10 pt-4">
             <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-ink/45">Notes</p>
-            <p class="mt-2 whitespace-pre-line text-sm leading-7 text-ink/75">{quote.notes}</p>
+            <p class="mt-2 whitespace-pre-line text-base leading-[1.75] text-ink/75">{quote.notes}</p>
           </div>
         {/if}
 
@@ -178,17 +178,17 @@
         <p class="flex items-center gap-2 font-serif text-xl font-semibold text-heading">
           <CheckCircle2 size={20} class="text-forest" /> Thank you — this quotation is accepted
         </p>
-        <p class="mt-2 text-sm leading-7 text-ink/70">
+        <p class="mt-2 text-base leading-[1.75] text-ink/70">
           {#if quote.accepted_at}Recorded on {day(quote.accepted_at)}. {/if}Nothing has been charged.
         </p>
-        <ol class="mt-4 grid gap-3 border-t border-forest/15 pt-4 text-sm text-ink/75">
+        <ol class="mt-4 grid gap-3 border-t border-forest/15 pt-4 text-base text-ink/75">
           <li class="flex gap-3"><span class="font-serif font-semibold text-forest">1</span> We confirm availability for your dates.</li>
           <li class="flex gap-3"><span class="font-serif font-semibold text-forest">2</span> We come back to you with the booking details to complete.</li>
           <li class="flex gap-3"><span class="font-serif font-semibold text-forest">3</span> Payment is arranged with you directly — there is nothing to pay right now.</li>
         </ol>
       </section>
     {:else if declined}
-      <section class="mt-6 rounded-[12px] border border-ink/10 bg-surface p-5 text-sm leading-7 text-ink/70 md:p-6">
+      <section class="mt-6 rounded-[12px] border border-ink/10 bg-surface p-5 text-base leading-[1.75] text-ink/70 md:p-6">
         Thank you for letting us know. If anything about the price, the dates or the lodges was the sticking point, tell us — we can almost always
         put together something that fits better.
       </section>
@@ -204,7 +204,7 @@
         {#if mode === 'accept'}
           <form method="POST" action="?/accept" use:enhance={submit} class="rounded-[12px] border border-ink/10 bg-surface p-5 md:p-6">
             <p class="font-serif text-xl font-semibold text-heading">Accept this quotation</p>
-            <p class="mt-1.5 text-sm leading-6 text-ink/60">
+            <p class="mt-1.5 text-base leading-[1.75] text-ink/60">
               Just so we know who is travelling and how to reach you. Every field is optional — you can send it as it is.
             </p>
 
@@ -270,7 +270,7 @@
         {:else if mode === 'decline'}
           <form method="POST" action="?/decline" use:enhance={submit} class="rounded-[12px] border border-ink/10 bg-surface p-5 md:p-6">
             <p class="font-serif text-xl font-semibold text-heading">This doesn't work for me</p>
-            <p class="mt-1.5 text-sm leading-6 text-ink/60">
+            <p class="mt-1.5 text-base leading-[1.75] text-ink/60">
               We'll close this quotation. If you tell us why, we'll use it to put together something better.
             </p>
             <textarea
@@ -324,7 +324,7 @@
     </div>
 
     {#if actionable && mode === 'idle'}
-      <p class="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-ink/50">
+      <p class="mt-4 flex items-center justify-center gap-1.5 text-center text-sm leading-[1.6] text-ink/50">
         <ShieldCheck size={13} /> No payment required to accept — it simply confirms this price works for you.
       </p>
       <p class="mt-3 text-center">
@@ -334,7 +334,7 @@
       </p>
     {/if}
 
-    <p class="mt-8 text-center text-xs leading-6 text-ink/45">
+    <p class="mt-8 text-center text-sm leading-[1.6] text-ink/45">
       Prepared for you by {brand.name}.
       {#if !accepted}Prices are held until the valid-until date and are subject to availability at the time of booking.{/if}
     </p>

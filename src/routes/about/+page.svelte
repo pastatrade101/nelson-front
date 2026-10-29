@@ -60,7 +60,7 @@
   };
   $: beginningVideo = ex('about_beginning', 'video_url');
 
-  const eyebrowCls = 'text-[11px] font-bold uppercase tracking-[0.18em] text-clay';
+  const eyebrowCls = 'eyebrow text-clay';
 
   // Editorial typography for CMS prose. The copy is written in short, deliberate
   // beats ("He's still in Arusha.") — rendering every paragraph at the same size
@@ -75,8 +75,8 @@
     // instead of disappearing into it.
     if (isStatement(p)) return `border-l-2 border-goldfinch-gold pl-4 font-serif text-[21px] font-light leading-[1.45] md:text-[23px] ${strong}`;
     // The opening paragraph carries a gold drop cap as the entry point.
-    if (i === 0) return `dropcap text-[16px] leading-8 ${lead}`;
-    return `text-[15px] leading-7 ${body}`;
+    if (i === 0) return `dropcap text-base leading-[1.75] ${lead}`;
+    return `text-base leading-[1.75] ${body}`;
   };
 </script>
 
@@ -103,11 +103,11 @@
         {#if ex('about_hero', 'eyebrow')}
           <p class="brand-eyebrow">{ex('about_hero', 'eyebrow')}</p>
         {/if}
-        <h1 class="mt-6 font-serif text-[44px] font-light leading-[1.04] tracking-normal sm:text-[60px] lg:text-[74px]">
+        <h1 class="type-h1 mt-6">
           {cms('about_hero', 'title')}
         </h1>
         {#if cms('about_hero', 'subtitle')}
-          <p class="mt-7 max-w-[680px] text-[15px] leading-8 text-white/85 md:text-lg">{cms('about_hero', 'subtitle')}</p>
+          <p class="type-lead mt-7 max-w-[680px] text-white/85">{cms('about_hero', 'subtitle')}</p>
         {/if}
 
         <div class="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -162,7 +162,7 @@
     <div class="container-shell grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start lg:gap-14">
       <div class="lg:sticky lg:top-28">
         {#if ex('about_founder', 'eyebrow')}<p class={eyebrowCls}>{ex('about_founder', 'eyebrow')}</p>{/if}
-        <h2 class="mt-3 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[40px]">
+        <h2 class="type-h2 mt-3 text-heading">
           {cms('about_founder', 'title')}
         </h2>
         {#if ex('about_founder', 'quote')}
@@ -183,7 +183,7 @@
               />
             </div>
             {#if ex('about_founder', 'image_caption')}
-              <figcaption class="mt-2.5 text-[13px] leading-6 text-ink/55">{ex('about_founder', 'image_caption')}</figcaption>
+              <figcaption class="mt-2.5 text-sm leading-[1.6] text-ink/55">{ex('about_founder', 'image_caption')}</figcaption>
             {/if}
           </figure>
         {/if}
@@ -210,7 +210,7 @@
     <div class="container-shell grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-14">
       <div>
         {#if ex('about_beginning', 'eyebrow')}<p class={eyebrowCls}>{ex('about_beginning', 'eyebrow')}</p>{/if}
-        <h2 class="mt-3 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[40px]">
+        <h2 class="type-h2 mt-3 text-heading">
           {cms('about_beginning', 'title')}
         </h2>
         <div class="mt-6 max-w-[62ch] space-y-5">
@@ -257,7 +257,7 @@
       {#if on('about_what_we_do')}
         <div>
           {#if ex('about_what_we_do', 'eyebrow')}<p class={eyebrowCls}>{ex('about_what_we_do', 'eyebrow')}</p>{/if}
-          <h2 class="mt-3 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[40px]">
+          <h2 class="type-h2 mt-3 text-heading">
             {cms('about_what_we_do', 'title')}
           </h2>
           <div class="mt-6 max-w-[66ch] space-y-5 border-l-2 border-goldfinch-gold/40 bg-savanna/30 p-6 md:p-7">
@@ -270,13 +270,13 @@
 
       {#if on('about_licences') && licences.length}
         <aside class="border border-ink/10 bg-surface p-6 lg:sticky lg:top-28 lg:self-start">
-          <h3 class="font-serif text-[22px] font-light leading-snug text-heading">{cms('about_licences', 'title')}</h3>
+          <h3 class="type-card text-heading">{cms('about_licences', 'title')}</h3>
           {#if cms('about_licences', 'content')}
-            <p class="mt-3 text-[14px] leading-6 text-ink/65">{paras(cms('about_licences', 'content'))[0]}</p>
+            <p class="mt-3 text-sm leading-[1.6] text-ink/65">{paras(cms('about_licences', 'content'))[0]}</p>
           {/if}
           <ul class="mt-5 grid gap-3">
             {#each licences as item}
-              <li class="flex items-start gap-2.5 text-[14px] leading-6 text-heading">
+              <li class="flex items-start gap-2.5 text-sm leading-[1.6] text-heading">
                 <Check size={16} class="mt-0.5 shrink-0 text-goldfinch-gold" strokeWidth={2.6} />
                 {item}
               </li>
@@ -295,11 +295,11 @@
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div class="max-w-[620px]">
           {#if cms('about_guides', 'subtitle')}<p class={eyebrowCls}>{cms('about_guides', 'subtitle')}</p>{/if}
-          <h2 class="mt-3 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[40px]">
+          <h2 class="type-h2 mt-3 text-heading">
             {cms('about_guides', 'title')}
           </h2>
           {#if cms('about_guides', 'content')}
-            <p class="mt-4 text-[15px] leading-7 text-ink/70">{paras(cms('about_guides', 'content')).join(' ')}</p>
+            <p class="mt-4 text-base leading-[1.75] text-ink/70">{paras(cms('about_guides', 'content')).join(' ')}</p>
           {/if}
         </div>
         {#if cms('about_guides', 'button_text') && cms('about_guides', 'button_url')}
@@ -317,12 +317,12 @@
                 <ResponsiveImage imgClass="h-full w-full object-cover" src={g.image_url} alt={g.name} width={600} sizes="(min-width:1024px) 25vw, 50vw" />
               </div>
             {/if}
-            <h3 class="font-serif text-[20px] font-light leading-snug text-heading">{g.name}</h3>
+            <h3 class="type-card text-heading">{g.name}</h3>
             {#if g.title}<p class="mt-1 text-[12px] font-semibold text-goldfinch-gold">{g.title}</p>{/if}
-            {#if g.speciality}<p class="mt-2.5 text-[13.5px] leading-6 text-ink/70">{g.speciality}</p>{/if}
+            {#if g.speciality}<p class="mt-2.5 text-sm leading-[1.6] text-ink/70">{g.speciality}</p>{/if}
             {#if g.years}<p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/50">{g.years}</p>{/if}
             {#if g.quote}
-              <blockquote class="mt-4 border-t border-ink/10 pt-4 font-serif text-[15px] italic leading-6 text-ink/75">“{g.quote}”</blockquote>
+              <blockquote class="mt-4 border-t border-ink/10 pt-4 font-serif text-base italic leading-[1.6] text-ink/75">“{g.quote}”</blockquote>
               {#if g.author}<p class="mt-2 text-[11px] font-medium text-ink/55">— {g.author}</p>{/if}
             {/if}
           </article>
@@ -341,10 +341,10 @@
              comparable weight; sticky keeps it alongside the accordion stack. -->
         <div class="lg:sticky lg:top-28 lg:self-start">
           {#if cms('about_giving', 'title')}
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">{cms('about_giving', 'title')}</p>
+            <p class="eyebrow text-goldfinch-gold">{cms('about_giving', 'title')}</p>
           {/if}
           {#if cms('about_giving', 'subtitle')}
-            <h2 class="mt-3 font-serif text-[30px] font-light leading-[1.1] text-white md:text-[40px]">{cms('about_giving', 'subtitle')}</h2>
+            <h2 class="type-h2 mt-3 text-white">{cms('about_giving', 'subtitle')}</h2>
           {/if}
           {#if cms('about_giving', 'content')}
             <div class="mt-6 max-w-[58ch] space-y-4">
@@ -354,7 +354,7 @@
             </div>
           {/if}
           {#if ex('about_giving', 'highlight')}
-            <p class="mt-6 border border-goldfinch-gold/40 bg-goldfinch-gold/10 p-4 font-serif text-[17px] italic leading-7 text-goldfinch-gold">
+            <p class="mt-6 border border-goldfinch-gold/40 bg-goldfinch-gold/10 p-4 font-serif text-lg italic leading-[1.6] text-goldfinch-gold">
               {ex('about_giving', 'highlight')}
             </p>
           {/if}
@@ -376,14 +376,14 @@
               {#each givingBlocks as block, i}
                 <details class="group border border-white/12 bg-white/[0.04]" open={i === 0}>
                   <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-4">
-                    <h3 class="font-serif text-[18px] font-light leading-snug text-white md:text-[20px]">{block.title}</h3>
+                    <h3 class="type-card text-white">{block.title}</h3>
                     <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-white/25 text-white/70 transition group-open:rotate-180">
                       <ChevronDown size={15} />
                     </span>
                   </summary>
                   <div class="border-t border-white/10 px-4 pb-5 pt-4">
                     {#if block.body}
-                      <div class="grid gap-3.5 text-[14.5px] leading-7 text-goldfinch-gold/90">
+                      <div class="grid gap-3.5 text-base leading-[1.75] text-goldfinch-gold/90">
                         {#each paras(block.body) as p}
                           <p>{p}</p>
                         {/each}
@@ -392,7 +392,7 @@
                     {#if block.items?.length}
                       <ul class="mt-4 grid gap-2 sm:grid-cols-2">
                         {#each block.items as item}
-                          <li class="flex items-start gap-2.5 text-[14px] leading-6 text-goldfinch-gold/90">
+                          <li class="flex items-start gap-2.5 text-base leading-[1.6] text-goldfinch-gold/90">
                             <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-goldfinch-gold"></span>{item}
                           </li>
                         {/each}
@@ -416,7 +416,7 @@
       {#if on('about_closing')}
         <div class="border border-ink/10 bg-surface p-7 shadow-soft md:p-9">
           <span class="block h-0.5 w-14 bg-goldfinch-gold"></span>
-          <h2 class="mt-5 font-serif text-[28px] font-light leading-[1.12] text-heading md:text-[36px]">{cms('about_closing', 'title')}</h2>
+          <h2 class="type-h2 mt-5 text-heading">{cms('about_closing', 'title')}</h2>
           <div class="mt-5 max-w-[62ch] space-y-4">
             {#each paras(cms('about_closing', 'content')) as p, i}
               <p class={paraClass(p, i)}>{p}</p>
@@ -427,9 +427,9 @@
 
       {#if on('about_cta')}
         <div class="bg-deep-green p-7 text-white md:p-9">
-          <h2 class="font-serif text-[26px] font-light leading-snug md:text-[32px]">{cms('about_cta', 'title')}</h2>
+          <h2 class="type-h2">{cms('about_cta', 'title')}</h2>
           {#if cms('about_cta', 'subtitle')}
-            <p class="mt-4 text-[15px] leading-7 text-white/75">{cms('about_cta', 'subtitle')}</p>
+            <p class="mt-4 text-base leading-[1.75] text-white/75">{cms('about_cta', 'subtitle')}</p>
           {/if}
           {#if cms('about_cta', 'button_text') && cms('about_cta', 'button_url')}
             <a

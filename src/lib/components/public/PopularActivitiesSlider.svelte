@@ -114,8 +114,8 @@
   <div class="container-shell">
     <div class="mx-auto max-w-2xl text-center">
       <p class="font-serif text-xl italic text-clay">Things to do</p>
-      <h2 class="mt-2 text-3xl font-serif font-light text-heading md:text-[40px]" use:revealHeading>Popular Activities</h2>
-      <p class="mx-auto mt-3 max-w-[620px] text-[15px] leading-7 text-ink/70 md:text-base">
+      <h2 class="type-h2 mt-2 text-heading" use:revealHeading>Popular Activities</h2>
+      <p class="mx-auto mt-3 max-w-[620px] text-base leading-[1.75] text-ink/70">
         A curated list of the most-loved experiences across our Tanzania, Kenya & Zanzibar destinations.
       </p>
     </div>
@@ -150,9 +150,9 @@
           </a>
 
           <div class="flex flex-1 flex-col p-5">
-            <h3 class="text-lg font-serif font-normal leading-snug text-ink">{activity.title}</h3>
+            <h3 class="type-card text-ink">{activity.title}</h3>
 
-            <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-ink/70">
+            <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold leading-[1.6] text-ink/70">
               {#if activity.location}
                 <span class="inline-flex items-center gap-1.5">
                   <MapPin size={15} strokeWidth={2.4} class="text-forest" /> {activity.location}

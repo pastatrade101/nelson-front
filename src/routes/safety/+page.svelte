@@ -69,11 +69,11 @@
   <div class="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
   <div class="container-shell relative py-16 md:py-24">
     <div class="max-w-2xl">
-      <span class="inline-flex items-center gap-2 rounded-full bg-surface/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-savanna">
+      <span class="eyebrow inline-flex items-center gap-2 rounded-full bg-surface/10 px-3 py-1 text-savanna">
         <ShieldCheck size={14} /> Health &amp; Safety
       </span>
-      <h1 class="mt-5 text-4xl font-serif font-light leading-tight md:text-5xl">Travel with confidence</h1>
-      <p class="mt-4 text-lg leading-8 text-white/80">
+      <h1 class="type-h1 mt-5">Travel with confidence</h1>
+      <p class="type-lead mt-4 text-white/80">
         Africa is an extraordinary, welcoming place to travel — and with the right planning, a safari is
         wonderfully safe. Here's our honest guidance on health, wildlife, security and the support you can
         count on before and during your trip.
@@ -104,12 +104,12 @@
           <div class="grid h-12 w-12 place-items-center rounded-xl bg-forest/10 text-forest">
             <Icon size={22} />
           </div>
-          <h3 class="mt-4 text-lg font-serif font-normal text-ink">{topic.title}</h3>
+          <h3 class="type-card mt-4 text-ink">{topic.title}</h3>
           {#if topic.summary}
-            <p class="mt-2 text-sm font-semibold leading-6 text-ink/70">{topic.summary}</p>
+            <p class="mt-2 text-sm font-semibold leading-[1.6] text-ink/70">{topic.summary}</p>
           {/if}
           {#if topic.content}
-            <p class="mt-2 text-sm leading-6 text-ink/65">{topic.content}</p>
+            <p class="mt-2 text-sm leading-[1.6] text-ink/65">{topic.content}</p>
           {/if}
         </article>
       {/each}
@@ -136,8 +136,8 @@
             class="group flex h-full flex-col rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft transition hover:border-goldfinch-gold/40 hover:shadow-md"
             href={`/destinations/${dest.slug}`}
           >
-            <h3 class="text-lg font-serif font-normal text-ink">{dest.name}</h3>
-            <p class="mt-2 line-clamp-4 text-sm leading-6 text-ink/65">{dest.safety_overview}</p>
+            <h3 class="type-card text-ink">{dest.name}</h3>
+            <p class="mt-2 line-clamp-4 text-sm leading-[1.6] text-ink/65">{dest.safety_overview}</p>
             <span class="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-forest transition group-hover:text-heading">
               Read full safety notes <ArrowRight size={16} />
             </span>

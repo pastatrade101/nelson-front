@@ -85,8 +85,8 @@
       <article class="grid min-h-[116px] gap-4 border-b border-white/[0.07] px-5 py-6 sm:grid-cols-[auto_1fr] md:border-r md:border-white/[0.07] xl:border-b-0 xl:px-8">
         <p class="font-serif text-[36px] font-light leading-none text-goldfinch-gold md:text-[42px]">{stat.value}</p>
         <div>
-          <p class="text-[11px] font-bold uppercase tracking-[0.26em] text-white/40">{stat.label}</p>
-          <p class="mt-2 max-w-[230px] text-sm font-medium leading-6 text-white/68">{stat.description}</p>
+          <p class="eyebrow text-white/40">{stat.label}</p>
+          <p class="mt-2 max-w-[230px] text-sm font-medium leading-[1.6] text-white/68">{stat.description}</p>
         </div>
       </article>
     {/each}
@@ -95,22 +95,22 @@
   <div class="container-shell grid gap-12 py-16 md:py-24 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16 xl:py-28">
     <div class="max-w-[700px]">
       <p class="brand-eyebrow">{eyebrow}</p>
-      <h2 class="mt-6 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-white sm:text-[54px] lg:text-[62px]">
+      <h2 class="type-h2 mt-6 text-white">
         {title}
         <span class="block italic text-goldfinch-gold">{accentTitle}</span>
       </h2>
 
       {#if isHtml(content)}
-        <div class="cms-rich mt-8 text-[15px] font-medium leading-8 text-white/68 md:text-base">{@html content}</div>
+        <div class="cms-rich mt-8 text-base leading-[1.75] font-medium text-white/68">{@html content}</div>
       {:else}
-        <p class="mt-8 text-[15px] font-medium leading-8 text-white/68 md:text-base">{content}</p>
+        <p class="mt-8 text-base leading-[1.75] font-medium text-white/68">{content}</p>
       {/if}
 
       <blockquote class="mt-8 border-l-2 border-goldfinch-gold pl-6 font-serif text-2xl italic leading-[1.45] text-goldfinch-gold md:text-[28px]">
         {quote}
       </blockquote>
 
-      <p class="mt-8 max-w-[640px] text-[15px] font-medium leading-8 text-white/68 md:text-base">{closing}</p>
+      <p class="mt-8 max-w-[640px] text-base leading-[1.75] font-medium text-white/68">{closing}</p>
 
       <a
         class="mt-10 inline-flex h-[52px] min-h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna"
@@ -128,8 +128,8 @@
             <Sparkle size={27} fill="currentColor" strokeWidth={1.5} />
           </span>
           <div>
-            <h3 class="font-serif text-[22px] font-normal leading-snug text-white md:text-[25px]">{park.title}</h3>
-            <p class="mt-3 text-[14px] font-semibold leading-7 text-white/58">{park.description}</p>
+            <h3 class="type-card text-white">{park.title}</h3>
+            <p class="mt-3 text-sm font-semibold leading-[1.6] text-white/58">{park.description}</p>
             {#if park.href}
               <a class="mt-4 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold transition hover:text-white" href={park.href}>
                 View park <ArrowRight size={14} strokeWidth={2.5} />

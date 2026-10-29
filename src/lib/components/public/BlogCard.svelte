@@ -5,6 +5,12 @@
   import type { BlogPost } from '$lib/types';
 
   export let post: BlogPost;
+  /**
+   * Level of the card title: h3 under a section's h2 (the default). An index
+   * that renders cards straight under its h1 should pass 2 — or, better, give
+   * the list its own h2.
+   */
+  export let headingLevel: 2 | 3 | 4 = 3;
 </script>
 
 <article class="group flex h-full flex-col overflow-hidden rounded-none border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]" use:tilt={{ max: 5 }}>
@@ -23,8 +29,8 @@
     </div>
     <div class="flex flex-1 flex-col p-5">
       <p class="text-sm font-semibold text-clay">{post.author_name ?? 'Tour Team'}</p>
-      <h3 class="mt-2 text-xl font-bold tracking-normal text-ink">{post.title}</h3>
-      <p class="mt-2 line-clamp-3 text-sm leading-6 text-ink/70">{post.excerpt}</p>
+      <svelte:element this={`h${headingLevel}`} class="type-card mt-2 text-ink">{post.title}</svelte:element>
+      <p class="mt-2 line-clamp-3 text-sm leading-[1.6] text-ink/70">{post.excerpt}</p>
     </div>
   </a>
 </article>

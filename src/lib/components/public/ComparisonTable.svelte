@@ -22,7 +22,7 @@
 </script>
 
 {#if caption}
-  <h3 class="mb-3 font-serif text-lg font-normal text-heading">{caption}</h3>
+  <h3 class="type-card mb-3 text-heading">{caption}</h3>
 {/if}
 
 <!-- desktop: the real table -->

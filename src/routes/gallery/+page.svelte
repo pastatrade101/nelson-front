@@ -86,8 +86,8 @@
       <a class="transition hover:text-goldfinch-gold" href="/">Home</a><span>/</span><span class="text-white/80">Gallery</span>
     </nav>
     <p class="brand-eyebrow text-goldfinch-gold">Travel Journal</p>
-    <h1 class="mt-3 max-w-2xl font-serif text-[34px] font-light leading-[1.05] md:text-[52px]">Safari Moments,<br />Unedited.</h1>
-    <p class="mt-4 max-w-xl text-[15px] font-medium leading-7 text-white/75 md:text-base">
+    <h1 class="type-h1 mt-3 max-w-2xl">Safari Moments,<br />Unedited.</h1>
+    <p class="type-lead mt-4 max-w-xl text-white/75">
       Every image tells the story of a real journey across Tanzania—from sunrise game drives in the Serengeti to quiet evenings overlooking the Ngorongoro Crater.
     </p>
     {#if images.length}
@@ -195,7 +195,7 @@
     <div class="grid place-items-center gap-3 border border-dashed border-ink/15 bg-sand/20 px-6 py-20 text-center">
       <span class="grid h-14 w-14 place-items-center rounded-full bg-forest/10 text-forest"><ImageOff size={26} strokeWidth={1.6} /></span>
       <p class="text-lg font-bold text-heading">The gallery is being curated</p>
-      <p class="max-w-md text-sm leading-6 text-ink/60">
+      <p class="max-w-md text-base leading-[1.75] text-ink/60">
         We're selecting our finest recent safari photography. In the meantime, explore our journeys and destinations.
       </p>
       <div class="mt-2 flex flex-wrap justify-center gap-2">

@@ -193,9 +193,9 @@
     <div class="overflow-hidden rounded-none border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
       <p class="font-serif text-xl italic text-clay">For {personaCfg.label}</p>
       {#key personaCfg.headline}
-        <h1 class="mt-2 max-w-2xl text-3xl font-serif font-light text-heading md:text-4xl" use:revealHeading>{personaCfg.headline}</h1>
+        <h1 class="type-h1 mt-2 max-w-2xl text-heading" use:revealHeading>{personaCfg.headline}</h1>
       {/key}
-      <p class="mt-3 max-w-2xl text-base leading-7 text-ink/70">{personaCfg.sub}</p>
+      <p class="type-lead mt-3 max-w-2xl text-ink/70">{personaCfg.sub}</p>
       <div class="mt-5 flex flex-wrap gap-2.5">
         {#each personaCfg.concerns as concern}
           <span class="inline-flex items-center gap-1.5 rounded-full border border-forest/15 bg-surface/70 px-3 py-1.5 text-sm font-medium text-ink/70">
@@ -207,8 +207,8 @@
     </div>
   {:else}
     <p class="font-serif text-xl italic text-clay">Safari Itineraries</p>
-    <h1 class="mt-2 text-3xl font-serif font-light text-heading md:text-[40px]" use:revealHeading>Private Tanzania Safari Itineraries</h1>
-    <p class="mt-3 max-w-3xl text-base leading-8 text-ink/70">
+    <h1 class="type-h1 mt-2 text-heading" use:revealHeading>Private Tanzania Safari Itineraries</h1>
+    <p class="type-lead mt-3 max-w-3xl text-ink/70">
       Extraordinary safari experiences handcrafted by local experts in Arusha. Every itinerary below is a
       starting point — fully tailor-made to match your dates, budget and travel style.
     </p>
@@ -329,6 +329,7 @@
 
     <!-- ============ RESULTS ============ -->
     <div>
+      <h2 class="type-h2 sr-only">Itineraries</h2>
       <!-- result bar -->
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 pb-4">
         <div class="flex items-center gap-3">

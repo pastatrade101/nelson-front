@@ -42,12 +42,12 @@
         ></span>
 
         {#if panel.title}
-          <h3 class="font-serif text-[30px] font-light leading-[1.12] text-white md:text-[40px]">{panel.title}</h3>
+          <h3 class="type-h3 text-white">{panel.title}</h3>
         {/if}
         {#if panel.list.length}
           <ul class="mt-6 grid gap-3">
             {#each panel.list as item}
-              <li class="flex gap-3 text-[14.5px] leading-7 text-white/80">
+              <li class="flex gap-3 text-base leading-[1.75] text-white/80">
                 <span class="mt-2.5 h-1.5 w-1.5 shrink-0 bg-goldfinch-gold" aria-hidden="true"></span>
                 {item}
               </li>

@@ -64,11 +64,11 @@
 
   <div class="flex flex-1 flex-col p-5">
     {#if tour.destinations?.name}
-      <p class="text-xs font-semibold uppercase tracking-[0.12em] text-clay">{tour.destinations.name}</p>
+      <p class="eyebrow text-clay">{tour.destinations.name}</p>
     {/if}
-    <h3 class="mt-1.5 text-lg font-serif font-normal leading-snug text-ink">{tour.title}</h3>
+    <h3 class="type-card mt-1.5 text-ink">{tour.title}</h3>
     {#if tour.short_description}
-      <p class="mt-2 line-clamp-2 text-sm leading-6 text-ink/70">{tour.short_description}</p>
+      <p class="mt-2 line-clamp-2 text-sm leading-[1.6] text-ink/70">{tour.short_description}</p>
     {/if}
 
     <div class="mt-auto flex items-center justify-between gap-3 border-t border-ink/[0.08] pt-4">

@@ -241,8 +241,8 @@
 <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Accommodation', path: '/accommodation' }, { name: l.name, path: '/accommodation/' + l.slug }])} />
 
 {#snippet heading(eyebrow: string, title: string, dark = false)}
-  <p class={`text-[11px] font-medium uppercase tracking-[0.26em] ${dark ? 'text-goldfinch-gold' : 'text-clay'}`}>{eyebrow}</p>
-  <h2 class={`mt-4 font-serif text-[28px] font-light leading-[1.12] md:text-[36px] ${dark ? 'text-white' : 'text-heading'}`}>{title}</h2>
+  <p class={`eyebrow ${dark ? 'text-goldfinch-gold' : 'text-clay'}`}>{eyebrow}</p>
+  <h2 class={`type-h2 mt-4 ${dark ? 'text-white' : 'text-heading'}`}>{title}</h2>
 {/snippet}
 
 {#snippet factList(list: Row[])}
@@ -250,7 +250,7 @@
     {#each list as row (row.label)}
       <div class="grid gap-1 py-4 sm:grid-cols-[180px_1fr] sm:gap-8">
         <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/45 sm:pt-1">{row.label}</dt>
-        <dd class="text-[15px] leading-7 text-ink/80">{row.value}</dd>
+        <dd class="text-base leading-[1.75] text-ink/80">{row.value}</dd>
       </div>
     {/each}
   </dl>
@@ -263,10 +263,10 @@
     </nav>
     <div class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-[.18em] text-goldfinch-gold">{typeLabel(l)} · {levelLabel(l)}</p>
-        <h1 class="mt-4 break-words font-serif text-[40px] font-light leading-[1.06] md:text-[56px]">{l.name}</h1>
+        <p class="eyebrow text-goldfinch-gold">{typeLabel(l)} · {levelLabel(l)}</p>
+        <h1 class="type-h1 mt-4 break-words">{l.name}</h1>
         {#if placeLine}<p class="mt-4 flex items-start gap-2 text-sm text-white/70"><MapPin size={16} class="shrink-0 text-goldfinch-gold" />{placeLine}</p>{/if}
-        {#if l.short_description}<p class="mt-5 max-w-xl text-base leading-7 text-white/80">{toMetaText(l.short_description, 500)}</p>{/if}
+        {#if l.short_description}<p class="type-lead mt-5 max-w-xl text-white/80">{toMetaText(l.short_description, 500)}</p>{/if}
         <div class="mt-7 flex flex-wrap items-center gap-3">
           <a class="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-goldfinch-gold px-5 text-sm font-semibold text-deep-green" href={planHref}>Plan a stay here <ArrowRight size={16} /></a>
           <ShortlistButton item={shortlistItem} variant="full" />
@@ -281,7 +281,7 @@
         </div>
       {/if}
     </div>
-    {#if heroFacts.length}<dl class="mt-8 grid grid-cols-2 gap-5 border-t border-white/15 pt-6 lg:grid-cols-4">{#each heroFacts as fact}<div><dt class="text-[10px] font-semibold uppercase tracking-widest text-white/50">{fact.label}</dt><dd class="mt-2 text-sm leading-6 text-white/90">{fact.value}</dd></div>{/each}</dl>{/if}
+    {#if heroFacts.length}<dl class="mt-8 grid grid-cols-2 gap-5 border-t border-white/15 pt-6 lg:grid-cols-4">{#each heroFacts as fact}<div><dt class="text-[10px] font-semibold uppercase tracking-widest text-white/50">{fact.label}</dt><dd class="mt-2 text-sm leading-[1.6] text-white/90">{fact.value}</dd></div>{/each}</dl>{/if}
   </div>
 </section>
 
@@ -316,21 +316,21 @@
       <div class="lg:col-span-5">
         {@render heading('The property', 'What it is like')}
         {#if (l.why_we_recommend ?? '').trim()}
-          <p class="mt-10 border-l-2 border-goldfinch-gold pl-6 font-serif text-[22px] font-light italic leading-[1.45] text-heading md:text-[26px]">
+          <p class="type-lead mt-10 border-l-2 border-goldfinch-gold pl-6 italic text-heading">
             {toMetaText(l.why_we_recommend, 5000)}
           </p>
-          <p class="mt-3 pl-6 text-[11px] font-medium uppercase tracking-[0.2em] text-ink/45">Why we recommend it</p>
+          <p class="eyebrow mt-3 pl-6 text-ink/45">Why we recommend it</p>
         {/if}
       </div>
       <div class="lg:col-span-7 lg:pt-2">
         {#if (l.description ?? '').trim()}
-          <RichText value={l.description} className="max-w-[68ch] text-base leading-[1.85] text-ink/75" />
+          <RichText value={l.description} className="max-w-[68ch] text-base leading-[1.75] text-ink/75" />
         {/if}
         {#if highlights.length}
-          <p class={`text-[11px] font-semibold uppercase tracking-[0.2em] text-heading ${(l.description ?? '').trim() ? 'mt-10' : ''}`}>What stands out</p>
+          <p class={`eyebrow text-heading ${(l.description ?? '').trim() ? 'mt-10' : ''}`}>What stands out</p>
           <ul class="mt-4 divide-y divide-ink/10 border-y border-ink/10">
             {#each highlights as h (h.id ?? h.title)}
-              <li class="flex gap-3 py-3.5 text-[15px] leading-7 text-ink/80"><Check class="mt-1.5 h-4 w-4 shrink-0 text-clay" strokeWidth={2.4} />{h.title}</li>
+              <li class="flex gap-3 py-3.5 text-base leading-[1.75] text-ink/80"><Check class="mt-1.5 h-4 w-4 shrink-0 text-clay" strokeWidth={2.4} />{h.title}</li>
             {/each}
           </ul>
         {/if}
@@ -345,7 +345,7 @@
     <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div class="max-w-3xl">{@render heading('Photographs', `Inside ${l.name}`)}</div>
-        <p class="text-[13px] text-ink/50">{plural(galleryImages.length + (heroUrl ? 1 : 0), 'photo')}</p>
+        <p class="text-sm text-ink/50">{plural(galleryImages.length + (heroUrl ? 1 : 0), 'photo')}</p>
       </div>
       <div class="mt-7 md:mt-9">
         <LodgeGallery images={galleryImages} propertyName={l.name} />
@@ -374,15 +374,15 @@
               </div>
             {/if}
             <div class={room.image ? 'lg:col-span-6' : 'lg:col-span-12'}>
-              {#if room.type}<p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-clay">{room.type}</p>{/if}
-              <h3 class="mt-2 font-serif text-[30px] font-light leading-tight text-heading md:text-[36px]">{room.name}</h3>
-              {#if room.description}<p class="mt-4 max-w-[62ch] text-[15px] leading-7 text-ink/70">{room.description}</p>{/if}
+              {#if room.type}<p class="eyebrow text-clay">{room.type}</p>{/if}
+              <h3 class="type-h3 mt-2 text-heading">{room.name}</h3>
+              {#if room.description}<p class="mt-4 max-w-[62ch] text-base leading-[1.75] text-ink/70">{room.description}</p>{/if}
               {#if room.facts.length}
                 <dl class="mt-8 divide-y divide-ink/10 border-y border-ink/10">
                   {#each room.facts as fact (fact.label)}
                     <div class="grid gap-1 py-3.5 sm:grid-cols-[130px_1fr] sm:gap-6">
                       <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/45 sm:pt-1">{fact.label}</dt>
-                      <dd class="text-[14px] leading-6 text-ink/75">{fact.value}</dd>
+                      <dd class="text-sm leading-[1.6] text-ink/75">{fact.value}</dd>
                     </div>
                   {/each}
                 </dl>
@@ -402,7 +402,7 @@
       <div class="lg:col-span-4">
         {@render heading('Location', 'Where it is and how you arrive')}
         {#if placeLine}
-          <p class="mt-6 flex items-start gap-2 text-[15px] leading-7 text-ink/70"><MapPin size={16} class="mt-1 shrink-0 text-clay" />{placeLine}</p>
+          <p class="mt-6 flex items-start gap-2 text-base leading-[1.75] text-ink/70"><MapPin size={16} class="mt-1 shrink-0 text-clay" />{placeLine}</p>
         {/if}
         <div class="mt-6 flex flex-col items-start gap-3">
           {#if mapHref}
@@ -427,8 +427,8 @@
         {#if whereRows.length}{@render factList(whereRows)}{/if}
         {#if (l.arrival_instructions ?? '').trim()}
           <div class={whereRows.length ? 'mt-8' : ''}>
-            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Arriving</p>
-            <p class="mt-3 max-w-[68ch] whitespace-pre-line text-[15px] leading-[1.8] text-ink/70">{l.arrival_instructions}</p>
+            <p class="eyebrow text-heading">Arriving</p>
+            <p class="mt-3 max-w-[68ch] whitespace-pre-line text-base leading-[1.75] text-ink/70">{l.arrival_instructions}</p>
           </div>
         {/if}
       </div>
@@ -452,14 +452,14 @@
     <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-16" use:fadeUpOnScroll={{ y: 14 }}>
       <div class="lg:col-span-4">
         {@render heading('Good to know', 'The practical detail')}
-        <p class="mt-6 max-w-[34ch] text-[15px] leading-7 text-ink/60">What we would tell you on the phone first, including the parts that are not flattering.</p>
+        <p class="mt-6 max-w-[34ch] text-base leading-[1.75] text-ink/60">What we would tell you on the phone first, including the parts that are not flattering.</p>
       </div>
       <div class="lg:col-span-8">
         {#if practicalRows.length}{@render factList(practicalRows)}{/if}
         {#if (l.traveler_notes ?? '').trim()}
           <div class={practicalRows.length ? 'mt-8' : ''}>
-            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Before you go</p>
-            <p class="mt-3 max-w-[68ch] whitespace-pre-line text-[15px] leading-[1.8] text-ink/70">{l.traveler_notes}</p>
+            <p class="eyebrow text-heading">Before you go</p>
+            <p class="mt-3 max-w-[68ch] whitespace-pre-line text-base leading-[1.75] text-ink/70">{l.traveler_notes}</p>
           </div>
         {/if}
       </div>
@@ -475,20 +475,20 @@
       <div class="grid gap-10 sm:grid-cols-2 lg:col-span-8">
         {#if included.length}
           <div>
-            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Included</p>
+            <p class="eyebrow text-heading">Included</p>
             <ul class="mt-5 divide-y divide-ink/10 border-t border-ink/10">
               {#each included as item, k (k)}
-                <li class="flex gap-3 py-3 text-[15px] leading-6 text-ink/75"><Check class="mt-1 h-4 w-4 shrink-0 text-clay" strokeWidth={2.4} />{item}</li>
+                <li class="flex gap-3 py-3 text-base leading-[1.75] text-ink/75"><Check class="mt-1 h-4 w-4 shrink-0 text-clay" strokeWidth={2.4} />{item}</li>
               {/each}
             </ul>
           </div>
         {/if}
         {#if excluded.length}
           <div>
-            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/50">Not included</p>
+            <p class="eyebrow text-ink/50">Not included</p>
             <ul class="mt-5 divide-y divide-ink/10 border-t border-ink/10">
               {#each excluded as item, k (k)}
-                <li class="flex gap-3 py-3 text-[15px] leading-6 text-ink/55"><Minus class="mt-1 h-4 w-4 shrink-0 text-ink/30" strokeWidth={2.4} />{item}</li>
+                <li class="flex gap-3 py-3 text-base leading-[1.75] text-ink/55"><Minus class="mt-1 h-4 w-4 shrink-0 text-ink/30" strokeWidth={2.4} />{item}</li>
               {/each}
             </ul>
           </div>
@@ -504,7 +504,7 @@
     <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-16" use:fadeUpOnScroll={{ y: 14 }}>
       <div class="lg:col-span-4">
         {@render heading('Rates', 'What a night costs')}
-        <p class="mt-6 max-w-[34ch] text-[15px] leading-7 text-ink/60">Indicative rates. Check the dates, meal plan and pricing basis below; we confirm your final quote before booking.</p>
+        <p class="mt-6 max-w-[34ch] text-base leading-[1.75] text-ink/60">Indicative rates. Check the dates, meal plan and pricing basis below; we confirm your final quote before booking.</p>
       </div>
       <div class="lg:col-span-8">
         <div class="divide-y divide-ink/10 border-y border-ink/10">
@@ -512,11 +512,11 @@
             <div class="grid gap-2 py-5 sm:grid-cols-[200px_1fr] sm:gap-8">
               <div>
                 <p class="font-serif text-[20px] leading-snug text-heading">{rate.season}</p>
-                {#if rate.dates}<p class="mt-1 text-[13px] text-ink/50">{rate.dates}</p>{/if}
+                {#if rate.dates}<p class="mt-1 text-sm text-ink/50">{rate.dates}</p>{/if}
               </div>
               <div>
-                {#if rate.prices}<p class="text-[15px] leading-7 text-ink/80">{rate.prices}</p>{/if}
-                {#if rate.terms}<p class="text-[13px] leading-6 text-ink/55">{rate.terms}</p>{/if}
+                {#if rate.prices}<p class="text-base leading-[1.75] text-ink/80">{rate.prices}</p>{/if}
+                {#if rate.terms}<p class="text-sm leading-[1.6] text-ink/55">{rate.terms}</p>{/if}
               </div>
             </div>
           {/each}
@@ -548,7 +548,7 @@
     </div>
 
     {#if stays.length}
-      <p class="mt-5 max-w-[60ch] text-[15px] leading-7 text-ink/65">A night here is already built into these routes. Each one can still be reshaped around your dates.</p>
+      <p class="mt-5 max-w-[60ch] text-base leading-[1.75] text-ink/65">A night here is already built into these routes. Each one can still be reshaped around your dates.</p>
       <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
         {#each stays as tour (tour.id)}<TourCardRich {tour} ctaLabel="View itinerary" />{/each}
       </div>
@@ -556,9 +556,9 @@
 
     {#if nearby.length}
       {#if stays.length}
-        <p class="mt-16 text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Also through {destinationName || 'this area'}</p>
+        <p class="eyebrow mt-16 text-heading">Also through {destinationName || 'this area'}</p>
       {:else}
-        <p class="mt-5 max-w-[60ch] text-[15px] leading-7 text-ink/65">These routes explore {destinationName || 'the same area'}. Any of them can be shaped to include a night at {l.name}.</p>
+        <p class="mt-5 max-w-[60ch] text-base leading-[1.75] text-ink/65">These routes explore {destinationName || 'the same area'}. Any of them can be shaped to include a night at {l.name}.</p>
       {/if}
       <div class={`grid gap-6 md:grid-cols-2 lg:grid-cols-3 ${stays.length ? 'mt-6' : 'mt-10'}`} use:staggeredCardReveal={{ y: 18, stagger: 0.06 }}>
         {#each nearby as tour (tour.id)}<TourCardRich {tour} ctaLabel="View itinerary" />{/each}
@@ -569,7 +569,7 @@
       <div class="mt-10 flex flex-col gap-6 border-y border-goldfinch-gold/40 py-8 md:flex-row md:items-center md:justify-between md:gap-12">
         <div class="max-w-2xl">
           <p class="font-serif text-[24px] font-light leading-tight text-heading md:text-[28px]">No published itinerary includes this stay yet.</p>
-          <p class="mt-2 text-[15px] leading-7 text-ink/65">We can build one around it: tell us your dates and who is travelling, and we will send a route with {l.name} in it.</p>
+          <p class="mt-2 text-base leading-[1.75] text-ink/65">We can build one around it: tell us your dates and who is travelling, and we will send a route with {l.name} in it.</p>
         </div>
         <a class="inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-deep-green px-7 text-sm font-semibold text-white transition hover:bg-forest" href={planHref}>
           Plan a trip around this stay <ArrowRight size={16} />

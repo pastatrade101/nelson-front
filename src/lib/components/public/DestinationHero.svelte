@@ -72,10 +72,10 @@
       <span class="text-white/40">/</span>
       <span class="font-medium text-white/90">{destination.name}</span>
     </nav>
-    <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">{regionLine}</p>
-    <h1 class="mt-4 max-w-4xl font-serif text-[40px] font-light leading-[1.08] sm:text-[56px] lg:text-[64px]">{destination.name}</h1>
+    <p class="eyebrow text-goldfinch-gold">{regionLine}</p>
+    <h1 class="type-h1 mt-4 max-w-4xl">{destination.name}</h1>
     {#if destination.short_description}
-      <p class="mt-5 max-w-2xl text-base leading-8 text-white/85 md:text-lg">{destination.short_description}</p>
+      <p class="type-lead mt-5 max-w-2xl text-white/85">{destination.short_description}</p>
     {/if}
     <div class="mt-8 flex flex-wrap gap-3">
       <a class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-deep-green transition hover:bg-savanna" href={`/plan-my-trip?destination=${destination.slug}`}>
@@ -94,14 +94,14 @@
 <section id="overview" class="container-shell scroll-mt-[calc(var(--nav-h)+96px)] py-12 md:py-16">
   <div class={destScores ? 'grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16' : ''}>
     <div class="min-w-0 max-w-3xl">
-      <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-clay">Overview</p>
-      <h2 class="mt-3 font-serif text-3xl font-light text-heading md:text-[40px]">Why go to {destination.name}</h2>
+      <p class="eyebrow text-clay">Overview</p>
+      <h2 class="type-h2 mt-3 text-heading">Why go to {destination.name}</h2>
         <!-- RichText, so links written in the CMS render as real anchors. It
              also handles the plain text that predates the editor, so existing
              descriptions keep working unchanged. -->
-        <RichText value={destination.description} className="mt-5 text-base leading-8 text-ink/75" />
+        <RichText value={destination.description} className="mt-5 text-base leading-[1.75] text-ink/75" />
       {#if heroChips.length}
-        <p class="mt-5 text-xs font-medium leading-6 text-forest">{heroChips.join(' · ')}</p>
+        <p class="mt-5 text-sm font-medium leading-[1.6] text-forest">{heroChips.join(' · ')}</p>
       {/if}
       <div class="mt-7 flex flex-wrap gap-3">
         {#if destination.country}
@@ -138,7 +138,7 @@
       <div class="content-start">
         <div class="border border-ink/10 bg-surface p-6 shadow-soft">
           <div class="flex items-center justify-between gap-3">
-            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">How {destination.name} scores</p>
+            <p class="eyebrow text-clay">How {destination.name} scores</p>
             <a class="text-xs font-semibold text-forest transition hover:text-heading" href="/destination-scores">Compare all</a>
           </div>
           <div class="mt-4"><ScoreBars scores={destScores} /></div>

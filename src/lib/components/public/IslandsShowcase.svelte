@@ -19,9 +19,9 @@
 
 {#if lead}
   <section class="container-shell py-14 md:py-20">
-    <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-clay">{eyebrow}</p>
-    <h2 class="mt-3 max-w-3xl font-serif text-3xl font-light lowercase text-heading md:text-[44px]">{title}</h2>
-    <p class="mt-4 max-w-2xl text-base leading-8 text-ink/70">{intro}</p>
+    <p class="eyebrow text-clay">{eyebrow}</p>
+    <h2 class="type-h2 mt-3 max-w-3xl lowercase text-heading">{title}</h2>
+    <p class="mt-4 max-w-2xl text-base leading-[1.75] text-ink/70">{intro}</p>
 
     <div class="mt-10 grid gap-4 lg:grid-cols-2 lg:grid-rows-2">
       {#each [lead, ...rest] as d, i (d.id)}
@@ -46,10 +46,10 @@
           <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,32,40,0.15)_0%,rgba(11,26,32,0.55)_55%,rgba(11,22,28,0.92)_100%)]"></span>
 
           <div class="relative z-10">
-            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">{d.region || 'Indian Ocean'}</p>
-            <h3 class={`mt-2 font-serif font-light lowercase leading-[1.05] ${i === 0 ? 'text-[34px] md:text-[46px]' : 'text-[26px]'}`}>{d.name}</h3>
+            <p class="eyebrow text-goldfinch-gold">{d.region || 'Indian Ocean'}</p>
+            <h3 class={`mt-2 lowercase ${i === 0 ? 'type-h3' : 'type-card'}`}>{d.name}</h3>
             {#if d.short_description}
-              <p class={`mt-2 max-w-lg leading-6 text-white/80 ${i === 0 ? 'text-[14px] md:text-[15px]' : 'text-[13px] line-clamp-2'}`}>{d.short_description}</p>
+              <p class={`mt-2 max-w-lg text-white/80 ${i === 0 ? 'text-base leading-[1.75]' : 'line-clamp-2 text-sm leading-[1.6]'}`}>{d.short_description}</p>
             {/if}
             {#if chips.length}
               <div class="mt-3 flex flex-wrap gap-1.5">

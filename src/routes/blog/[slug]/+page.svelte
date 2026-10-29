@@ -88,6 +88,8 @@
   {#if loading}
     <LoadingState message="Loading article..." />
   {:else if !post}
+    <!-- The page still needs its one h1 when the article is unavailable. -->
+    <h1 class="type-h1 sr-only">Article not available</h1>
     <ErrorState message="This article is not available. Please refresh in a moment or browse our other stories." />
   {:else}
     <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Expert Advice', path: '/expert-advice' }, { name: post.title, path: `/blog/${post.slug}` }])} />
@@ -99,8 +101,8 @@
 
     <div class="max-w-3xl">
       <p class="font-serif text-lg italic text-clay">{post.author_name ?? 'Tour Team'}</p>
-      <h1 class="mt-3 text-4xl font-bold tracking-normal text-ink">{post.title}</h1>
-      <p class="mt-4 text-lg leading-8 text-ink/70">{post.excerpt}</p>
+      <h1 class="type-h1 mt-3 text-ink">{post.title}</h1>
+      <p class="type-lead mt-4 text-ink/70">{post.excerpt}</p>
     </div>
     {#if post.featured_image_url}
       <ResponsiveImage imgClass="mt-8 aspect-[16/8] w-full rounded-lg object-cover shadow-soft" src={post.featured_image_url} fallbackSrc={thumbUrl(post, 'featured_image_url')} alt={post.title} sizes="100vw" eager priority />

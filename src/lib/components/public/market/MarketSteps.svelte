@@ -39,7 +39,7 @@
             <p class="brand-eyebrow">{eyebrow}</p>
           {/if}
           {#if title}
-            <h2 class="mt-4 font-serif text-[32px] font-light leading-[1.1] text-heading md:text-[44px]">{title}</h2>
+            <h2 class="type-h2 mt-4 text-heading">{title}</h2>
           {/if}
         </div>
       {/if}
@@ -51,10 +51,10 @@
               {index(i)}
             </span>
             {#if step.title}
-              <h3 class="mt-5 font-serif text-[21px] font-light leading-snug text-heading md:text-[23px]">{step.title}</h3>
+              <h3 class="type-card mt-5 text-heading">{step.title}</h3>
             {/if}
             {#if step.body}
-              <p class="mt-3 text-[14.5px] leading-7 text-ink/70">{step.body}</p>
+              <p class="mt-3 text-base leading-[1.75] text-ink/70">{step.body}</p>
             {/if}
           </li>
         {/each}

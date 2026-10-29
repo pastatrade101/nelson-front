@@ -31,7 +31,7 @@
     {#if tier.label}
       <span class="absolute left-4 top-4 max-w-[calc(100%-32px)] bg-goldfinch-gold px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-deep-green">{tier.label}</span>
     {/if}
-    <h3 class="absolute inset-x-0 bottom-0 px-5 pb-5 font-serif text-[30px] font-light leading-tight text-white">{tier.title}</h3>
+    <h3 class="type-card absolute inset-x-0 bottom-0 px-5 pb-5 text-white">{tier.title}</h3>
   </div>
 
   <div class="flex flex-1 flex-col p-5 sm:p-6">
@@ -46,14 +46,14 @@
     {#if tier.highlights.length}
       <ul class="mt-5 space-y-2">
         {#each tier.highlights as highlight, i (i)}
-          <li class="flex items-start gap-2 text-[13px] leading-6 text-ink/75"><Check size={14} class="mt-1 shrink-0 text-clay" /><span class="min-w-0 break-words">{highlight}</span></li>
+          <li class="flex items-start gap-2 text-sm leading-[1.6] text-ink/75"><Check size={14} class="mt-1 shrink-0 text-clay" /><span class="min-w-0 break-words">{highlight}</span></li>
         {/each}
       </ul>
     {/if}
 
     {#if tier.notes.length}
-      <div class="mt-4 space-y-2 text-[13px] leading-6 text-ink/70">
-        {#each tier.notes as note, i (i)}<p class="break-words">{note}</p>{/each}
+      <div class="mt-4 space-y-2 text-sm text-ink/70">
+        {#each tier.notes as note, i (i)}<p class="break-words leading-[1.6]">{note}</p>{/each}
       </div>
     {/if}
 

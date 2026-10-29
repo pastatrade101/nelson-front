@@ -264,9 +264,9 @@
   {/if}
   <span class="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/40 to-ink/10" aria-hidden="true"></span>
   <div class="container-shell relative z-10 max-w-3xl pb-10 pt-24">
-    <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/75">Emnel Adventures Africa</p>
-    <h1 class="mt-2 font-serif text-4xl font-light leading-tight md:text-5xl">Guest Information Form</h1>
-    <p class="mt-3 max-w-lg text-[15px] leading-7 text-white/85">
+    <p class="eyebrow text-white/75">Emnel Adventures Africa</p>
+    <h1 class="type-h1 mt-2">Guest Information Form</h1>
+    <p class="type-lead mt-3 max-w-lg text-white/85">
       A few details from each traveller, and we take care of the lodges, flights and permits from here.
     </p>
   </div>
@@ -278,9 +278,9 @@
 
   {:else if loadError}
     <div class="border border-red-300 bg-red-50 px-6 py-8">
-      <h2 class="font-serif text-2xl font-light text-red-800">We could not open this form</h2>
-      <p class="mt-2 text-sm leading-7 text-ink/70">{loadError}</p>
-      <p class="mt-4 text-sm text-ink/70">
+      <h2 class="type-card text-red-800">We could not open this form</h2>
+      <p class="mt-2 text-base leading-[1.75] text-ink/70">{loadError}</p>
+      <p class="mt-4 text-base leading-[1.75] text-ink/70">
         Please reply to the message that brought you here, or WhatsApp us on
         <a class="font-semibold underline" href="https://wa.me/255712527929">+255 712 527 929</a>.
       </p>
@@ -288,8 +288,8 @@
 
   {:else if sent}
     <div class="border border-forest bg-forest/5 px-6 py-8 md:px-7">
-      <h2 class="font-serif text-2xl font-light text-forest">Received &mdash; thank you.</h2>
-      <p class="mt-2 text-sm leading-7 text-ink/70">
+      <h2 class="type-card text-forest">Received &mdash; thank you.</h2>
+      <p class="mt-2 text-base leading-[1.75] text-ink/70">
         We have your guest details and will confirm your lodges, flights and permits from here. If anything
         changes before you travel, simply reopen this link and update it.
       </p>
@@ -302,7 +302,7 @@
 
   {:else}
     {#if locked}
-      <div class="mb-6 border border-clay/40 bg-clay/5 px-5 py-4 text-sm leading-6 text-ink/75">
+      <div class="mb-6 border border-clay/40 bg-clay/5 px-5 py-4 text-sm leading-[1.6] text-ink/75">
         These details have been confirmed with the lodges and airlines, so the form is now read-only.
         If something needs correcting, please contact us and we will change it for you.
       </div>
@@ -311,24 +311,24 @@
     <!-- ── Intro ──────────────────────────────────────────────────────────── -->
     <div class="{CARD} mb-5">
       <p class="font-serif text-lg font-light text-ink">Thank you for choosing Emnel Adventures Africa for your upcoming journey.</p>
-      <p class="mt-3 text-sm leading-7 text-ink/70">
+      <p class="mt-3 text-base leading-[1.75] text-ink/70">
         To finalise your reservations we ask that you complete the guest information below. These details are required for:
       </p>
-      <ul class="mt-2 grid gap-1 pl-5 text-sm leading-7 text-ink/70">
+      <ul class="mt-2 grid gap-1 pl-5 text-base leading-[1.75] text-ink/70">
         <li class="list-disc">Lodge and camp reservations</li>
         <li class="list-disc">Domestic flight bookings</li>
         <li class="list-disc">National park permits</li>
         <li class="list-disc">Ferry or transfer tickets where applicable</li>
       </ul>
-      <p class="mt-3 text-sm leading-7 text-ink/70">
+      <p class="mt-3 text-base leading-[1.75] text-ink/70">
         Having them in advance lets our team prepare everything before you arrive, so the journey itself is unhurried.
       </p>
-      <p class="mt-3 text-sm leading-7 text-ink/70">
+      <p class="mt-3 text-base leading-[1.75] text-ink/70">
         <strong class="font-semibold text-ink">Important:</strong> please enter names, dates of birth and passport
         numbers exactly as they appear on each passport. Airlines and park authorities will reject permits and
         tickets that do not match.
       </p>
-      <p class="mt-3 text-sm leading-7 text-ink/70">
+      <p class="mt-3 text-base leading-[1.75] text-ink/70">
         Everything you share here is kept strictly confidential and used only to manage your travel arrangements.
       </p>
     </div>
@@ -337,8 +337,8 @@
 
     <!-- ── Booking ────────────────────────────────────────────────────────── -->
     <section class="{CARD} mb-5">
-      <h2 class="font-serif text-xl font-light text-ink">Booking</h2>
-      <p class="mt-1 text-sm text-ink/50">So we can match this form to your reservation.</p>
+      <h2 class="type-card text-ink">Booking</h2>
+      <p class="mt-1 text-sm leading-[1.6] text-ink/50">So we can match this form to your reservation.</p>
       <div class="mt-5 grid gap-4 sm:grid-cols-2">
         <div>
           <label class={LABEL} for="ref">Booking reference <span class="font-normal text-ink/45">(from your confirmation)</span></label>
@@ -354,8 +354,8 @@
 
     <!-- ── Travel dates ───────────────────────────────────────────────────── -->
     <section class="{CARD} mb-5">
-      <h2 class="font-serif text-xl font-light text-ink">Travel dates</h2>
-      <p class="mt-1 text-sm text-ink/50">Your arrival into and departure from Tanzania.</p>
+      <h2 class="type-card text-ink">Travel dates</h2>
+      <p class="mt-1 text-sm leading-[1.6] text-ink/50">Your arrival into and departure from Tanzania.</p>
       <div class="mt-5 grid gap-4 sm:grid-cols-2">
         <div data-invalid={bad('arrival_date')}>
           <label class={LABEL} for="arr">Arrival date *</label>
@@ -382,8 +382,8 @@
 
     <!-- ── Travellers ─────────────────────────────────────────────────────── -->
     <section class="{CARD} mb-5">
-      <h2 class="font-serif text-xl font-light text-ink">Guests</h2>
-      <p class="mt-1 text-sm text-ink/50">
+      <h2 class="type-card text-ink">Guests</h2>
+      <p class="mt-1 text-sm leading-[1.6] text-ink/50">
         One entry per traveller, including children. Passport details, then preferences and health for that person.
       </p>
 
@@ -504,8 +504,8 @@
 
     <!-- ── Emergency contact ──────────────────────────────────────────────── -->
     <section class="{CARD} mb-5">
-      <h2 class="font-serif text-xl font-light text-ink">Emergency contact</h2>
-      <p class="mt-1 text-sm text-ink/50">Someone at home we can reach if we ever need to.</p>
+      <h2 class="type-card text-ink">Emergency contact</h2>
+      <p class="mt-1 text-sm leading-[1.6] text-ink/50">Someone at home we can reach if we ever need to.</p>
       <div class="mt-5 grid gap-4 sm:grid-cols-2">
         <div data-invalid={bad('emergency_name')}>
           <label class={LABEL} for="ecn">Name *</label>
@@ -554,7 +554,7 @@
         >
           {saving ? 'Sending…' : 'Send guest details'}
         </button>
-        <p class="text-xs text-ink/55">
+        <p class="text-sm leading-[1.6] text-ink/55">
           Questions? WhatsApp Nelson on +255 712 527 929 or email safari@emneladventures.com
         </p>
       </div>

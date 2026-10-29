@@ -150,15 +150,16 @@
         <a class="transition hover:text-goldfinch-gold" href="/travel-styles">Travel styles</a>
       </nav>
 
-      <p class="mt-8 text-[11px] font-semibold uppercase tracking-[0.26em] text-goldfinch-gold">A journey shaped around you</p>
-      <h1 class="mt-4 max-w-[15ch] font-serif text-[clamp(2.75rem,6vw,5.5rem)] font-light leading-[1.02]">
+      <p class="eyebrow mt-8 text-goldfinch-gold">A journey shaped around you</p>
+      <h1 class="type-h1 mt-4 max-w-[15ch]">
         {style.name}
       </h1>
+      <!-- The promise is the standfirst (lead); without one, the description takes that role. -->
       {#if style.emotional_promise?.trim()}
-        <p class="mt-5 max-w-[38ch] font-serif text-[23px] font-light leading-snug text-white/95 md:text-[30px]">{style.emotional_promise}</p>
+        <p class="type-lead mt-5 max-w-[38ch] text-white/95">{style.emotional_promise}</p>
       {/if}
       {#if style.description}
-        <p class="mt-5 max-w-[58ch] text-[15px] leading-7 text-white/80 md:text-[16px]">{style.description}</p>
+        <p class={`mt-5 max-w-[58ch] text-white/80 ${style.emotional_promise?.trim() ? 'text-base leading-[1.75]' : 'type-lead'}`}>{style.description}</p>
       {/if}
 
       <div class="mt-8 grid gap-3 min-[400px]:flex min-[400px]:flex-wrap">
@@ -175,7 +176,7 @@
     {#if model.trust.length}
       <ul class="mt-9 grid gap-x-8 gap-y-3 border-t border-white/20 pt-6 sm:grid-cols-2 lg:grid-cols-4">
         {#each model.trust as item, k (k)}
-          <li class="flex items-start gap-3 text-[13px] leading-6 text-white/90">
+          <li class="flex items-start gap-3 text-sm leading-[1.6] text-white/90">
             <Check class="mt-1 h-4 w-4 shrink-0 text-goldfinch-gold" strokeWidth={2.4} />
             {item}
           </li>
@@ -245,16 +246,16 @@
       {#if desires.length}
         <div class="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-16">
           <div class="lg:col-span-6">
-            <p class="text-[11px] font-medium uppercase tracking-[0.26em] text-clay">Designed around you</p>
-            <h2 class="mt-4 font-serif text-[32px] font-light leading-[1.08] text-heading md:text-[44px]">Everything this trip is built around</h2>
+            <p class="eyebrow text-clay">Designed around you</p>
+            <h2 class="type-h2 mt-4 text-heading">Everything this trip is built around</h2>
           </div>
-          <p class="max-w-[56ch] text-[15px] leading-7 text-ink/65 lg:col-span-6">
+          <p class="max-w-[56ch] text-base leading-[1.75] text-ink/65 lg:col-span-6">
             What travellers like you tell us matters most, and what every itinerary in this style is planned to deliver.
           </p>
         </div>
         <ul class="mt-12 grid gap-x-10 border-t border-ink/10 sm:grid-cols-2 lg:grid-cols-3 md:mt-14">
           {#each desires as d, k (k)}
-            <li class="flex items-start gap-3.5 border-b border-ink/10 py-4 text-[15px] leading-6 text-ink/80">
+            <li class="flex items-start gap-3.5 border-b border-ink/10 py-4 text-base leading-[1.75] text-ink/80">
               <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center bg-deep-green/10">
                 <Check class="h-3 w-3 text-deep-green" strokeWidth={3} />
               </span>
@@ -266,7 +267,7 @@
 
       {#if showConcerns}
         <div class={desires.length ? 'mt-20' : ''}>
-          <p class="text-[11px] font-medium uppercase tracking-[0.26em] text-clay">What we plan around</p>
+          <p class="eyebrow text-clay">What we plan around</p>
           <div class="mt-8 grid gap-8 md:grid-cols-3">
             {#each concerns as c, k (k)}
               <blockquote class="border-l-2 border-goldfinch-gold/60 pl-5 font-serif text-[21px] font-light leading-[1.45] text-heading">“{c}”</blockquote>
@@ -291,8 +292,8 @@
     <div class="container-shell">
       <div class="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-[0.26em] text-clay">Itineraries</p>
-          <h2 class="mt-4 font-serif text-[32px] font-light leading-[1.08] text-heading md:text-[44px]">Somewhere to start</h2>
+          <p class="eyebrow text-clay">Itineraries</p>
+          <h2 class="type-h2 mt-4 text-heading">Somewhere to start</h2>
         </div>
         <a class="group inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href={toursHref}>
           Browse all itineraries
@@ -327,8 +328,8 @@
     <div class="container-shell">
       <div class="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p class="text-[11px] font-medium uppercase tracking-[0.26em] text-clay">Other ways to travel</p>
-          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">Explore another travel style</h2>
+          <p class="eyebrow text-clay">Other ways to travel</p>
+          <h2 class="type-h2 mt-4 text-heading">Explore another travel style</h2>
         </div>
         <a class="group inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href="/travel-styles">
           All travel styles
@@ -344,8 +345,8 @@
               <div class="absolute inset-0 -z-10 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent"></div>
               <div class="flex w-full items-end justify-between gap-4">
                 <div class="min-w-0">
-                  <span class="font-serif text-[26px] font-light leading-tight text-white">{o.name}</span>
-                  {#if o.emotional_promise}<p class="mt-1 truncate text-[13px] text-white/70">{o.emotional_promise}</p>{/if}
+                  <h3 class="type-card text-white">{o.name}</h3>
+                  {#if o.emotional_promise}<p class="mt-1 truncate text-sm leading-[1.6] text-white/70">{o.emotional_promise}</p>{/if}
                 </div>
                 <ArrowUpRight class="h-5 w-5 shrink-0 text-white/70 transition group-hover:text-goldfinch-gold" />
               </div>
@@ -354,8 +355,8 @@
             <!-- No image: a quiet text tile rather than an empty colour block. -->
             <a class="group flex min-w-0 items-center justify-between gap-4 border border-ink/10 bg-surface px-6 py-6 transition hover:border-goldfinch-gold/60 hover:bg-linen/40" href={`/travel-styles/${o.slug}`}>
               <div class="min-w-0">
-                <span class="font-serif text-[24px] font-light leading-tight text-heading">{o.name}</span>
-                {#if o.emotional_promise}<p class="mt-1 truncate text-[13px] text-ink/55">{o.emotional_promise}</p>{/if}
+                <h3 class="type-card text-heading">{o.name}</h3>
+                {#if o.emotional_promise}<p class="mt-1 truncate text-sm leading-[1.6] text-ink/55">{o.emotional_promise}</p>{/if}
               </div>
               <ArrowUpRight class="h-5 w-5 shrink-0 text-ink/30 transition group-hover:text-deep-green" />
             </a>

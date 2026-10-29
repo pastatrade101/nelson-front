@@ -167,8 +167,8 @@
         </span>
       {/if}
       <div class="rise absolute inset-x-4 bottom-3" style="--d:60ms">
-        {#if eyebrow}<p class="text-[10px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">{eyebrow}</p>{/if}
-        <p class="mt-1 font-serif text-[22px] leading-tight text-white">{lodge.name}</p>
+        {#if eyebrow}<p class="eyebrow text-goldfinch-gold">{eyebrow}</p>{/if}
+        <p class="type-card mt-1 text-white">{lodge.name}</p>
       </div>
     </div>
 
@@ -180,7 +180,7 @@
         <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-clay">{bestFor}</p>
       {/if}
       {#if full.short_description}
-        <p class="mt-2 line-clamp-3 text-[13px] leading-[1.6] text-ink/70">{full.short_description}</p>
+        <p class="mt-2 line-clamp-3 text-sm leading-[1.6] text-ink/70">{full.short_description}</p>
       {/if}
 
       {#if features.length}

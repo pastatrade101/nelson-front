@@ -18,6 +18,8 @@
 <section class="container-shell py-14">
   <!-- The page's own title, as an h1: an index with no h1 reads as a stub to search engines. -->
   <SectionHeader as="h1" eyebrow="Journal" title="Travel Notes" description="Travel notes and planning advice from Emnel Adventures." />
+  <!-- The list's own (visually hidden) h2 keeps the outline H1 → H2 → H3 card titles. -->
+  <h2 class="type-h2 sr-only">All travel notes</h2>
   {#if loadFailed}
     <ErrorState message="We could not load the blog right now. Please refresh in a moment." />
   {:else if posts.length}

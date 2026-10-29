@@ -25,14 +25,17 @@
   <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Experiences</p>
-    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-serif font-light leading-[1.1] md:text-[44px]" use:revealHeading>What do you want to experience?</h1>
-    <p class="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">
+    <h1 class="type-h1 mx-auto mt-5 max-w-3xl" use:revealHeading>What do you want to experience?</h1>
+    <p class="type-lead mx-auto mt-4 max-w-2xl text-white/75">
       Safari, Kilimanjaro or Zanzibar beach — start from the experience and we'll match the right trip.
     </p>
   </div>
 </section>
 
 <section class="container-shell py-12 md:py-16">
+  <!-- The list's own (visually hidden) h2 keeps the outline H1 → H2 → H3 card titles
+       (EmptyState's title is an h3). -->
+  <h2 class="type-h2 sr-only">All experiences</h2>
   {#if experiences.length === 0}
     <EmptyState title="Experiences coming soon" message="Tell us what you'd love to do and we'll plan it." />
   {:else}
@@ -44,8 +47,8 @@
           {/if}
           <div class="absolute inset-0 bg-gradient-to-t from-deep-green via-deep-green/40 to-transparent"></div>
           <div class="relative p-5 text-white">
-            <h2 class="text-xl font-serif font-normal">{exp.name}</h2>
-            {#if exp.description}<p class="mt-1 line-clamp-2 text-sm text-white/80">{exp.description}</p>{/if}
+            <h3 class="type-card">{exp.name}</h3>
+            {#if exp.description}<p class="mt-1 line-clamp-2 text-sm leading-[1.6] text-white/80">{exp.description}</p>{/if}
             <span class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-goldfinch-gold">Explore {exp.name} <ArrowRight size={15} /></span>
           </div>
         </a>

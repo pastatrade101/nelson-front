@@ -164,10 +164,10 @@
   <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Scheduled Departures</p>
-    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-serif font-light leading-[1.1] tracking-normal md:text-[44px]" use:revealHeading>
+    <h1 class="type-h1 mx-auto mt-5 max-w-3xl" use:revealHeading>
       Confirmed Tanzania Safari Departure Dates
     </h1>
-    <p class="mx-auto mt-4 max-w-2xl text-[15px] font-medium leading-7 text-white/75 md:text-lg">
+    <p class="type-lead mx-auto mt-4 max-w-2xl text-white/75">
       Browse our scheduled safari, Kilimanjaro and Zanzibar beach departures with confirmed dates, availability and pricing. Reserve a place or let a local expert tailor your own.
     </p>
   </div>
@@ -202,6 +202,7 @@
 
     <!-- ── results ─────────────────────────────────────────────────────── -->
     <div class="mt-8">
+      <h2 class="type-h2 sr-only">Upcoming departures</h2>
       {#if loading}
         <LoadingState message="Loading departures..." />
       {:else if error}
@@ -234,7 +235,7 @@
               </div>
 
               <div class="flex flex-1 flex-col p-5">
-                <h3 class="text-lg font-serif font-normal leading-snug tracking-normal text-heading">{g.tour.tour_title}</h3>
+                <h3 class="type-card text-heading">{g.tour.tour_title}</h3>
                 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                   {#if g.tour.destination_name}<span class="inline-flex items-center gap-1.5 font-semibold text-clay"><MapPin size={14} />{g.tour.destination_name}</span>{/if}
                   {#if g.tour.duration_days}<span class="inline-flex items-center gap-1.5 text-ink/70"><Clock size={14} class="text-forest" />{g.tour.duration_days} day{g.tour.duration_days === 1 ? '' : 's'}</span>{/if}
@@ -245,7 +246,7 @@
                   <span class="text-xl font-extrabold text-heading">{fmtMoney(g.minPrice, g.currency)}</span>
                 </div>
 
-                <p class="mt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-forest/70">Upcoming departures</p>
+                <p class="eyebrow mt-4 text-forest/70">Upcoming departures</p>
                 <div class="mt-2 divide-y divide-ink/10 overflow-hidden rounded-xl border border-ink/10">
                   {#each dates as dt (dt.id)}
                     <div class="flex items-center justify-between gap-3 px-3 py-2.5">

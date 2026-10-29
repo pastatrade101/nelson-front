@@ -186,16 +186,16 @@
     <div class="flex items-baseline gap-3">
       <span class="font-serif text-[24px] font-light leading-none text-goldfinch-gold">{indexLabel}</span>
       {#if kickerLabel}
-        <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-clay">{kickerLabel}</span>
+        <span class="eyebrow text-clay">{kickerLabel}</span>
       {/if}
     </div>
 
-    <h3 class="mt-2 font-serif text-[22px] font-light leading-snug text-heading">
+    <h3 class="type-card mt-2 text-heading">
       <a {href} on:click={onCardClick} class="transition-colors hover:text-forest">{tour.title}</a>
     </h3>
 
     {#if tour.short_description}
-      <p class="mt-2 line-clamp-2 text-[14px] leading-6 text-ink/70">{tour.short_description}</p>
+      <p class="mt-2 line-clamp-2 text-sm leading-[1.6] text-ink/70">{tour.short_description}</p>
     {/if}
 
     <!-- route — the override stops, else BOTH stored endpoints, else nothing -->
@@ -215,7 +215,7 @@
       <div class="mt-4 border-l-2 border-goldfinch-gold bg-savanna/55 px-3 py-2">
         <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-clay">Best for</p>
         <p
-          class={`mt-0.5 text-[13px] font-semibold leading-5 text-ink/75 ${bestForOverride ? '' : 'capitalize'}`}
+          class={`mt-0.5 text-sm font-semibold leading-[1.6] text-ink/75 ${bestForOverride ? '' : 'capitalize'}`}
         >{bestForLabel}</p>
       </div>
     {/if}

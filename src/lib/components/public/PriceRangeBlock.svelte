@@ -25,8 +25,8 @@
 
 {#if rows.length}
 <div>
-  {#if title}<h2 class="text-center text-3xl font-bold tracking-normal text-ink md:text-4xl">{title}</h2>{/if}
-  {#if subtitle}<p class="mx-auto mt-3 max-w-2xl text-center text-base leading-7 text-ink/65">{subtitle}</p>{/if}
+  {#if title}<h2 class="type-h2 text-center text-ink">{title}</h2>{/if}
+  {#if subtitle}<p class="mx-auto mt-3 max-w-2xl text-center text-base leading-[1.75] text-ink/65">{subtitle}</p>{/if}
 
   <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     {#each rows as row}
@@ -45,7 +45,7 @@
         <div class="relative flex flex-1 flex-col">
           <p class="text-sm font-bold uppercase tracking-[0.14em] text-clay">{row.label}</p>
           <p class="mt-2 text-2xl font-extrabold text-heading">{row.from}</p>
-          {#if row.note}<p class="mt-1.5 text-sm leading-6 text-ink/70">{row.note}</p>{/if}
+          {#if row.note}<p class="mt-1.5 text-sm leading-[1.6] text-ink/70">{row.note}</p>{/if}
           <p class="mt-auto pt-3 text-xs font-medium text-ink/65">per person</p>
         </div>
       </div>
@@ -53,7 +53,7 @@
   </div>
 
   <div class="mt-7 flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-between">
-    <p class="inline-flex items-center gap-2 text-sm text-ink/70">
+    <p class="inline-flex items-center gap-2 text-sm leading-[1.6] text-ink/70">
       <ShieldCheck size={18} class="shrink-0 text-forest" />
       Typical starting prices — your exact cost depends on season, lodges and group size. No hidden costs.
     </p>

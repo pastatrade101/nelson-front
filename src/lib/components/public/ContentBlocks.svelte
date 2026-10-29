@@ -72,9 +72,9 @@
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="max-w-3xl">
             {#if str(block.title)}
-              <h2 class="font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{str(block.title)}</h2>
+              <h2 class="type-h2 text-heading">{str(block.title)}</h2>
             {/if}
-            <RichText value={str(block.body)} className="mt-5 text-[15px] leading-8 text-ink/72 md:text-base" />
+            <RichText value={str(block.body)} className="mt-5 text-base leading-[1.75] text-ink/72" />
           </div>
         </div>
       </section>
@@ -98,10 +98,10 @@
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="max-w-3xl">
             {#if str(block.eyebrow)}
-              <p class="text-xs uppercase tracking-[0.22em] text-goldfinch-gold">{str(block.eyebrow)}</p>
+              <p class="eyebrow text-goldfinch-gold">{str(block.eyebrow)}</p>
             {/if}
             {#if str(block.title)}
-              <h2 class="mt-3 font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{str(block.title)}</h2>
+              <h2 class="type-h2 mt-3 text-heading">{str(block.title)}</h2>
             {/if}
           </div>
         </div>
@@ -164,7 +164,7 @@
       <section class={`${surface(i)} py-14 md:py-20`}>
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           {#if str(block.title)}
-            <h2 class="max-w-3xl font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{str(block.title)}</h2>
+            <h2 class="type-h2 max-w-3xl text-heading">{str(block.title)}</h2>
           {/if}
           <InclusionsGrid {included} {excluded} />
         </div>
@@ -180,13 +180,13 @@
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="max-w-3xl">
             {#if str(block.eyebrow)}
-              <p class="text-xs uppercase tracking-[0.22em] text-goldfinch-gold">{str(block.eyebrow)}</p>
+              <p class="eyebrow text-goldfinch-gold">{str(block.eyebrow)}</p>
             {/if}
             {#if str(block.title)}
-              <h2 class="mt-3 font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{str(block.title)}</h2>
+              <h2 class="type-h2 mt-3 text-heading">{str(block.title)}</h2>
             {/if}
             {#if str(block.intro)}
-              <p class="mt-4 text-[15px] leading-8 text-ink/72">{str(block.intro)}</p>
+              <p class="mt-4 text-base leading-[1.75] text-ink/72">{str(block.intro)}</p>
             {/if}
           </div>
           <div class="mt-10 grid gap-6 md:grid-cols-3">
@@ -205,7 +205,7 @@
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="max-w-3xl">
             {#if str(block.title)}
-              <h2 class="mb-8 font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{str(block.title)}</h2>
+              <h2 class="type-h2 mb-8 text-heading">{str(block.title)}</h2>
             {/if}
             <FAQAccordion {faqs} />
           </div>

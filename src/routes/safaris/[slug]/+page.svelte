@@ -330,11 +330,11 @@
       {#if mp.hero_eyebrow}
         <p class="brand-eyebrow text-goldfinch-gold">{mp.hero_eyebrow}</p>
       {/if}
-      <h1 class="mt-4 max-w-[820px] font-serif text-[36px] font-light leading-[1.05] tracking-normal text-white sm:text-[46px] lg:text-[58px]">
+      <h1 class="type-h1 mt-4 max-w-[820px] text-white">
         {heroTitle}
       </h1>
       {#if mp.hero_subtitle}
-        <p class="mt-5 max-w-[620px] text-[15px] font-medium leading-8 text-white/75 md:text-base">{mp.hero_subtitle}</p>
+        <p class="type-lead mt-5 max-w-[620px] text-white/75">{mp.hero_subtitle}</p>
       {/if}
 
       <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -368,10 +368,10 @@
       <section class="bg-surface py-14 md:py-20">
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           {#if block.title}
-            <h2 class="max-w-3xl font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{block.title}</h2>
+            <h2 class="type-h2 max-w-3xl text-heading">{block.title}</h2>
           {/if}
           {#if block.intro}
-            <p class="mt-4 max-w-3xl text-[15px] font-medium leading-8 text-ink/70 md:text-base">{block.intro}</p>
+            <p class="mt-4 max-w-3xl text-base font-medium leading-[1.75] text-ink/70">{block.intro}</p>
           {/if}
           {#if items.length}
             <dl class="mt-10 grid gap-px border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
@@ -381,7 +381,7 @@
                     <dt class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{item.label}</dt>
                   {/if}
                   {#if item.value}
-                    <dd class="mt-2 text-[15px] leading-7 text-heading">{item.value}</dd>
+                    <dd class="mt-2 text-base leading-[1.75] text-heading">{item.value}</dd>
                   {/if}
                 </div>
               {/each}
@@ -397,7 +397,7 @@
       <section class="bg-sand/40 py-14 md:py-20">
         <div class="container-shell">
           {#if block.title}
-            <h2 class="max-w-3xl font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]" use:fadeUpOnScroll={{ y: 14 }}>
+            <h2 class="type-h2 max-w-3xl text-heading" use:fadeUpOnScroll={{ y: 14 }}>
               {block.title}
             </h2>
           {/if}
@@ -406,10 +406,10 @@
               {#each items as item}
                 <article class="border border-ink/10 bg-surface p-6">
                   {#if item.title}
-                    <h3 class="font-serif text-[20px] font-light text-heading">{item.title}</h3>
+                    <h3 class="type-card text-heading">{item.title}</h3>
                   {/if}
                   {#if item.body}
-                    <p class="mt-3 text-[14.5px] leading-7 text-ink/70">{item.body}</p>
+                    <p class="mt-3 text-base leading-[1.75] text-ink/70">{item.body}</p>
                   {/if}
                 </article>
               {/each}
@@ -430,12 +430,12 @@
               <p class="brand-eyebrow">{block.eyebrow}</p>
             {/if}
             {#if block.title}
-              <h2 class="max-w-3xl font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px] {block.eyebrow ? 'mt-4' : ''}">
+              <h2 class="type-h2 max-w-3xl text-heading {block.eyebrow ? 'mt-4' : ''}">
                 {block.title}
               </h2>
             {/if}
             {#if block.intro}
-              <p class="mt-4 max-w-3xl text-[15px] font-medium leading-8 text-ink/70 md:text-base">{block.intro}</p>
+              <p class="mt-4 max-w-3xl text-base font-medium leading-[1.75] text-ink/70">{block.intro}</p>
             {/if}
           </div>
           <div class="mt-10 grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
@@ -479,7 +479,7 @@
       <section class="bg-surface py-14 md:py-20">
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           {#if block.title}
-            <h2 class="mb-8 max-w-3xl font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{block.title}</h2>
+            <h2 class="type-h2 mb-8 max-w-3xl text-heading">{block.title}</h2>
           {/if}
           <ComparisonTable columns={derived ? derived.columns : (block.columns ?? [])} rows={derived ? derived.rows : rows} />
         </div>
@@ -493,7 +493,7 @@
       <section class="bg-canvas py-14 md:py-20">
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           {#if block.title}
-            <h2 class="max-w-3xl font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{block.title}</h2>
+            <h2 class="type-h2 max-w-3xl text-heading">{block.title}</h2>
           {/if}
           <InclusionsGrid {included} {excluded} />
         </div>
@@ -506,9 +506,9 @@
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="max-w-3xl">
             {#if block.title}
-              <h2 class="font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{block.title}</h2>
+              <h2 class="type-h2 text-heading">{block.title}</h2>
             {/if}
-            <RichText value={block.body} className="mt-5 text-[15px] leading-8 text-ink/72 md:text-base" />
+            <RichText value={block.body} className="mt-5 text-base leading-[1.75] text-ink/72" />
           </div>
         </div>
       </section>
@@ -521,7 +521,7 @@
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="max-w-3xl">
             {#if block.title}
-              <h2 class="mb-8 font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">{block.title}</h2>
+              <h2 class="type-h2 mb-8 text-heading">{block.title}</h2>
             {/if}
             <FAQAccordion {faqs} />
           </div>
@@ -635,14 +635,14 @@
   <div class="container-shell grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
     <div use:fadeUpOnScroll={{ y: 14 }}>
       <p class="brand-eyebrow">Start planning</p>
-      <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.12] text-heading md:text-[40px]">
+      <h2 class="type-h2 mt-4 text-heading">
         Request your tailor-made quote
       </h2>
-      <p class="mt-4 max-w-md text-[15px] font-medium leading-8 text-ink/70">
+      <p class="mt-4 max-w-md text-base font-medium leading-[1.75] text-ink/70">
         Tell us how you like to travel and a Tanzania specialist replies with a plan built around your dates. No payment is
         needed to start planning.
       </p>
-      <p class="mt-6 inline-flex items-center gap-2 text-[13px] font-semibold text-forest">
+      <p class="mt-6 inline-flex items-center gap-2 text-sm font-semibold leading-[1.6] text-forest">
         <ShieldCheck size={16} strokeWidth={2.2} /> Local experts in Arusha — you deal with the operator, not a reseller.
       </p>
       <div class="mt-8 max-w-xs">

@@ -51,11 +51,11 @@
   <div class="container-shell">
     <div class="max-w-[760px]">
       <p class="brand-eyebrow">{eyebrow}</p>
-      <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-heading sm:text-[54px] lg:text-[64px]">
+      <h2 class="type-h2 mt-5 text-heading">
         {title}
         <span class="block italic text-goldfinch-gold">{accentTitle}</span>
       </h2>
-      <p class="mt-6 max-w-[700px] text-[15px] font-medium leading-8 text-ink/70 md:text-base">{subtitle}</p>
+      <p class="mt-6 max-w-[700px] text-base leading-[1.75] font-medium text-ink/70">{subtitle}</p>
     </div>
 
     <div class="mt-16 border border-ink/10 bg-surface" use:staggeredCardReveal={{ selector: '.process-card', y: 16, stagger: 0.05 }}>
@@ -66,8 +66,8 @@
               <span class="font-serif text-[52px] font-light leading-none text-goldfinch-gold sm:text-[58px]">{(i + 1).toString().padStart(2, '0')}</span>
               <span class="h-px flex-1 origin-left scale-x-100 bg-gradient-to-r from-goldfinch-gold/50 to-transparent transition-all duration-500 group-hover:from-goldfinch-gold"></span>
             </div>
-            <h3 class="mt-8 font-serif text-[24px] font-normal leading-tight text-heading">{step.title}</h3>
-            <p class="mt-4 text-[15px] font-medium leading-8 text-ink/66">{step.text}</p>
+            <h3 class="type-card mt-8 text-heading">{step.title}</h3>
+            <p class="mt-4 text-base leading-[1.75] font-medium text-ink/66">{step.text}</p>
           </article>
         {/each}
       </div>

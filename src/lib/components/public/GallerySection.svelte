@@ -39,8 +39,8 @@
         <div class="flex flex-wrap items-end justify-between gap-4" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="max-w-2xl">
             <p class="brand-eyebrow">{eyebrow}</p>
-            <h2 id="recent-safaris-heading" class="mt-3 font-serif text-3xl font-normal leading-tight text-heading md:text-[40px]">{title}</h2>
-            <p class="mt-3 text-[15px] font-medium leading-7 text-ink/70 md:text-base">{description}</p>
+            <h2 id="recent-safaris-heading" class="type-h2 mt-3 text-heading">{title}</h2>
+            <p class="mt-3 text-base leading-[1.75] font-medium text-ink/70">{description}</p>
           </div>
           <a class="inline-flex shrink-0 items-center gap-2 border border-forest px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:bg-forest hover:text-white" href="/gallery">
             View full gallery <ArrowRight size={15} strokeWidth={2.5} />
@@ -112,7 +112,7 @@
                 {#if cap}
                   <p class={`mt-1.5 font-semibold leading-tight text-white/90 ${i === 0 ? 'text-sm md:text-base' : 'line-clamp-1 text-[11px] md:text-xs'}`}>{cap}</p>
                 {/if}
-                {#if detail && i === 0}<p class="mt-1 line-clamp-1 text-xs text-white/65">{detail}</p>{/if}
+                {#if detail && i === 0}<p class="mt-1 line-clamp-1 text-sm leading-[1.6] text-white/65">{detail}</p>{/if}
                 {#if tour?.title}
                   <span class="mt-2 inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-goldfinch-gold md:text-[11px]">
                     <Route size={12} strokeWidth={2.4} /> Explore {tour.title}
@@ -133,8 +133,8 @@
           <div class="grid lg:grid-cols-[0.72fr_2.28fr]">
             <div class="border-b border-white/12 p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-9">
               <Quote class="text-goldfinch-gold" size={28} strokeWidth={1.5} />
-              <p class="mt-5 text-[11px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">Traveller Notes</p>
-              <h3 class="mt-3 font-serif text-[28px] font-light leading-tight">Real words from real journeys.</h3>
+              <p class="eyebrow mt-5 text-goldfinch-gold">Traveller Notes</p>
+              <h3 class="type-h3 mt-3">Real words from real journeys.</h3>
             </div>
 
             <div class={`grid ${reviews.length === 1 ? '' : reviews.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>

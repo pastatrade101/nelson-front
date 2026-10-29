@@ -30,9 +30,9 @@
     {/if}
   </div>
   <div class="flex min-w-0 flex-1 flex-col">
-    {#if eyebrow}<p class="truncate text-[10.5px] font-bold uppercase tracking-[0.14em] text-clay">{eyebrow}</p>{/if}
-    <p class="mt-0.5 line-clamp-2 font-serif text-[17px] font-normal leading-snug text-heading">{title}</p>
-    {#if meta}<p class="mt-1 truncate text-[12.5px] text-ink/60">{meta}</p>{/if}
+    {#if eyebrow}<p class="eyebrow truncate text-clay">{eyebrow}</p>{/if}
+    <p class="type-card mt-0.5 line-clamp-2 text-heading">{title}</p>
+    {#if meta}<p class="mt-1 truncate text-sm leading-[1.6] text-ink/60">{meta}</p>{/if}
     <div class="mt-auto flex items-end justify-between gap-2 pt-1.5">
       {#if price}
         <p class="text-[13px] text-ink/70">From <span class="font-semibold text-heading">{price}</span>{#if priceNote}<span class="text-ink/50"> {priceNote}</span>{/if}</p>

@@ -80,17 +80,17 @@
   <div class="container-shell py-20 md:py-28 lg:py-32" use:fadeUpOnScroll={{ y: 18 }}>
     <div class="max-w-2xl">
       {#if eyebrow}
-        <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-goldfinch-gold">{eyebrow}</p>
+        <p class="eyebrow text-goldfinch-gold">{eyebrow}</p>
       {/if}
 
       {#if title}
-        <h2 class={`font-serif text-[34px] font-light leading-[1.08] md:text-[50px] ${eyebrow ? 'mt-5' : ''}`}>
+        <h2 class={`type-h2 ${eyebrow ? 'mt-5' : ''}`}>
           {title}
         </h2>
       {/if}
 
       {#if subtitle}
-        <p class="mt-5 max-w-xl text-[16px] leading-8 text-white/80">
+        <p class="mt-5 max-w-xl text-base leading-[1.75] text-white/80">
           {subtitle}
         </p>
       {/if}

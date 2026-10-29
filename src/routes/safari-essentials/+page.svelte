@@ -49,7 +49,7 @@
     <div class="mt-12 space-y-14">
       {#each groups as group (group.topic)}
         <div>
-          <h2 class="font-serif text-2xl font-light text-heading">{group.topic}</h2>
+          <h2 class="type-h2 text-heading">{group.topic}</h2>
           <div class="mt-6 grid gap-6 md:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.06 }}>
             {#each group.items as article (article.id)}
               <a
@@ -67,9 +67,9 @@
                   </div>
                 {/if}
                 <div class="flex flex-1 flex-col p-6">
-                  <h3 class="font-serif text-xl font-light text-heading">{article.title}</h3>
+                  <h3 class="type-card text-heading">{article.title}</h3>
                   {#if cardSummary(article)}
-                    <p class="mt-3 flex-1 text-sm leading-relaxed text-ink/75">{cardSummary(article)}</p>
+                    <p class="mt-3 flex-1 text-sm leading-[1.6] text-ink/75">{cardSummary(article)}</p>
                   {/if}
                   <span class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-deep-green">
                     Read the guide
@@ -84,7 +84,9 @@
     </div>
   {:else}
     <!-- Every topic is still a draft. Better an honest empty hub than nine
-         placeholder pages competing with the itineraries for the same terms. -->
+         placeholder pages competing with the itineraries for the same terms.
+         The hidden h2 keeps the outline H1 → H2 → H3 (EmptyState's title is an h3). -->
+    <h2 class="type-h2 sr-only">Safari guides</h2>
     <EmptyState
       title="Our guides are being written"
       message="We are writing these properly rather than publishing filler. In the meantime, tell us what you are planning and we will answer it directly."

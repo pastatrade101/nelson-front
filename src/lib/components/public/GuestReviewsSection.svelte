@@ -41,11 +41,11 @@
   <div class="container-shell">
     <div class="max-w-[900px]">
       <p class="brand-eyebrow">{eyebrow}</p>
-      <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-heading sm:text-[54px] lg:text-[64px]">
+      <h2 class="type-h2 mt-5 text-heading">
         {title}
         <span class="block italic text-goldfinch-gold">{accentTitle}</span>
       </h2>
-      <p class="mt-6 text-[15px] font-medium leading-8 text-ink/66 md:text-base">{subtitle}</p>
+      <p class="mt-6 text-base leading-[1.75] font-medium text-ink/66">{subtitle}</p>
     </div>
 
     <div class="mt-14 border border-ink/10 bg-surface" use:staggeredCardReveal={{ selector: '.review-card', y: 16, stagger: 0.06 }}>

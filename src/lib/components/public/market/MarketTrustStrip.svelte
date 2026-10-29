@@ -28,7 +28,7 @@
         {#each shown as item}
           <li class="flex items-center justify-center gap-3 bg-sand px-5 py-6 text-center md:py-7">
             <span class="h-1.5 w-1.5 shrink-0 bg-goldfinch-gold" aria-hidden="true"></span>
-            <span class="text-[11px] font-bold uppercase leading-5 tracking-[0.16em] text-heading">{item.label}</span>
+            <span class="eyebrow text-heading">{item.label}</span>
           </li>
         {/each}
       </ul>

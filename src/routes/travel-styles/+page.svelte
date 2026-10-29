@@ -24,10 +24,10 @@
       <span class="px-2 text-white/25">/</span>
       <span class="text-goldfinch-gold">Travel Styles</span>
     </nav>
-    <h1 class="mt-9 max-w-3xl font-serif text-[38px] font-light leading-[1.06] md:text-[64px]" use:revealHeading>
+    <h1 class="type-h1 mt-9 max-w-3xl" use:revealHeading>
       How do you want to travel?
     </h1>
-    <p class="mt-7 max-w-2xl text-[15px] leading-8 text-white/80 md:text-[17px]">{description}</p>
+    <p class="type-lead mt-7 max-w-2xl text-white/80">{description}</p>
   </div>
 </section>
 
@@ -38,6 +38,7 @@
     {:else if styles.length === 0}
       <EmptyState title="No travel styles yet" message="Our travel styles are being prepared. Please check back soon." />
     {:else}
+      <h2 class="type-h2 sr-only">All travel styles</h2>
       <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.05 }}>
         {#each styles as style (style.slug)}
           <a class="group flex flex-col bg-surface shadow-soft transition duration-300 hover:shadow-lg" href={`/travel-styles/${style.slug}`}>
@@ -53,12 +54,12 @@
               </div>
             {/if}
             <div class="flex flex-1 flex-col p-7">
-              <h2 class="font-serif text-[26px] font-light leading-tight text-heading">{style.name}</h2>
+              <h3 class="type-card text-heading">{style.name}</h3>
               {#if style.emotional_promise}
-                <p class="mt-3 font-serif text-[17px] font-light italic leading-snug text-clay">{style.emotional_promise}</p>
+                <p class="mt-3 font-serif text-lg font-light italic leading-snug text-clay">{style.emotional_promise}</p>
               {/if}
               {#if style.description}
-                <p class="mt-4 flex-1 text-[14px] leading-7 text-ink/70">{style.description}</p>
+                <p class="mt-4 flex-1 text-sm leading-[1.6] text-ink/70">{style.description}</p>
               {/if}
               <span class="mt-7 inline-flex items-center gap-2 border-t border-ink/10 pt-5 text-sm font-medium text-deep-green">
                 Explore {style.name}

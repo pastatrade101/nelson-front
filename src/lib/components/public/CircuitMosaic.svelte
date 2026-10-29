@@ -26,9 +26,9 @@
 </script>
 
 <section class="container-shell py-14 md:py-20">
-  <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-clay">{eyebrow}</p>
-  <h2 class="mt-3 max-w-3xl font-serif text-3xl font-light lowercase text-heading md:text-[44px]">{title}</h2>
-  <p class="mt-4 max-w-2xl text-base leading-8 text-ink/70">{intro}</p>
+  <p class="eyebrow text-clay">{eyebrow}</p>
+  <h2 class="type-h2 mt-3 max-w-3xl lowercase text-heading">{title}</h2>
+  <p class="mt-4 max-w-2xl text-base leading-[1.75] text-ink/70">{intro}</p>
 
   <div class="mt-10 grid gap-px overflow-hidden border border-ink/10 bg-ink/10">
     {#each destinations as d, i (d.id)}
@@ -51,10 +51,10 @@
 
         <!-- facts -->
         <div class={`flex flex-col justify-center p-7 md:p-11 ${i % 2 ? 'md:order-1' : ''}`}>
-          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">{[d.region, d.country].filter(Boolean).join(' · ') || 'Tanzania'}</p>
-          <h3 class="mt-3 font-serif text-[30px] font-light lowercase leading-[1.08] text-heading md:text-[38px]">{d.name}</h3>
+          <p class="eyebrow text-goldfinch-gold">{[d.region, d.country].filter(Boolean).join(' · ') || 'Tanzania'}</p>
+          <h3 class="type-h3 mt-3 lowercase text-heading">{d.name}</h3>
           {#if d.short_description || d.description}
-            <p class="mt-4 max-w-xl text-[15px] leading-7 text-ink/70 line-clamp-3">{d.short_description || d.description}</p>
+            <p class="mt-4 max-w-xl text-base leading-[1.75] text-ink/70 line-clamp-3">{d.short_description || d.description}</p>
           {/if}
 
           {#if chips.length}

@@ -22,7 +22,7 @@
             <p class="brand-eyebrow">{eyebrow}</p>
           {/if}
           {#if title}
-            <h2 class="mt-4 font-serif text-[32px] font-light leading-[1.1] text-heading md:text-[44px]">{title}</h2>
+            <h2 class="type-h2 mt-4 text-heading">{title}</h2>
           {/if}
         </div>
       {/if}
@@ -40,7 +40,7 @@
             />
             {#if image.caption}
               <figcaption
-                class="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,rgba(28,26,22,0)_0%,rgba(28,26,22,0.85)_100%)] p-5 pt-12 text-[13px] font-semibold leading-6 text-white"
+                class="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,rgba(28,26,22,0)_0%,rgba(28,26,22,0.85)_100%)] p-5 pt-12 text-sm font-semibold leading-[1.6] text-white"
               >
                 {image.caption}
               </figcaption>

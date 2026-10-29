@@ -21,8 +21,8 @@
   <div class="flex flex-wrap items-end justify-between gap-4">
     <div>
       <p class="font-serif text-xl italic text-clay">Your shortlist</p>
-      <h1 class="mt-2 text-3xl font-bold tracking-tight text-heading md:text-4xl" use:revealHeading>Saved trips</h1>
-      <p class="mt-2 text-ink/70">
+      <h1 class="type-h1 mt-2 text-heading" use:revealHeading>Saved trips</h1>
+      <p class="type-lead mt-2 text-ink/70">
         {items.length} saved {items.length === 1 ? 'trip' : 'trips'} · we'll keep these for your next visit.
       </p>
     </div>

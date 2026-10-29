@@ -74,14 +74,14 @@
        never pushed off the card). On desktop the details below collapse to zero
        height and expand on hover/focus; on mobile they are always shown. -->
   <div class="relative z-10 p-5 md:p-6">
-    <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold">{region}</p>
-    <h3 class="mt-1.5 font-serif text-[26px] font-light leading-[1.08] md:text-[30px]">{destination.name}</h3>
+    <p class="eyebrow text-goldfinch-gold">{region}</p>
+    <h3 class="type-card mt-1.5">{destination.name}</h3>
 
     <div class="grid grid-rows-[1fr] transition-[grid-template-rows] duration-[520ms] ease-[cubic-bezier(0.22,1,0.36,1)] md:grid-rows-[0fr] md:group-hover:grid-rows-[1fr] md:group-focus-visible:grid-rows-[1fr]">
       <div class="min-h-0 overflow-hidden">
         <div class="opacity-100 transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100 md:group-hover:delay-100 md:group-focus-visible:opacity-100">
           {#if blurb}
-            <p class="mt-2.5 line-clamp-2 text-[13.5px] leading-6 text-white/80">{blurb}</p>
+            <p class="mt-2.5 line-clamp-2 text-sm leading-[1.6] text-white/80">{blurb}</p>
           {/if}
 
           {#if quickFacts.length}

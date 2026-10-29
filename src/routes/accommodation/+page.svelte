@@ -47,9 +47,9 @@
 <section class="bg-deep-green text-white">
   <div class="container-shell grid items-center gap-8 pb-10 pt-28 md:grid-cols-[1.1fr_1fr] md:gap-14 md:pb-14 md:pt-32">
     <div>
-      <p class="text-[11px] font-semibold uppercase tracking-[.2em] text-goldfinch-gold">The Emnel collection</p>
-      <h1 class="mt-4 max-w-xl font-serif text-[42px] font-light leading-[1.05] md:text-6xl">Extraordinary places<br />to stay in Tanzania.</h1>
-      <p class="mt-5 max-w-lg text-base leading-7 text-white/75">Safari lodges, intimate camps and island retreats. Find a stay that feels like you, then let us build the journey around it.</p>
+      <p class="eyebrow text-goldfinch-gold">The Emnel collection</p>
+      <h1 class="type-h1 mt-4 max-w-xl">Extraordinary places<br />to stay in Tanzania.</h1>
+      <p class="type-lead mt-5 max-w-lg text-white/75">Safari lodges, intimate camps and island retreats. Find a stay that feels like you, then let us build the journey around it.</p>
       <a href="#browse" class="mt-7 inline-flex h-11 items-center gap-3 border-b border-goldfinch-gold text-sm font-semibold text-goldfinch-gold">Explore the collection <ArrowRight size={16} /></a>
     </div>
     {#if hero}<div class="relative aspect-[3/2] overflow-hidden rounded-lg"><ResponsiveImage src={origUrl(hero, 'hero_image_url', 'image_url')} fallbackSrc={lodgeImage(hero)} alt={hero.name} width={1000} sizes="(min-width:768px) 45vw, 100vw" eager priority imgClass="h-full w-full object-cover" /><a href={`/accommodation/${hero.slug}`} class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3 rounded-md bg-deep-green/80 px-4 py-3 text-xs text-white">{hero.name}<ArrowRight size={14} /></a></div>{/if}
@@ -57,9 +57,9 @@
 </section>
 
 <section id="browse" class="container-shell scroll-mt-[calc(var(--nav-h,70px)+20px)] py-10 md:py-14" aria-labelledby="browse-title">
-  <div class="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p class="text-[10px] font-semibold uppercase tracking-widest text-clay">Find your place</p><h2 id="browse-title" class="mt-2 font-serif text-3xl text-heading">A stay for every kind of journey</h2></div><a href="/plan-my-trip" class="text-sm font-semibold text-forest underline underline-offset-4">Need help choosing?</a></div>
+  <div class="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p class="eyebrow text-clay">Find your place</p><h2 id="browse-title" class="type-h2 mt-2 text-heading">A stay for every kind of journey</h2></div><a href="/plan-my-trip" class="text-sm font-semibold text-forest underline underline-offset-4">Need help choosing?</a></div>
   {#if data.loadFailed}
-    <div role="alert" class="rounded-lg border border-ink/15 bg-sand p-8"><h3 class="font-serif text-2xl">The collection is temporarily unavailable</h3><p class="mt-2 text-sm text-ink/65">Please reload to try again. Your trip planning can continue with our team.</p><a href="/accommodation" class="mt-4 inline-block font-semibold text-forest underline">Reload accommodation</a></div>
+    <div role="alert" class="rounded-lg border border-ink/15 bg-sand p-8"><h3 class="type-h3">The collection is temporarily unavailable</h3><p class="mt-2 text-base text-ink/65">Please reload to try again. Your trip planning can continue with our team.</p><a href="/accommodation" class="mt-4 inline-block font-semibold text-forest underline">Reload accommodation</a></div>
   {:else}
     <div class="rounded-lg border border-ink/10 bg-sand/40 p-4 md:p-5">
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
@@ -74,7 +74,7 @@
       <div class="flex items-center gap-4">{#if filtered}<button type="button" on:click={clear} class="inline-flex items-center gap-1.5 text-xs font-semibold text-forest"><X size={13} />Clear filters</button>{/if}<label class="flex items-center gap-2 text-xs text-ink/60">Sort by<select bind:value={sortBy} class="max-w-[160px] rounded-md border border-ink/15 bg-surface p-2 text-ink"><option value="recommended">Recommended</option><option value="luxury">Luxury first</option><option value="rated">Our highest rated</option><option value="name">Name (A–Z)</option></select></label></div>
     </div>
     {#if matches.length}<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{#each matches as lodge (lodge.id)}<LodgeCard {lodge} />{/each}</div>
-    {:else}<div class="rounded-lg border border-dashed border-ink/20 px-6 py-16 text-center"><h3 class="font-serif text-3xl">{filtered ? 'No stays match just yet' : 'Our collection is being prepared'}</h3><p class="mx-auto mt-3 max-w-md text-sm leading-6 text-ink/60">{filtered ? 'Try a broader destination or comfort level, or clear the filters to see the full collection.' : 'Speak with our team to find the right accommodation for your route.'}</p>{#if filtered}<button type="button" class="mt-5 rounded-md bg-forest px-5 py-3 text-sm font-semibold text-white" on:click={clear}>Show all stays</button>{/if}</div>{/if}
+    {:else}<div class="rounded-lg border border-dashed border-ink/20 px-6 py-16 text-center"><h3 class="type-h3">{filtered ? 'No stays match just yet' : 'Our collection is being prepared'}</h3><p class="mx-auto mt-3 max-w-md text-base leading-[1.75] text-ink/60">{filtered ? 'Try a broader destination or comfort level, or clear the filters to see the full collection.' : 'Speak with our team to find the right accommodation for your route.'}</p>{#if filtered}<button type="button" class="mt-5 rounded-md bg-forest px-5 py-3 text-sm font-semibold text-white" on:click={clear}>Show all stays</button>{/if}</div>{/if}
   {/if}
 </section>
 

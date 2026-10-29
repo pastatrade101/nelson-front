@@ -126,11 +126,11 @@
     <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.5)_0%,rgba(28,26,22,0.22)_48%,transparent_100%)]"></div>
   {/if}
   <div class="container-shell relative py-20 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-28">
-    <p class="text-[12px] font-bold uppercase tracking-[0.22em] text-goldfinch-gold">Safari Styles</p>
-    <h1 class="mt-4 max-w-3xl font-serif text-4xl font-light leading-[1.06] md:text-6xl" use:revealHeading>
+    <p class="eyebrow text-goldfinch-gold">Safari Styles</p>
+    <h1 class="type-h1 mt-4 max-w-3xl" use:revealHeading>
       Find the safari that fits the way you travel
     </h1>
-    <p class="mt-5 max-w-2xl text-base leading-8 text-white/80 md:text-lg">
+    <p class="type-lead mt-5 max-w-2xl text-white/80">
       Every safari we run is private and built around you — but it starts from a style. However you like to travel,
       here's the one we'd shape a journey around.
     </p>
@@ -161,8 +161,8 @@
   <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16">
     <div>
       <p class="brand-eyebrow">Where every safari begins</p>
-      <h2 class="mt-3 font-serif text-3xl font-light leading-[1.1] text-heading md:text-[42px]">Choose the safari that matches the way you travel.</h2>
-      <p class="mt-5 max-w-md text-[15px] leading-8 text-ink/70">
+      <h2 class="type-h2 mt-3 text-heading">Choose the safari that matches the way you travel.</h2>
+      <p class="mt-5 max-w-md text-base leading-[1.75] text-ink/70">
         A style isn't a fixed package — it's a starting point. Pick the one that fits, and a local specialist shapes the
         route, lodges, pace and timing around you.
       </p>
@@ -172,7 +172,7 @@
         <div class="border border-ink/10 bg-surface p-5 shadow-soft transition-shadow hover:shadow-md">
           <span class="grid h-10 w-10 place-items-center rounded-lg bg-forest/10 text-forest"><svelte:component this={b.icon} size={18} strokeWidth={2} /></span>
           <p class="mt-4 font-serif text-lg text-heading">{b.t}</p>
-          <p class="mt-1.5 text-[13px] leading-6 text-ink/60">{b.d}</p>
+          <p class="mt-1.5 text-sm leading-[1.6] text-ink/60">{b.d}</p>
         </div>
       {/each}
     </div>
@@ -228,9 +228,9 @@
           {/if}
         </div>
         <div class="flex flex-col justify-center p-8 md:p-12">
-          {#if decisionLabel(featured)}<p class="text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">{decisionLabel(featured)}</p>{/if}
-          <h3 class="mt-2 font-serif text-[32px] font-light leading-[1.05] text-heading md:text-[44px]">{featured.name}</h3>
-          {#if featured.description}<p class="mt-4 max-w-lg text-[15px] leading-8 text-ink/70">{blurb(featured.description, 280)}</p>{/if}
+          {#if decisionLabel(featured)}<p class="eyebrow text-goldfinch-gold">{decisionLabel(featured)}</p>{/if}
+          <h3 class="type-h3 mt-2 text-heading">{featured.name}</h3>
+          {#if featured.description}<p class="mt-4 max-w-lg text-base leading-[1.75] text-ink/70">{blurb(featured.description, 280)}</p>{/if}
           {#if featured.highlights?.length}
             <div class="mt-5 flex flex-wrap gap-2">
               {#each featured.highlights.slice(0, 5) as h}<span class="border border-goldfinch-gold/40 bg-goldfinch-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{h}</span>{/each}
@@ -265,11 +265,11 @@
             {/if}
             <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,24,0)_35%,rgba(13,22,20,0.85)_100%)]"></span>
             {#if label}<span class="absolute left-4 top-4 bg-deep-green/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-goldfinch-gold backdrop-blur">{label}</span>{/if}
-            <h3 class="absolute inset-x-5 bottom-4 font-serif text-[26px] font-normal leading-tight text-white">{style.name}</h3>
+            <h3 class="type-card absolute inset-x-5 bottom-4 text-white">{style.name}</h3>
           </div>
           <div class="flex flex-1 flex-col p-6">
-            {#if blurb(style.description)}<p class="text-[14px] leading-7 text-ink/70">{blurb(style.description)}</p>{/if}
-            {#if style.who_its_for}<p class="mt-3 text-[13px] leading-6 text-ink/60"><span class="font-bold text-clay">Best for </span>{blurb(style.who_its_for, 90)}</p>{/if}
+            {#if blurb(style.description)}<p class="text-sm leading-[1.6] text-ink/70">{blurb(style.description)}</p>{/if}
+            {#if style.who_its_for}<p class="mt-3 text-sm leading-[1.6] text-ink/60"><span class="font-bold text-clay">Best for </span>{blurb(style.who_its_for, 90)}</p>{/if}
             {#if style.highlights?.length}
               <div class="mt-4 flex flex-wrap gap-1.5">
                 {#each style.highlights.slice(0, 3) as h}<span class="border border-ink/10 bg-sand/50 px-2.5 py-1 text-[11px] font-semibold text-ink/70">{h}</span>{/each}
@@ -316,11 +316,11 @@
               {/if}
               <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,24,0)_35%,rgba(13,22,20,0.85)_100%)]"></span>
               {#if label}<span class="absolute left-4 top-4 bg-deep-green/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-goldfinch-gold backdrop-blur">{label}</span>{/if}
-              <h3 class="absolute inset-x-5 bottom-4 font-serif text-[26px] font-normal leading-tight text-white">{style.name}</h3>
+              <h3 class="type-card absolute inset-x-5 bottom-4 text-white">{style.name}</h3>
             </div>
             <div class="flex flex-1 flex-col p-6">
-              {#if blurb(style.description)}<p class="text-[14px] leading-7 text-ink/70">{blurb(style.description)}</p>{/if}
-              {#if style.who_its_for}<p class="mt-3 text-[13px] leading-6 text-ink/60"><span class="font-bold text-clay">Best for </span>{blurb(style.who_its_for, 90)}</p>{/if}
+              {#if blurb(style.description)}<p class="text-sm leading-[1.6] text-ink/70">{blurb(style.description)}</p>{/if}
+              {#if style.who_its_for}<p class="mt-3 text-sm leading-[1.6] text-ink/60"><span class="font-bold text-clay">Best for </span>{blurb(style.who_its_for, 90)}</p>{/if}
               {#if style.highlights?.length}
                 <div class="mt-4 flex flex-wrap gap-1.5">
                   {#each style.highlights.slice(0, 3) as h}<span class="border border-ink/10 bg-sand/50 px-2.5 py-1 text-[11px] font-semibold text-ink/70">{h}</span>{/each}

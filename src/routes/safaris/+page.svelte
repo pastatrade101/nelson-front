@@ -44,10 +44,10 @@
       <span class="px-2">/</span>
       <span class="text-goldfinch-gold">By departure market</span>
     </nav>
-    <h1 class="mt-5 max-w-3xl font-serif text-4xl font-light leading-tight md:text-5xl">
+    <h1 class="type-h1 mt-5 max-w-3xl">
       Tanzania safaris, planned around where you fly from
     </h1>
-    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-white/75">
+    <p class="type-lead mt-5 max-w-2xl text-white/75">
       Flight routes, trip length and timing all change depending on where you start. These pages
       are written for a particular departure market rather than translated from a generic one.
     </p>
@@ -79,11 +79,11 @@
         {/if}
         <div class="flex flex-1 flex-col p-6">
           {#if market.hero_eyebrow}
-            <p class="text-xs uppercase tracking-[0.2em] text-goldfinch-gold">{market.hero_eyebrow}</p>
+            <p class="eyebrow text-goldfinch-gold">{market.hero_eyebrow}</p>
           {/if}
-          <h2 class="mt-2 font-serif text-xl font-light text-heading">{cardTitle(market)}</h2>
+          <h3 class="type-card mt-2 text-heading">{cardTitle(market)}</h3>
           {#if cardBlurb(market)}
-            <p class="mt-3 flex-1 text-sm leading-relaxed text-ink/75">{cardBlurb(market)}</p>
+            <p class="mt-3 flex-1 text-sm leading-[1.6] text-ink/75">{cardBlurb(market)}</p>
           {/if}
           <span class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-deep-green">
             View safaris from {market.name}

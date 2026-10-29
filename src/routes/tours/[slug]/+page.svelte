@@ -511,10 +511,10 @@
 
       <div class="max-w-4xl">
         <p class="brand-eyebrow text-goldfinch-gold">{categoryName} · {destinationName}</p>
-        <h1 class="mt-4 max-w-[760px] font-serif text-[36px] font-light leading-[1.04] tracking-normal text-white sm:text-[46px] lg:text-[56px]">
+        <h1 class="type-h1 mt-4 max-w-[760px] text-white">
           {tour.title}
         </h1>
-        <p class="mt-5 line-clamp-3 max-w-[560px] text-[15px] font-medium leading-7 text-white/72 md:text-base">
+        <p class="type-lead mt-5 line-clamp-3 max-w-[560px] text-white/72">
           {toPlainText(tour.short_description ?? tour.full_description)}
         </p>
 
@@ -601,17 +601,17 @@
     <main class="min-w-0 space-y-12 md:space-y-16">
       <!-- Overview -->
       <section id="overview" class="scroll-mt-32">
-        <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> Overview</span>
-        <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">About this safari</h2>
+        <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> Overview</span>
+        <h2 class="type-h2 mt-4 text-heading">About this safari</h2>
 
         <div class="relative mt-6 max-w-[680px]">
           <div bind:this={overviewEl} class={`overflow-hidden ${overviewExpanded ? '' : 'max-h-[7.25rem]'}`}>
             {#if hasRichContent(tour.full_description)}
-              <RichText value={tour.full_description} className="text-[15px] leading-7 text-ink/70" />
+              <RichText value={tour.full_description} className="text-base leading-[1.75] text-ink/70" />
             {:else if hasRichContent(tour.short_description)}
-              <RichText value={tour.short_description} className="text-[15px] leading-7 text-ink/70" />
+              <RichText value={tour.short_description} className="text-base leading-[1.75] text-ink/70" />
             {:else}
-              <p class="text-[15px] leading-7 text-ink/70">
+              <p class="text-base leading-[1.75] text-ink/70">
                 This itinerary is a starting point. The route, pace, lodges, activities and final cost can all be adjusted by the Emnel team around your dates and travel style.
               </p>
             {/if}
@@ -642,10 +642,10 @@
 
         {#if highlights.length}
           <div class="mt-9">
-            <h3 class="font-serif text-[21px] font-light text-heading">Trip highlights</h3>
+            <h3 class="type-h3 text-heading">Trip highlights</h3>
             <ul class="mt-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
               {#each highlights as h}
-                <li class="flex items-start gap-2.5 text-[14.5px] leading-7 text-heading">
+                <li class="flex items-start gap-2.5 text-base leading-[1.75] text-heading">
                   <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-goldfinch-gold"></span>
                   {h}
                 </li>
@@ -662,9 +662,9 @@
       <!-- Day by Day -->
       {#if displayDays.length}
         <section id="itinerary" class="scroll-mt-32">
-          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> The route</span>
-          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">Day by day</h2>
-          <p class="mt-4 max-w-[640px] text-[15px] leading-7 text-ink/70">
+          <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> The route</span>
+          <h2 class="type-h2 mt-4 text-heading">Day by day</h2>
+          <p class="mt-4 max-w-[640px] text-base leading-[1.75] text-ink/70">
             The itinerary stored for this trip. The Emnel team can adjust each day around your dates, lodge preference, flight timing and pace.
           </p>
 
@@ -674,10 +674,10 @@
                 <summary class="tour-day-summary flex cursor-pointer list-none items-center gap-4 p-4">
                   <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-deep-green text-[13px] font-bold text-white">{day.day_number}</span>
                   <div class="min-w-0 flex-1">
-                    <p class="text-[10.5px] font-bold uppercase tracking-[0.16em] text-clay">Day {day.day_number}</p>
-                    <h3 class="mt-0.5 font-serif text-[18px] font-light leading-tight text-heading">{day.title}</h3>
+                    <p class="eyebrow text-clay">Day {day.day_number}</p>
+                    <h3 class="type-card mt-0.5 text-heading">{day.title}</h3>
                     {#if day.accommodation || day.meals}
-                      <p class="mt-0.5 truncate text-[12.5px] text-ink/55">{[day.accommodation, day.meals].filter(Boolean).join(' · ')}</p>
+                      <p class="mt-0.5 truncate text-sm leading-[1.6] text-ink/55">{[day.accommodation, day.meals].filter(Boolean).join(' · ')}</p>
                     {/if}
                   </div>
                   <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-ink/12 text-ink/50 transition duration-300 group-open:rotate-180">
@@ -689,18 +689,18 @@
                     <ResponsiveImage imgClass="mb-6 h-[220px] w-full object-cover sm:h-[300px]" src={day.image_url} fallbackSrc={thumbUrl(day, 'image_url')} width={900} alt={day.title} sizes="(min-width:1024px) 60vw, 100vw" />
                   {/if}
                   {#if hasRichContent(day.description)}
-                    <RichText value={day.description} className="text-[15px] leading-[1.7] text-ink/70" />
+                    <RichText value={day.description} className="text-base leading-[1.75] text-ink/70" />
                   {/if}
                   {#if day.activities || day.accommodation || day.meals}
                     <ul class="mt-6 grid gap-3 border border-ink/10 bg-savanna/45 p-5">
                       {#if day.activities}
-                        <li class="flex gap-2.5 text-[14px] leading-6 text-ink/70"><Compass size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Activities:</span> {day.activities}</span></li>
+                        <li class="flex gap-2.5 text-sm leading-[1.6] text-ink/70"><Compass size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Activities:</span> {day.activities}</span></li>
                       {/if}
                       {#if day.accommodation}
-                        <li class="flex gap-2.5 text-[14px] leading-6 text-ink/70"><BedDouble size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Accommodation:</span> {day.accommodation}</span></li>
+                        <li class="flex gap-2.5 text-sm leading-[1.6] text-ink/70"><BedDouble size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Accommodation:</span> {day.accommodation}</span></li>
                       {/if}
                       {#if day.meals}
-                        <li class="flex gap-2.5 text-[14px] leading-6 text-ink/70"><Utensils size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Meals:</span> {day.meals}</span></li>
+                        <li class="flex gap-2.5 text-sm leading-[1.6] text-ink/70"><Utensils size={16} class="mt-0.5 shrink-0 text-clay" /><span><span class="font-semibold text-heading">Meals:</span> {day.meals}</span></li>
                       {/if}
                     </ul>
                   {/if}
@@ -712,7 +712,7 @@
                   {#if dayActivities(day).length}
                     {@const linked = dayActivities(day)}
                     <div class="mt-5">
-                      <p class="text-[11px] uppercase tracking-[0.2em] text-clay">On this day</p>
+                      <p class="eyebrow text-clay">On this day</p>
                       <div class="mt-3 grid gap-2.5 sm:grid-cols-2">
                         {#each linked as a (a.id)}
                           {@const img = a.hero_image_url || a.image_url}
@@ -729,7 +729,7 @@
                             <div class="min-w-0 py-0.5">
                               <p class="truncate text-[14px] font-semibold text-heading">{a.name}</p>
                               {#if a.duration_label || activityPrice(a)}
-                                <p class="mt-0.5 text-[12.5px] text-ink/60">
+                                <p class="mt-0.5 text-sm leading-[1.6] text-ink/60">
                                   {[a.duration_label, activityPrice(a)].filter(Boolean).join(' · ')}
                                 </p>
                               {/if}
@@ -761,8 +761,8 @@
       <!-- Gallery -->
       {#if galleryImages.length}
         <section id="gallery" class="scroll-mt-32">
-          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> From the field</span>
-          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">A closer look</h2>
+          <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> From the field</span>
+          <h2 class="type-h2 mt-4 text-heading">A closer look</h2>
           <div class="mt-8 grid gap-3 sm:grid-cols-2" use:staggeredCardReveal={{ selector: '.tour-gallery-card', y: 16, stagger: 0.05 }}>
             {#each galleryImages as image (image.id)}
               <figure class="tour-gallery-card group overflow-hidden border border-ink/10 bg-surface">
@@ -770,7 +770,7 @@
                   <ResponsiveImage imgClass="h-full w-full object-cover transition duration-[800ms] group-hover:scale-105" src={image.image_url} fallbackSrc={thumbUrl(image, 'image_url')} width={800} alt={image.alt_text ?? tour.title} sizes="(min-width:1024px) 40vw, (min-width:640px) 50vw, 100vw" />
                 </div>
                 {#if image.caption}
-                  <figcaption class="px-5 py-4 text-[13px] leading-6 text-ink/64">{image.caption}</figcaption>
+                  <figcaption class="px-5 py-4 text-sm leading-[1.6] text-ink/64">{image.caption}</figcaption>
                 {/if}
               </figure>
             {/each}
@@ -781,8 +781,8 @@
       <!-- Inclusions -->
       {#if inclusions.length || exclusions.length}
         <section id="included" class="scroll-mt-32">
-          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> What is covered</span>
-          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">What's included</h2>
+          <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> What is covered</span>
+          <h2 class="type-h2 mt-4 text-heading">What's included</h2>
           <InclusionsGrid included={inclusionTitles} excluded={exclusionTitles} />
         </section>
       {/if}
@@ -790,9 +790,9 @@
       <!-- Prices -->
       {#if priceOptions.length}
         <section id="pricing" class="scroll-mt-32">
-          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> Pricing</span>
-          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">Tour rates</h2>
-          <p class="mt-4 max-w-[640px] text-[15px] leading-7 text-ink/70">
+          <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> Pricing</span>
+          <h2 class="type-h2 mt-4 text-heading">Tour rates</h2>
+          <p class="mt-4 max-w-[640px] text-base leading-[1.75] text-ink/70">
             Indicative rates from the live record. Final pricing is confirmed by the Emnel team around your dates, group size and chosen lodges.
           </p>
 
@@ -811,8 +811,8 @@
                   <tr class={i % 2 === 0 ? 'bg-surface' : 'bg-savanna/35'}>
                     <td class="border-t border-ink/[0.06] px-5 py-4 align-top">
                       <p class="font-semibold text-heading">{option.title}</p>
-                      {#if option.label && option.label !== option.title}<p class="mt-0.5 text-[13px] text-ink/60">{option.label}</p>{/if}
-                      {#if option.description}<p class="mt-1.5 text-[13px] leading-6 text-ink/60">{option.description}</p>{/if}
+                      {#if option.label && option.label !== option.title}<p class="mt-0.5 text-sm leading-[1.6] text-ink/60">{option.label}</p>{/if}
+                      {#if option.description}<p class="mt-1.5 text-sm leading-[1.6] text-ink/60">{option.description}</p>{/if}
                     </td>
                     <td class="border-t border-ink/[0.06] px-5 py-4 align-top text-[13.5px] text-ink/70">{priceTypeLabel(option.price_type)}</td>
                     <td class="border-t border-ink/[0.06] px-5 py-4 text-right align-top font-serif text-[22px] font-light text-heading">{option.price ? formatUsd(option.price, $currency) : 'On request'}</td>
@@ -829,12 +829,12 @@
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="font-semibold text-heading">{option.title}</p>
-                    {#if option.label && option.label !== option.title}<p class="mt-0.5 text-[13px] text-ink/60">{option.label}</p>{/if}
+                    {#if option.label && option.label !== option.title}<p class="mt-0.5 text-sm leading-[1.6] text-ink/60">{option.label}</p>{/if}
                   </div>
                   <span class="shrink-0 border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-clay">{priceTypeLabel(option.price_type)}</span>
                 </div>
                 <p class="mt-3 font-serif text-[26px] font-light text-heading">{option.price ? formatUsd(option.price, $currency) : 'On request'}</p>
-                {#if option.description}<p class="mt-2 text-[13.5px] leading-6 text-ink/62">{option.description}</p>{/if}
+                {#if option.description}<p class="mt-2 text-sm leading-[1.6] text-ink/62">{option.description}</p>{/if}
               </div>
             {/each}
           </div>
@@ -923,8 +923,8 @@
     <section id="faqs" class="scroll-mt-32 border-t border-ink/10 bg-savanna/25 py-14 md:py-20">
       <div class="container-shell">
         <div class="mx-auto max-w-4xl">
-          <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> Good to know</span>
-          <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[38px]">Frequently asked questions</h2>
+          <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> Good to know</span>
+          <h2 class="type-h2 mt-4 text-heading">Frequently asked questions</h2>
 
           <ol class="relative mt-10">
             {#each faqs as faq, i (faq.id)}
@@ -936,8 +936,8 @@
                 {#if i < faqs.length - 1}
                   <span class={`absolute left-[19px] top-11 bottom-1 w-px transition-colors duration-300 ${state === 'complete' ? 'bg-clay' : 'bg-ink/12'}`}></span>
                 {/if}
-                <h3 class="font-serif text-[19px] font-light leading-snug text-heading [overflow-wrap:anywhere] md:text-[22px]">{faq.question}</h3>
-                <RichText value={faq.answer} className="mt-2.5 text-[15px] leading-[1.7] text-ink/70 [overflow-wrap:anywhere]" />
+                <h3 class="type-card text-heading [overflow-wrap:anywhere]">{faq.question}</h3>
+                <RichText value={faq.answer} className="mt-2.5 text-base leading-[1.75] text-ink/70 [overflow-wrap:anywhere]" />
               </li>
             {/each}
           </ol>
@@ -950,11 +950,11 @@
   <section class="border-t border-ink/[0.07] bg-canvas py-14 md:py-20">
     <div class="container-shell grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
       <div>
-        <span class="inline-flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-clay"><span class="h-px w-6 bg-clay"></span> Ask for this route</span>
-        <h2 class="mt-4 font-serif text-[30px] font-light leading-[1.1] text-heading md:text-[40px]">
+        <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> Ask for this route</span>
+        <h2 class="type-h2 mt-4 text-heading">
           Tell us what you're imagining and we'll build it around you.
         </h2>
-        <p class="mt-5 max-w-[540px] text-[15px] leading-7 text-ink/68">
+        <p class="mt-5 max-w-[540px] text-base leading-[1.75] text-ink/68">
           No payment is required to start. Share your email for the full itinerary, or speak directly on WhatsApp for a faster answer.
         </p>
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">

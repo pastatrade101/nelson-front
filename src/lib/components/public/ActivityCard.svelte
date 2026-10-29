@@ -49,14 +49,14 @@
     {/if}
   </div>
   <div class="flex flex-1 flex-col p-5">
-    <p class="text-xs font-semibold uppercase tracking-[0.12em] text-clay">
+    <p class="eyebrow text-clay">
       {categoryLabels[activity.category] ?? activity.category}
     </p>
-    <h3 class="mt-2 text-lg font-bold tracking-normal text-ink">{activity.name}</h3>
+    <h3 class="type-card mt-2 text-ink">{activity.name}</h3>
     {#if activity.why_we_recommend}
-      <p class="mt-2 line-clamp-3 text-sm leading-6 text-ink/70">{activity.why_we_recommend}</p>
+      <p class="mt-2 line-clamp-3 text-sm leading-[1.6] text-ink/70">{activity.why_we_recommend}</p>
     {:else if activity.description}
-      <p class="mt-2 line-clamp-3 text-sm leading-6 text-ink/70">{activity.description}</p>
+      <p class="mt-2 line-clamp-3 text-sm leading-[1.6] text-ink/70">{activity.description}</p>
     {/if}
 
     <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] font-semibold text-ink/70">
@@ -80,7 +80,7 @@
     {/if}
 
     {#if activity.best_season?.length}
-      <p class="mt-2 text-[13px] text-ink/70">
+      <p class="mt-2 text-sm leading-[1.6] text-ink/70">
         <span class="font-semibold text-ink">Best season:</span> {activity.best_season.join(', ')}
       </p>
     {/if}

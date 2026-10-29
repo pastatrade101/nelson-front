@@ -25,10 +25,10 @@
     <div class="absolute right-3 top-3 z-10"><ShortlistButton item={shortlistItem} /></div>
   </div>
   <div class="flex flex-1 flex-col p-5 md:p-6">
-    <p class="text-[10px] font-semibold uppercase tracking-[.16em] text-clay">{levelLabel(lodge)} · {typeLabel(lodge)}</p>
-    <h3 class="mt-2 font-serif text-2xl leading-tight text-heading"><a class="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-forest" href={`/accommodation/${lodge.slug}`}>{lodge.name}</a></h3>
+    <p class="eyebrow text-clay">{levelLabel(lodge)} · {typeLabel(lodge)}</p>
+    <h3 class="type-card mt-2 text-heading"><a class="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-forest" href={`/accommodation/${lodge.slug}`}>{lodge.name}</a></h3>
     {#if place}<p class="mt-2 flex items-start gap-1.5 text-xs text-ink/55"><MapPin size={13} class="shrink-0" />{place}</p>{/if}
-    {#if teaser}<p class="mt-4 line-clamp-3 text-sm leading-6 text-ink/65">{teaser}</p>{/if}
+    {#if teaser}<p class="mt-4 line-clamp-3 text-sm leading-[1.6] text-ink/65">{teaser}</p>{/if}
     <div class="mt-auto flex items-end justify-between gap-3 pt-6">
       <span class="inline-flex items-center gap-2 text-xs font-semibold text-forest">Explore this stay <ArrowRight size={14} /></span>
       {#if lodge.show_rates_publicly === true && lodge.price_per_night_from != null}<span class="text-right text-xs text-ink/60">From {lodge.currency || 'USD'} {Number(lodge.price_per_night_from).toLocaleString()}<br /><span class="text-[10px]">per night</span></span>{/if}

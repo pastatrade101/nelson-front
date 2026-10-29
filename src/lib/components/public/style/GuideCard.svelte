@@ -38,12 +38,12 @@
         <span class="grid h-12 w-12 shrink-0 place-items-center border border-goldfinch-gold/35 bg-linen/60 font-serif text-xl text-clay" aria-hidden="true">{initials}</span>
       {/if}
       <div class="min-w-0">
-        {#if person.role}<p class="text-[10px] font-semibold uppercase leading-[1.7] tracking-[0.16em] text-clay">{person.role}</p>{/if}
-        <h3 class="mt-2 break-words font-serif text-[28px] font-light leading-[1.15] text-heading">{person.name}</h3>
+        {#if person.role}<p class="eyebrow text-clay">{person.role}</p>{/if}
+        <h3 class="type-card mt-2 break-words text-heading">{person.name}</h3>
       </div>
     </div>
     {#if person.paragraphs.length}
-      <div class="mt-6 space-y-3 border-t border-ink/10 pt-5 text-[14px] leading-[1.85] text-ink/75 sm:text-[15px]">
+      <div class="mt-6 space-y-3 border-t border-ink/10 pt-5 text-base leading-[1.75] text-ink/75">
         {#each person.paragraphs as paragraph, i (i)}
           <p class="break-words">{paragraph}</p>
         {/each}

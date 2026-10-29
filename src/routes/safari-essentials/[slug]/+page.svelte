@@ -68,13 +68,13 @@
 
     <header class="mt-6 max-w-3xl">
       {#if article.topic}
-        <p class="text-xs uppercase tracking-[0.2em] text-goldfinch-gold">{article.topic}</p>
+        <p class="eyebrow text-goldfinch-gold">{article.topic}</p>
       {/if}
-      <h1 class="mt-3 font-serif text-4xl font-light leading-tight text-heading md:text-5xl">
+      <h1 class="type-h1 mt-3 text-heading">
         {article.title}
       </h1>
       {#if article.summary}
-        <p class="mt-5 text-lg leading-relaxed text-ink/75">{article.summary}</p>
+        <p class="type-lead mt-5 text-ink/75">{article.summary}</p>
       {/if}
     </header>
 
@@ -85,7 +85,7 @@
     {/if}
 
     <div class="mt-14 max-w-3xl border-t border-ink/10 pt-10">
-      <h2 class="font-serif text-2xl font-light text-heading">Still deciding?</h2>
+      <h2 class="type-h2 text-heading">Still deciding?</h2>
       <p class="mt-3 text-ink/75">
         Tell us roughly when you want to travel and we will tell you honestly whether it works.
       </p>
@@ -102,29 +102,31 @@
 </article>
 
 <style>
-  /* Article body typography. Longer measure and larger type than the legal
-     pages: these are read end-to-end, not scanned for a clause. */
+  /* Article body typography, on the public type scale (app.css): CMS h2/h3
+     use the H2/H3 steps, body copy the 16px body step. */
   .essential-prose :global(h2) {
     margin-top: 2.5rem;
-    font-family: var(--font-serif, 'Cormorant Garamond', serif);
-    font-size: 1.75rem;
+    font-family: var(--font-heading);
+    font-size: var(--fs-h2);
     font-weight: 300;
+    line-height: 1.15;
     color: rgb(var(--c-heading));
-    letter-spacing: -0.01em;
   }
   .essential-prose :global(h2:first-child) {
     margin-top: 0;
   }
   .essential-prose :global(h3) {
     margin-top: 1.75rem;
-    font-size: 1.05rem;
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    font-weight: 400;
+    line-height: 1.25;
     color: rgb(var(--c-ink));
   }
   .essential-prose :global(p) {
     margin-top: 1rem;
-    font-size: 1.02rem;
-    line-height: 1.8;
+    font-size: var(--fs-body);
+    line-height: 1.75;
     color: rgb(var(--c-ink) / 0.78);
   }
   .essential-prose :global(ul),
@@ -139,7 +141,7 @@
     list-style: decimal;
   }
   .essential-prose :global(li) {
-    font-size: 1.02rem;
+    font-size: var(--fs-body);
     line-height: 1.75;
     color: rgb(var(--c-ink) / 0.78);
   }

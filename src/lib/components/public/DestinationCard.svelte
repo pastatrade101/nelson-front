@@ -21,9 +21,9 @@
       {/if}
     </div>
     <div class="flex flex-1 flex-col p-6">
-      <p class="text-[10px] font-semibold uppercase tracking-[0.15em] text-clay">{[destination.region, destination.country].filter(Boolean).join(' · ')}</p>
-      <h3 class="mt-2 font-serif text-[28px] font-medium leading-tight text-heading">{destination.name}</h3>
-      {#if summary}<p class="mt-3 line-clamp-3 text-sm leading-6 text-ink/65">{summary}</p>{/if}
+      <p class="eyebrow text-clay">{[destination.region, destination.country].filter(Boolean).join(' · ')}</p>
+      <h3 class="type-card mt-2 text-heading">{destination.name}</h3>
+      {#if summary}<p class="mt-3 line-clamp-3 text-sm leading-[1.6] text-ink/65">{summary}</p>{/if}
       <div class="mt-auto pt-5"><span class="flex items-center justify-between gap-3 border-t border-ink/10 pt-4 text-xs font-semibold text-forest">Explore destination <ArrowUpRight size={18} /></span></div>
     </div>
   </a>

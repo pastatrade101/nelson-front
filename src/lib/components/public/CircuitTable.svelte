@@ -18,9 +18,9 @@
 
 <section class="border-y border-ink/[0.06] bg-sand/30 py-14 md:py-20">
   <div class="container-shell">
-    <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-clay">{eyebrow}</p>
-    <h2 class="mt-3 max-w-3xl font-serif text-3xl font-light lowercase text-heading md:text-[40px]">{title}</h2>
-    <p class="mt-4 max-w-2xl text-base leading-8 text-ink/70">{intro}</p>
+    <p class="eyebrow text-clay">{eyebrow}</p>
+    <h2 class="type-h2 mt-3 max-w-3xl lowercase text-heading">{title}</h2>
+    <p class="mt-4 max-w-2xl text-base leading-[1.75] text-ink/70">{intro}</p>
 
     <!-- column header (desktop) -->
     <div class="mt-10 hidden grid-cols-[2.2fr_1.4fr_auto] gap-6 border-b border-ink/10 pb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-ink/40 lg:grid">
@@ -42,9 +42,9 @@
               {/if}
             </div>
             <div class="min-w-0">
-              <h3 class="font-serif text-xl font-normal lowercase text-heading">{d.name}</h3>
+              <h3 class="type-card lowercase text-heading">{d.name}</h3>
               {#if d.short_description || d.description}
-                <p class="mt-1 line-clamp-2 text-sm leading-6 text-ink/65">{d.short_description || d.description}</p>
+                <p class="mt-1 line-clamp-2 text-sm leading-[1.6] text-ink/65">{d.short_description || d.description}</p>
               {/if}
               {#if s?.count}
                 <p class="mt-1.5 text-[12px] font-semibold text-clay">{s.count} itinerar{s.count === 1 ? 'y' : 'ies'}{#if s.from} · from {s.currency} {s.from.toLocaleString()}{/if}</p>
@@ -66,7 +66,7 @@
     </div>
 
     <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
-      <p class="max-w-xl text-sm text-ink/60">The south rewards the curious traveller — fewer camps, fewer vehicles, and a quality of encounter the north rarely matches at peak season.</p>
+      <p class="max-w-xl text-base leading-[1.75] text-ink/60">The south rewards the curious traveller — fewer camps, fewer vehicles, and a quality of encounter the north rarely matches at peak season.</p>
       <a class="inline-flex h-11 shrink-0 items-center gap-2 bg-deep-green px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:bg-forest" href={ctaHref}>
         {ctaLabel} <ArrowRight size={15} strokeWidth={2.5} />
       </a>

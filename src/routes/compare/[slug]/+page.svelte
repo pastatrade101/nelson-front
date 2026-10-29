@@ -126,9 +126,9 @@
       </nav>
       <p class="font-serif text-xl italic text-savanna">{cmp.eyebrow}</p>
       {#key cmp.title}
-        <h1 class="mt-2 max-w-3xl text-3xl font-serif font-light leading-[1.08] md:text-5xl" use:revealHeading>{cmp.title}</h1>
+        <h1 class="type-h1 mt-2 max-w-3xl" use:revealHeading>{cmp.title}</h1>
       {/key}
-      <p class="mt-4 max-w-2xl text-[15px] leading-7 text-white/80 md:text-base">{cmp.intro}</p>
+      <p class="type-lead mt-4 max-w-2xl text-white/80">{cmp.intro}</p>
     </div>
   </section>
 
@@ -157,8 +157,8 @@
     <div class="mt-8 flex items-start gap-3 rounded-2xl border border-goldfinch-gold/30 bg-savanna/20 p-5 md:p-6">
       <Sparkles size={22} class="mt-0.5 shrink-0 text-goldfinch-gold" />
       <div>
-        <p class="text-sm font-bold uppercase tracking-[0.14em] text-clay">Our honest verdict</p>
-        <p class="mt-2 text-base leading-7 text-ink/80">{cmp.verdict}</p>
+        <p class="eyebrow text-clay">Our honest verdict</p>
+        <p class="mt-2 text-base leading-[1.75] text-ink/80">{cmp.verdict}</p>
         <a class="mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-deep-green px-6 font-bold text-white transition hover:bg-forest" href={ctaHref}>
           {cmp.cta.label} <ArrowRight size={16} />
         </a>
@@ -167,14 +167,14 @@
 
     {#if cmp.faqs?.length}
       <div class="mt-10">
-        <h2 class="text-2xl font-serif font-light text-heading">Common questions</h2>
+        <h2 class="type-h2 text-heading">Common questions</h2>
         <div class="mt-4 grid gap-3">
           {#each cmp.faqs as faq}
             <div class="rounded-2xl border border-ink/10 bg-surface p-5">
-              <h3 class="flex items-start gap-2 text-base font-semibold text-ink">
+              <h3 class="type-card flex items-start gap-2 text-ink">
                 <Check size={16} class="mt-1 shrink-0 text-forest" />{faq.q}
               </h3>
-              <p class="mt-1.5 pl-6 text-sm leading-6 text-ink/65">{faq.a}</p>
+              <p class="mt-1.5 pl-6 text-base leading-[1.75] text-ink/65">{faq.a}</p>
             </div>
           {/each}
         </div>
@@ -183,7 +183,7 @@
 
     {#if others.length}
       <div class="mt-12">
-        <h2 class="text-xl font-serif font-normal text-heading">More comparisons</h2>
+        <h2 class="type-h2 text-heading">More comparisons</h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           {#each others as o (o.slug)}
             <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-surface p-5 transition hover:border-goldfinch-gold/40" href={`/compare/${o.slug}`}>

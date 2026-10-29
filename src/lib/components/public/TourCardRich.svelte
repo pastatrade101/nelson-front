@@ -16,7 +16,12 @@
    * rather than forking the component.
    */
   export let ctaLabel = 'View Safari';
-
+  /**
+   * Level of the card title: h3 under a section's h2 (the default). A listing
+   * that renders cards straight under its h1 should pass 2 — or, better, give
+   * the results their own h2.
+   */
+  export let headingLevel: 2 | 3 | 4 = 3;
 
   // "Perfect for" audience labels, from the tour's real persona tags.
   const PERSONA_LABEL: Record<string, string> = {
@@ -102,7 +107,7 @@
         <span class="absolute right-3 top-12 inline-flex items-center gap-1 bg-black/45 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white backdrop-blur"><MapPin size={10} strokeWidth={2.6} /> {country}</span>
       {/if}
 
-      <h3 class="absolute inset-x-0 bottom-0 p-4 font-serif text-[22px] font-normal leading-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">{tour.title}</h3>
+      <svelte:element this={`h${headingLevel}`} class="type-card absolute inset-x-0 bottom-0 p-4 text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">{tour.title}</svelte:element>
     </div>
 
     <!-- Body: hierarchy → meta → interests → perfect-for → price → CTA -->
@@ -128,7 +133,7 @@
           Perfect for {perfectFor.join(' & ').toLowerCase()}
         </p>
       {:else if tour.short_description}
-        <p class="mt-3 line-clamp-2 text-sm leading-6 text-ink/65">{tour.short_description}</p>
+        <p class="mt-3 line-clamp-2 text-sm leading-[1.6] text-ink/65">{tour.short_description}</p>
       {/if}
 
       <div class="mt-auto flex items-end justify-between gap-3 border-t border-ink/[0.08] pt-4">

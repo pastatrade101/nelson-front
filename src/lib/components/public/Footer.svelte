@@ -45,7 +45,7 @@
   const year = new Date().getFullYear();
 </script>
 
-<footer class="border-t border-ink/10 bg-deep-green text-white">
+<footer class="site-type border-t border-ink/10 bg-deep-green text-white">
   <div class="container-shell grid gap-8 py-10 md:grid-cols-[1.2fr_1fr_1fr]">
     <div>
       {#if $branding.logo_url}

@@ -21,20 +21,20 @@
 </script>
 
 <section class="rounded-none border border-ink/10 bg-surface p-6 shadow-soft md:p-7">
-  <h2 class="text-xl font-bold tracking-normal text-heading md:text-2xl">What this trip costs</h2>
+  <h2 class="type-card text-heading">What this trip costs</h2>
 
   {#if priceFrom}
     <div class="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
       <span class="text-3xl font-extrabold text-heading">{formatUsd(low, $currencyStore)}</span>
       <span class="text-sm font-medium text-ink/70">per person, from</span>
     </div>
-    <p class="mt-2 text-sm leading-6 text-ink/65">
+    <p class="mt-2 text-base leading-[1.75] text-ink/65">
       Most travellers on a trip like this spend between
       <span class="font-semibold text-ink">{formatUsd(low, $currencyStore)}</span> and roughly
       <span class="font-semibold text-ink">{formatUsd(high, $currencyStore)}</span> per person — your exact price depends on the choices below.
     </p>
   {:else}
-    <p class="mt-3 text-sm leading-6 text-ink/65">
+    <p class="mt-3 text-base leading-[1.75] text-ink/65">
       Pricing is tailored to your dates, group and travel style. Tell us what you have in mind and we'll give you an honest, itemised quote.
     </p>
   {/if}
@@ -54,7 +54,7 @@
 
   <div class="mt-5 flex items-start gap-3 rounded-2xl border border-forest/20 bg-forest/[0.05] p-4">
     <ShieldCheck size={20} class="mt-0.5 shrink-0 text-forest" />
-    <p class="text-sm leading-6 text-ink/75">
+    <p class="text-base leading-[1.75] text-ink/75">
       <span class="font-semibold text-ink">No hidden costs.</span>
       We itemise everything — park fees, lodges, transfers and extras — and confirm the full price before you decide.
     </p>

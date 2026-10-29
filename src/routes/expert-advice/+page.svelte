@@ -44,10 +44,10 @@
   <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Expert Advice</p>
-    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-serif font-light leading-[1.1] md:text-[44px]" use:revealHeading>
+    <h1 class="type-h1 mx-auto mt-5 max-w-3xl" use:revealHeading>
       Honest guides to plan Tanzania with confidence
     </h1>
-    <p class="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">
+    <p class="type-lead mx-auto mt-4 max-w-2xl text-white/75">
       Real answers from local experts — costs, timing, safety, and what each trip is actually like, from the team who plans these trips every day.
     </p>
     <div class="mt-7 flex flex-wrap justify-center gap-3">
@@ -62,8 +62,8 @@
 <section class="bg-sand/30 py-12 md:py-16">
   <div class="container-shell">
     <p class="font-serif text-xl italic text-clay">Guides</p>
-    <h2 class="mt-2 text-3xl font-serif font-light text-heading md:text-[34px]" use:revealHeading>Latest planning guides</h2>
-    <p class="mt-3 max-w-2xl text-[15px] leading-7 text-ink/70">Practical, no-fluff reads from the team who plans these trips every day.</p>
+    <h2 class="type-h2 mt-2 text-heading" use:revealHeading>Latest planning guides</h2>
+    <p class="mt-3 max-w-2xl text-base leading-[1.75] text-ink/70">Practical, no-fluff reads from the team who plans these trips every day.</p>
 
     <div class="mt-8">
       {#if loading}
@@ -102,8 +102,8 @@
   <section class="container-shell grid gap-8 py-12 md:grid-cols-[0.7fr_1.3fr] md:py-16" use:fadeUpOnScroll={{ y: 16 }}>
     <div>
       <p class="font-serif text-xl italic text-clay">Good to know</p>
-      <h2 class="mt-2 text-3xl font-serif font-light text-heading md:text-4xl" use:revealHeading>Frequently asked</h2>
-      <p class="mt-3 text-[15px] leading-7 text-ink/70">The questions Tanzania safari travellers ask us most. Need something specific? A local specialist can help.</p>
+      <h2 class="type-h2 mt-2 text-heading" use:revealHeading>Frequently asked</h2>
+      <p class="mt-3 text-base leading-[1.75] text-ink/70">The questions Tanzania safari travellers ask us most. Need something specific? A local specialist can help.</p>
     </div>
     <FAQAccordion {faqs} />
   </section>

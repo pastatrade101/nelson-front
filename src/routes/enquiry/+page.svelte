@@ -16,9 +16,9 @@
 
   <div class="container-shell relative py-12 md:py-16">
     <div class="mx-auto mb-8 max-w-2xl text-center">
-      <p class="text-[12px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">Begin your journey</p>
-      <h1 class="mt-3 font-serif text-3xl font-light leading-[1.1] md:text-5xl">A few quick questions</h1>
-      <p class="mt-4 text-base leading-8 text-white/80">
+      <p class="eyebrow text-goldfinch-gold">Begin your journey</p>
+      <h1 class="type-h1 mt-3">A few quick questions</h1>
+      <p class="type-lead mt-4 text-white/80">
         Tell us the essentials and a local specialist will shape a private Tanzania safari around your dates, budget and
         travel style. It takes about a minute — and there's no payment to start.
       </p>

@@ -57,14 +57,15 @@
   <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Destination Scores</p>
-    <h1 class="mx-auto mt-5 max-w-3xl text-3xl font-serif font-light leading-[1.1] md:text-[44px]" use:revealHeading>How Tanzania's destinations really score</h1>
-    <p class="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-white/75 md:text-lg">
+    <h1 class="type-h1 mx-auto mt-5 max-w-3xl" use:revealHeading>How Tanzania's destinations really score</h1>
+    <p class="type-lead mx-auto mt-4 max-w-2xl text-white/75">
       Our honest 1–10 ratings across wildlife, luxury, family, photography and adventure — so you can match the place to what matters to you.
     </p>
   </div>
 </section>
 
 <section class="container-shell py-12 md:py-16">
+  <h2 class="type-h2 sr-only">Scores by destination</h2>
   <div class="grid gap-6 lg:grid-cols-2" use:staggeredCardReveal={{ y: 16, stagger: 0.05 }}>
     {#each rows as row (row.slug)}
       <article class="flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface shadow-soft">
@@ -73,7 +74,7 @@
             {#if row.image}<img class="h-full w-full object-cover" src={row.image} alt={row.name} loading="lazy" />{/if}
           </div>
           <div>
-            <h2 class="text-lg font-serif font-normal text-heading">{row.name}</h2>
+            <h3 class="type-card text-heading">{row.name}</h3>
             <p class="text-sm font-semibold text-clay">Best for {topDimension(row.scores)}{row.scores.budgetFromUsd ? ` · from $${row.scores.budgetFromUsd.toLocaleString()}pp` : ''}</p>
           </div>
         </div>

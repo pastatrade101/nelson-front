@@ -82,8 +82,8 @@
         <span class="text-white/30">/</span>
         <span class="font-medium text-white">{name}</span>
       </nav>
-      <h1 class="max-w-3xl text-3xl font-serif font-light leading-[1.08] md:text-5xl">{name}</h1>
-      {#if exp.description}<p class="mt-4 max-w-2xl text-[15px] leading-7 text-white/85 md:text-base">{String(exp.description)}</p>{/if}
+      <h1 class="type-h1 max-w-3xl">{name}</h1>
+      {#if exp.description}<p class="type-lead mt-4 max-w-2xl text-white/85">{String(exp.description)}</p>{/if}
       <div class="mt-6 flex flex-wrap gap-3">
         <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading transition hover:brightness-105" href={`/plan-my-trip?experience=${slug}`}>
           <Sparkles size={18} /> Plan a {name} trip
@@ -99,14 +99,14 @@
     {#if info}
       <div class="grid gap-6 md:grid-cols-[1fr_1fr]">
         <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
-          <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">Who it's for</p>
-          <p class="mt-2 text-base leading-7 text-ink/75">{info.whoItsFor}</p>
+          <p class="eyebrow text-clay">Who it's for</p>
+          <p class="mt-2 text-base leading-[1.75] text-ink/75">{info.whoItsFor}</p>
           {#if info.fitness}
             <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-sand/60 px-3 py-1.5 text-sm font-semibold text-heading">Fitness: {info.fitness}</p>
           {/if}
         </div>
         <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
-          <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">Highlights</p>
+          <p class="eyebrow text-clay">Highlights</p>
           <div class="mt-3 grid gap-2.5">
             {#each info.highlights as h}
               <span class="inline-flex items-center gap-2 text-sm font-medium text-ink/75">
@@ -121,7 +121,7 @@
     {#if tours.length}
       <div class="mt-12">
         <div class="flex flex-wrap items-end justify-between gap-4">
-          <h2 class="text-2xl font-serif font-light text-heading md:text-3xl">{name} trips</h2>
+          <h2 class="type-h2 text-heading">{name} trips</h2>
           <a class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href={`/tours?experience=${slug}`}>
             See all <ArrowRight size={16} />
           </a>
@@ -137,8 +137,8 @@
     {#if faqs.length}
       <div id="faqs" class="mt-12 grid scroll-mt-28 gap-6 md:grid-cols-[0.7fr_1.3fr] md:gap-10">
         <div>
-          <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">Good to know</p>
-          <h2 class="mt-2 text-2xl font-serif font-light text-heading md:text-3xl">{name}: your questions, answered</h2>
+          <p class="eyebrow text-clay">Good to know</p>
+          <h2 class="type-h2 mt-2 text-heading">{name}: your questions, answered</h2>
         </div>
         <FAQAccordion {faqs} />
       </div>
@@ -146,7 +146,7 @@
   </section>
 {:else}
   <section class="container-shell py-20 text-center">
-    <h1 class="text-2xl font-serif font-light text-heading">Experience not found</h1>
+    <h1 class="type-h1 text-heading">Experience not found</h1>
     <a class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-heading" href="/experiences">All experiences <ArrowRight size={16} /></a>
   </section>
 {/if}

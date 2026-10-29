@@ -48,10 +48,10 @@
 
     <!-- content -->
     <div class="flex flex-col justify-center p-7 md:p-10">
-      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">{regionLine}</p>
-      <h2 class="mt-2 font-serif text-[30px] font-light lowercase leading-[1.05] text-heading md:text-[42px]">{destination.name}</h2>
+      <p class="eyebrow text-goldfinch-gold">{regionLine}</p>
+      <h2 class="type-h2 mt-2 lowercase text-heading">{destination.name}</h2>
       {#if destination.short_description}
-        <p class="mt-3 max-w-xl text-[15px] leading-7 text-ink/70">{destination.short_description}</p>
+        <p class="mt-3 max-w-xl text-base leading-[1.75] text-ink/70">{destination.short_description}</p>
       {/if}
 
       {#if chips.length}
@@ -115,7 +115,7 @@
   <!-- related itineraries (real tours that visit this destination) -->
   {#if stat && stat.tours.length}
     <div class="mt-4 border border-ink/10 bg-sand/30 p-5 md:p-6">
-      <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-clay">Safaris that visit {destination.name}</p>
+      <p class="eyebrow text-clay">Safaris that visit {destination.name}</p>
       <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {#each stat.tours.slice(0, 3) as tour (tour.slug)}
           <a class="group flex items-center justify-between gap-3 border border-ink/10 bg-surface px-4 py-3 shadow-soft transition hover:border-goldfinch-gold/40 hover:shadow-md" href={`/tours/${tour.slug}`}>

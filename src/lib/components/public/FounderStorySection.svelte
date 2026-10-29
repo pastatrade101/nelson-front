@@ -52,15 +52,15 @@
 
     <div class="max-w-[760px] self-center">
       <p class="brand-eyebrow">{eyebrow}</p>
-      <h2 class={`mt-6 font-serif font-light leading-[1.08] tracking-normal text-white ${compact ? 'text-[38px] sm:text-[50px] lg:text-[58px]' : 'text-[42px] sm:text-[56px] lg:text-[68px]'}`}>
+      <h2 class="type-h2 mt-6 text-white">
         {title}
         <span class="block italic text-goldfinch-gold">{accentTitle}</span>
       </h2>
 
       {#if displayHtml}
-        <div class="cms-rich mt-8 text-[15px] font-medium leading-8 text-white/66 md:text-base">{@html displayHtml}</div>
+        <div class="cms-rich mt-8 text-base leading-[1.75] font-medium text-white/66">{@html displayHtml}</div>
       {:else}
-        <div class="mt-8 space-y-6 text-[15px] font-medium leading-8 text-white/66 md:text-base">
+        <div class="mt-8 space-y-6 text-base leading-[1.75] font-medium text-white/66">
           {#each paragraphs as paragraph}
             <p>{paragraph}</p>
           {/each}

@@ -280,7 +280,8 @@
   <Navbar essentialsLive={data.essentialsLive ?? false} countries={data.countries ?? []} />
 {/if}
 
-<main id="main-content">
+<!-- site-type: the public type scale (app.css); the CMS keeps its own. -->
+<main id="main-content" class:site-type={!isAdmin}>
   <slot />
 </main>
 

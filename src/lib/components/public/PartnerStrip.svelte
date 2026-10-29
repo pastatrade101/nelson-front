@@ -15,7 +15,7 @@
   <section class="border-t border-ink/[0.06] bg-surface py-12 md:py-16">
     <div class="container-shell">
       {#if title}
-        <p class="text-center text-xs font-bold uppercase tracking-[0.2em] text-ink/40 md:text-[13px]">{title}</p>
+        <p class="eyebrow text-center text-ink/40">{title}</p>
       {/if}
 
       <div class={`marquee ${title ? 'mt-9' : ''}`}>

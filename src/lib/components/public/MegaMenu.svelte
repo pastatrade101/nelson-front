@@ -100,7 +100,7 @@
 
   <!-- Column 1 · curated browse list with editorial subtitles -->
   <div class="mm-col col-start-1 row-start-2 border-r border-ink/[0.06] px-6 py-6" style="--d:60ms">
-    <p class="px-1 pb-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-ink/40">{browseTitle}</p>
+    <p class="eyebrow px-1 pb-2.5 text-ink/40">{browseTitle}</p>
     <a class="group/all flex items-center justify-between gap-3 rounded-none bg-[#EFE7D8] px-3.5 py-3 text-sm font-bold text-forest ring-1 ring-goldfinch-gold/20 transition duration-300 hover:bg-[#EAE0CD]" {href}>
       <span class="inline-flex items-center gap-3"><LayoutGrid size={17} strokeWidth={2.2} /> {allLabel}</span>
       <ArrowRight size={15} strokeWidth={2.6} class="text-goldfinch-gold transition-transform duration-300 group-hover/all:translate-x-1" />
@@ -137,7 +137,7 @@
 
   <!-- Column 2 · rich editorial cards from real records -->
   <div class="mm-col col-start-2 row-start-2 flex flex-col px-6 py-6" style="--d:120ms">
-    <p class="px-1 pb-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-ink/40">{featuredTitle}</p>
+    <p class="eyebrow px-1 pb-2.5 text-ink/40">{featuredTitle}</p>
     <div class="grid flex-1 content-start gap-1">
       {#each featuredItems as exp (exp.href)}
         <a class="group/exp flex items-start gap-4 rounded-none p-2.5 transition duration-300 ease-out hover:-translate-y-px hover:bg-white hover:shadow-[0_14px_34px_-18px_rgba(28,26,22,0.5)]" href={exp.href}>
@@ -171,9 +171,9 @@
     {/if}
     <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.1)_0%,rgba(20,18,15,0.24)_38%,rgba(20,18,15,0.78)_74%,rgba(20,18,15,0.96)_100%)]"></div>
     <div class="relative">
-      <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">{cta.eyebrow}</p>
+      <p class="eyebrow text-goldfinch-gold">{cta.eyebrow}</p>
       <p class="mt-2.5 font-serif text-[28px] font-light leading-[1.1]">{cta.title}</p>
-      <p class="mt-3 text-[13px] leading-6 text-white/72">{cta.subtitle}</p>
+      <p class="mt-3 text-sm leading-[1.6] text-white/72">{cta.subtitle}</p>
       <div class="mt-5 flex flex-col gap-2.5">
         <button type="button" class="inline-flex items-center justify-center gap-2 bg-goldfinch-gold px-5 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition duration-300 hover:bg-savanna" on:click={onCta}>
           {cta.buttonLabel} <ArrowRight size={15} strokeWidth={2.6} />

@@ -214,7 +214,7 @@
         {/if}
         {#if popularTours.length}
           {#if relatedTours.length}
-            <p class="mt-14 text-[11px] font-semibold uppercase tracking-[0.2em] text-heading">Popular safaris</p>
+            <p class="eyebrow mt-14 text-heading">Popular safaris</p>
           {/if}
           <div class={`grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${relatedTours.length ? 'mt-6' : 'mt-9'}`} use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
             {#each popularTours as tour (tour.id)}
@@ -279,9 +279,9 @@
             <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
               <div class="flex items-center gap-3">
                 <span class="grid h-11 w-11 place-items-center rounded-xl bg-forest/10 text-forest"><ShieldCheck size={20} /></span>
-                <h3 class="text-lg font-serif font-normal text-ink">Is it safe?</h3>
+                <h3 class="type-card text-ink">Is it safe?</h3>
               </div>
-              <p class="mt-3 text-sm leading-7 text-ink/70">{destination.safety_overview}</p>
+              <p class="mt-3 text-base leading-[1.75] text-ink/70">{destination.safety_overview}</p>
             </div>
           {/if}
 
@@ -289,25 +289,25 @@
             {#if destination.health_vaccinations}
               <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
                 <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-clay/10 text-clay"><HeartPulse size={18} /></span>
-                <div><p class="text-sm font-bold text-ink">Health &amp; vaccinations</p><p class="mt-1 text-sm leading-6 text-ink/65">{destination.health_vaccinations}</p></div>
+                <div><p class="text-sm font-bold text-ink">Health &amp; vaccinations</p><p class="mt-1 text-sm leading-[1.6] text-ink/65">{destination.health_vaccinations}</p></div>
               </div>
             {/if}
             {#if destination.security_advice}
               <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
                 <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-forest/10 text-forest"><Shield size={18} /></span>
-                <div><p class="text-sm font-bold text-ink">Security</p><p class="mt-1 text-sm leading-6 text-ink/65">{destination.security_advice}</p></div>
+                <div><p class="text-sm font-bold text-ink">Security</p><p class="mt-1 text-sm leading-[1.6] text-ink/65">{destination.security_advice}</p></div>
               </div>
             {/if}
             {#if destination.travel_insurance_note}
               <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
                 <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-goldfinch-gold/15 text-goldfinch-gold"><FileCheck size={18} /></span>
-                <div><p class="text-sm font-bold text-ink">Travel insurance</p><p class="mt-1 text-sm leading-6 text-ink/65">{destination.travel_insurance_note}</p></div>
+                <div><p class="text-sm font-bold text-ink">Travel insurance</p><p class="mt-1 text-sm leading-[1.6] text-ink/65">{destination.travel_insurance_note}</p></div>
               </div>
             {/if}
             {#if destination.emergency_contacts}
               <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
                 <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-forest/10 text-forest"><Phone size={18} /></span>
-                <div><p class="text-sm font-bold text-ink">Emergency contacts</p><p class="mt-1 text-sm leading-6 text-ink/65">{destination.emergency_contacts}</p></div>
+                <div><p class="text-sm font-bold text-ink">Emergency contacts</p><p class="mt-1 text-sm leading-[1.6] text-ink/65">{destination.emergency_contacts}</p></div>
               </div>
             {/if}
           </div>
@@ -336,16 +336,16 @@
               </div>
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                  <h3 class="text-base font-serif font-normal text-ink">{point.name}</h3>
+                  <h3 class="type-card text-ink">{point.name}</h3>
                   {#if point.airport_code}
                     <span class="rounded-md bg-forest/10 px-1.5 py-0.5 font-mono text-[11px] font-bold text-forest">{point.airport_code}</span>
                   {/if}
                 </div>
                 <p class="mt-0.5 text-xs font-semibold uppercase tracking-[0.1em] text-clay">{roleLabel(point.role)}</p>
                 {#if point.transfer_info}
-                  <p class="mt-2 text-sm leading-6 text-ink/70">{point.transfer_info}</p>
+                  <p class="mt-2 text-sm leading-[1.6] text-ink/70">{point.transfer_info}</p>
                 {:else if point.description}
-                  <p class="mt-2 text-sm leading-6 text-ink/70">{point.description}</p>
+                  <p class="mt-2 text-sm leading-[1.6] text-ink/70">{point.description}</p>
                 {/if}
               </div>
             </div>
@@ -368,9 +368,9 @@
           {#each faqGroups as group (group.category)}
             <div>
               {#if faqGroups.length > 1}
-                <h3 class="mb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-clay">{group.category}</h3>
+                <p class="eyebrow mb-3 text-clay">{group.category}</p>
               {/if}
-              <FAQAccordion faqs={group.items} headingLevel={faqGroups.length > 1 ? 4 : 3} />
+              <FAQAccordion faqs={group.items} headingLevel={3} />
             </div>
           {/each}
         </div>

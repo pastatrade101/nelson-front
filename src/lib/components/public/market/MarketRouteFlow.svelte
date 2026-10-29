@@ -23,10 +23,10 @@
             <p class="brand-eyebrow">{eyebrow}</p>
           {/if}
           {#if title}
-            <h2 class="mt-4 font-serif text-[32px] font-light leading-[1.1] text-white md:text-[44px]">{title}</h2>
+            <h2 class="type-h2 mt-4 text-white">{title}</h2>
           {/if}
           {#if intro}
-            <p class="mt-5 text-[15px] leading-8 text-white/70">{intro}</p>
+            <p class="mt-5 text-base leading-[1.75] text-white/70">{intro}</p>
           {/if}
         </div>
       {/if}
@@ -39,7 +39,7 @@
                 <span class="h-10 w-px bg-goldfinch-gold/55" aria-hidden="true"></span>
               {/if}
               <span
-                class="w-full border border-goldfinch-gold/35 bg-white/[0.05] px-6 py-4 text-center font-serif text-[20px] font-light leading-snug text-white md:text-[24px]"
+                class="w-full border border-goldfinch-gold/35 bg-white/[0.05] type-card px-6 py-4 text-center text-white"
               >
                 {stop}
               </span>
@@ -53,10 +53,10 @@
           {#each shownNotes as note}
             <div class="border border-white/15 p-6 md:p-7">
               {#if note.title}
-                <h3 class="font-serif text-[20px] font-light leading-snug text-white">{note.title}</h3>
+                <h3 class="type-card text-white">{note.title}</h3>
               {/if}
               {#if note.body}
-                <p class="mt-3 text-[14.5px] leading-7 text-white/70">{note.body}</p>
+                <p class="mt-3 text-base leading-[1.75] text-white/70">{note.body}</p>
               {/if}
             </div>
           {/each}

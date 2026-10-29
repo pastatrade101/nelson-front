@@ -62,7 +62,7 @@
     <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
       <div>
         <p class="brand-eyebrow">{eyebrow}</p>
-        <h2 class="mt-5 font-serif text-[40px] font-light leading-[1.08] tracking-normal text-white sm:text-[54px] lg:text-[64px]">
+        <h2 class="type-h2 mt-5 text-white">
           {title}
           <span class="block italic text-goldfinch-gold">{accentTitle}</span>
         </h2>
@@ -88,9 +88,9 @@
               />
             </div>
             <div class="p-7 md:p-8">
-              <p class="text-[12px] font-bold uppercase tracking-[0.26em] text-white/42">{card.category}</p>
-              <h3 class="mt-7 font-serif text-[26px] font-normal leading-tight text-white">{card.title}</h3>
-              <p class="mt-5 line-clamp-4 text-[15px] font-medium leading-8 text-white/58">{card.excerpt}</p>
+              <p class="eyebrow text-white/42">{card.category}</p>
+              <h3 class="type-card mt-7 text-white">{card.title}</h3>
+              <p class="mt-5 line-clamp-4 text-sm font-medium leading-[1.6] text-white/58">{card.excerpt}</p>
               <span class="mt-8 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">
                 Read Article <ArrowRight size={14} strokeWidth={2.5} />
               </span>

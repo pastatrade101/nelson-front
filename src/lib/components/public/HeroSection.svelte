@@ -132,9 +132,9 @@
     <div class="max-w-[620px] [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]">
       <p class="brand-eyebrow" in:fly={{ y: 12, duration: 420 }}>{eyebrow}</p>
       {#key title}
-        <h1 class="mt-6 max-w-[600px] text-[32px] font-light leading-[1.12] tracking-normal sm:text-[40px] lg:text-[50px] xl:text-[56px]" use:revealHeading={{ stagger: 0.018 }}>{title}</h1>
+        <h1 class="type-h1 mt-6 max-w-[600px]" use:revealHeading={{ stagger: 0.018 }}>{title}</h1>
       {/key}
-      <p class="mt-5 max-w-[520px] text-[15px] font-normal leading-7 text-white/90 md:text-[17px]" in:fly={{ y: 14, duration: 480, delay: 120 }}>{description}</p>
+      <p class="type-lead mt-5 max-w-[520px] text-white/90" in:fly={{ y: 14, duration: 480, delay: 120 }}>{description}</p>
 
       <div class="mt-8 flex flex-col gap-4 [text-shadow:none] sm:flex-row sm:items-center">
         <a class="inline-flex h-12 items-center justify-center gap-3 bg-goldfinch-gold px-7 text-[13px] font-semibold tracking-[0.08em] text-deep-green transition hover:bg-savanna sm:min-w-[230px]" href={primaryCtaUrl}>
@@ -145,7 +145,7 @@
         </a>
       </div>
 
-      <div class="mt-10 flex max-w-[620px] items-start gap-2.5 text-[13px] leading-5 text-white/82">
+      <div class="mt-10 flex max-w-[620px] items-start gap-2.5 text-sm leading-[1.6] text-white/82">
         <BadgeCheck size={18} class="mt-px shrink-0 text-goldfinch-gold" strokeWidth={2.1} aria-hidden="true" />
         <span>{trustLine}</span>
       </div>

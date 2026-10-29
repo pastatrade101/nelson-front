@@ -55,10 +55,10 @@
   {#each faqs as faq, i (faq.id || i)}
     <details class="faq-item group scroll-mt-28" id={anchors[i]}>
       <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-start font-semibold text-ink">
-        <svelte:element this={`h${headingLevel}`} class="min-w-0 text-base font-semibold leading-snug text-ink [overflow-wrap:anywhere]">{faq.question}</svelte:element>
+        <svelte:element this={`h${headingLevel}`} class="type-card min-w-0 text-ink [overflow-wrap:anywhere]">{faq.question}</svelte:element>
         <span class="shrink-0" aria-hidden="true"><span class="group-open:hidden">+</span><span class="hidden group-open:inline">-</span></span>
       </summary>
-      <p class="whitespace-pre-line px-5 pb-5 text-sm leading-6 text-ink/70 [overflow-wrap:anywhere]">{faq.answer}</p>
+      <p class="whitespace-pre-line px-5 pb-5 text-base leading-[1.75] text-ink/70 [overflow-wrap:anywhere]">{faq.answer}</p>
     </details>
   {/each}
 </div>

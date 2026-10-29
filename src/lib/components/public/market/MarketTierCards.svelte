@@ -28,10 +28,10 @@
             <p class="brand-eyebrow">{eyebrow}</p>
           {/if}
           {#if title}
-            <h2 class="mt-4 font-serif text-[32px] font-light leading-[1.1] text-heading md:text-[44px]">{title}</h2>
+            <h2 class="type-h2 mt-4 text-heading">{title}</h2>
           {/if}
           {#if intro}
-            <p class="mt-5 text-[15px] leading-8 text-ink/70">{intro}</p>
+            <p class="mt-5 text-base leading-[1.75] text-ink/70">{intro}</p>
           {/if}
         </div>
       {/if}
@@ -53,13 +53,13 @@
             {/if}
             <div class="flex flex-1 flex-col p-7">
               {#if tier.label}
-                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">{tier.label}</p>
+                <p class="eyebrow text-goldfinch-gold">{tier.label}</p>
               {/if}
               {#if tier.title}
-                <h3 class="mt-3 font-serif text-[23px] font-light leading-snug text-heading">{tier.title}</h3>
+                <h3 class="type-card mt-3 text-heading">{tier.title}</h3>
               {/if}
               {#if tier.body}
-                <p class="mt-3 text-[14.5px] leading-7 text-ink/70">{tier.body}</p>
+                <p class="mt-3 text-base leading-[1.75] text-ink/70">{tier.body}</p>
               {/if}
             </div>
           </article>

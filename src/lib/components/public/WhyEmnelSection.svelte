@@ -36,15 +36,15 @@
   <div class="container-shell grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16">
     <div class="max-w-[720px]">
       <p class="brand-eyebrow">{eyebrow}</p>
-      <h2 class="mt-5 font-serif text-[38px] font-light leading-[1.08] tracking-normal sm:text-[50px] lg:text-[58px]">
+      <h2 class="type-h2 mt-5">
         {title}
         <span class="block italic text-goldfinch-gold">{accentTitle}</span>
       </h2>
 
       {#if htmlContent}
-        <div class="cms-rich mt-7 text-[15px] font-medium leading-8 text-white/68 md:text-base">{@html htmlContent}</div>
+        <div class="cms-rich mt-7 text-base leading-[1.75] font-medium text-white/68">{@html htmlContent}</div>
       {:else}
-        <div class="mt-7 space-y-5 text-[15px] font-medium leading-8 text-white/68 md:text-base">
+        <div class="mt-7 space-y-5 text-base leading-[1.75] font-medium text-white/68">
           {#each textParagraphs as paragraph}<p>{paragraph}</p>{/each}
         </div>
       {/if}
@@ -62,8 +62,8 @@
         <div class="why-emnel-item flex min-h-[92px] items-center gap-4 border-b border-white/[0.08] px-6 py-5 last:border-b-0 md:px-8">
           <span class="grid h-9 w-9 shrink-0 place-items-center border border-goldfinch-gold/45 text-goldfinch-gold"><Check size={16} strokeWidth={2.8} /></span>
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">Emnel promise {String(index + 1).padStart(2, '0')}</p>
-            <p class="mt-1.5 text-[15px] font-semibold leading-6 text-white/82">{promise}</p>
+            <p class="eyebrow text-white/35">Emnel promise {String(index + 1).padStart(2, '0')}</p>
+            <p class="mt-1.5 text-base font-semibold leading-6 text-white/82">{promise}</p>
           </div>
         </div>
       {/each}

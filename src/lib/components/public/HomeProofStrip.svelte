@@ -34,8 +34,8 @@
           <Icon size={19} strokeWidth={2.1} />
         </span>
         <div>
-          <h2 class="text-[12px] font-bold uppercase tracking-[0.14em] text-heading">{item.title}</h2>
-          <p class="mt-1.5 text-[13px] font-medium leading-5 text-ink/62">{item.text}</p>
+          <p class="eyebrow text-heading">{item.title}</p>
+          <p class="mt-1.5 text-sm font-medium leading-[1.6] text-ink/62">{item.text}</p>
         </div>
       </article>
     {/each}
