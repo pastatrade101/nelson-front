@@ -899,7 +899,8 @@
             {/if}
             <div class="mt-4 grid gap-4 sm:grid-cols-3">
               {#each journeyStyles as style (style.slug)}
-                <div class="min-w-0 rounded-none border border-ink/10 bg-surface p-3">
+                <!-- Two lines for every name, so a long one doesn't push its picture out of line. -->
+                <div class="min-w-0 rounded-none border border-ink/10 bg-surface p-3 [&>div>p:first-child]:min-h-[2.5rem]">
                   <MediaPicker label={style.name} media={mediaItems} uploadFolder="homepage" aspect="aspect-[4/5]" fallback={style.image_url || style.hero_image_url || ''} value={cardImages[style.slug] ?? ''} on:change={(e) => (cardImages = { ...cardImages, [style.slug]: String(e.detail ?? '') })} />
                 </div>
               {/each}
