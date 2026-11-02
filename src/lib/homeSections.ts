@@ -40,7 +40,7 @@ export const HOME_SECTIONS: HomeSectionDef[] = [
   {
     key: 'travel_styles',
     label: 'Choose your journey',
-    help: 'One card per published travel style (Admin › Travel Styles), with its image, promise and the lowest "from" price of its itineraries.',
+    help: 'One card per published travel style (Admin › Travel Styles), with its promise and the lowest "from" price of its itineraries. Each card\'s image can be changed below; an empty one uses the style\'s own image.',
     fields: ['title', 'subtitle', 'button'],
     extras: ['eyebrow', 'accent_title'],
     defaultOn: true

@@ -156,7 +156,35 @@
   // Shared media-library picker — targets either a logo row or a slide row.
   let mediaPicker: { list: 'logos' | 'slides'; index: number } | null = null;
 
-  const MANAGED_KEYS = [...BG_KEYS, 'logos', 'slides', 'ranges', 'parks', 'steps', 'eyebrow', 'accent_title', 'quote', 'points', 'closing', 'image_caption', 'secondary_cta_text', 'secondary_cta_url'];
+  // "Choose your journey" card images: one per travel style, saved on this
+  // section (extra_data.card_images, keyed by style slug). An empty one uses the
+  // style's own image from Admin › Travel Styles.
+  type JourneyStyle = { slug: string; name: string; image_url?: string | null; hero_image_url?: string | null };
+  let cardImages: Record<string, string> = {};
+  let journeyStyles: JourneyStyle[] = [];
+  let loadingStyles = false;
+  const extraToCardImages = (ed: Record<string, unknown>): Record<string, string> => {
+    const raw = ed.card_images;
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+    return Object.fromEntries(Object.entries(raw as Record<string, unknown>).filter(([, v]) => typeof v === 'string' && v.trim()) as [string, string][]);
+  };
+  const loadJourneyStyles = async () => {
+    if (journeyStyles.length || loadingStyles) return;
+    loadingStyles = true;
+    try {
+      const res = await api.travelStyles.list({ status: 'published', limit: 100 });
+      journeyStyles = (res.data.items as unknown as Array<JourneyStyle & { sort_order?: number | null }>)
+        .filter((style) => style.slug && style.name)
+        .sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || a.name.localeCompare(b.name));
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Unable to load travel styles.', 'error');
+    } finally {
+      loadingStyles = false;
+    }
+  };
+  $: if (modalOpen && form.section_key.trim() === 'travel_styles') void loadJourneyStyles();
+
+  const MANAGED_KEYS = [...BG_KEYS, 'logos', 'slides', 'ranges', 'parks', 'steps', 'eyebrow', 'accent_title', 'quote', 'points', 'card_images', 'closing', 'image_caption', 'secondary_cta_text', 'secondary_cta_url'];
 
   const openMediaPicker = async (list: 'logos' | 'slides', index: number) => {
     mediaPicker = { list, index };
@@ -371,6 +399,7 @@
     logos = [];
     slides = [];
     costRanges = [];
+    cardImages = {};
     headingExtras = emptyHeadingExtras();
     void loadMedia();
     modalOpen = true;
@@ -396,6 +425,7 @@
     logos = extraToLogos(ed);
     slides = extraToSlides(ed);
     costRanges = extraToCostRanges(ed);
+    cardImages = extraToCardImages(ed);
     parksIntro = extraToParksIntro(ed);
     parkRows = extraToParkRows(ed);
     processIntro = extraToProcessIntro(ed);
@@ -413,7 +443,7 @@
     modalOpen = true;
   };
 
-  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); extraDataText = '{}'; bg = emptyBg(); logos = []; slides = []; costRanges = []; parksIntro = emptyParksIntro(); parkRows = []; processIntro = emptyProcessIntro(); stepRows = []; founderIntro = emptyFounderIntro(); headingExtras = emptyHeadingExtras(); mediaPicker = null; };
+  const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); extraDataText = '{}'; bg = emptyBg(); logos = []; slides = []; costRanges = []; cardImages = {}; parksIntro = emptyParksIntro(); parkRows = []; processIntro = emptyProcessIntro(); stepRows = []; founderIntro = emptyFounderIntro(); headingExtras = emptyHeadingExtras(); mediaPicker = null; };
 
   const save = async () => {
     const key = form.section_key.trim();
@@ -476,6 +506,13 @@
     // Merge the founder story section (eyebrow/accent/quote/caption + secondary CTA).
     if (form.section_key.trim() === 'founder_story') {
       extra = { ...extra, ...founderIntroToExtra() };
+    }
+
+    // "Choose your journey" card images; a cleared one falls back to the style's image.
+    if (form.section_key.trim() === 'travel_styles') {
+      const chosen = Object.fromEntries(Object.entries(cardImages).map(([slug, url]) => [slug, url.trim()]).filter(([, url]) => url));
+      if (Object.keys(chosen).length) extra.card_images = chosen;
+      else delete extra.card_images;
     }
 
     // Heading extras for sections without their own block: a blank field clears it.
@@ -853,6 +890,29 @@
         {/if}
 
         <!-- typical cost ranges repeater -->
+        {#if form.section_key.trim() === 'travel_styles'}
+          <div class="rounded-none border border-ink/10 bg-sand/25 p-4">
+            <p class="text-sm font-bold text-ink">Card images</p>
+            <p class="mt-1 text-xs text-ink/50">One card per published travel style. Choose or upload an image for any card; leave it empty to use the style's own image (Admin › Travel Styles). Names, short lines and prices come from the travel styles and their itineraries.</p>
+            {#if loadingStyles && !journeyStyles.length}
+              <p class="mt-3 text-xs text-ink/50">Loading travel styles…</p>
+            {/if}
+            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+              {#each journeyStyles as style (style.slug)}
+                {@const fallback = style.image_url || style.hero_image_url || ''}
+                <div class="rounded-none border border-ink/10 bg-surface p-3">
+                  <MediaPicker label={style.name} media={mediaItems} uploadFolder="homepage" aspect="aspect-[4/5]" value={cardImages[style.slug] ?? ''} on:change={(e) => (cardImages = { ...cardImages, [style.slug]: String(e.detail ?? '') })} />
+                  {#if !cardImages[style.slug]}
+                    <p class="mt-2 flex items-center gap-2 text-xs text-ink/50">
+                      {#if fallback}<img src={fallback} alt="" class="h-8 w-8 object-cover" />Using the style's own image{:else}No image yet: the card shows a plain dark panel{/if}
+                    </p>
+                  {/if}
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
         {#if form.section_key.trim() === 'cost_ranges'}
           <div class="grid gap-3 rounded-none border border-ink/10 bg-sand/25 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">

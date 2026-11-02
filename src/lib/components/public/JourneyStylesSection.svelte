@@ -20,6 +20,8 @@
   export let styles: TravelStyle[] = [];
   /** Published tours, for each style's "from" price. */
   export let tours: Tour[] = [];
+  /** Card images chosen in Admin › Homepage, by style slug; the style's own image otherwise. */
+  export let cardImages: Record<string, string> = {};
 
   $: cards = styles
     .filter((style) => style.slug && style.name)
@@ -27,7 +29,7 @@
       slug: style.slug,
       name: style.name,
       line: style.emotional_promise?.trim() || '',
-      image: style.image_url || style.hero_image_url || '',
+      image: cardImages[style.slug] || style.image_url || style.hero_image_url || '',
       from: styleFromPrice(style, tours)
     }));
 </script>

@@ -93,6 +93,12 @@
     const value = extra(row)[key];
     return typeof value === 'string' && value.trim() ? value : fallback;
   };
+  /** "Choose your journey" card images set in Admin › Homepage, by style slug. */
+  const cardImagesOf = (row: HomeSection | null): Record<string, string> => {
+    const raw = extra(row).card_images;
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+    return Object.fromEntries(Object.entries(raw as Record<string, unknown>).filter(([, v]) => typeof v === 'string' && v.trim())) as Record<string, string>;
+  };
   /**
    * The italic second half of a split heading. Its default only belongs to the
    * default title: under an edited title ("Signature Journeys") the old accent
@@ -189,6 +195,7 @@
         ctaHref={text(row, 'button_url', '/travel-styles')}
         {styles}
         tours={styleTours}
+        cardImages={cardImagesOf(row)}
       />
     </div>
 
