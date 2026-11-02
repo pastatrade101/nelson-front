@@ -42,3 +42,27 @@ export const categoryForStyle = <C extends CategoryLike>(style: TravelStyle, cat
 	const name = norm(style.name);
 	return name ? categories.find((category) => norm(category.name) === name) ?? null : null;
 };
+
+type PricedTour = { id?: unknown; category_id?: string | null; price_from?: number | null; currency?: string | null };
+
+/**
+ * A travel style's itineraries: the tours its page curates (its "tours" blocks)
+ * plus the tours filed under its category. Pass published tours only.
+ */
+export const styleTours = <T extends PricedTour>(style: TravelStyle, tours: T[]): T[] => {
+	const curated = new Set(
+		(Array.isArray(style.sections) ? style.sections : []).flatMap((block) =>
+			block?.type === 'tours' && Array.isArray(block.tour_ids) ? block.tour_ids.map(String) : []
+		)
+	);
+	return tours.filter((tour) => curated.has(String(tour.id ?? '')) || Boolean(style.category_id && tour.category_id === style.category_id));
+};
+
+/** The lowest "from" price per person (USD) among a style's itineraries; null when none has a price. */
+export const styleFromPrice = (style: TravelStyle, tours: PricedTour[]): number | null => {
+	const prices = styleTours(style, tours)
+		.filter((tour) => !tour.currency || tour.currency === 'USD')
+		.map((tour) => Number(tour.price_from))
+		.filter((price) => Number.isFinite(price) && price > 0);
+	return prices.length ? Math.min(...prices) : null;
+};

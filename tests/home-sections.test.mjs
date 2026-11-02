@@ -8,8 +8,8 @@ test('the page follows the CMS order, hero first and the closing band last', () 
   const keys = orderedHomeSections([
     row('final_cta', 0), row('how_it_works', 2), row('hero', 9), row('featured_tours', 1), row('about_hero', 0)
   ]).map(({ def }) => def.key);
-  // Saved rows in sort order; never-saved essentials (parks, founder, destinations, faq) after them.
-  assert.deepEqual(keys, ['hero', 'featured_tours', 'how_it_works', 'safari_parks_intro', 'founder_story', 'featured_destinations', 'faq', 'final_cta']);
+  // Saved rows in sort order; never-saved essentials after them, in the standard order.
+  assert.deepEqual(keys, ['hero', 'featured_tours', 'how_it_works', 'travel_styles', 'why_emnel', 'founder_story', 'featured_destinations', 'gallery', 'faq', 'final_cta']);
 });
 
 test('an inactive section is left out, even an essential', () => {
@@ -37,4 +37,15 @@ test('every section offers a field set the homepage can show', () => {
     assert.ok(def.fields.length > 0, def.key);
     assert.ok(def.help.length > 10, def.key);
   }
+});
+
+test('never-saved sections follow the standard order (the founder brief, Oct 2026)', () => {
+  const keys = orderedHomeSections([]).map(({ def }) => def.key);
+  assert.deepEqual(keys, ['hero', 'travel_styles', 'featured_tours', 'why_emnel', 'founder_story', 'how_it_works', 'featured_destinations', 'gallery', 'faq']);
+});
+
+test('sections outside the standard order appear only when saved and switched on', () => {
+  assert.ok(!orderedHomeSections([]).some(({ def }) => ['safari_parks_intro', 'partners'].includes(def.key)));
+  const keys = orderedHomeSections([row('hero', 0), row('safari_parks_intro', 1), row('partners', 2, false)]).map(({ def }) => def.key);
+  assert.ok(keys.includes('safari_parks_intro') && !keys.includes('partners'));
 });

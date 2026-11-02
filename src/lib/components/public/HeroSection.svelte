@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { fly } from 'svelte/transition';
-  import { ArrowRight, BadgeCheck, ChevronDown } from '@lucide/svelte';
-  import { revealHeading } from '$lib/animations';
+  import { onMount } from 'svelte';
+  import { ArrowRight, BadgeCheck, ChevronDown, Star } from '@lucide/svelte';
   import { brand } from '$lib/brand';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import { cdnUrl } from '$lib/img';
@@ -25,10 +24,15 @@
   // Crop / focus — the admin "Crop / focus" control (extra_data.media_position),
   // applied as object-position so the chosen part of the image stays in frame.
   export let imagePosition = 'center';
+  /** Published guest reviews, summarised; the score line shows only when there are some. */
+  export let reviewScore: { average: number; count: number } | null = null;
+  export let reviewsHref = '#guest-reviews';
 
-  // Overlay — fully controlled from Admin → Homepage → Background & overlay
-  // (hero section). There is NO hardcoded overlay: at opacity 0 the image shows
-  // with full clarity. Text stays legible via a text-shadow, not a dark scrim.
+  // Overlay — controlled from Admin → Homepage → Background & overlay (hero
+  // section); at opacity 0 none is drawn. Legibility does not depend on it: a
+  // fixed scrim sits behind the menu and the text block only (see markup), so the
+  // headline, buttons and menu read at full contrast from the first frame over
+  // any photo or video, and the rest of the image stays clear.
   export let overlayColor = '#1C1A16';
   export let overlayOpacity = 0.3; // 0–1; 0 = no overlay
   export let overlayGradient = true;
@@ -68,11 +72,53 @@
   $: fileVideo = /^(https?:\/\/|\/\/|\/).+\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(rawVideo) ? rawVideo : '';
   $: ytId = (rawVideo.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/) || [])[1] || '';
   $: vimeoId = (rawVideo.match(/vimeo\.com\/(?:video\/)?(\d+)/) || [])[1] || '';
-  $: embedVideo = ytId
-    ? `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&fs=0&iv_load_policy=3`
-    : vimeoId
-      ? `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&loop=1&background=1`
-      : '';
+  // The embed is added after hydration (it is decoration, not content) so the
+  // player can be told this page's origin and report its progress.
+  let origin = '';
+  $: embedVideo = !origin
+    ? ''
+    : ytId
+      ? `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&fs=0&iv_load_policy=3&cc_load_policy=0&enablejsapi=1&origin=${encodeURIComponent(origin)}`
+      : vimeoId
+        ? `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&loop=1&background=1`
+        : '';
+
+  // YouTube draws its own title bar, a pause button and "More videos" over the
+  // first seconds of playback, whatever the embed parameters say — that was the
+  // haze over the headline and menu. The player stays invisible (the poster image
+  // shows) until it has played past them, then fades in.
+  const YT_CHROME_SECONDS = 3.5;
+  let videoFrame: HTMLIFrameElement;
+  let videoShown = false;
+  let revealTimer: ReturnType<typeof setTimeout> | undefined;
+  const onVideoLoad = () => {
+    if (!ytId) { videoShown = true; return; }
+    // Ask the player to report its state (the protocol its own IFrame API uses).
+    videoFrame?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), 'https://www.youtube.com');
+    // If it never reports (blocked scripts), reveal once its chrome has surely gone.
+    revealTimer = setTimeout(() => (videoShown = true), 9000);
+  };
+  // It also shows the video's captions over the hero ("as the sun rises in
+  // Tanzania you…"); a background video has no use for them.
+  const playerCommand = (func: string, args: unknown[] = []) =>
+    videoFrame?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args, id: 1, channel: 'widget' }), 'https://www.youtube.com');
+  let captionsOff = false;
+  const onPlayerMessage = (event: MessageEvent) => {
+    if (event.origin !== 'https://www.youtube.com' || typeof event.data !== 'string') return;
+    try {
+      const message = JSON.parse(event.data) as { event?: string; info?: { currentTime?: number } | null };
+      if (message.event !== 'infoDelivery') return;
+      const time = Number(message.info?.currentTime);
+      // The captions module loads with playback, so it is unloaded once playing.
+      if (!captionsOff && time > 0) { captionsOff = true; playerCommand('unloadModule', ['captions']); playerCommand('unloadModule', ['cc']); }
+      if (!videoShown && time >= YT_CHROME_SECONDS) videoShown = true;
+    } catch { /* not the player's message */ }
+  };
+  onMount(() => {
+    origin = window.location.origin;
+    window.addEventListener('message', onPlayerMessage);
+    return () => { window.removeEventListener('message', onPlayerMessage); clearTimeout(revealTimer); };
+  });
 
   // Scroll roughly one viewport down when the "scroll" cue is tapped.
   const scrollDown = () => {
@@ -109,8 +155,10 @@
     ></video>
   {:else if embedVideo}
     <!-- A YouTube/Vimeo link embeds as a background iframe, scaled to cover. -->
-    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+    <div class={`pointer-events-none absolute inset-0 overflow-hidden transition-opacity duration-1000 ${videoShown ? 'opacity-100' : 'opacity-0'}`}>
       <iframe
+        bind:this={videoFrame}
+        on:load={onVideoLoad}
         class="hero-bg-video absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         src={embedVideo}
         title="Background video"
@@ -126,15 +174,17 @@
   {#if overlayStyle}
     <div class="pointer-events-none absolute inset-0" style={overlayStyle}></div>
   {/if}
+  <!-- Fixed legibility scrims: behind the menu, and behind the text block
+       (bottom, weighted left where the copy sits). Not CMS-controlled on purpose. -->
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/50 to-transparent"></div>
+  <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,0.66)_0%,rgba(0,0,0,0.48)_45%,rgba(0,0,0,0.3)_62%,rgba(0,0,0,0)_85%)] md:bg-[linear-gradient(0deg,rgba(0,0,0,0.5)_0%,rgba(0,0,0,0.2)_45%,rgba(0,0,0,0)_75%),linear-gradient(90deg,rgba(0,0,0,0.42)_0%,rgba(0,0,0,0.16)_45%,rgba(0,0,0,0)_68%)]"></div>
 
   <div class="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1500px] items-end px-5 pb-20 pt-28 md:px-8 md:pb-24 md:pt-36">
-    <!-- text-shadow keeps copy legible on a bright, un-overlaid photo (buttons reset it) -->
+    <!-- text-shadow keeps copy crisp on a bright photo (buttons reset it) -->
     <div class="max-w-[620px] [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]">
-      <p class="brand-eyebrow" in:fly={{ y: 12, duration: 420 }}>{eyebrow}</p>
-      {#key title}
-        <h1 class="type-h1 mt-6 max-w-[600px]" use:revealHeading={{ stagger: 0.018 }}>{title}</h1>
-      {/key}
-      <p class="type-lead mt-5 max-w-[520px] text-white/90" in:fly={{ y: 14, duration: 480, delay: 120 }}>{description}</p>
+      <p class="brand-eyebrow">{eyebrow}</p>
+      <h1 class="type-h1 mt-6 max-w-[600px]">{title}</h1>
+      <p class="type-lead mt-5 max-w-[520px] text-white/90">{description}</p>
 
       <div class="mt-8 flex flex-col gap-4 [text-shadow:none] sm:flex-row sm:items-center">
         <a class="inline-flex h-12 items-center justify-center gap-3 bg-goldfinch-gold px-7 text-[13px] font-semibold tracking-[0.08em] text-deep-green transition hover:bg-savanna sm:min-w-[230px]" href={primaryCtaUrl}>
@@ -144,6 +194,13 @@
           {secondaryCta} <ArrowRight size={17} strokeWidth={2.4} />
         </a>
       </div>
+
+      {#if reviewScore && reviewScore.count > 0}
+        <a class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-goldfinch-gold" href={reviewsHref}>
+          <Star size={16} fill="currentColor" strokeWidth={0} class="text-goldfinch-gold" aria-hidden="true" />
+          {reviewScore.average.toFixed(1)}/5 from {reviewScore.count} guest review{reviewScore.count === 1 ? '' : 's'}
+        </a>
+      {/if}
 
       <div class="mt-10 flex max-w-[620px] items-start gap-2.5 text-sm leading-[1.6] text-white/82">
         <BadgeCheck size={18} class="mt-px shrink-0 text-goldfinch-gold" strokeWidth={2.1} aria-hidden="true" />

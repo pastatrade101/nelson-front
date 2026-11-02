@@ -63,12 +63,13 @@
   // Parks intro, how it works and founder story edit their extras in their own blocks.
   const OWN_EXTRAS_BLOCK = ['safari_parks_intro', 'how_it_works', 'founder_story'];
   $: genericExtras = (formDef && !OWN_EXTRAS_BLOCK.includes(formDef.key) ? formDef.extras : []) as HomeExtra[];
-  const emptyHeadingExtras = (): Record<HomeExtra, string> => ({ eyebrow: '', accent_title: '', quote: '' });
+  const emptyHeadingExtras = (): Record<HomeExtra, string> => ({ eyebrow: '', accent_title: '', quote: '', points: '' });
   let headingExtras = emptyHeadingExtras();
   const EXTRA_LABELS: Record<HomeExtra, { label: string; placeholder: string }> = {
     eyebrow: { label: 'Eyebrow (small label above the heading)', placeholder: 'e.g. Explore Real Itineraries' },
     accent_title: { label: 'Accent (italic end of the heading)', placeholder: 'Leave empty for none' },
-    quote: { label: 'Quote', placeholder: 'Optional pull quote' }
+    quote: { label: 'Quote', placeholder: 'Optional pull quote' },
+    points: { label: 'Promises (one per line)', placeholder: 'One local team from first conversation to final transfer' }
   };
 
   const emptyForm = () => ({
@@ -155,7 +156,7 @@
   // Shared media-library picker — targets either a logo row or a slide row.
   let mediaPicker: { list: 'logos' | 'slides'; index: number } | null = null;
 
-  const MANAGED_KEYS = [...BG_KEYS, 'logos', 'slides', 'ranges', 'parks', 'steps', 'eyebrow', 'accent_title', 'quote', 'closing', 'image_caption', 'secondary_cta_text', 'secondary_cta_url'];
+  const MANAGED_KEYS = [...BG_KEYS, 'logos', 'slides', 'ranges', 'parks', 'steps', 'eyebrow', 'accent_title', 'quote', 'points', 'closing', 'image_caption', 'secondary_cta_text', 'secondary_cta_url'];
 
   const openMediaPicker = async (list: 'logos' | 'slides', index: number) => {
     mediaPicker = { list, index };
@@ -403,7 +404,8 @@
     headingExtras = {
       eyebrow: typeof ed.eyebrow === 'string' ? ed.eyebrow : '',
       accent_title: typeof ed.accent_title === 'string' ? ed.accent_title : '',
-      quote: typeof ed.quote === 'string' ? ed.quote : ''
+      quote: typeof ed.quote === 'string' ? ed.quote : '',
+      points: Array.isArray(ed.points) ? ed.points.filter((p) => typeof p === 'string').join('\n') : ''
     };
     const rest = Object.fromEntries(Object.entries(ed).filter(([key]) => !MANAGED_KEYS.includes(key)));
     extraDataText = Object.keys(rest).length ? JSON.stringify(rest, null, 2) : '{}';
@@ -479,7 +481,9 @@
     // Heading extras for sections without their own block: a blank field clears it.
     for (const key of genericExtras) {
       const value = headingExtras[key].trim();
-      if (value) extra[key] = value;
+      // A list (promises) is saved one item per line.
+      const saved = key === 'points' ? value.split('\n').map((line) => line.trim()).filter(Boolean) : value;
+      if (saved.length) extra[key] = saved;
       else delete extra[key];
     }
 
@@ -708,7 +712,15 @@
         {#if genericExtras.length}
           <div class="grid gap-4 sm:grid-cols-2">
             {#each genericExtras as key (key)}
-              <AdminFormInput label={EXTRA_LABELS[key].label} name={key} bind:value={headingExtras[key]} placeholder={EXTRA_LABELS[key].placeholder} />
+              {#if key === 'points'}
+                <label class="grid gap-1.5 text-sm font-semibold text-ink sm:col-span-2">
+                  {EXTRA_LABELS[key].label}
+                  <textarea class="min-h-[110px] rounded-lg border border-ink/10 bg-surface px-3 py-2 text-sm font-normal outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder={EXTRA_LABELS[key].placeholder} bind:value={headingExtras[key]}></textarea>
+                  <span class="text-xs font-normal text-ink/45">Leave empty to show the standard four promises.</span>
+                </label>
+              {:else}
+                <AdminFormInput label={EXTRA_LABELS[key].label} name={key} bind:value={headingExtras[key]} placeholder={EXTRA_LABELS[key].placeholder} />
+              {/if}
             {/each}
           </div>
         {/if}

@@ -77,7 +77,8 @@
     <div class="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-t from-black/35 to-transparent"></div>
   {/if}
 
-  <div class="container-shell py-20 md:py-28 lg:py-32" use:fadeUpOnScroll={{ y: 18 }}>
+  <!-- An `aside` (the homepage's enquiry form) sits beside the copy from desktop up, under it on phones. -->
+  <div class={`container-shell py-20 md:py-28 lg:py-32 ${$$slots.aside ? 'grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,500px)] lg:items-center lg:gap-14' : ''}`} use:fadeUpOnScroll={{ y: 18 }}>
     <div class="max-w-2xl">
       {#if eyebrow}
         <p class="eyebrow text-goldfinch-gold">{eyebrow}</p>
@@ -120,6 +121,8 @@
         </div>
       {/if}
     </div>
+
+    {#if $$slots.aside}<slot name="aside" />{/if}
 
     {#if points.length}
       <ul class="mt-12 flex max-w-3xl flex-wrap gap-x-7 gap-y-3 border-t border-white/20 pt-6">

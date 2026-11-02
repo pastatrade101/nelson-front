@@ -8,16 +8,19 @@
   import GuestReviewsSection from '$lib/components/public/GuestReviewsSection.svelte';
   import HeroSection from '$lib/components/public/HeroSection.svelte';
   import HomeProofStrip from '$lib/components/public/HomeProofStrip.svelte';
+  import JourneyStylesSection from '$lib/components/public/JourneyStylesSection.svelte';
   import JournalFeatureSection from '$lib/components/public/JournalFeatureSection.svelte';
   import PartnerStrip from '$lib/components/public/PartnerStrip.svelte';
   import PriceRangeBlock from '$lib/components/public/PriceRangeBlock.svelte';
+  import QuickEnquiryForm from '$lib/components/public/QuickEnquiryForm.svelte';
   import SafariParksIntroSection from '$lib/components/public/SafariParksIntroSection.svelte';
   import SafariProcessSection from '$lib/components/public/SafariProcessSection.svelte';
   import SafariShowcaseGrid from '$lib/components/public/SafariShowcaseGrid.svelte';
   import SectionHeader from '$lib/components/public/SectionHeader.svelte';
+  import WhyEmnelSection from '$lib/components/public/WhyEmnelSection.svelte';
   import { sectionReveal, staggeredCardReveal } from '$lib/animations';
   import { orderedHomeSections } from '$lib/homeSections';
-  import type { BlogPost, Destination, FAQ, GalleryItem, Testimonial, Tour } from '$lib/types';
+  import type { BlogPost, Destination, FAQ, GalleryItem, Testimonial, Tour, TravelStyle } from '$lib/types';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -44,12 +47,38 @@
   $: gallery = (data.gallery ?? []) as GalleryItem[];
   $: testimonials = (data.testimonials ?? []) as Testimonial[];
   $: posts = (data.posts ?? []) as BlogPost[];
+  $: styles = (data.styles ?? []) as TravelStyle[];
+  $: styleTours = (data.styleTours ?? []) as Tour[];
   $: rows = (data.sectionRows ?? []) as unknown as HomeSection[];
 
   // The page, top to bottom, exactly as the CMS homepage editor orders it
   // (Admin › Homepage): its sort order, its Active switches. See
-  // $lib/homeSections for the list both sides share.
-  $: sections = orderedHomeSections(rows);
+  // $lib/homeSections for the list both sides share. A section whose content is
+  // empty (no reviews, no posts yet…) hides itself and appears once there is some.
+  $: sections = orderedHomeSections(rows).filter(({ def, row }) => hasContent(def.key, row));
+
+  // Reactive so `sections` recomputes after the collections it reads.
+  $: hasContent = (key: string, row: HomeSection | null) => {
+    switch (key) {
+      case 'travel_styles': return styles.length > 0;
+      case 'featured_tours': return tours.length > 0;
+      case 'cost_ranges': return costRows(row).length > 0;
+      case 'testimonials': return testimonials.length > 0;
+      case 'featured_destinations': return destinations.length > 0;
+      case 'gallery': return gallery.length > 0;
+      case 'blog_preview': return posts.length > 0;
+      case 'faq': return faqs.length > 0;
+      case 'partners': return (list(row, 'logos') ?? []).length > 0;
+      default: return true;
+    }
+  };
+
+  // Why Emnel is a dark band unless a dark section sits right next to it (the
+  // founder story does whenever there are no reviews between them): two dark
+  // bands in a row read as one.
+  const DARK = new Set(['founder_story', 'blog_preview', 'safari_parks_intro', 'final_cta']);
+  $: toneAt = (index: number): 'dark' | 'light' =>
+    [sections[index - 1], sections[index + 1]].some((s) => s && DARK.has(s.def.key)) ? 'light' : 'dark';
 
   // ── reading one section's CMS fields ──────────────────────────────────────
   // A field the editor filled in always wins. Built-in text only stands in for
@@ -99,36 +128,34 @@
       .filter((r) => typeof r.label === 'string' && r.label.trim() && typeof r.from === 'string' && r.from.trim())
       .map((r) => ({ label: String(r.label), from: String(r.from), note: typeof r.note === 'string' ? r.note : undefined, image: typeof r.image === 'string' ? r.image : undefined }));
 
-  // The photo gallery is not a CMS section: it sits after the destinations (or
-  // before the FAQ / closing band when those are switched off).
-  $: galleryAfter = sections.find(({ def }) => def.key === 'featured_destinations')?.def.key ?? null;
-  $: galleryBefore = galleryAfter ? null : sections.find(({ def }) => def.key === 'faq' || def.key === 'final_cta')?.def.key ?? null;
   // Reviews show once: in their own section when it is on, else beside the photos.
-  $: reviewsSectionOn = sections.some(({ def }) => def.key === 'testimonials') && testimonials.length > 0;
+  $: reviewsSectionOn = sections.some(({ def }) => def.key === 'testimonials');
+  // The hero's score line links to the reviews section when it is on the page.
+  $: reviewsHref = reviewsSectionOn ? '#guest-reviews' : '#recent-safaris';
+  $: reviewScore = (data.reviewScore ?? null) as { average: number; count: number } | null;
+
+  const lines = (row: HomeSection | null) => {
+    const value = list(row, 'points');
+    return value?.filter((p): p is string => typeof p === 'string' && p.trim().length > 0);
+  };
 
   const DEFAULT_PARKS_CONTENT =
     'Emnel Adventures was founded in Arusha by Tanzanians who know these parks, seasons and routes first-hand. You plan directly with the local team responsible for your safari.\n\nEvery itinerary is private and tailored around your dates, pace, interests and budget - never pulled from a shelf.';
   const DEFAULT_FOUNDER_CONTENT =
     "Emnel Adventures started in Arusha in 2016 with a name, a story, and $200. Nelson started Emnel with a belief that there was a better way to show Tanzania than through a reseller or fixed-package operator.\n\nToday, Nelson and our team of certified Tanzanian guides handle every safari personally - from the first message through the last day in the field.";
+  const DEFAULT_WHY_CONTENT =
+    'Emnel Adventures was founded in Arusha by Tanzanians who know these parks, seasons and routes first-hand. You plan directly with the local team responsible for your safari.\n\nEvery itinerary is private and tailored around your dates, pace, interests and budget - never pulled from a shelf.';
+  const DEFAULT_PROMISES = [
+    'One local team from first conversation to final transfer',
+    'No reseller layer or call-centre handoff',
+    'Private vehicle, guide and daily pace',
+    'Season-led advice on parks, lodges and timing'
+  ];
   const DEFAULT_SHOWCASE_CONTENT =
     'Compare real private safari routes with clear durations and starting prices. Every itinerary can be adjusted around your dates, pace, lodges and travel season.';
 </script>
 
-{#snippet gallerySection()}
-  <div id="recent-safaris" class="scroll-mt-20">
-    <GallerySection
-      images={gallery}
-      testimonials={reviewsSectionOn ? [] : testimonials}
-      eyebrow="Real Traveller Proof"
-      title="From Our Recent Safaris"
-      description="Real moments from Emnel journeys, labelled by the place and safari they belong to."
-    />
-  </div>
-{/snippet}
-
-{#each sections as { def, row } (def.key)}
-  {#if galleryBefore === def.key}{@render gallerySection()}{/if}
-
+{#each sections as { def, row }, index (def.key)}
   {#if def.key === 'hero'}
     {@const o = overlay(row, 0.3)}
     <HeroSection
@@ -146,10 +173,26 @@
       overlayColor={o.overlayColor}
       overlayOpacity={o.overlayOpacity}
       overlayGradient={o.overlayGradient}
+      {reviewScore}
+      {reviewsHref}
     />
     <HomeProofStrip />
 
-  {:else if def.key === 'featured_tours' && tours.length}
+  {:else if def.key === 'travel_styles'}
+    <div id="choose-your-journey" class="scroll-mt-20">
+      <JourneyStylesSection
+        eyebrow={extraText(row, 'eyebrow', 'Travel Styles')}
+        title={text(row, 'title', 'Choose Your')}
+        accentTitle={accent(row, 'Journey')}
+        subtitle={text(row, 'subtitle', 'Start with the kind of trip you have in mind. Every journey is private and planned around your dates, pace and budget.')}
+        ctaLabel={text(row, 'button_text', 'Compare Travel Styles')}
+        ctaHref={text(row, 'button_url', '/travel-styles')}
+        {styles}
+        tours={styleTours}
+      />
+    </div>
+
+  {:else if def.key === 'featured_tours'}
     <div id="popular-safaris" class="scroll-mt-20">
       <SafariShowcaseGrid
         eyebrow={extraText(row, 'eyebrow', 'Explore Real Itineraries')}
@@ -162,7 +205,22 @@
       />
     </div>
 
-  {:else if def.key === 'cost_ranges' && costRows(row).length}
+  {:else if def.key === 'why_emnel'}
+    <div id="why-emnel" class="scroll-mt-20">
+      <WhyEmnelSection
+        eyebrow={extraText(row, 'eyebrow', 'Why Emnel')}
+        title={text(row, 'title', 'Private Tanzania safaris,')}
+        accentTitle={accent(row, 'planned where they happen.')}
+        content={text(row, 'content', DEFAULT_WHY_CONTENT)}
+        quote={extraText(row, 'quote', '“We are not resellers. We are the guides.”')}
+        ctaLabel={text(row, 'button_text', 'Why Travel With Emnel')}
+        ctaHref={text(row, 'button_url', '/about')}
+        promises={lines(row) ?? DEFAULT_PROMISES}
+        tone={toneAt(index)}
+      />
+    </div>
+
+  {:else if def.key === 'cost_ranges'}
     <section id="typical-costs" class="scroll-mt-20 bg-canvas py-16 md:py-24" use:sectionReveal>
       <div class="container-shell">
         <PriceRangeBlock title={text(row, 'title', '')} subtitle={text(row, 'subtitle', '')} ranges={costRows(row)} />
@@ -219,7 +277,7 @@
       />
     </div>
 
-  {:else if def.key === 'testimonials' && testimonials.length}
+  {:else if def.key === 'testimonials'}
     <div id="guest-reviews" class="scroll-mt-20">
       <GuestReviewsSection
         {testimonials}
@@ -233,7 +291,7 @@
       />
     </div>
 
-  {:else if def.key === 'featured_destinations' && destinations.length}
+  {:else if def.key === 'featured_destinations'}
     <section id="destinations" class="scroll-mt-20 bg-sand/40 py-16 md:py-24" use:sectionReveal>
       <div class="container-shell">
         <div class="flex flex-wrap items-end justify-between gap-4">
@@ -254,7 +312,18 @@
       </div>
     </section>
 
-  {:else if def.key === 'blog_preview' && posts.length}
+  {:else if def.key === 'gallery'}
+    <div id="recent-safaris" class="scroll-mt-20">
+      <GallerySection
+        images={gallery}
+        testimonials={reviewsSectionOn ? [] : testimonials}
+        eyebrow={extraText(row, 'eyebrow', 'Real Traveller Proof')}
+        title={text(row, 'title', 'From Our Recent Safaris')}
+        description={text(row, 'subtitle', 'Real moments from Emnel journeys, labelled by the place and safari they belong to.')}
+      />
+    </div>
+
+  {:else if def.key === 'blog_preview'}
     <div id="journal" class="scroll-mt-20">
       <JournalFeatureSection
         {posts}
@@ -266,7 +335,7 @@
       />
     </div>
 
-  {:else if def.key === 'faq' && faqs.length}
+  {:else if def.key === 'faq'}
     <!-- Shown in full in the server HTML, but not marked up as FAQPage here: every
          question on the homepage is marked up on the page that owns it (see
          ownedFaqs in $lib/faqEntities), and Google asks for one instance per site. -->
@@ -281,25 +350,27 @@
       </div>
     </section>
 
-  {:else if def.key === 'partners' && (list(row, 'logos') ?? []).length}
+  {:else if def.key === 'partners'}
     <PartnerStrip title={text(row, 'title', '')} logos={(list(row, 'logos') ?? []) as Array<{ image_url: string; name?: string; url?: string }>} />
 
   {:else if def.key === 'final_cta'}
     {@const o = overlay(row, 0.7)}
-    <FinalCtaSection
-      eyebrow={extraText(row, 'eyebrow', '')}
-      title={text(row, 'title', 'Ready to plan your private Tanzania safari?')}
-      subtitle={text(row, 'subtitle', 'Talk to a local expert in Arusha and travel with confidence.')}
-      primaryLabel={text(row, 'button_text', 'Plan My Safari')}
-      primaryHref={text(row, 'button_url', '/plan-my-trip')}
-      imageUrl={text(row, 'image_url', '')}
-      videoUrl={o.videoUrl}
-      imagePosition={o.imagePosition}
-      overlayColor={o.overlayColor}
-      overlayOpacity={o.overlayOpacity}
-      overlayGradient={o.overlayGradient}
-    />
+    <div id="enquire" class="scroll-mt-20">
+      <FinalCtaSection
+        eyebrow={extraText(row, 'eyebrow', '')}
+        title={text(row, 'title', 'Ready to plan your private Tanzania safari?')}
+        subtitle={text(row, 'subtitle', 'Talk to a local expert in Arusha and travel with confidence.')}
+        primaryLabel={text(row, 'button_text', 'Plan My Safari')}
+        primaryHref={text(row, 'button_url', '/plan-my-trip')}
+        imageUrl={text(row, 'image_url', '')}
+        videoUrl={o.videoUrl}
+        imagePosition={o.imagePosition}
+        overlayColor={o.overlayColor}
+        overlayOpacity={o.overlayOpacity}
+        overlayGradient={o.overlayGradient}
+      >
+        <QuickEnquiryForm slot="aside" plannerHref={text(row, 'button_url', '/plan-my-trip')} />
+      </FinalCtaSection>
+    </div>
   {/if}
-
-  {#if galleryAfter === def.key}{@render gallerySection()}{/if}
 {/each}

@@ -69,6 +69,7 @@
   const paymentOptions: Option[] = Object.entries(paymentMeta).map(([value, m]) => ({ value, label: m.label }));
   const sourceLabels: Record<string, string> = {
     website_booking_form: 'Website',
+    begin_your_journey: 'Homepage enquiry',
     plan_my_trip: 'Plan My Safari',
     ai_handoff: 'AI Advisor',
     whatsapp: 'WhatsApp',

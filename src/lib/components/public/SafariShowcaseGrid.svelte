@@ -30,7 +30,7 @@
 
   const money = (tour: Tour, cur: CurrencyStoreState) => {
     if (!tour.price_from) return undefined;
-    return `From ${formatUsd(tour.price_from, cur)}`;
+    return `From ${formatUsd(tour.price_from, cur)} per person`;
   };
 
   const toCard = (tour: Tour, cur: CurrencyStoreState): ShowcaseCard => {
@@ -62,16 +62,17 @@
   // with invented packages: fewer real routes is better than fabricated proof.
   $: cards = tourCards.slice(0, 6);
 
-  const layout = [
-    'lg:col-span-2 lg:row-span-2',
-    'lg:col-span-2',
-    '',
-    '',
-    'lg:col-span-2',
-    'lg:col-span-2'
-  ];
+  // Desktop mosaic on four columns. Six tiles: a feature, two wide, two compact,
+  // two wide. Five (the usual Featured set) would leave a hole after the last
+  // wide tile, so five is the feature beside a 2×2 block of compact tiles.
+  const SIX = ['lg:col-span-2 lg:row-span-2', 'lg:col-span-2', '', '', 'lg:col-span-2', 'lg:col-span-2'];
+  const FIVE = ['lg:col-span-2 lg:row-span-2', '', '', '', ''];
+  $: five = cards.length === 5;
+  $: layout = five ? FIVE : SIX;
+  // On two columns an odd count leaves the last tile alone; let it take the row.
+  $: tileClass = (i: number) => `${layout[i] ?? ''} ${cards.length % 2 && i === cards.length - 1 ? 'md:col-span-2 lg:col-span-1' : ''}`;
 
-  const isCompact = (index: number) => index === 2 || index === 3;
+  $: isCompact = (index: number) => (five ? index > 0 : index === 2 || index === 3);
 </script>
 
 <section class="bg-canvas text-ink pb-16 md:pb-24" use:fadeUpOnScroll={{ y: 12 }}>
@@ -102,7 +103,7 @@
   >
       {#each cards as card, i}
         <a
-          class={`showcase-card group relative isolate min-h-[360px] overflow-hidden bg-midnight md:min-h-[320px] lg:min-h-0 ${layout[i] ?? ''}`}
+          class={`showcase-card group relative isolate min-h-[360px] overflow-hidden bg-midnight md:min-h-[320px] lg:min-h-0 ${tileClass(i)}`}
           href={card.href}
           aria-label={`Explore ${card.title}`}
           on:click={() => trackEvent('tour_card_click', { tour_id: card.id, tour_title: card.title })}

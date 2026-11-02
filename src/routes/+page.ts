@@ -1,7 +1,7 @@
 import type { PageLoad } from './$types';
 import { cachedJson } from '$lib/cache';
 import { generalFaqQuery } from '$lib/faqEntities';
-import type { BlogPost, Destination, FAQ, GalleryItem, Paginated, Testimonial, Tour } from '$lib/types';
+import type { BlogPost, Destination, FAQ, GalleryItem, Paginated, Testimonial, Tour, TravelStyle } from '$lib/types';
 
 type ApiEnvelope<T> = { data?: T };
 type HomeSection = Record<string, unknown> & { section_key: string };
@@ -53,7 +53,7 @@ export const load: PageLoad = async ({ fetch }) => {
   // initial HTML and avoids a large post-hydration layout shift. The remaining
   // homepage collections are fetched in the same pass so the V2 page arrives
   // complete instead of assembling itself through six client-side requests.
-  const [sectionRows, tourPage, destinationPage, faqPage, galleryPage, testimonialPage, blogPage] = await Promise.all([
+  const [sectionRows, tourPage, destinationPage, faqPage, galleryPage, testimonialPage, blogPage, stylePage, allTours] = await Promise.all([
     safeJson<HomeSection[]>('/api/homepage', fetch, []),
     homepageTours(fetch),
     safeJson<Paginated<Destination>>('/api/destinations?status=published&limit=12', fetch, {
@@ -65,16 +65,30 @@ export const load: PageLoad = async ({ fetch }) => {
       items: [],
       pagination: { page: 1, limit: 8, total: 0, totalPages: 0 }
     }),
-    safeJson<Paginated<Testimonial>>('/api/testimonials?status=published&limit=12', fetch, {
+    // Every published review: the section shows three, the hero's score counts them all.
+    safeJson<Paginated<Testimonial>>('/api/testimonials?status=published&limit=100', fetch, {
       items: [],
-      pagination: { page: 1, limit: 12, total: 0, totalPages: 0 }
+      pagination: { page: 1, limit: 100, total: 0, totalPages: 0 }
     }),
     // The journal preview section (blog_preview) shows the latest articles.
     safeJson<Paginated<BlogPost>>('/api/blog?status=published&limit=3', fetch, {
       items: [],
       pagination: { page: 1, limit: 3, total: 0, totalPages: 0 }
-    })
+    }),
+    // "Choose your journey": the travel styles, and every published tour for their prices
+    // (the same requests the travel style pages make, so usually cached).
+    safeJson<Paginated<TravelStyle>>('/api/travel-styles?status=published&limit=100', fetch, {
+      items: [],
+      pagination: { page: 1, limit: 100, total: 0, totalPages: 0 }
+    }),
+    safeJson<Paginated<Tour>>('/api/tours?status=published&limit=100', fetch, NO_TOURS)
   ]);
+
+  // The hero's score line: an average of the ratings published reviews carry.
+  const rated = testimonialPage.items.map((t) => Number(t.rating)).filter((r) => Number.isFinite(r) && r > 0);
+  const reviewScore = rated.length
+    ? { average: rated.reduce((sum, r) => sum + r, 0) / rated.length, count: rated.length }
+    : null;
 
   const sections = Object.fromEntries(sectionRows.map((section) => [section.section_key, section]));
   const destinations = [...destinationPage.items]
@@ -101,6 +115,11 @@ export const load: PageLoad = async ({ fetch }) => {
     faqs: faqPage.items,
     gallery: galleryPage.items,
     testimonials,
-    posts: blogPage.items.filter((post) => !post.status || post.status === 'published')
+    reviewScore,
+    posts: blogPage.items.filter((post) => !post.status || post.status === 'published'),
+    styles: [...stylePage.items]
+      .filter((style) => !style.status || style.status === 'published')
+      .sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || a.name.localeCompare(b.name)),
+    styleTours: allTours.items
   };
 };

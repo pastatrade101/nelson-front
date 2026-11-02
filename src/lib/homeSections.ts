@@ -10,8 +10,8 @@
 /** Standard fields every section row has (homepage_sections columns). */
 export type HomeField = 'title' | 'subtitle' | 'content' | 'image_url' | 'button' | 'background';
 
-/** Extra fields kept in extra_data, edited with their own inputs. */
-export type HomeExtra = 'eyebrow' | 'accent_title' | 'quote';
+/** Extra fields kept in extra_data, edited with their own inputs. `points` is a list, one per line. */
+export type HomeExtra = 'eyebrow' | 'accent_title' | 'quote' | 'points';
 
 export type HomeSectionDef = {
   key: string;
@@ -26,46 +26,48 @@ export type HomeSectionDef = {
   defaultOn?: boolean;
 };
 
+// In the homepage's standard order (the founder's brief, Oct 2026). The CMS sort
+// order decides the live page; this order only places sections never saved.
 export const HOME_SECTIONS: HomeSectionDef[] = [
   {
     key: 'hero',
     label: 'Hero',
-    help: 'The top of the page. The title is the page headline (H1); the subtitle sits under it.',
+    help: 'The top of the page, with the trust strip under it. The title is the page headline (H1); the subtitle sits under it. A review score appears under the buttons once guest reviews are published.',
     fields: ['title', 'subtitle', 'image_url', 'button', 'background'],
     extras: ['eyebrow'],
     defaultOn: true
   },
   {
-    key: 'featured_tours',
-    aliases: ['safari_showcase'],
-    label: 'Safari itineraries',
-    help: 'The grid of popular itineraries with their durations and starting prices.',
+    key: 'travel_styles',
+    label: 'Choose your journey',
+    help: 'One card per published travel style (Admin › Travel Styles), with its image, promise and the lowest "from" price of its itineraries.',
     fields: ['title', 'subtitle', 'button'],
     extras: ['eyebrow', 'accent_title'],
     defaultOn: true
   },
   {
-    key: 'cost_ranges',
-    label: 'Typical costs',
-    help: 'Guide prices per person per day, one card per comfort level.',
-    fields: ['title', 'subtitle'],
-    extras: []
-  },
-  {
-    key: 'safari_parks_intro',
-    label: 'Safari parks intro',
-    help: 'Introduction to the parks: text, a quote, the parks list, stats and a closing line.',
-    fields: ['title', 'content', 'button'],
-    extras: [],
-    defaultOn: true
-  },
-  {
-    key: 'how_it_works',
-    label: 'How it works',
-    help: 'The planning steps from first message to first game drive.',
+    key: 'featured_tours',
+    aliases: ['safari_showcase'],
+    label: 'Signature Journeys',
+    help: 'The tours ticked Featured in the tour editor, with durations and "from" prices per person.',
     fields: ['title', 'subtitle', 'button'],
-    extras: [],
+    extras: ['eyebrow', 'accent_title'],
     defaultOn: true
+  },
+  {
+    key: 'why_emnel',
+    label: 'Why Emnel',
+    help: 'Why travel with Emnel: a short text, a quote and the Emnel promises (one per line).',
+    fields: ['title', 'content', 'button'],
+    extras: ['eyebrow', 'accent_title', 'quote', 'points'],
+    defaultOn: true
+  },
+  {
+    key: 'testimonials',
+    label: 'Guest reviews',
+    help: 'Published guest reviews (managed under Testimonials) with this heading. Hidden until at least one review is published.',
+    fields: ['title', 'subtitle', 'button'],
+    extras: ['eyebrow', 'accent_title', 'quote']
   },
   {
     key: 'founder_story',
@@ -76,17 +78,33 @@ export const HOME_SECTIONS: HomeSectionDef[] = [
     defaultOn: true
   },
   {
-    key: 'testimonials',
-    label: 'Testimonials',
-    help: 'Published guest reviews (managed under Testimonials) with this heading.',
+    key: 'cost_ranges',
+    label: 'Typical costs',
+    help: 'Guide prices per person per day, one card per comfort level.',
+    fields: ['title', 'subtitle'],
+    extras: []
+  },
+  {
+    key: 'how_it_works',
+    label: 'How it works',
+    help: 'The planning steps from first message to first game drive.',
     fields: ['title', 'subtitle', 'button'],
-    extras: ['eyebrow', 'accent_title', 'quote']
+    extras: [],
+    defaultOn: true
   },
   {
     key: 'featured_destinations',
-    label: 'Featured destinations',
+    label: 'Destinations',
     help: 'Six destination cards.',
     fields: ['title', 'subtitle', 'button'],
+    extras: ['eyebrow'],
+    defaultOn: true
+  },
+  {
+    key: 'gallery',
+    label: 'Recent safaris gallery',
+    help: 'Published photos from the Gallery, labelled by place and safari.',
+    fields: ['title', 'subtitle'],
     extras: ['eyebrow'],
     defaultOn: true
   },
@@ -106,18 +124,26 @@ export const HOME_SECTIONS: HomeSectionDef[] = [
     defaultOn: true
   },
   {
-    key: 'partners',
-    label: 'Partners',
-    help: 'A strip of partner logos.',
-    fields: ['title'],
+    key: 'final_cta',
+    label: 'Final call to action',
+    help: 'The closing band: a background image or video, a short enquiry form that goes to Bookings, and a button to the full trip planner.',
+    fields: ['title', 'subtitle', 'image_url', 'button', 'background'],
+    extras: ['eyebrow']
+  },
+  // Not in the standard order: shown only when switched on.
+  {
+    key: 'safari_parks_intro',
+    label: 'Safari parks intro',
+    help: 'Introduction to the parks: text, a quote, the parks list, stats and a closing line.',
+    fields: ['title', 'content', 'button'],
     extras: []
   },
   {
-    key: 'final_cta',
-    label: 'Final call to action',
-    help: 'The closing band with a background image or video and one button.',
-    fields: ['title', 'subtitle', 'image_url', 'button', 'background'],
-    extras: ['eyebrow']
+    key: 'partners',
+    label: 'Partners',
+    help: 'A strip of partner logos. Only real Emnel partnerships belong here.',
+    fields: ['title'],
+    extras: []
   }
 ];
 
