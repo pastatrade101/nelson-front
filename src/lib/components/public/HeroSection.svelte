@@ -178,12 +178,14 @@
       playsinline
     ></video>
   {:else if embedVideo}
-    <!-- A YouTube/Vimeo link embeds as a background iframe, scaled to cover. -->
+    <!-- A YouTube/Vimeo link embeds as a background iframe, scaled to cover — and
+         a quarter larger again, so the bands where YouTube can still flash its
+         title bar (top) and "More videos" (bottom) fall outside the hero. -->
     <div class={`pointer-events-none absolute inset-0 overflow-hidden transition-opacity duration-1000 ${videoShown ? 'opacity-100' : 'opacity-0'}`}>
       <iframe
         bind:this={videoFrame}
         on:load={onVideoLoad}
-        class="hero-bg-video absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        class="hero-bg-video absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-125"
         src={embedVideo}
         title="Background video"
         frameborder="0"
@@ -254,5 +256,4 @@
     min-height: 100%;
     min-width: 177.78vh; /* 16:9 of the height */
     border: 0;
-  }
-</style>
+  }</style>
