@@ -93,8 +93,11 @@
   let revealTimer: ReturnType<typeof setTimeout> | undefined;
   const onVideoLoad = () => {
     if (!ytId) { videoShown = true; return; }
-    // Ask the player to report its state (the protocol its own IFrame API uses).
+    // Ask the player to report its state (the protocol its own IFrame API uses),
+    // and to say when it loads a module — captions arrive that way, sometimes
+    // well after playback starts and again when the video loops.
     videoFrame?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), 'https://www.youtube.com');
+    playerCommand('addEventListener', ['onApiChange']);
     // If it never reports (blocked scripts), reveal once its chrome has surely gone.
     revealTimer = setTimeout(() => (videoShown = true), 9000);
   };
@@ -102,15 +105,21 @@
   // Tanzania you…"); a background video has no use for them.
   const playerCommand = (func: string, args: unknown[] = []) =>
     videoFrame?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args, id: 1, channel: 'widget' }), 'https://www.youtube.com');
-  let captionsOff = false;
+  const hideCaptions = () => {
+    playerCommand('unloadModule', ['captions']);
+    playerCommand('unloadModule', ['cc']);
+  };
+  let lastCaptionCheck = -Infinity;
   const onPlayerMessage = (event: MessageEvent) => {
     if (event.origin !== 'https://www.youtube.com' || typeof event.data !== 'string') return;
     try {
       const message = JSON.parse(event.data) as { event?: string; info?: { currentTime?: number } | null };
+      // A module (re)loaded: if it was the captions, take them straight off.
+      if (message.event === 'onApiChange') { hideCaptions(); return; }
       if (message.event !== 'infoDelivery') return;
       const time = Number(message.info?.currentTime);
-      // The captions module loads with playback, so it is unloaded once playing.
-      if (!captionsOff && time > 0) { captionsOff = true; playerCommand('unloadModule', ['captions']); playerCommand('unloadModule', ['cc']); }
+      // Safety net in case a load event is missed: re-check every couple of seconds of playback.
+      if (time > 0 && Math.abs(time - lastCaptionCheck) >= 2) { lastCaptionCheck = time; hideCaptions(); }
       if (!videoShown && time >= YT_CHROME_SECONDS) videoShown = true;
     } catch { /* not the player's message */ }
   };
