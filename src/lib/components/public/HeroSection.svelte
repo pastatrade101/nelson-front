@@ -85,12 +85,16 @@
 
   // YouTube draws its own title bar, a pause button and "More videos" over the
   // first seconds of playback, whatever the embed parameters say — that was the
-  // haze over the headline and menu. The player stays invisible (the poster image
-  // shows) until it has played past them, then fades in.
+  // haze over the headline and menu — and again whenever playback stops and
+  // restarts (buffering, a pause, the loop). The player is only visible after it
+  // has played that long without a break; until then the poster image shows.
   const YT_CHROME_SECONDS = 3.5;
   let videoFrame: HTMLIFrameElement;
   let videoShown = false;
   let revealTimer: ReturnType<typeof setTimeout> | undefined;
+  let heard = false;
+  /** Video time at which the current uninterrupted run of playback began. */
+  let playingFrom: number | null = null;
   const onVideoLoad = () => {
     if (!ytId) { videoShown = true; return; }
     // Ask the player to report its state (the protocol its own IFrame API uses),
@@ -98,8 +102,9 @@
     // well after playback starts and again when the video loops.
     videoFrame?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), 'https://www.youtube.com');
     playerCommand('addEventListener', ['onApiChange']);
-    // If it never reports (blocked scripts), reveal once its chrome has surely gone.
-    revealTimer = setTimeout(() => (videoShown = true), 9000);
+    playerCommand('addEventListener', ['onStateChange']);
+    // A player that never reports (scripts blocked) is shown once its chrome has surely gone.
+    revealTimer = setTimeout(() => { if (!heard) videoShown = true; }, 9000);
   };
   // It also shows the video's captions over the hero ("as the sun rises in
   // Tanzania you…"); a background video has no use for them.
@@ -113,14 +118,24 @@
   const onPlayerMessage = (event: MessageEvent) => {
     if (event.origin !== 'https://www.youtube.com' || typeof event.data !== 'string') return;
     try {
-      const message = JSON.parse(event.data) as { event?: string; info?: { currentTime?: number } | null };
+      const message = JSON.parse(event.data) as { event?: string; info?: unknown };
+      heard = true;
       // A module (re)loaded: if it was the captions, take them straight off.
       if (message.event === 'onApiChange') { hideCaptions(); return; }
+      // Anything but playing (paused, buffering, ended for the loop) brings the
+      // chrome back: fade to the poster until a fresh run has played past it.
+      if (message.event === 'onStateChange') {
+        if (message.info !== 1) { videoShown = false; playingFrom = null; }
+        return;
+      }
       if (message.event !== 'infoDelivery') return;
-      const time = Number(message.info?.currentTime);
+      const time = Number((message.info as { currentTime?: number } | null)?.currentTime);
+      if (!Number.isFinite(time)) return;
       // Safety net in case a load event is missed: re-check every couple of seconds of playback.
       if (time > 0 && Math.abs(time - lastCaptionCheck) >= 2) { lastCaptionCheck = time; hideCaptions(); }
-      if (!videoShown && time >= YT_CHROME_SECONDS) videoShown = true;
+      // A jump backwards is the loop starting over.
+      if (playingFrom === null || time < playingFrom) playingFrom = time;
+      if (!videoShown && time - playingFrom >= YT_CHROME_SECONDS) videoShown = true;
     } catch { /* not the player's message */ }
   };
   onMount(() => {
