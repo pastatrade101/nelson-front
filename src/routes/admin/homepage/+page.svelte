@@ -893,20 +893,14 @@
         {#if form.section_key.trim() === 'travel_styles'}
           <div class="rounded-none border border-ink/10 bg-sand/25 p-4">
             <p class="text-sm font-bold text-ink">Card images</p>
-            <p class="mt-1 text-xs text-ink/50">One card per published travel style. Choose or upload an image for any card; leave it empty to use the style's own image (Admin › Travel Styles). Names, short lines and prices come from the travel styles and their itineraries.</p>
+            <p class="mt-1 text-xs text-ink/50">One card per published travel style, in the order set in Admin › Travel Styles. Choose or upload a new image for any card. "Default" is the style's own image, used until you choose one; removing a chosen image goes back to it. Names, short lines and prices come from the travel styles and their itineraries.</p>
             {#if loadingStyles && !journeyStyles.length}
               <p class="mt-3 text-xs text-ink/50">Loading travel styles…</p>
             {/if}
-            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div class="mt-4 grid gap-4 sm:grid-cols-3">
               {#each journeyStyles as style (style.slug)}
-                {@const fallback = style.image_url || style.hero_image_url || ''}
-                <div class="rounded-none border border-ink/10 bg-surface p-3">
-                  <MediaPicker label={style.name} media={mediaItems} uploadFolder="homepage" aspect="aspect-[4/5]" value={cardImages[style.slug] ?? ''} on:change={(e) => (cardImages = { ...cardImages, [style.slug]: String(e.detail ?? '') })} />
-                  {#if !cardImages[style.slug]}
-                    <p class="mt-2 flex items-center gap-2 text-xs text-ink/50">
-                      {#if fallback}<img src={fallback} alt="" class="h-8 w-8 object-cover" />Using the style's own image{:else}No image yet: the card shows a plain dark panel{/if}
-                    </p>
-                  {/if}
+                <div class="min-w-0 rounded-none border border-ink/10 bg-surface p-3">
+                  <MediaPicker label={style.name} media={mediaItems} uploadFolder="homepage" aspect="aspect-[4/5]" fallback={style.image_url || style.hero_image_url || ''} value={cardImages[style.slug] ?? ''} on:change={(e) => (cardImages = { ...cardImages, [style.slug]: String(e.detail ?? '') })} />
                 </div>
               {/each}
             </div>

@@ -29,6 +29,8 @@
    * when the field loses focus, instead of once per letter.
    */
   export let commitUrlOnType = true;
+  /** An image the page uses while none is chosen here, shown marked "Default". */
+  export let fallback = '';
 
   const dispatch = createEventDispatcher<{ change: string }>();
   $: isVideo = kind === 'video';
@@ -198,6 +200,11 @@
       <button type="button" class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-[8px] bg-ink/65 text-white backdrop-blur transition hover:bg-ink/85" on:click={clear} aria-label={`Remove ${noun}`}>
         <Trash2 size={15} />
       </button>
+    </div>
+  {:else if fallback && !isVideo}
+    <div class={`relative overflow-hidden rounded-[8px] border border-dashed border-ink/20 bg-sand/30 ${aspect}`}>
+      <img class={`absolute inset-0 h-full w-full ${fit}`} src={imgUrl(fallback, 800)} alt={`${label} (default)`} loading="lazy" decoding="async" />
+      <span class="absolute bottom-2 left-2 rounded-md bg-ink/70 px-2 py-0.5 text-[11px] font-semibold text-white">Default</span>
     </div>
   {:else}
     <div class={`grid place-items-center rounded-[8px] border border-dashed border-ink/20 bg-sand/20 text-ink/35 ${aspect}`}>
