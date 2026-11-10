@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { inlineRichText } from '$lib/richtext';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import type { PersonCard } from './styleContent';
 
@@ -45,7 +46,7 @@
     {#if person.paragraphs.length}
       <div class="mt-6 space-y-3 border-t border-ink/10 pt-5 text-base leading-[1.75] text-ink/75">
         {#each person.paragraphs as paragraph, i (i)}
-          <p class="break-words">{paragraph}</p>
+          <p class="rich-inline break-words">{@html inlineRichText(paragraph)}</p>
         {/each}
       </div>
     {/if}

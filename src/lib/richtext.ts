@@ -362,6 +362,21 @@ export const markdownToHtml = (text: string): string =>
     })
     .join('');
 
+/**
+ * One line of copy from a plain field (a tier card note, a panel bullet) with
+ * its links live: Markdown `[text](/accommodation/…)` or a pasted
+ * `<a href="…">`, plus **bold** and *italics*. Safe inline HTML for
+ * `{@html}` inside a <p>/<li>/<span>: block tags are dropped, links sanitised.
+ */
+export const inlineRichText = (text: string): string => {
+  const raw = String(text ?? '');
+  const html = looksLikeHtml(raw) ? repairMarkdown(raw) : mdInline(escapeText(raw));
+  return sanitizeRichText(html)
+    .replace(/<\/?(?:p|h[1-6]|ul|ol|li|blockquote)\b[^>]*>/gi, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+};
+
 /** Markdown pasted into the rich-text editor: `<p>## Title</p>` and `**bold**`. */
 export const repairMarkdown = (html: string): string =>
   String(html ?? '')

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { inlineRichText } from '$lib/richtext';
   /**
    * Draws a travel style's sections. Every layout decision lives here; the CMS
    * only supplies words, images and order (see styleContent.ts for how loose
@@ -260,7 +261,7 @@
                   </div>
                 {/if}
                 <h3 class="type-card mt-5 text-heading">{place.title}</h3>
-                {#if place.text}<p class="mt-2.5 text-base leading-[1.75] text-ink/65">{place.text}</p>{/if}
+                {#if place.text}<p class="rich-inline mt-2.5 text-base leading-[1.75] text-ink/65">{@html inlineRichText(place.text)}</p>{/if}
               </article>
             {/each}
           </div>
@@ -278,18 +279,18 @@
                   <h3 class="type-h3 text-heading">{stay.title}</h3>
                   {#if stay.bestFor}
                     <p class="mt-4 text-base leading-[1.75] text-ink/80">
-                      <span class="mr-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-clay">Best for</span>{stay.bestFor}
+                      <span class="mr-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-clay">Best for</span><span class="rich-inline">{@html inlineRichText(stay.bestFor)}</span>
                     </p>
                   {/if}
                   {#each stay.body as para, k (k)}
-                    <p class="mt-4 max-w-[62ch] text-base leading-[1.75] text-ink/65">{para}</p>
+                    <p class="rich-inline mt-4 max-w-[62ch] text-base leading-[1.75] text-ink/65">{@html inlineRichText(para)}</p>
                   {/each}
                   {#if stay.facts.length}
                     <dl class="mt-8 divide-y divide-ink/10 border-y border-ink/10">
                       {#each stay.facts as fact, k (k)}
                         <div class="grid gap-1 py-3.5 sm:grid-cols-[110px_1fr] sm:gap-6">
                           <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/45 sm:pt-1">{fact.label}</dt>
-                          <dd class="text-sm leading-[1.6] text-ink/75">{fact.value}</dd>
+                          <dd class="rich-inline text-sm leading-[1.6] text-ink/75">{@html inlineRichText(fact.value)}</dd>
                         </div>
                       {/each}
                     </dl>

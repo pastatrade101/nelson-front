@@ -8,6 +8,7 @@
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import type { Destination, TravelStyle } from '$lib/types';
   import { safariStyleHref } from '$lib/styleLinks';
+  import { canonicalHref } from '$lib/redirects';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -29,7 +30,8 @@
   $: failed = data.failed;
   // A card opens the style's own page — never the tour filter, which carried none of its copy.
   $: travelStyles = (data.travelStyles ?? []) as unknown as TravelStyle[];
-  $: hrefFor = (style: Style) => safariStyleHref(style, travelStyles);
+  // canonicalHref: a category with no travel style would otherwise link a retired /experiences page.
+  $: hrefFor = (style: Style) => canonicalHref(safariStyleHref(style, travelStyles));
   $: catStats = ((): Record<string, Stat> => {
     const stats: Record<string, Stat> = {};
     for (const t of (data.tours ?? []) as Array<Record<string, unknown>>) {

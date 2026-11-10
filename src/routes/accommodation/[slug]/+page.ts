@@ -1,6 +1,8 @@
 import { error, isHttpError } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-import type { Lodge, Tour } from '$lib/types';
+import type { Lodge, Tour, TravelStyle } from '$lib/types';
+import { cachedJson } from '$lib/cache';
+import { similarLodges, stylesForLodge } from '$lib/lodgeLinks';
 import { loadFaqsFor } from '$lib/faqEntities';
 
 // SSR-load the property (and its destination-mates) so the page arrives rendered
@@ -39,21 +41,27 @@ export const load: PageLoad = async ({ params, fetch }) => {
   // to a destination page that actually resolves.
   const destinationId = lodge.destination_id;
   const destinationSlug = lodge.destinations?.slug ?? '';
-  const [staysBody, lodgesBody, toursBody, destinationBody, faqs] = await Promise.all([
+  const [staysBody, lodgesBody, toursBody, destinationBody, faqs, styles] = await Promise.all([
     json<{ data?: { items?: Tour[] } }>(`/api/lodges/${lodge.id}/itineraries`),
-    destinationId ? json<{ data?: { items?: Lodge[] } }>(`/api/lodges?destination_id=${destinationId}&status=published&limit=7`) : null,
+    // Every lodge in the destination, so "similar" can match by area and tier
+    // rather than taking the same first few for every lodge.
+    destinationId ? json<{ data?: { items?: Lodge[] } }>(`/api/lodges?destination_id=${destinationId}&status=published&limit=100`) : null,
     destinationId ? json<{ data?: { items?: Tour[] } }>(`/api/tours?destination_id=${destinationId}&status=published&limit=12`) : null,
     destinationSlug ? json<{ data?: unknown }>(`/api/destinations/${destinationSlug}`) : null,
     // Questions attached to this property first, general ones to round them out
     // — in the first response, so crawlers and AI assistants read the answers.
-    loadFaqsFor(fetch, { type: 'lodges', id: lodge.id }, { fill: 6 })
+    loadFaqsFor(fetch, { type: 'lodges', id: lodge.id }, { fill: 6 }),
+    cachedJson<{ data?: { items?: TravelStyle[] } }>('/api/travel-styles?status=published&limit=100', fetch)
+      .then((b) => b?.data?.items ?? [])
+      .catch(() => [] as TravelStyle[])
   ]);
 
   const staysHere = (staysBody?.data?.items ?? []).slice(0, 6);
   const stayIds = new Set(staysHere.map((t) => t.id));
   const safaris = (toursBody?.data?.items ?? []).filter((t) => !stayIds.has(t.id)).slice(0, 6);
-  const relatedLodges = (lodgesBody?.data?.items ?? []).filter((l) => l.id !== lodge!.id).slice(0, 3);
+  const relatedLodges = similarLodges(lodge, lodgesBody?.data?.items ?? []);
+  const travelStyles = stylesForLodge(lodge, styles, staysHere).slice(0, 4);
   const destinationLive = Boolean(destinationBody?.data);
 
-  return { lodge, relatedLodges, safaris, staysHere, destinationLive, faqs };
+  return { lodge, relatedLodges, safaris, staysHere, destinationLive, faqs, travelStyles };
 };

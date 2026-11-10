@@ -100,7 +100,7 @@
         { key: 'panels', label: 'Panels', kind: 'list', itemLabel: 'Panel', fields: [
           { key: 'title', label: 'Name / card title', kind: 'text', counter: 55 },
           { key: 'role', label: 'Role', kind: 'text', peopleOnly: true, placeholder: 'Head Guide' },
-          { key: 'items', label: 'Description / facts', kind: 'lines', help: 'For guides, each line becomes a biography paragraph. A role after a comma in the title still works. For lodges, use facts such as "Best for: …", "Children: …", "Rooms: …".' },
+          { key: 'items', label: 'Description / facts', kind: 'lines', help: 'For guides, each line becomes a biography paragraph. A role after a comma in the title still works. For lodges, use facts such as "Best for: …", "Children: …", "Rooms: …". Links work: [Sayari Camp](/accommodation/sayari-camp).' },
           { key: 'image_url', label: 'Image', kind: 'image', help: 'Team: a real, well-lit 4:5 portrait, ideally 800 × 1000 px or larger. No photo means initials, never a made-up face.' },
           { key: 'image_alt', label: 'Photo description', kind: 'text', peopleOnly: true, placeholder: 'Defaults to the person’s name and role' },
           { key: 'image_fit', label: 'Portrait display', kind: 'select', peopleOnly: true, options: [
@@ -130,12 +130,12 @@
           { key: 'image_alt', label: 'Image description (accessibility)', kind: 'text', counter: 140, help: 'Describe the actual property or scene. Avoid a list of SEO keywords.' },
           { key: 'price_from_usd', label: 'Starting price (USD)', kind: 'number', min: 0.01, step: '0.01' },
           { key: 'price_unit', label: 'Price basis', kind: 'text', placeholder: 'per person sharing per day' },
-          { key: 'highlights', label: 'Included highlights', kind: 'lines', help: 'One genuine inclusion per line. Aim for 3–5 concise highlights; each appears with a check mark.' },
+          { key: 'highlights', label: 'Included highlights', kind: 'lines', help: 'One genuine inclusion per line. Aim for 3–5 concise highlights; each appears with a check mark. Links work: [Sayari Camp](/accommodation/sayari-camp).' },
           { key: 'example_days', label: 'Example safari — days', kind: 'number', min: 1, step: '1' },
           { key: 'example_adults', label: 'Example safari — adults', kind: 'number', min: 1, step: '1' },
           { key: 'example_children', label: 'Example safari — children', kind: 'number', min: 0, step: '1' },
           { key: 'example_total_usd', label: 'Example safari — total starting price (USD)', kind: 'number', min: 0.01, step: '0.01' },
-          { key: 'body', label: 'Notes / existing price copy', kind: 'textarea', rows: 3, help: 'Existing price copy is still supported. The fields above override matching values in this text. The example total is your quoted total, never calculated from the daily price.' },
+          { key: 'body', label: 'Notes / existing price copy', kind: 'textarea', rows: 3, help: 'Existing price copy is still supported. The fields above override matching values in this text. The example total is your quoted total, never calculated from the daily price. Links work: [Sayari Camp](/accommodation/sayari-camp).' },
           { key: 'lodge_ids', label: 'Accommodation', kind: 'lodges', help: 'Selected properties appear as links within the card. The first property supplies its photo when no card image is selected.' }
         ] }
       ]

@@ -44,6 +44,15 @@ export const defaultBranding: Branding = {
 
 export const branding = writable<Branding>(defaultBranding);
 
+/** site_name / company_name from Settings, where set — they win over the Branding record. */
+export const settingsNames = (settings: Record<string, unknown>) => {
+  const name = (key: string) => (typeof settings[key] === 'string' ? (settings[key] as string).trim() : '');
+  return {
+    ...(name('site_name') ? { site_name: name('site_name') } : {}),
+    ...(name('company_name') ? { company_name: name('company_name') } : {})
+  };
+};
+
 // Maps each color key to its CSS custom property (defined in app.css :root).
 const cssVarMap: Record<keyof BrandColors, string> = {
   clay: '--c-clay',

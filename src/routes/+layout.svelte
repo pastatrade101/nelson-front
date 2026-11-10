@@ -16,7 +16,7 @@
   import { setupPwaInstall } from '$lib/pwa';
   import { initSmoothScrolling, setupGsap } from '$lib/animations';
   import { api } from '$lib/api/client';
-  import { applyBranding, branding, brandColorStyleTag } from '$lib/branding';
+  import { applyBranding, branding, brandColorStyleTag, settingsNames } from '$lib/branding';
   import { cdnUrl } from '$lib/img';
   import { SITE_URL } from '$lib/config/env';
   import { canonicalForPath, isPrivateOrUtilityPath, resolvePageSeo, safeSiteOrigin } from '$lib/seo-policy';
@@ -115,7 +115,7 @@
   const loadBranding = async () => {
     try {
       const response = await api.branding.get();
-      applyBranding(response.data as Record<string, unknown>);
+      applyBranding({ ...(response.data as Record<string, unknown>), ...settingsNames(publicSettings) });
     } catch {
       // Defaults already live in app.css :root — nothing to do on failure.
     }

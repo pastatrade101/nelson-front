@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { inlineRichText } from '$lib/richtext';
   import { ArrowRight, Check, Clock, MapPin, Users } from '@lucide/svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import { currency, formatUsd } from '$lib/currency';
@@ -46,14 +47,14 @@
     {#if tier.highlights.length}
       <ul class="mt-5 space-y-2">
         {#each tier.highlights as highlight, i (i)}
-          <li class="flex items-start gap-2 text-sm leading-[1.6] text-ink/75"><Check size={14} class="mt-1 shrink-0 text-clay" /><span class="min-w-0 break-words">{highlight}</span></li>
+          <li class="flex items-start gap-2 text-sm leading-[1.6] text-ink/75"><Check size={14} class="mt-1 shrink-0 text-clay" /><span class="rich-inline min-w-0 break-words">{@html inlineRichText(highlight)}</span></li>
         {/each}
       </ul>
     {/if}
 
     {#if tier.notes.length}
       <div class="mt-4 space-y-2 text-sm text-ink/70">
-        {#each tier.notes as note, i (i)}<p class="break-words leading-[1.6]">{note}</p>{/each}
+        {#each tier.notes as note, i (i)}<p class="rich-inline break-words leading-[1.6]">{@html inlineRichText(note)}</p>{/each}
       </div>
     {/if}
 

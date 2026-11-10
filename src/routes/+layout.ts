@@ -1,5 +1,5 @@
 import type { LayoutLoad } from './$types';
-import { defaultBranding, mergeBranding } from '$lib/branding';
+import { defaultBranding, mergeBranding, settingsNames } from '$lib/branding';
 import { isPrivateOrUtilityPath, type SeoOverride } from '$lib/seo-policy';
 
 // Fetch branding on the server so the very first paint — and crawlers — get the
@@ -125,5 +125,9 @@ export const load: LayoutLoad = async ({ fetch, url }) => {
     })()
   ]);
 
-  return { branding: brandingResult, essentialsLive, countries, marketsLive, ctaImages: ctaPhotos, seoOverride, publicSettings };
+  // The business's name is the one in Settings; the Branding record's copy
+  // ("Emnel Adventures Africa") must not reach the page or its data.
+  const branding = { ...brandingResult, ...settingsNames(publicSettings) };
+
+  return { branding, essentialsLive, countries, marketsLive, ctaImages: ctaPhotos, seoOverride, publicSettings };
 };

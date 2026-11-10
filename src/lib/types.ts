@@ -45,6 +45,13 @@ export type Tour = {
   id: string;
   title: string;
   slug: string;
+  /** "Reason to exist" (task list 2.9; tours migration 2026-11-10). All optional. */
+  target_traveller?: string | null;
+  duration_rationale?: string | null;
+  best_season?: string | null;
+  not_suited_for?: string | null;
+  /** Tier keys: essential | classic | luxury | ultra_luxury. */
+  comfort_tiers?: string[] | null;
   short_description?: string;
   full_description?: string;
   destination_id?: string | null;

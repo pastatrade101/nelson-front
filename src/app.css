@@ -201,6 +201,15 @@ select {
   text-underline-offset: 2px;
 }
 .rich-content a:hover { color: rgb(var(--c-goldfinch-gold)); }
+/* Links inside one-line CMS copy (tier card notes, panel bullets): $lib/richtext inlineRichText. */
+.rich-inline a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--c-goldfinch-gold));
+  text-underline-offset: 3px;
+}
+.rich-inline a:hover { color: rgb(var(--c-goldfinch-gold)); }
 .rich-content ul,
 .rich-content ol { margin: 0 0 1.1em; padding-left: 1.4em; }
 .rich-content ul { list-style: disc; }

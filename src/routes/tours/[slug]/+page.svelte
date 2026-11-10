@@ -50,7 +50,9 @@
   import TourCardRich from '$lib/components/public/TourCardRich.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import LoadingState from '$lib/components/public/LoadingState.svelte';
-  import type { BlogPost, FAQ, ItineraryDay, Tour } from '$lib/types';
+  import type { BlogPost, FAQ, ItineraryDay, Specialist, Testimonial, Tour } from '$lib/types';
+  import TestimonialCard from '$lib/components/public/TestimonialCard.svelte';
+  import SpecialistCard from '$lib/components/public/SpecialistCard.svelte';
 
   type DisplayDay = ItineraryDay;
 
@@ -147,9 +149,45 @@
     (typeof $page.data?.publicSettings?.canonical_base_url === 'string' ? $page.data.publicSettings.canonical_base_url : '') || SITE_URL,
     $page.url.origin
   );
+  // The tour's "reason to exist" answers, in the editor's words; empty ones are skipped.
+  $: fitRows = tour
+    ? [
+        { label: 'Designed for', value: String(tour.target_traveller ?? '').trim() },
+        { label: tour.duration_days ? `Why ${tour.duration_days} days` : 'Why this length', value: String(tour.duration_rationale ?? '').trim() },
+        { label: 'Best season', value: String(tour.best_season ?? '').trim() },
+        { label: 'Not suited for', value: String(tour.not_suited_for ?? '').trim() },
+        { label: 'Comfort tiers', value: (Array.isArray(tour.comfort_tiers) ? tour.comfort_tiers : []).map((k) => tierLabel(k)).filter(Boolean).join(' · ') }
+      ].filter((row) => row.value)
+    : [];
+
+  // Guest reviews of this safari (CMS › Testimonials, linked to the tour) and
+  // the featured trip specialist. Only reviews shown on the page are marked up.
+  $: reviews = (($page.data?.reviews ?? []) as Testimonial[]);
+  $: specialist = (($page.data?.specialist ?? null) as Specialist | null);
+  $: ratedReviews = reviews.filter((r) => Number(r.rating) >= 1 && Number(r.rating) <= 5);
+  $: reviewLd = ratedReviews.length
+    ? {
+        review: ratedReviews.map((r) => ({
+          '@type': 'Review',
+          author: { '@type': 'Person', name: r.client_name },
+          reviewRating: { '@type': 'Rating', ratingValue: Number(r.rating), bestRating: 5, worstRating: 1 },
+          reviewBody: toMetaText(r.message, 500)
+        })),
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: Number((ratedReviews.reduce((sum, r) => sum + Number(r.rating), 0) / ratedReviews.length).toFixed(1)),
+          reviewCount: ratedReviews.length,
+          bestRating: 5,
+          worstRating: 1
+        }
+      }
+    : {};
   $: touristTripLd = tour
     ? {
-        '@type': 'TouristTrip',
+        // Product too when it carries reviews: Google reads ratings on a
+        // Product, not on a TouristTrip.
+        '@type': ratedReviews.length ? ['TouristTrip', 'Product'] : 'TouristTrip',
+        ...reviewLd,
         name: tour.title,
         description: toMetaText(tour.short_description ?? tour.full_description ?? ''),
         ...(tour.main_image_url ? { image: tour.main_image_url } : {}),
@@ -640,6 +678,21 @@
           </div>
         {/if}
 
+        <!-- Is this the right trip? The tour's "reason to exist" answers, where filled (task list 2.9). -->
+        {#if fitRows.length}
+          <div class="mt-9">
+            <h3 class="type-h3 text-heading">Is this the right safari for you?</h3>
+            <dl class="mt-4 divide-y divide-ink/10 border-y border-ink/10">
+              {#each fitRows as row (row.label)}
+                <div class="grid gap-1 py-3.5 sm:grid-cols-[170px_1fr] sm:gap-6">
+                  <dt class="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink/50 sm:pt-1">{row.label}</dt>
+                  <dd class="text-base leading-[1.7] text-ink/75">{row.value}</dd>
+                </div>
+              {/each}
+            </dl>
+          </div>
+        {/if}
+
         {#if highlights.length}
           <div class="mt-9">
             <h3 class="type-h3 text-heading">Trip highlights</h3>
@@ -871,6 +924,23 @@
           {#each stayLodges as lodge (lodge.id)}
             <LodgeCard lodge={lodge as unknown as import('$lib/types').Lodge} />
           {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
+
+  <!-- ── Guest reviews + the trip specialist (CMS › Testimonials / Specialists) ── -->
+  {#if reviews.length || specialist}
+    <section id="reviews" class="scroll-mt-32 border-t border-ink/[0.07] bg-canvas py-14 md:py-20">
+      <div class="container-shell">
+        <SectionHeader
+          eyebrow={reviews.length ? 'Guest reviews' : 'Your specialist'}
+          title={reviews.length ? 'What guests said about this safari' : 'The person who plans your trip'}
+          description={reviews.length ? 'From guests who travelled this route with us.' : ''}
+        />
+        <div class="mt-10 grid items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {#each reviews as testimonial (testimonial.id)}<TestimonialCard {testimonial} />{/each}
+          {#if specialist}<SpecialistCard {specialist} />{/if}
         </div>
       </div>
     </section>

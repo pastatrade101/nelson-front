@@ -177,6 +177,7 @@
   $: hasPractical = Boolean(practicalRows.length || (l.traveler_notes ?? '').trim());
   $: stays = data.staysHere ?? [];
   $: nearby = data.safaris ?? [];
+  $: travelStyles = data.travelStyles ?? [];
   $: faqs = data.faqs ?? [];
   // Marked up here: only the questions attached to this property (ownedFaqs).
   $: ownFaqPairs = faqPairs(ownedFaqs(faqs, { type: 'lodges', id: l.id }));
@@ -576,6 +577,24 @@
         </a>
       </div>
     {/if}
+
+    <!-- The travel styles this stay belongs to (picked in a style's price tiers,
+         on one of its itineraries, or in the migration's seasonal areas). -->
+    {#if travelStyles.length}
+      <div class="mt-14 border-t border-ink/10 pt-8">
+        <p class="eyebrow text-clay">Travel styles</p>
+        <p class="mt-3 max-w-[60ch] text-base leading-[1.75] text-ink/65">Ways of travelling that include a stay at {l.name}.</p>
+        <ul class="mt-5 flex flex-wrap gap-3">
+          {#each travelStyles as style (style.slug)}
+            <li>
+              <a class="inline-flex min-h-11 items-center gap-2 border border-ink/15 px-5 py-2 text-sm font-semibold text-deep-green transition hover:border-deep-green" href={`/travel-styles/${style.slug}`}>
+                {style.name} <ArrowRight size={14} />
+              </a>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
   </div>
 </section>
 
@@ -584,7 +603,7 @@
   <section class="bg-canvas py-12 md:py-16">
     <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
       <div class="flex flex-wrap items-end justify-between gap-6">
-        <div class="max-w-3xl">{@render heading('More places to stay', `Other stays in ${destinationName || 'this area'}`)}</div>
+        <div class="max-w-3xl">{@render heading('Similar lodges', `Similar stays in ${destinationName || 'this area'}`)}</div>
         <a class="inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href="/accommodation">
           All accommodation <ArrowRight size={14} />
         </a>

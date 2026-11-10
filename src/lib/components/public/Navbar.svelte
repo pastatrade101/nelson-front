@@ -387,7 +387,7 @@
         ]);
         const items = res.data.items ?? [];
         const travelStyles = (stylesRes?.data.items ?? []) as TravelStyle[];
-        styleHrefBySlug = Object.fromEntries(items.map((c) => [String(c.slug ?? ''), safariStyleHref(c, travelStyles)]));
+        styleHrefBySlug = Object.fromEntries(items.map((c) => [String(c.slug ?? ''), canonicalHref(safariStyleHref(c, travelStyles))]));
         if (items.length) categories = items.map((c) => ({ label: String(c.name ?? c.slug), href: `/tours?category=${c.slug}`, slug: String(c.slug ?? ''), image: (c.image_url as string) || undefined, description: c.description ? String(c.description) : undefined, subtitle: oneLine(c.who_its_for) ?? oneLine(c.description) }));
       } catch {
         // keep fallback

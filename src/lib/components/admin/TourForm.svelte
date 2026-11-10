@@ -101,7 +101,13 @@
     slug: '',
     start_location: '',
     status: 'draft' as PublishStatus,
-    title: ''
+    title: '',
+    // "Reason to exist" (task list 2.9)
+    target_traveller: '',
+    duration_rationale: '',
+    best_season: '',
+    not_suited_for: '',
+    comfort_tiers: [] as string[]
   };
 
   // persona_tags is stored as free text and has drifted (couple/couples,
@@ -270,8 +276,14 @@
         slug: String(tour.slug ?? ''),
         start_location: String(tour.start_location ?? ''),
         status: (tour.status ?? 'draft') as PublishStatus,
-        title: String(tour.title ?? '')
+        title: String(tour.title ?? ''),
+        target_traveller: String(tour.target_traveller ?? ''),
+        duration_rationale: String(tour.duration_rationale ?? ''),
+        best_season: String(tour.best_season ?? ''),
+        not_suited_for: String(tour.not_suited_for ?? ''),
+        comfort_tiers: Array.isArray(tour.comfort_tiers) ? (tour.comfort_tiers as string[]).filter((k) => TIER_OPTIONS.some((o) => o.value === k)) : []
       };
+      reasonFieldsLive = 'comfort_tiers' in tour;
 
       slugManuallyEdited = true;
     } catch (requestError) {
@@ -314,8 +326,31 @@
     slug: String(form.slug ?? '').trim(),
     start_location: form.start_location || null,
     status: form.status,
-    title: String(form.title ?? '').trim()
+    title: String(form.title ?? '').trim(),
+    ...reasonPayload()
   });
+
+  // The "reason to exist" columns arrive with a database migration
+  // (2026-11-10-tour-reason-fields.sql). Until it has run, a tour loaded for
+  // editing has no such keys: the section is hidden and nothing is sent, so
+  // saving keeps working. A new tour sends them only when something is filled.
+  let reasonFieldsLive = true;
+  const reasonPayload = () => {
+    const fields = {
+      target_traveller: form.target_traveller.trim() || null,
+      duration_rationale: form.duration_rationale.trim() || null,
+      best_season: form.best_season.trim() || null,
+      not_suited_for: form.not_suited_for.trim() || null,
+      // In the tiers' own order, whatever order they were ticked in.
+      comfort_tiers: TIER_OPTIONS.map((o) => o.value).filter((k) => form.comfort_tiers.includes(k))
+    };
+    const filled = Object.values(fields).some((v) => (Array.isArray(v) ? v.length : v));
+    return reasonFieldsLive && (mode === 'edit' || filled) ? fields : {};
+  };
+
+  const toggleComfortTier = (key: string) => {
+    form.comfort_tiers = form.comfort_tiers.includes(key) ? form.comfort_tiers.filter((k) => k !== key) : [...form.comfort_tiers, key];
+  };
 
   const saveTour = async () => {
     saving = true;
@@ -468,6 +503,31 @@
           <AdminFormInput label="End location" name="end_location" bind:value={form.end_location} />
         </div>
       </section>
+
+      {#if reasonFieldsLive}
+      <section class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Why this trip</p>
+        <p class="mt-2 max-w-[70ch] text-sm leading-6 text-ink/60">Each filled answer appears on the tour page, so a traveller can tell at a glance whether this itinerary is the one for them.</p>
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          <AdminTextArea label="Target traveller" name="target_traveller" rows={3} bind:value={form.target_traveller} placeholder="First-time visitors who want the Big Five without long drives" />
+          <AdminTextArea label="Why this duration" name="duration_rationale" rows={3} bind:value={form.duration_rationale} placeholder="Six days gives two full days in the Serengeti, the minimum for the migration herds" />
+          <AdminTextArea label="Best season" name="best_season" rows={3} bind:value={form.best_season} placeholder="June to October; January to February for the calving" />
+          <AdminTextArea label="Not suited for" name="not_suited_for" rows={3} bind:value={form.not_suited_for} placeholder="Travellers who want beach time: choose a safari and Zanzibar itinerary" />
+        </div>
+        <div class="mt-5 grid gap-2">
+          <span class="text-[13px] font-semibold text-ink/65">Available comfort tiers</span>
+          <div class="flex flex-wrap gap-2">
+            {#each TIER_OPTIONS as option (option.value)}
+              <label class="inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition {form.comfort_tiers.includes(option.value) ? 'border-forest bg-forest/10 text-forest' : 'border-ink/15 bg-surface text-ink/70 hover:border-ink/30'}">
+                <input class="h-4 w-4 accent-forest" type="checkbox" checked={form.comfort_tiers.includes(option.value)} on:change={() => toggleComfortTier(option.value)} />
+                {option.label}
+              </label>
+            {/each}
+          </div>
+          <p class="text-xs leading-5 text-ink/55">The tiers this itinerary can be run at. The budget tier above stays the one it is priced and filtered at.</p>
+        </div>
+      </section>
+      {/if}
 
       <section class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
         <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">AI matching</p>
