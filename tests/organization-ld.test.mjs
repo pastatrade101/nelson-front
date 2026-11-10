@@ -25,7 +25,7 @@ test('the company entity carries the real business details from the CMS', () => 
   assert.equal(org['@type'], 'TravelAgency');
   assert.equal(org['@id'], 'https://www.emneladventures.com/#organization');
   assert.equal(org.name, 'Emnel Adventures');
-  assert.equal(org.legalName, 'Emnel Adventures Limited');
+  assert.equal(org.legalName, 'Emnel Adventures');
   assert.equal(org.telephone, '+255 758 500 037');
   assert.equal(org.email, 'safari@emneladventures.com');
   assert.deepEqual(org.address, { '@type': 'PostalAddress', streetAddress: 'Njiro Complex, Njiro Road', addressLocality: 'Arusha', addressRegion: 'Arusha', addressCountry: 'TZ' });
@@ -37,9 +37,9 @@ test('the company entity carries the real business details from the CMS', () => 
   // Every profile, deduped, empty ones dropped, SafariBookings added.
   assert.equal(org.sameAs.length, 4);
   assert.ok(org.sameAs.includes('https://www.safaribookings.com/p6339'));
-  // One name everywhere; the longer brand name is an alternate.
+  // One name everywhere: the Branding record's "Emnel Adventures Africa" is not an alternate.
   assert.equal(site.name, 'Emnel Adventures');
-  assert.equal(site.alternateName, 'Emnel Adventures Africa');
+  assert.ok(!('alternateName' in site));
   assert.equal(site.publisher['@id'], org['@id']);
 });
 

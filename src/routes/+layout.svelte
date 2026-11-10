@@ -60,7 +60,11 @@
   // creating a second title/description/canonical tag elsewhere in the app.
   $: configuredCanonicalBase = settingText(publicSettings, 'canonical_base_url') || SITE_URL;
   $: siteOrigin = safeSiteOrigin(configuredCanonicalBase, $page.url.origin);
-  $: defaultSeo = resolvePageSeo(path, $page.data, $branding);
+  // The brand name is the one in Settings (founder's list 2.4: "Emnel Adventures",
+  // never "… Africa" or with a trailing space). The Branding record's names are
+  // only a fallback.
+  $: siteName = settingText(publicSettings, 'site_name') || $branding.site_name.trim() || 'Emnel Adventures';
+  $: defaultSeo = resolvePageSeo(path, $page.data, { ...$branding, site_name: siteName, company_name: siteName });
   $: seoOverride = data.seoOverride ?? null;
   $: seoTitle = seoOverride?.title?.trim() || defaultSeo.title;
   $: seoDescription = seoOverride?.meta_description?.trim() || defaultSeo.description;
@@ -283,7 +287,7 @@
     <meta property="og:title" content={seoOgTitle} />
     <meta property="og:description" content={seoOgDescription} />
     <meta property="og:type" content={defaultSeo.type ?? 'website'} />
-    <meta property="og:site_name" content={$branding.site_name} />
+    <meta property="og:site_name" content={siteName} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:alt" content={defaultSeo.imageAlt || seoOgTitle} />

@@ -10,9 +10,9 @@ export const SAFARI_TYPES = [
 /** Indicative prices per person sharing, per night, as the team quotes them. */
 export const BUDGETS = [
   { key: 'classic', label: 'Classic', stays: 'classic lodges, hotels and tented camps', price: 'US$300 – 450' },
-  { key: 'mid_luxury', label: 'Mid-luxury', stays: 'mid-luxury lodges, hotels and tented camps', price: 'US$500 – 600' },
+  { key: 'mid_luxury', label: 'Mid-Luxury', stays: 'mid-luxury lodges, hotels and tented camps', price: 'US$500 – 600' },
   { key: 'luxury', label: 'Luxury', stays: 'luxury lodges, hotels and tented camps', price: 'US$650 – 750' },
-  { key: 'ultra_luxury', label: 'Ultra-luxury', stays: 'ultra-luxury lodges, hotels and tented camps', price: 'US$800+' }
+  { key: 'ultra_luxury', label: 'Ultra Luxury', stays: 'ultra-luxury lodges, hotels and tented camps', price: 'US$800+' }
 ];
 export const CUSTOM_BUDGET = 'custom';
 export const MAX_DAYS = 60;

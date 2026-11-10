@@ -66,9 +66,13 @@ export const hexToRgbTriple = (hex: string): string | null => {
 /** Merge partial branding (e.g. from the API) with the Emnel defaults — pure, SSR-safe. */
 export const mergeBranding = (data: Partial<Branding> | null | undefined): Branding => {
   const incoming = data ?? {};
+  // Names come back with stray spaces ("Emnel Adventures "); an empty one keeps the default.
+  const name = (value: unknown, fallback: string) => (typeof value === 'string' && value.trim() ? value.trim() : fallback);
   return {
     ...defaultBranding,
     ...incoming,
+    site_name: name(incoming.site_name, defaultBranding.site_name),
+    company_name: name(incoming.company_name, defaultBranding.company_name),
     colors: { ...defaultColors, ...(incoming.colors ?? {}) }
   };
 };

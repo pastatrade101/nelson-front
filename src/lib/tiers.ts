@@ -1,9 +1,11 @@
 // ----------------------------------------------------------------------------
 // Comfort tiers — the single source of truth for tour `budget_tier` AND lodge
-// `accommodation_level`. Client vocabulary: Essential · Classic · Luxury ·
-// Ultra Luxury. `normalizeTier` maps every historical value (budget, mid_range,
-// luxury_plus, comfortable, …) onto the new keys, so existing data keeps
-// filtering and displaying correctly before/after the DB is migrated.
+// `accommodation_level`. Stored keys essential · classic · luxury ·
+// ultra_luxury are SHOWN as Classic · Mid-Luxury · Luxury · Ultra Luxury
+// (founder's task list 2.1, Nov 2026); the keys themselves never change.
+// `normalizeTier` maps every historical value (budget, mid_range, luxury_plus,
+// and the tour importer's Signature / Prestige steps) onto the keys, so
+// existing data filters and displays correctly without a migration.
 // ----------------------------------------------------------------------------
 
 export type TierKey = 'essential' | 'classic' | 'luxury' | 'ultra_luxury';
@@ -11,8 +13,8 @@ export type TierKey = 'essential' | 'classic' | 'luxury' | 'ultra_luxury';
 export const TIER_KEYS: TierKey[] = ['essential', 'classic', 'luxury', 'ultra_luxury'];
 
 export const TIER_LABELS: Record<TierKey, string> = {
-  essential: 'Essential',
-  classic: 'Classic',
+  essential: 'Classic',
+  classic: 'Mid-Luxury',
   luxury: 'Luxury',
   ultra_luxury: 'Ultra Luxury'
 };
@@ -27,7 +29,8 @@ export const TIER_STARS: Record<TierKey, number> = { essential: 3, classic: 4, l
 const ALIAS: Record<string, TierKey> = {
   budget: 'essential', comfortable: 'essential', essential: 'essential',
   mid_range: 'classic', midrange: 'classic', standard: 'classic', classic: 'classic',
-  luxury: 'luxury',
+  mid_luxury: 'classic', midluxury: 'classic', signature: 'classic',
+  luxury: 'luxury', prestige: 'luxury',
   luxury_plus: 'ultra_luxury', luxuryplus: 'ultra_luxury', ultra_luxury: 'ultra_luxury', ultraluxury: 'ultra_luxury'
 };
 

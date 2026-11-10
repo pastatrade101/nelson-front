@@ -10,6 +10,7 @@
   import AdminSelect from './AdminSelect.svelte';
   import AdminTextArea from './AdminTextArea.svelte';
   import RichTextEditor from './RichTextEditor.svelte';
+  import { TIER_LABELS } from '$lib/tiers';
   import { plainTextToHtml, richTextToStore, toPlainText } from '$lib/richtext';
   import type { LinkHint } from '$lib/linkAssist';
   import MediaPicker from './MediaPicker.svelte';
@@ -119,7 +120,7 @@
     }
   };
 
-  const LEVEL: Record<string, string> = { essential: 'Essential', classic: 'Classic', luxury: 'Luxury', ultra_luxury: 'Ultra luxury' };
+  const LEVEL: Record<string, string> = TIER_LABELS;
   $: lodgeSelectOptions = [
     { label: loadingLodges ? 'Loading accommodation…' : '— Not linked —', value: '' },
     ...lodgeOptions.map((l) => ({

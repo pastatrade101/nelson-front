@@ -264,7 +264,7 @@
   {/if}
   <span class="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/40 to-ink/10" aria-hidden="true"></span>
   <div class="container-shell relative z-10 max-w-3xl pb-10 pt-24">
-    <p class="eyebrow text-white/75">Emnel Adventures Africa</p>
+    <p class="eyebrow text-white/75">Emnel Adventures</p>
     <h1 class="type-h1 mt-2">Guest Information Form</h1>
     <p class="type-lead mt-3 max-w-lg text-white/85">
       A few details from each traveller, and we take care of the lodges, flights and permits from here.
@@ -310,7 +310,7 @@
 
     <!-- ── Intro ──────────────────────────────────────────────────────────── -->
     <div class="{CARD} mb-5">
-      <p class="font-serif text-lg font-light text-ink">Thank you for choosing Emnel Adventures Africa for your upcoming journey.</p>
+      <p class="font-serif text-lg font-light text-ink">Thank you for choosing Emnel Adventures for your upcoming journey.</p>
       <p class="mt-3 text-base leading-[1.75] text-ink/70">
         To finalise your reservations we ask that you complete the guest information below. These details are required for:
       </p>
@@ -564,7 +564,7 @@
   {/if}
 
   <footer class="mt-10 border-t border-ink/10 pt-5 text-xs text-ink/50">
-    Emnel Adventures Africa &middot; Arusha, Tanzania &middot;
+    Emnel Adventures &middot; Arusha, Tanzania &middot;
     <a class="underline" href="https://www.emneladventures.com">emneladventures.com</a>
   </footer>
 </div>

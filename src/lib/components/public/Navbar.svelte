@@ -124,7 +124,7 @@
   // ── Real-data formatters for the rich editorial cards ─────────────────────
   // Tier wording comes from $lib/tiers. A local copy here had drifted to
   // "Comfortable" / "Mid-range" / "Luxury+" while the rest of the site said
-  // Essential / Classic / Luxury / Ultra Luxury, so the same lodge was labelled
+  // the shared tier names, so the same lodge was labelled
   // two different ways depending on whether you saw it in the menu or on a page.
   const cardTier = (t?: unknown): string | undefined => tierLabel(t as string) || undefined;
   const durationLabel = (days?: unknown): string | undefined => {
@@ -275,6 +275,8 @@
 
   // Navbar logo: the Emnel wordmark, overridable by an admin-set logo.
   $: logoSrc = cdnUrl($branding.logo_url) || '/emnel.avif';
+  // The brand name from Settings, as the root layout uses it; the Branding record's is a fallback.
+  $: siteName = (typeof $page.data?.publicSettings?.site_name === 'string' && $page.data.publicSettings.site_name.trim()) || $branding.site_name;
 
   // ── WhatsApp CTA (from public settings, with safe fallback) ─────────────────
   $: s = $publicSettings;
@@ -481,7 +483,7 @@
     </button>
 
     <a href="/" class="flex min-w-0 flex-1 items-center justify-center" aria-label="Emnel Adventures home">
-      <img src={logoSrc} alt={$branding.site_name} class="h-10 w-full max-w-[150px] object-contain sm:h-12" />
+      <img src={logoSrc} alt={siteName} class="h-10 w-full max-w-[150px] object-contain sm:h-12" />
     </a>
 
     <div class="flex shrink-0 items-center gap-2">
@@ -495,7 +497,7 @@
     <div class="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-6 px-4">
       <!-- logo: left, oversized -->
       <a href="/" class="flex shrink-0 items-center py-2" aria-label="Emnel Adventures home">
-        <img src={logoSrc} alt={$branding.site_name} class="h-24 w-auto object-contain" />
+        <img src={logoSrc} alt={siteName} class="h-24 w-auto object-contain" />
       </a>
 
       <!-- nav links + CTA, aligned right -->
@@ -570,7 +572,7 @@
           <!-- Logo sits on a deep-green chip so the gold wordmark stays legible on the light drawer. -->
           <a href="/" class="flex shrink-0 items-center" on:click={() => (menuOpen = false)} aria-label="Emnel Adventures home">
             <span class="inline-flex items-center rounded-lg bg-deep-green px-3 py-1.5">
-              <img src={logoSrc} alt={$branding.site_name} class="h-9 w-auto object-contain" />
+              <img src={logoSrc} alt={siteName} class="h-9 w-auto object-contain" />
             </span>
           </a>
           <button class="grid h-11 w-11 place-items-center rounded-xl border border-ink/15 bg-surface text-ink" type="button" aria-label="Close menu" on:click={() => (menuOpen = false)}>

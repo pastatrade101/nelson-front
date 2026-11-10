@@ -9,7 +9,8 @@
 // rarely enough to live in code.
 
 export const COMPANY_FACTS = {
-  legalName: 'Emnel Adventures Limited',
+  // As the founder gives it (task list 2.5, Nov 2026).
+  legalName: 'Emnel Adventures',
   foundingDate: '2016',
   founder: 'Nelson Laizer',
   // Profiles the settings page has no field for.
@@ -95,7 +96,8 @@ export const organizationGraph = ({
   const home = `${origin}/`;
   const orgId = `${home}#organization`;
   const name = text(settings, 'company_name') || (branding.company_name ?? '').trim() || 'Emnel Adventures';
-  const siteName = (branding.site_name ?? '').trim();
+  // Settings' site name, not the Branding record's (which said "Emnel Adventures Africa").
+  const siteName = text(settings, 'site_name');
   const phone = text(settings, 'contact_phone');
   const email = text(settings, 'contact_email');
   const street = text(settings, 'office_address');
@@ -159,8 +161,8 @@ export const organizationGraph = ({
   const website = {
     '@id': `${home}#website`,
     '@type': 'WebSite',
-    // One name for the business everywhere; the longer brand name the
-    // branding settings use is kept as an alternate, not a second identity.
+    // One name for the business everywhere. A different site name set in
+    // Settings is kept as an alternate, not a second identity.
     name,
     ...(siteName && siteName !== name ? { alternateName: siteName } : {}),
     url: home,

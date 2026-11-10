@@ -17,6 +17,7 @@
   import AdminTextArea from './AdminTextArea.svelte';
   import MediaPicker from './MediaPicker.svelte';
   import RichTextEditor from './RichTextEditor.svelte';
+  import { TIER_LABELS } from '$lib/tiers';
   import GuideCard from '$lib/components/public/style/GuideCard.svelte';
   import ComfortTierCard from '$lib/components/public/style/ComfortTierCard.svelte';
   import { readPanels, readProse, readTiers } from '$lib/components/public/style/styleContent';
@@ -117,7 +118,7 @@
     {
       type: 'tiers',
       label: 'Comfort tiers',
-      blurb: 'Essential / Classic / Luxury, described in your own words.',
+      blurb: 'Classic / Mid-Luxury / Luxury, described in your own words.',
       fields: [
         { key: 'eyebrow', label: 'Eyebrow', kind: 'text' },
         { key: 'title', label: 'Heading', kind: 'text' },
@@ -373,7 +374,7 @@
     setListItem(i, key, index, field, current.includes(id) ? current.filter((x) => x !== id) : [...current, id]);
   };
 
-  const LEVEL_LABEL: Record<string, string> = { essential: 'Essential', classic: 'Classic', luxury: 'Luxury', ultra_luxury: 'Ultra luxury' };
+  const LEVEL_LABEL: Record<string, string> = TIER_LABELS;
 
   /** A one-line summary so a collapsed block is still identifiable. */
   const summarise = (block: Record<string, unknown>) => {

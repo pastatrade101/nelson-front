@@ -15,7 +15,11 @@ export const load: PageLoad = async ({ fetch }) => {
       '/api/travel-styles?status=published&limit=100',
       fetch
     );
-    return { styles: body?.data?.items ?? [], loadFailed: false };
+    // The CMS order (Great Migration first, Day Safaris last), whatever order the API returns.
+    const styles = [...(body?.data?.items ?? [])].sort(
+      (a, b) => (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0) || String(a.name).localeCompare(String(b.name))
+    );
+    return { styles, loadFailed: false };
   } catch {
     // fall through to the error state
   }

@@ -168,7 +168,7 @@ const entitySeo = (path: string, data: ContentRecord, brand: Branding): Resolved
     const item = record(value);
     const name = pick(item.title, item.hero_title, item.name);
     if (!name) return null;
-    const description = pick(item.meta_description, item.short_description, item.summary, item.excerpt, item.hero_subtitle, item.description, brand.positioning);
+    const description = pick(item.meta_description, item.short_description, item.summary, item.excerpt, item.hero_subtitle, item.description, item.intro, brand.positioning);
     return {
       title: pick(item.meta_title, item.seo_title, `${name} | ${fallbackSuffix}`),
       description,
@@ -187,7 +187,8 @@ const entitySeo = (path: string, data: ContentRecord, brand: Branding): Resolved
   if (/^\/safari-essentials\/[^/]+$/.test(path)) return detail(data.article);
   if (/^\/safaris\/[^/]+$/.test(path)) return detail(data.page);
   if (/^\/blog\/[^/]+$/.test(path)) return detail(data.post);
-  if (/^\/compare\/[^/]+$/.test(path)) return detail(data.cmp);
+  // The compare page's data is `comparison`; reading `cmp` left every comparison titled with the bare site name.
+  if (/^\/compare\/[^/]+$/.test(path)) return detail(data.comparison ?? data.cmp);
 
   if (/^\/[a-z-]+-safaris$/.test(path)) {
     const country = text(data.country);

@@ -4,7 +4,7 @@ import { normalizeTier, tierLabel, tierStars } from '$lib/tiers';
 
 // Shared, honest helpers for rendering lodges/accommodations. Everything here is
 // derived from the REAL Lodge fields — no invented ratings, prices or amenities.
-// Comfort tiers use the shared vocabulary (Essential · Classic · Luxury · Ultra Luxury).
+// Comfort tiers use the shared vocabulary (shown as Classic · Mid-Luxury · Luxury · Ultra Luxury).
 
 export const TYPE_LABELS: Record<string, string> = {
   tented_camp: 'Tented camp',

@@ -16,7 +16,7 @@
 
   export let data: PageData;
 
-  // ---- canonical comfort tiers (Essential · Classic · Luxury · Ultra Luxury) ----
+  // ---- canonical comfort tiers (shown as Classic · Mid-Luxury · Luxury · Ultra Luxury) ----
   const TIERS = TIER_KEYS.map((k) => ({ key: k, label: TIER_LABELS[k] }));
   const normTier = normalizeTier;
 

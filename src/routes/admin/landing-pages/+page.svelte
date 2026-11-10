@@ -135,7 +135,7 @@
     { value: 'packages', label: 'Packages (tours)', hint: 'Feature existing tours. The cards render live tour data; per-party prices are optional and only appear once you type real figures.' },
     { value: 'comparison', label: 'Comparison table', hint: 'Type the columns and rows, or leave them empty to build the table from the tours below.' },
     { value: 'route', label: 'Route flow', hint: 'The journey as an ordered list of stops, with optional notes beside it.' },
-    { value: 'tiers', label: 'Comfort tiers', hint: 'Essential / Classic / Luxury style cards, each with an optional image.' },
+    { value: 'tiers', label: 'Comfort tiers', hint: 'Classic / Mid-Luxury / Luxury style cards, each with an optional image.' },
     { value: 'panels', label: 'Split panels', hint: 'Side-by-side panels, each a heading, a list of lines and an optional image.' },
     { value: 'inclusions', label: 'Included / excluded', hint: 'Two plain lists shown side by side.' },
     { value: 'imagegrid', label: 'Image grid', hint: 'A gallery of real uploaded images. A caption without an image is not shown.' },
