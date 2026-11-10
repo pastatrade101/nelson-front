@@ -4,7 +4,7 @@
   const groups = [
     { title: 'Journey & travellers', keys: ['selected_trip', 'destination_interest', 'travel_interests', 'traveller_type', 'children_ages', 'travel_month', 'exact_start_date', 'exact_end_date', 'date_flexibility', 'trip_duration', 'travel_pace'] },
     { title: 'Preferences & budget', keys: ['comfort_level', 'accommodation_preference', 'travel_priorities', 'budget_per_person', 'budget_range', 'budget_basis', 'selected_currency', 'planning_stage'] },
-    { title: 'Contact permission', keys: ['preferred_contact', 'contact_consent', 'consent_scope'] },
+    { title: 'Contact permission', keys: ['whatsapp', 'preferred_contact', 'contact_consent', 'consent_scope'] },
     { title: 'Selected trips & entry context', keys: ['entry_points', 'saved_trips', 'source_page_url', 'lead_source', 'submitted_at'] }
   ];
   $: known = new Set([...groups.flatMap((g) => g.keys), 'answers', 'v', 'form_type', 'submission_fingerprint']);
