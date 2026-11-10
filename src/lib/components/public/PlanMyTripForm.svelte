@@ -142,7 +142,7 @@
   <div class="planner-layout">
     <div class="planner-main">
       <!-- Phones show the first word of each step ("Contact"), so all four fit on one line. -->
-      <nav aria-label="Quote request steps" class="progress-nav">{#each STEPS as label, index}<button type="button" class:complete={index < step} class:active={index === step} aria-current={index === step ? 'step' : undefined} aria-label={`Step ${index + 1}: ${label}`} disabled={index > furthest || !!pending || busy} on:click={() => move(index)}><span class="progress-line"></span><span class="step-label">{label.split(' ')[0]}<span class="label-rest"> {label.split(' ').slice(1).join(' ')}</span></span></button>{/each}</nav>
+      <nav aria-label="Quote request steps" class="progress-nav">{#each STEPS as label, index}<button type="button" class:complete={index < step} class:active={index === step} aria-current={index === step ? 'step' : undefined} aria-label={`Step ${index + 1}: ${label}`} disabled={index > furthest || !!pending || busy} on:click={() => move(index)}><span class="progress-line"></span><span class="step-label">{label.split(' ')[0]}<span class="label-rest">{label.includes(' ') ? ` ${label.split(' ').slice(1).join(' ')}` : ''}</span></span></button>{/each}</nav>
       <div class="form-body">
         {#if restored}<p class="draft-note"><Check size={14} /> Your answers are back. Continue where you left off.</p>{/if}
         {#if storageWarning}<p class="warning" role="status">{storageWarning}</p>{/if}
