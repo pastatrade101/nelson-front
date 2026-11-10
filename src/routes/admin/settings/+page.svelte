@@ -98,8 +98,10 @@
       { key: 'hubspot_pipeline_name', label: 'Pipeline name', type: 'text', public: false, default: 'Sales Pipeline' }
     ] },
     { key: 'analytics', label: 'Analytics', icon: BarChart3, fields: [
-      { key: 'ga4_measurement_id', label: 'GA4 measurement ID', type: 'text', public: true, helper: 'e.g. G-XXXXXXXXXX' },
-      { key: 'gsc_verification_code', label: 'Search Console verification', type: 'text', public: true },
+      { key: 'ga4_measurement_id', label: 'GA4 measurement ID', type: 'text', public: true, helper: 'e.g. G-XXXXXXXXXX. Loaded in the <head> of every page. Leave empty if GA4 is set up inside Tag Manager, or visits are counted twice.' },
+      { key: 'google_ads_id', label: 'Google Ads tag ID', type: 'text', public: true, helper: 'e.g. AW-123456789. Shares the GA4 tag; import the generate_lead and whatsapp_click key events into Google Ads as conversions.' },
+      { key: 'gtm_container_id', label: 'Google Tag Manager container ID', type: 'text', public: true, helper: 'e.g. GTM-XXXXXXX. Optional. Site events (generate_lead, whatsapp_click, page_view) are pushed to the dataLayer for your triggers.' },
+      { key: 'gsc_verification_code', label: 'Search Console verification', type: 'text', public: true, helper: 'The code from the HTML-tag method (the content="…" value). Pasting the whole <meta> tag also works.' },
       { key: 'enable_cookie_notice', label: 'Show cookie notice', type: 'boolean', public: true, default: true }
     ] },
     { key: 'legal', label: 'Legal', icon: Scale, fields: [

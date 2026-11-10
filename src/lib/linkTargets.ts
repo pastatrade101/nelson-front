@@ -8,6 +8,7 @@ import { api } from '$lib/api/client';
 import { SITE_URL } from '$lib/config/env';
 import { readAllPages } from '$lib/faqEntities';
 import type { LinkType } from '$lib/linkAssist';
+import { canonicalHref } from '$lib/redirects';
 
 /**
  * A page a link can point at. Records also carry their content type and id —
@@ -176,7 +177,7 @@ const buildIndex = async (): Promise<LinkIndex> => {
   // A country hub (/tanzania-safaris) is live once that country has a
   // published destination or trip.
   for (const country of countries) {
-    targets.push({ label: `${country} safaris`, path: `/${hubSlug(country)}`, group: 'Key pages' });
+    targets.push({ label: `${country} safaris`, path: canonicalHref(`/${hubSlug(country)}`), group: 'Key pages' });
   }
   if (verified.has('destinations') && verified.has('tours')) verified.add('hubs');
 

@@ -8,6 +8,7 @@
   import MegaMenu from './MegaMenu.svelte';
   import { TIER_KEYS, TIER_LABELS, tierLabel } from '$lib/tiers';
   import CurrencySelector from './CurrencySelector.svelte';
+  import { canonicalHref } from '$lib/redirects';
   import WhatsAppCta from './WhatsAppCta.svelte';
   import { api } from '$lib/api/client';
   import { safariStyleHref } from '$lib/styleLinks';
@@ -197,7 +198,7 @@
   export let countries: string[] = [];
   $: countryHubs = countries.map((c) => ({
     label: `${c} Safaris`,
-    href: `/${c.toLowerCase().replace(/\s+/g, '-')}-safaris`,
+    href: canonicalHref(`/${c.toLowerCase().replace(/\s+/g, '-')}-safaris`),
     icon: catIcon(c)
   }));
   $: browseDestinations = [
@@ -550,7 +551,7 @@
         <button
           type="button"
           class="ml-1 inline-flex items-center gap-1.5 border border-goldfinch-gold px-6 py-2.5 text-[15px] font-semibold text-goldfinch-gold shadow-sm transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50"
-          on:click={openEnquiry}
+          on:click={() => openEnquiry()}
         >
           Begin Your Journey
           <ArrowRight size={15} strokeWidth={2.6} />

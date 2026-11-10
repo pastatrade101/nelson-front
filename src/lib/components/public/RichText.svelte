@@ -6,7 +6,7 @@
    * Typography lives here so every long-form field on the site reads the same —
    * pass size/colour through `className` and children inherit it.
    */
-  import { hasRichContent, looksLikeHtml, sanitizeRichText } from '$lib/richtext';
+  import { hasMarkdown, hasRichContent, looksLikeHtml, markdownToHtml, repairMarkdown, sanitizeRichText } from '$lib/richtext';
 
   export let value: string | null | undefined = '';
   /** Extra classes on the wrapper — children inherit size and colour from it. */
@@ -16,8 +16,10 @@
 
   $: raw = String(value ?? '');
   $: isRich = looksLikeHtml(raw);
-  $: html = isRich ? sanitizeRichText(raw) : '';
-  $: paragraphs = isRich
+  // Stray Markdown (imported or pasted copy) is converted, never shown as marks.
+  $: isMarkdown = !isRich && hasMarkdown(raw);
+  $: html = isRich ? sanitizeRichText(repairMarkdown(raw)) : isMarkdown ? sanitizeRichText(markdownToHtml(raw)) : '';
+  $: paragraphs = isRich || isMarkdown
     ? []
     : raw
         .split(/\n{2,}/)
@@ -28,7 +30,7 @@
 
 {#if visible}
   <svelte:element this={element} class={`rich ${className}`}>
-    {#if isRich}
+    {#if isRich || isMarkdown}
       {@html html}
     {:else}
       {#each paragraphs as paragraph}

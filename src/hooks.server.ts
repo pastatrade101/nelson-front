@@ -1,5 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 import { findRedirect, loadSitePages, type SitePage } from '$lib/siteIndex';
+import { redirectFor, wwwRedirectFor } from '$lib/redirects';
 
 /**
  * A safety net for addresses that 404.
@@ -43,6 +44,17 @@ const isCandidate = (pathname: string): boolean => {
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
+  // One domain: the bare domain sends every page to www (canonicals and
+  // sitemaps already use www).
+  const www = wwwRedirectFor(event.url, event.request.method);
+  if (www) return new Response(null, { status: 301, headers: { location: www } });
+
+  // Retired addresses go to their replacement, even where an old page remains.
+  if (event.request.method === 'GET' || event.request.method === 'HEAD') {
+    const moved = event.isDataRequest ? null : redirectFor(event.url.pathname);
+    if (moved) return new Response(null, { status: 301, headers: { location: `${moved}${event.url.search}` } });
+  }
+
   const response = await resolve(event);
 
   const { method } = event.request;

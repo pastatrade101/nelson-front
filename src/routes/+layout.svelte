@@ -33,8 +33,10 @@
   $: brandStyleTag = brandColorStyleTag($branding.colors);
   import { loadPublicSettings } from '$lib/settings';
   import { initCurrency } from '$lib/currency';
-  import { trackPageView } from '$lib/analytics';
+  import { trackEvent, trackPageView } from '$lib/analytics';
   import { loadClarity } from '$lib/clarity';
+  import { googleTagBody, googleTagHead, tagId, verificationCode, type GoogleTagIds } from '$lib/googleTag';
+  import { openEnquiry } from '$lib/enquiry';
 
   $: path = $page.url.pathname;
   $: isAdmin = path.startsWith('/admin');
@@ -68,11 +70,27 @@
   $: defaultOgImage = settingText(publicSettings, 'default_og_image_url') || '/emnel-icon.png';
   $: socialImage = absoluteUrl(seoOverride?.og_image_url?.trim() || defaultSeo.image || defaultOgImage, siteOrigin);
   $: indexingEnabled = settingBool(publicSettings, 'robots_indexing_enabled', true);
+  // A 404 (or any error page) is never indexed, whatever the address.
+  $: isErrorPage = $page.status >= 400;
   $: robots = isAdmin || isPrivateOrUtility || !indexingEnabled
     ? 'noindex,nofollow'
-    : defaultSeo.noindex
+    : defaultSeo.noindex || isErrorPage
       ? 'noindex,follow'
       : seoOverride?.robots?.trim() || 'index,follow';
+
+  // Google: Search Console verification and the Google tags (GA4, Ads, Tag
+  // Manager), from CMS › Settings › Analytics, else the server's PUBLIC_* ids.
+  // Rendered into the first response's <head>; never on the CMS, and never on
+  // local or preview hosts, which must not pollute the production property.
+  $: gscCode = verificationCode(settingText(publicSettings, 'gsc_verification_code'));
+  $: tagIds = {
+    ga4: tagId('ga4', settingText(publicSettings, 'ga4_measurement_id'), publicEnv.PUBLIC_GA4_MEASUREMENT_ID),
+    ads: tagId('ads', settingText(publicSettings, 'google_ads_id'), publicEnv.PUBLIC_GOOGLE_ADS_ID),
+    gtm: tagId('gtm', settingText(publicSettings, 'gtm_container_id'), publicEnv.PUBLIC_GTM_ID)
+  } satisfies GoogleTagIds;
+  $: productionHost = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test($page.url.hostname) && !$page.url.hostname.endsWith('.local');
+  $: googleHead = !isAdmin && productionHost ? googleTagHead(tagIds) : '';
+  $: googleBody = !isAdmin && productionHost ? googleTagBody(tagIds) : '';
   $: orgUrl = `${siteOrigin}/`;
   $: seoStructured = seoOverride?.structured_data && !Array.isArray(seoOverride.structured_data)
     ? seoOverride.structured_data
@@ -136,12 +154,13 @@
     });
   };
 
+  // A fallback only: the tag normally arrives in the server-rendered <head>
+  // (see googleTag.ts), which sets window.emnelGoogleTag.
   const loadGoogleTag = () => {
-    const ga4Id = publicEnv.PUBLIC_GA4_MEASUREMENT_ID;
-    const adsId = publicEnv.PUBLIC_GOOGLE_ADS_ID;
+    const { ga4: ga4Id, ads: adsId } = tagIds;
     if (!browser || isAdmin || !isProdHost()) return;
     if (!ga4Id && !adsId) return;
-    if (document.getElementById('ga4-src')) return;
+    if ((window as unknown as { emnelGoogleTag?: boolean }).emnelGoogleTag || document.getElementById('ga4-src')) return;
 
     // Either id can bootstrap the library; the other is registered by config().
     const script = document.createElement('script');
@@ -215,7 +234,32 @@
     if (!isAdmin) trackPageView();
   });
 
+  // Site-wide link handling, delegated so it covers links in CMS content too:
+  //  • every WhatsApp link counts as a whatsapp_click (WhatsAppCta reports its
+  //    own, richer event and marks itself data-wa-tracked);
+  //  • a plain click on a /plan-my-trip link opens the quote form as a popup
+  //    over the current page. The address stays a real page for new tabs,
+  //    crawlers and anyone without JavaScript.
+  const WHATSAPP_LINK = /^(?:https?:\/\/)?(?:wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\b|^whatsapp:/i;
+  const onDocumentClick = (event: MouseEvent) => {
+    if (isAdmin || event.defaultPrevented) return;
+    const link = (event.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
+    if (!link) return;
+    if (WHATSAPP_LINK.test(link.href)) {
+      if (!('waTracked' in link.dataset)) trackEvent('whatsapp_click', { metadata: { context: 'page_link' } });
+      return;
+    }
+    const url = new URL(link.href, window.location.href);
+    const plain = event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && (!link.target || link.target === '_self');
+    if (plain && url.origin === window.location.origin && url.pathname === '/plan-my-trip' && path !== '/plan-my-trip' && !link.hasAttribute('download')) {
+      event.preventDefault();
+      openEnquiry(url.search);
+    }
+  };
+
   onMount(() => {
+    // Capture phase: SvelteKit's router claims link clicks before they bubble to document.
+    document.addEventListener('click', onDocumentClick, true);
     void setupGsap();
     // Apply the SSR-loaded branding's client-side effects (brand-color-vars style
     // tag + favicon) right away, then refresh from the API (also retries if the
@@ -226,6 +270,7 @@
     void initCurrency();
     setupPwaInstall();
     return () => {
+      document.removeEventListener('click', onDocumentClick, true);
       smoothScrollCleanup?.();
     };
   });
@@ -252,6 +297,10 @@
   {#if robots || isAdmin || isPrivateOrUtility}
     <meta name="robots" content={robots} />
   {/if}
+  {#if gscCode && !isAdmin}
+    <meta name="google-site-verification" content={gscCode} />
+  {/if}
+  {#if googleHead}{@html googleHead}{/if}
   {#if $branding.favicon_url}
     <link rel="icon" href={cdnUrl($branding.favicon_url)} />
   {/if}
@@ -265,6 +314,8 @@
 {#if seoStructured}
   <JsonLd data={seoStructured} />
 {/if}
+
+{#if googleBody}{@html googleBody}{/if}
 
 {#if $navigating}
   <div class="nav-progress" role="progressbar" aria-label="Loading page" aria-busy="true"></div>

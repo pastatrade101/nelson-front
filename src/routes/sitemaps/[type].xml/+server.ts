@@ -13,6 +13,7 @@ import {
 } from '$lib/sitemap';
 import { safeSiteOrigin } from '$lib/seo-policy';
 import type { RequestHandler } from './$types';
+import { redirectFor } from '$lib/redirects';
 
 // Collections are fetched through the app's own /api proxy rather than straight
 // at BACKEND_ORIGIN. Going direct made SvelteKit forward the visitor's Origin
@@ -83,6 +84,8 @@ export const GET: RequestHandler = async ({ params, url, fetch }) => {
     }
   }
 
+  // A sitemap lists final addresses only, never ones that redirect.
+  entries = entries.filter((entry) => !redirectFor(entry.path));
   return new Response(renderUrlset(origin, applyPageSeoIndexingRules(origin, entries, rules)), {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',

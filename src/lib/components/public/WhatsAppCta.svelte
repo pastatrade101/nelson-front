@@ -64,6 +64,7 @@
   rel="noopener noreferrer"
   class={classes}
   aria-label={ariaLabel || undefined}
+  data-wa-tracked
   on:click={onClick}
   on:click
 >

@@ -10,11 +10,13 @@
   /** Whether the /safaris markets hub has anything published in it. */
   export let marketsLive = false;
 
-  const countryHref = (country: string) => `/${country.toLowerCase().replace(/\s+/g, '-')}-safaris`;
+  // The hub path, past any redirect (Tanzania's lives at its destination guide).
+  const countryHref = (country: string) => canonicalHref(`/${country.toLowerCase().replace(/\s+/g, '-')}-safaris`);
 
   import { Mail, Phone } from '@lucide/svelte';
   import { trackEvent } from '$lib/analytics';
   import { brand } from '$lib/brand';
+  import { canonicalHref } from '$lib/redirects';
   import { branding } from '$lib/branding';
   import { cdnUrl } from '$lib/img';
   import { publicSettings, settingText } from '$lib/settings';
@@ -97,11 +99,11 @@
         {#each countries as country (country)}
           <a class="w-fit transition hover:text-white" href={countryHref(country)}>{country} Safaris</a>
         {/each}
-        <a class="w-fit transition hover:text-white" href="/tours?category=great-migration">Great Migration</a>
-        <a class="w-fit transition hover:text-white" href="/tours?category=family-safari">Family Safari</a>
-        <a class="w-fit transition hover:text-white" href="/tours?category=honeymoon-safari">Honeymoon Safari</a>
-        <a class="w-fit transition hover:text-white" href="/tours?category=photography-safari">Photography Safari</a>
-        <a class="w-fit transition hover:text-white" href="/kilimanjaro">Kilimanjaro</a>
+        <a class="w-fit transition hover:text-white" href="/travel-styles">Travel Styles</a>
+        <a class="w-fit transition hover:text-white" href="/travel-styles/great-migration-safari">Great Migration</a>
+        <a class="w-fit transition hover:text-white" href="/travel-styles/tanzania-family-safari">Family Safari</a>
+        <a class="w-fit transition hover:text-white" href="/travel-styles/honeymoon">Honeymoon Safari</a>
+        <a class="w-fit transition hover:text-white" href="/travel-styles/tanzania-safari-zanzibar">Safari &amp; Zanzibar</a>
         <a class="w-fit transition hover:text-white" href="/destinations">Destinations</a>
         {#if essentialsLive}
           <a class="w-fit transition hover:text-white" href="/safari-essentials">Safari Essentials</a>
@@ -118,7 +120,6 @@
       <div class="mt-3 grid gap-2 text-sm text-white/70">
         <a class="w-fit transition hover:text-white" href="/about">About</a>
         <a class="w-fit transition hover:text-white" href="/blog">Journal</a>
-        <a class="w-fit transition hover:text-white" href="/experiences">Experiences</a>
         <a class="w-fit transition hover:text-white" href="/gallery">Gallery</a>
         <a class="w-fit transition hover:text-white" href="/safety">Health &amp; Safety</a>
         <a class="w-fit transition hover:text-white" href="/contact">Contact</a>

@@ -327,6 +327,55 @@ export const sanitizeRichText = (input: unknown): string => {
     .trim();
 };
 
+// ── Stray Markdown ───────────────────────────────────────────────────────────
+// Imported or pasted copy sometimes carries Markdown ("## Day 1", "**Note**")
+// into a field the site renders as plain text or rich text, where the marks
+// showed literally. It is converted on display, so no field can show them.
+
+const MD_HEADING = /^(#{1,6})\s+(.+)$/;
+const headingTag = (hashes: string) => (hashes.length <= 2 ? 'h2' : hashes.length === 3 ? 'h3' : 'h4');
+const mdInline = (escaped: string): string =>
+  escaped
+    .replace(/\[([^\]\n]+)\]\(((?:https?:\/\/|\/)[^\s)]*)\)/g, '<a href="$2">$1</a>')
+    .replace(/\*\*(?=\S)([^*\n]+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(?=\S)([^_\n]+?)__/g, '<strong>$1</strong>')
+    .replace(/(^|[\s(])\*(?=\S)([^*\n]+?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
+
+/** Does plain text carry Markdown worth converting? */
+export const hasMarkdown = (text: string): boolean =>
+  /(^|\n)[ \t]{0,3}(#{1,6}[ \t]|[-*+][ \t]|\d+[.)][ \t])|\*\*[^*\n]+\*\*|\[[^\]\n]+\]\((?:https?:\/\/|\/)/.test(text);
+
+/** Plain text with Markdown → simple HTML (headings, lists, bold, italics, links). Sanitise the result. */
+export const markdownToHtml = (text: string): string =>
+  String(text ?? '')
+    .replace(/\r\n?/g, '\n')
+    .split(/\n{2,}/)
+    .map((block) => block.split('\n').map((line) => line.trim()).filter(Boolean))
+    .filter((lines) => lines.length)
+    .map((lines) => {
+      if (lines.every((l) => /^[-*+]\s+/.test(l))) return `<ul>${lines.map((l) => `<li>${mdInline(escapeText(l.replace(/^[-*+]\s+/, '')))}</li>`).join('')}</ul>`;
+      if (lines.every((l) => /^\d+[.)]\s+/.test(l))) return `<ol>${lines.map((l) => `<li>${mdInline(escapeText(l.replace(/^\d+[.)]\s+/, '')))}</li>`).join('')}</ol>`;
+      const heading = lines[0].match(MD_HEADING);
+      const head = heading ? `<${headingTag(heading[1])}>${mdInline(escapeText(heading[2].replace(/\s+#+$/, '')))}</${headingTag(heading[1])}>` : '';
+      const rest = heading ? lines.slice(1) : lines;
+      return head + (rest.length ? `<p>${rest.map((l) => mdInline(escapeText(l))).join('<br>')}</p>` : '');
+    })
+    .join('');
+
+/** Markdown pasted into the rich-text editor: `<p>## Title</p>` and `**bold**`. */
+export const repairMarkdown = (html: string): string =>
+  String(html ?? '')
+    .replace(/<p>\s*(#{1,6})\s+([\s\S]*?)<\/p>/g, (_, hashes: string, body: string) => `<${headingTag(hashes)}>${body}</${headingTag(hashes)}>`)
+    .replace(/\*\*(?=\S)([^*<>\n]+?)\*\*/g, '<strong>$1</strong>');
+
+/** Markdown marks removed, for teasers and meta text. */
+const stripMarkdown = (text: string): string =>
+  text
+    .replace(/^[ \t]{0,3}#{1,6}[ \t]+/gm, '')
+    .replace(/\*\*([^*\n]+)\*\*/g, '$1')
+    .replace(/__([^_\n]+)__/g, '$1')
+    .replace(/\[([^\]\n]+)\]\([^)\s]+\)/g, '$1');
+
 /** Does this value carry markup we would render, rather than being plain text? */
 export const looksLikeHtml = (value: unknown): boolean =>
   /<(?:p|br|strong|em|u|s|a|ul|ol|li|h[234]|blockquote)\b[^>]*>/i.test(String(value ?? ''));
@@ -335,8 +384,8 @@ export const looksLikeHtml = (value: unknown): boolean =>
 export const toPlainText = (value: unknown): string => {
   const raw = String(value ?? '');
   if (!raw) return '';
-  if (!looksLikeHtml(raw)) return raw;
-  return decodeEntities(
+  if (!looksLikeHtml(raw)) return stripMarkdown(raw);
+  return stripMarkdown(decodeEntities(
     raw
       .replace(/<br\s*\/?>/gi, '\n')
       .replace(/<\/(?:p|h[1-6]|li|blockquote|ul|ol)>/gi, '\n\n')
@@ -346,7 +395,7 @@ export const toPlainText = (value: unknown): string => {
     .replace(/[ \t]+/g, ' ')
     .replace(/ *\n */g, '\n')
     .replace(/\n{3,}/g, '\n\n')
-    .trim();
+    .trim());
 };
 
 /** Single-line plain text for meta tags / teasers. Truncates on a word boundary. */

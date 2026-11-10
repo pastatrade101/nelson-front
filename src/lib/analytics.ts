@@ -134,6 +134,12 @@ const safeParams = (meta: EventMeta): Record<string, string | number> => {
   return out;
 };
 
+// Tag Manager is on the page when the CMS has a container id (see googleTag.ts).
+const pushToTagManager = (event: string, params: Record<string, unknown>): void => {
+  const w = window as unknown as { emnelGtm?: boolean; dataLayer?: unknown[] };
+  if (w.emnelGtm && Array.isArray(w.dataLayer)) w.dataLayer.push({ event, ...params });
+};
+
 // Low-level emit: GA4 (recommended name + safe params) + first-party (own name).
 const emit = (name: AnalyticsEventName, meta: EventMeta): void => {
   if (!browser) return;
@@ -141,9 +147,12 @@ const emit = (name: AnalyticsEventName, meta: EventMeta): void => {
   try {
     const params = safeParams(meta);
 
-    // 1) GA4 — only when gtag is loaded (which only happens after 'granted').
+    // 1) GA4 — whenever the Google tag is on the page (consent mode decides
+    //    what it may store). Tag Manager, when used, gets the same event as a
+    //    dataLayer push, which is what its triggers listen for.
     const gtag = hasGtag();
     if (gtag) gtag('event', GA4_EVENT_MAP[name] ?? name, params);
+    pushToTagManager(GA4_EVENT_MAP[name] ?? name, params);
 
     // 2) First-party backend — fire-and-forget, keepalive for unload safety.
     const payload: Record<string, unknown> = {
@@ -174,6 +183,7 @@ export const trackEvent = (eventName: AnalyticsEventName, meta: EventMeta = {}):
 // it ourselves. Deduped by clean path so the same URL never double-counts, and
 // stripped of query params so no search/id ever leaks into GA4.
 let lastGa4Path = '';
+let lastGtmPath = '';
 let lastFirstPartyPath = '';
 
 export const trackPageView = (): void => {
@@ -190,6 +200,10 @@ export const trackPageView = (): void => {
         page_title: document.title,
         page_referrer: document.referrer || undefined
       });
+    }
+    if (path !== lastGtmPath) {
+      lastGtmPath = path;
+      pushToTagManager('page_view', { page_path: path, page_location: location, page_title: document.title });
     }
     if (path !== lastFirstPartyPath) {
       lastFirstPartyPath = path;

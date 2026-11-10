@@ -1,3 +1,4 @@
+import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import type { Tour } from '$lib/types';
 import { loadFaqsFor } from '$lib/faqEntities';
@@ -19,8 +20,10 @@ import { loadFaqsFor } from '$lib/faqEntities';
  */
 export const load: PageLoad = async ({ params, fetch }) => {
   let tour: Tour | null = null;
+  let missing = false;
   try {
     const res = await fetch(`/api/tours/${params.slug}`);
+    missing = res.status === 404;
     if (res.ok) {
       const body = await res.json();
       if (body?.data) tour = body.data as Tour;
@@ -28,6 +31,9 @@ export const load: PageLoad = async ({ params, fetch }) => {
   } catch {
     // Fall through — the component's own fetch still populates the page.
   }
+  // A tour that doesn't exist (or no longer does) is a real 404, not a 200 page
+  // saying so: search engines drop it instead of indexing an empty shell.
+  if (missing) error(404, 'This safari could not be found.');
 
   // The page's FAQs load here too, so every question and answer is in the
   // first response instead of arriving after hydration, where crawlers that do
