@@ -1,11 +1,23 @@
+<script lang="ts" context="module">
+  import type { PlannerCatalog } from '$lib/tripPlanner';
+  // The catalogue is fetched once per visit and shared by every opening.
+  let catalogLoad: Promise<PlannerCatalog> | null = null;
+  let loadedCatalog: PlannerCatalog | null = null;
+</script>
+
 <script lang="ts">
   // The quote form as a popup over the current page. Opened by "Begin Your
   // Journey" and by any plain click on a /plan-my-trip link (see the root
   // layout); answers are kept in the tab, so closing it loses nothing.
+  //
+  // The form opens at once: its steps need no server data. The catalogue
+  // (trip ideas, prefill from a tour link) loads behind it, and a tour or
+  // lodge on the current page is used directly.
   import { tick } from 'svelte';
   import { afterNavigate } from '$app/navigation';
+  import { page } from '$app/stores';
   import { enquiryHref, closeEnquiry } from '$lib/enquiry';
-  import { loadPlanner } from '$lib/plannerEntry';
+  import { EMPTY_CATALOG, loadCatalog, loadPlanner, quickPlanner } from '$lib/plannerEntry';
   import PlanMyTripForm from './PlanMyTripForm.svelte';
 
   let planner: Awaited<ReturnType<typeof loadPlanner>> | null = null;
@@ -13,11 +25,36 @@
   let opener: HTMLElement | null = null;
   let panel: HTMLDivElement;
 
+  const catalogue = () =>
+    (catalogLoad ??= loadCatalog(fetch).then((c) => {
+      // An outage is retried on the next opening rather than remembered.
+      if (c.available) loadedCatalog = c;
+      else catalogLoad = null;
+      return c;
+    }));
+
   async function open(href: string) {
     shownFor = href;
     planner = null;
     opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const loaded = await loadPlanner(fetch, new URL(href, window.location.origin));
+    const url = new URL(href, window.location.origin);
+    const here = { tour: $page.data?.tour, lodge: $page.data?.lodge };
+    const quick = quickPlanner(url, loadedCatalog ?? EMPTY_CATALOG, here);
+    const pending = loadedCatalog ? null : catalogue();
+    if (quick) {
+      planner = quick;
+      await tick();
+      panel?.focus();
+      // Trip ideas arrive when the catalogue does; the form keeps its answers.
+      const full = await pending;
+      if (full && shownFor === href && planner) {
+        const extra = planner.catalog.tours.filter((t) => !full.tours.some((f) => f.id === t.id));
+        planner = { ...planner, catalog: { ...full, tours: [...full.tours, ...extra] } };
+      }
+      return;
+    }
+    // A tour or lodge named only by its address: look it up before the form starts from it.
+    const loaded = await loadPlanner(fetch, url, (await pending) ?? loadedCatalog ?? undefined);
     if (shownFor !== href) return;
     planner = loaded;
     await tick();
