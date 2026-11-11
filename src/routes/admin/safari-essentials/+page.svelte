@@ -300,7 +300,7 @@
                   <div class="flex justify-end gap-2">
                     {#if article.status === 'published'}
                       <a
-                        class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70"
+                        class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70"
                         href={`/safari-essentials/${article.slug}`}
                         target="_blank"
                         rel="noreferrer"
@@ -309,7 +309,7 @@
                       </a>
                     {/if}
                     <button
-                      class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70"
+                      class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70"
                       type="button"
                       on:click={() => openEditor(article)}
                     >

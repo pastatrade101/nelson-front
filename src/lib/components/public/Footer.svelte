@@ -77,7 +77,7 @@
         <div class="mt-5 flex flex-wrap gap-2.5">
           {#each socials as social (social.key)}
             <a
-              class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface/10 text-white/80 transition hover:bg-goldfinch-gold hover:text-heading"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface/10 text-white/80 transition hover:bg-emnel-gold hover:text-heading"
               href={settingText(s, social.key)}
               target="_blank"
               rel="noopener noreferrer"

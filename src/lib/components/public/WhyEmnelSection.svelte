@@ -41,7 +41,7 @@
       <p class="brand-eyebrow">{eyebrow}</p>
       <h2 class={`type-h2 mt-5 ${dark ? '' : 'text-heading'}`}>
         {title}
-        {#if accentTitle}<span class="block italic text-goldfinch-gold">{accentTitle}</span>{/if}
+        {#if accentTitle}<span class="block italic text-emnel-gold">{accentTitle}</span>{/if}
       </h2>
 
       {#if htmlContent}
@@ -53,11 +53,11 @@
       {/if}
 
       <div class="mt-8 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-        <a class="inline-flex h-[50px] items-center justify-center gap-3 bg-goldfinch-gold px-7 text-[12px] font-bold uppercase tracking-[0.16em] text-deep-green transition hover:bg-savanna" href={ctaHref}>
+        <a class="inline-flex h-[50px] items-center justify-center gap-3 bg-emnel-gold px-7 text-[12px] font-bold uppercase tracking-[0.16em] text-deep-green transition hover:bg-savanna" href={ctaHref}>
           {ctaLabel} <ArrowRight size={16} strokeWidth={2.5} />
         </a>
         {#if quote}
-          <blockquote class={`border-l-2 border-goldfinch-gold pl-5 font-serif text-xl italic leading-8 ${dark ? 'text-goldfinch-gold' : 'text-heading'}`}>{quote}</blockquote>
+          <blockquote class={`border-l-2 border-emnel-gold pl-5 font-serif text-xl italic leading-8 ${dark ? 'text-emnel-gold' : 'text-heading'}`}>{quote}</blockquote>
         {/if}
       </div>
     </div>
@@ -66,7 +66,7 @@
       <div class={`border ${dark ? 'border-white/10 bg-white/[0.035]' : 'border-ink/10 bg-surface'}`} use:staggeredCardReveal={{ selector: '.why-emnel-item', y: 12, stagger: 0.05 }}>
         {#each promises as promise, index}
           <div class={`why-emnel-item flex min-h-[92px] items-center gap-4 border-b px-6 py-5 last:border-b-0 md:px-8 ${dark ? 'border-white/[0.08]' : 'border-ink/10'}`}>
-            <span class="grid h-9 w-9 shrink-0 place-items-center border border-goldfinch-gold/45 text-goldfinch-gold"><Check size={16} strokeWidth={2.8} /></span>
+            <span class="grid h-9 w-9 shrink-0 place-items-center border border-emnel-gold/45 text-emnel-gold"><Check size={16} strokeWidth={2.8} /></span>
             <div>
               <p class={`eyebrow ${dark ? 'text-white/35' : 'text-ink/45'}`}>Emnel promise {String(index + 1).padStart(2, '0')}</p>
               <p class={`mt-1.5 text-base font-semibold leading-6 ${dark ? 'text-white/82' : 'text-ink/80'}`}>{promise}</p>

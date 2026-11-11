@@ -242,7 +242,7 @@
 <JsonLd data={breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: 'Accommodation', path: '/accommodation' }, { name: l.name, path: '/accommodation/' + l.slug }])} />
 
 {#snippet heading(eyebrow: string, title: string, dark = false)}
-  <p class={`eyebrow ${dark ? 'text-goldfinch-gold' : 'text-clay'}`}>{eyebrow}</p>
+  <p class={`eyebrow ${dark ? 'text-emnel-gold' : 'text-clay'}`}>{eyebrow}</p>
   <h2 class={`type-h2 mt-4 ${dark ? 'text-white' : 'text-heading'}`}>{title}</h2>
 {/snippet}
 
@@ -264,12 +264,12 @@
     </nav>
     <div class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
       <div>
-        <p class="eyebrow text-goldfinch-gold">{typeLabel(l)} · {levelLabel(l)}</p>
+        <p class="eyebrow text-emnel-gold">{typeLabel(l)} · {levelLabel(l)}</p>
         <h1 class="type-h1 mt-4 break-words">{l.name}</h1>
-        {#if placeLine}<p class="mt-4 flex items-start gap-2 text-sm text-white/70"><MapPin size={16} class="shrink-0 text-goldfinch-gold" />{placeLine}</p>{/if}
+        {#if placeLine}<p class="mt-4 flex items-start gap-2 text-sm text-white/70"><MapPin size={16} class="shrink-0 text-emnel-gold" />{placeLine}</p>{/if}
         {#if l.short_description}<p class="type-lead mt-5 max-w-xl text-white/80">{toMetaText(l.short_description, 500)}</p>{/if}
         <div class="mt-7 flex flex-wrap items-center gap-3">
-          <a class="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-goldfinch-gold px-5 text-sm font-semibold text-deep-green" href={planHref}>Plan a stay here <ArrowRight size={16} /></a>
+          <a class="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-emnel-gold px-5 text-sm font-semibold text-deep-green" href={planHref}>Plan a stay here <ArrowRight size={16} /></a>
           <ShortlistButton item={shortlistItem} variant="full" />
         </div>
         <a href="#safari-itineraries" class="mt-5 inline-block text-xs font-semibold text-white/75 underline underline-offset-4">Explore safari itineraries</a>
@@ -299,7 +299,7 @@
             class={`relative shrink-0 whitespace-nowrap px-3.5 py-4 text-[13px] font-medium transition ${active === item.id ? 'text-heading' : 'text-ink/50 hover:text-heading'}`}
           >
             {item.label}
-            <span class={`absolute inset-x-3.5 bottom-0 h-0.5 bg-goldfinch-gold transition-opacity ${active === item.id ? 'opacity-100' : 'opacity-0'}`}></span>
+            <span class={`absolute inset-x-3.5 bottom-0 h-0.5 bg-emnel-gold transition-opacity ${active === item.id ? 'opacity-100' : 'opacity-0'}`}></span>
           </a>
         {/each}
       </nav>
@@ -317,7 +317,7 @@
       <div class="lg:col-span-5">
         {@render heading('The property', 'What it is like')}
         {#if (l.why_we_recommend ?? '').trim()}
-          <p class="type-lead mt-10 border-l-2 border-goldfinch-gold pl-6 italic text-heading">
+          <p class="type-lead mt-10 border-l-2 border-emnel-gold pl-6 italic text-heading">
             {toMetaText(l.why_we_recommend, 5000)}
           </p>
           <p class="eyebrow mt-3 pl-6 text-ink/45">Why we recommend it</p>
@@ -567,7 +567,7 @@
     {/if}
 
     {#if !stays.length && !nearby.length}
-      <div class="mt-10 flex flex-col gap-6 border-y border-goldfinch-gold/40 py-8 md:flex-row md:items-center md:justify-between md:gap-12">
+      <div class="mt-10 flex flex-col gap-6 border-y border-emnel-gold/40 py-8 md:flex-row md:items-center md:justify-between md:gap-12">
         <div class="max-w-2xl">
           <p class="font-serif text-[24px] font-light leading-tight text-heading md:text-[28px]">No published itinerary includes this stay yet.</p>
           <p class="mt-2 text-base leading-[1.75] text-ink/65">We can build one around it: tell us your dates and who is travelling, and we will send a route with {l.name} in it.</p>

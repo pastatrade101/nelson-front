@@ -36,10 +36,10 @@
           {#each shownStops as stop, i}
             <li class="flex w-full flex-col items-center">
               {#if i > 0}
-                <span class="h-10 w-px bg-goldfinch-gold/55" aria-hidden="true"></span>
+                <span class="h-10 w-px bg-emnel-gold/55" aria-hidden="true"></span>
               {/if}
               <span
-                class="w-full border border-goldfinch-gold/35 bg-white/[0.05] type-card px-6 py-4 text-center text-white"
+                class="w-full border border-emnel-gold/35 bg-white/[0.05] type-card px-6 py-4 text-center text-white"
               >
                 {stop}
               </span>

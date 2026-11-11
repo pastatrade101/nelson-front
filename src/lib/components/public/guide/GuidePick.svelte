@@ -14,7 +14,7 @@
   export let priceNote = '';
 </script>
 
-<a {href} class="group flex gap-4 border border-ink/10 bg-surface p-3 transition hover:border-goldfinch-gold/50 hover:shadow-soft">
+<a {href} class="group flex gap-4 border border-ink/10 bg-surface p-3 transition hover:border-emnel-gold/50 hover:shadow-soft">
   <div class="relative h-[84px] w-[112px] shrink-0 overflow-hidden bg-deep-green sm:h-[96px] sm:w-[128px]">
     {#if image}
       <ResponsiveImage

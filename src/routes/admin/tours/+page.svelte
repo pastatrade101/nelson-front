@@ -274,7 +274,7 @@
                       {tour.is_available ? 'Available' : 'Unavailable'}
                     </span>
                     {#if tour.is_featured}
-                      <span class="inline-flex rounded-full bg-goldfinch-gold/15 px-2.5 py-1 text-xs font-bold text-heading ring-1 ring-goldfinch-gold/25">Featured</span>
+                      <span class="inline-flex rounded-full bg-emnel-gold/15 px-2.5 py-1 text-xs font-bold text-heading ring-1 ring-emnel-gold/25">Featured</span>
                     {/if}
                     {#if tour.is_popular}
                       <span class="inline-flex rounded-full bg-sand px-2.5 py-1 text-xs font-bold text-ink ring-1 ring-ink/10">Popular</span>
@@ -286,7 +286,7 @@
                 <td class="px-4 py-4 text-ink/65">{formatDate(tour.updated_at ?? tour.created_at)}</td>
                 <td class="px-4 py-4">
                   <div class="flex justify-end gap-2">
-                    <a class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" href={`/admin/tours/${tour.id}/edit`}>
+                    <a class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" href={`/admin/tours/${tour.id}/edit`}>
                       <Edit size={14} />
                       Edit
                     </a>

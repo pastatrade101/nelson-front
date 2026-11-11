@@ -84,7 +84,7 @@
   <!-- Office + Response promise -->
   <div class="grid gap-4 sm:grid-cols-2">
     <div class="flex items-start gap-3 rounded-xl border border-ink/10 bg-surface p-4 shadow-soft">
-      <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-goldfinch-gold/15 text-clay">
+      <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-emnel-gold/15 text-clay">
         <MapPin size={18} strokeWidth={2.2} />
       </span>
       <span class="min-w-0">
@@ -95,7 +95,7 @@
     </div>
 
     <div class="flex items-start gap-3 rounded-xl border border-ink/10 bg-surface p-4 shadow-soft">
-      <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-goldfinch-gold/15 text-clay">
+      <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-emnel-gold/15 text-clay">
         <Clock size={18} strokeWidth={2.2} />
       </span>
       <span class="min-w-0">

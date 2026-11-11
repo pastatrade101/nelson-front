@@ -43,7 +43,7 @@
       />
     {/if}
     {#if activity.badge}
-      <span class="absolute left-3 top-3 inline-flex items-center rounded-full bg-goldfinch-gold px-2.5 py-1 text-[11px] font-bold text-heading shadow">
+      <span class="absolute left-3 top-3 inline-flex items-center rounded-full bg-emnel-gold px-2.5 py-1 text-[11px] font-bold text-heading shadow">
         {activity.badge}
       </span>
     {/if}

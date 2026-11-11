@@ -143,13 +143,13 @@
         <p class="mt-0.5 text-xs capitalize text-ink/50">Mode: {stats.tier.replace(/_/g, ' ')}</p>
       </div>
       <div class="rounded-none border border-ink/10 bg-surface p-4 shadow-card">
-        <div class="flex items-center justify-between"><p class="text-xs font-semibold text-ink/50">Today's spend</p><CircleDollarSign size={16} class="text-goldfinch-gold" /></div>
+        <div class="flex items-center justify-between"><p class="text-xs font-semibold text-ink/50">Today's spend</p><CircleDollarSign size={16} class="text-emnel-gold" /></div>
         <p class="mt-1 text-2xl font-extrabold text-heading">{usd(stats.spendTodayUsd)}</p>
         <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-black/10"><div class="h-full rounded-full bg-forest" style={`width:${pct(stats.spendTodayUsd, stats.dailyBudgetUsd)}%`}></div></div>
         <p class="mt-1 text-[11px] text-ink/45">{usd(stats.dailyRemainingUsd)} left of {usd(stats.dailyBudgetUsd)}/day</p>
       </div>
       <div class="rounded-none border border-ink/10 bg-surface p-4 shadow-card">
-        <div class="flex items-center justify-between"><p class="text-xs font-semibold text-ink/50">This month</p><CircleDollarSign size={16} class="text-goldfinch-gold" /></div>
+        <div class="flex items-center justify-between"><p class="text-xs font-semibold text-ink/50">This month</p><CircleDollarSign size={16} class="text-emnel-gold" /></div>
         <p class="mt-1 text-2xl font-extrabold text-heading">{usd(stats.spendMonthUsd)}</p>
         <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-black/10"><div class="h-full rounded-full bg-forest" style={`width:${pct(stats.spendMonthUsd, stats.monthlyBudgetUsd)}%`}></div></div>
         <p class="mt-1 text-[11px] text-ink/45">{usd(stats.monthlyRemainingUsd)} left of {usd(stats.monthlyBudgetUsd)}/mo</p>

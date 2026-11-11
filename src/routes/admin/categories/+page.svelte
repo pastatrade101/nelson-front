@@ -342,7 +342,7 @@
               <td class="px-4 py-4 text-ink/65">{formatDate(category.updated_at ?? category.created_at)}</td>
               <td class="px-4 py-4">
                 <div class="flex justify-end gap-2">
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(category)}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(category)}>
                     <Edit size={14} />
                     Edit
                   </button>

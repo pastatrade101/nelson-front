@@ -48,9 +48,9 @@
 <section class="bg-deep-green text-white">
   <div class="container-shell py-16 md:py-24">
     <nav class="text-xs uppercase tracking-[0.2em] text-white/55" aria-label="Breadcrumb">
-      <a href="/" class="transition hover:text-goldfinch-gold">Home</a>
+      <a href="/" class="transition hover:text-emnel-gold">Home</a>
       <span class="px-2">/</span>
-      <span class="text-goldfinch-gold">{country} Safaris</span>
+      <span class="text-emnel-gold">{country} Safaris</span>
     </nav>
     <h1 class="type-h1 mt-5 max-w-3xl">
       Private {country} Safaris
@@ -63,7 +63,7 @@
     <div class="mt-9 flex flex-wrap gap-4">
       <a
         href="/plan-my-trip"
-        class="inline-flex h-12 items-center bg-goldfinch-gold px-7 text-sm font-semibold text-ink transition hover:brightness-95"
+        class="inline-flex h-12 items-center bg-emnel-gold px-7 text-sm font-semibold text-ink transition hover:brightness-95"
       >
         Plan My Safari
       </a>
@@ -139,7 +139,7 @@
       {#each essentials.slice(0, 6) as guide (guide.id)}
         <a
           href={`/safari-essentials/${guide.slug}`}
-          class="group flex items-center justify-between border border-ink/10 bg-surface px-5 py-4 transition hover:border-goldfinch-gold/40"
+          class="group flex items-center justify-between border border-ink/10 bg-surface px-5 py-4 transition hover:border-emnel-gold/40"
         >
           <span class="font-medium text-ink">{guide.title}</span>
           <ArrowRight class="h-4 w-4 text-ink/40 transition group-hover:translate-x-1 group-hover:text-deep-green" />

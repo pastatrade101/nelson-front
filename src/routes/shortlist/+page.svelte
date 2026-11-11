@@ -48,7 +48,7 @@
             </div>
             <a href={itemHref(item)} class="mt-1 text-lg font-extrabold text-heading hover:underline">{item.title}</a>
             <div class="mt-auto flex flex-wrap items-center gap-2.5 pt-4">
-              <a class="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-goldfinch-gold px-4 text-sm font-bold text-heading transition hover:brightness-105" href={item.kind === 'lodge' ? `/plan-my-trip?lodge=${item.slug}` : `/plan-my-trip?tour=${item.slug}`}>
+              <a class="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-emnel-gold px-4 text-sm font-bold text-heading transition hover:brightness-105" href={item.kind === 'lodge' ? `/plan-my-trip?lodge=${item.slug}` : `/plan-my-trip?tour=${item.slug}`}>
                 {item.kind === 'lodge' ? 'Plan Around This Stay' : 'Plan This Trip'}
               </a>
               <a class="inline-flex h-10 items-center justify-center rounded-xl border border-ink/15 bg-surface px-4 text-sm font-semibold text-ink/70 transition hover:bg-sand/60" href={itemHref(item)}>
@@ -78,7 +78,7 @@
       <p class="mt-4 text-lg font-bold text-heading">No saved trips yet</p>
       <p class="mt-1 text-sm text-ink/70">Tap the heart on any trip to save it here for your next visit.</p>
       <div class="mt-5 flex flex-wrap justify-center gap-3">
-        <a class="inline-flex h-11 items-center gap-2 rounded-xl bg-goldfinch-gold px-5 font-bold text-heading" href="/tours">Browse tours</a>
+        <a class="inline-flex h-11 items-center gap-2 rounded-xl bg-emnel-gold px-5 font-bold text-heading" href="/tours">Browse tours</a>
         <a class="inline-flex h-11 items-center gap-2 rounded-xl border border-ink/15 bg-surface px-5 font-semibold text-ink" href="/trip-finder">Try the Trip Finder</a>
       </div>
     </div>

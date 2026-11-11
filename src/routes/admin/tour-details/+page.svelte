@@ -440,7 +440,7 @@
       <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {#each filteredTours as tour (tour.id)}
           <button
-            class="rounded-none border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-goldfinch-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
+            class="rounded-none border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-emnel-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
             type="button"
             on:click={() => selectTour(tour.id)}
           >
@@ -537,7 +537,7 @@
                 <p class="text-xs text-ink/40">Sort order: {item.sort_order}</p>
               </div>
               <div class="flex shrink-0 gap-2">
-                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit('inclusion', item)}>
+                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit('inclusion', item)}>
                   <Edit size={13} />Edit
                 </button>
                 <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openConfirm('inclusion', item.id, item.title)}>
@@ -570,7 +570,7 @@
                 <p class="text-xs text-ink/40">Sort order: {item.sort_order}</p>
               </div>
               <div class="flex shrink-0 gap-2">
-                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit('exclusion', item)}>
+                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit('exclusion', item)}>
                   <Edit size={13} />Edit
                 </button>
                 <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openConfirm('exclusion', item.id, item.title)}>
@@ -604,7 +604,7 @@
                   </div>
                 {/if}
                 {#if img.is_featured}
-                  <span class="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-goldfinch-gold px-2.5 py-1 text-[11px] font-bold text-heading shadow">
+                  <span class="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-emnel-gold px-2.5 py-1 text-[11px] font-bold text-heading shadow">
                     <Star size={11} fill="currentColor" />Featured
                   </span>
                 {/if}
@@ -619,7 +619,7 @@
                 <p class="mt-1 text-xs text-ink/35">Sort: {img.sort_order}</p>
                 <div class="mt-3 flex flex-wrap gap-2">
                   {#if !img.is_featured}
-                    <button class="inline-flex h-8 items-center gap-1.5 rounded-xl bg-goldfinch-gold/15 px-3 text-xs font-semibold text-heading transition hover:bg-goldfinch-gold/30" type="button" on:click={() => setFeatured(img)}>
+                    <button class="inline-flex h-8 items-center gap-1.5 rounded-xl bg-emnel-gold/15 px-3 text-xs font-semibold text-heading transition hover:bg-emnel-gold/30" type="button" on:click={() => setFeatured(img)}>
                       <Star size={12} />Set featured
                     </button>
                   {/if}

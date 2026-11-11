@@ -21,7 +21,7 @@
 
 {#if compact}
   <div class="grid gap-3">
-    {#if title}<p class="eyebrow text-goldfinch-gold">{title}</p>{/if}
+    {#if title}<p class="eyebrow text-emnel-gold">{title}</p>{/if}
     <ol class="relative grid gap-4 border-l border-ink/10 pl-6">
       {#each steps as step, i}
         <li class="relative">
@@ -39,7 +39,7 @@
     <ol class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
       {#each steps as step, i}
         <li class="relative flex flex-col items-center text-center lg:items-start lg:text-left">
-          <span class="grid h-12 w-12 place-items-center rounded-2xl bg-goldfinch-gold text-lg font-extrabold text-heading shadow-sm">{i + 1}</span>
+          <span class="grid h-12 w-12 place-items-center rounded-2xl bg-emnel-gold text-lg font-extrabold text-heading shadow-sm">{i + 1}</span>
           <p class="mt-4 font-bold text-heading">{step.title}</p>
           <p class="mt-1 text-sm leading-[1.6] text-ink/70">{step.text}</p>
         </li>

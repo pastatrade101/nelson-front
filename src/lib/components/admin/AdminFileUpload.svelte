@@ -65,7 +65,7 @@
 
     <input class="sr-only" type="file" {accept} bind:this={fileInput} on:change={handleFileChange} />
 
-    <button class="flex h-12 w-full min-w-0 items-center gap-3 rounded-2xl border border-ink/10 bg-surface px-3 text-left shadow-sm transition hover:border-goldfinch-gold/45 hover:bg-sand/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/15" type="button" on:click={chooseFile}>
+    <button class="flex h-12 w-full min-w-0 items-center gap-3 rounded-2xl border border-ink/10 bg-surface px-3 text-left shadow-sm transition hover:border-emnel-gold/45 hover:bg-sand/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/15" type="button" on:click={chooseFile}>
       <span class="shrink-0 rounded-xl bg-forest px-3 py-1.5 text-xs font-semibold text-white">Choose file</span>
       <span class="min-w-0 flex-1 truncate text-sm text-ink/65">{selectedFileName || 'No file selected'}</span>
     </button>

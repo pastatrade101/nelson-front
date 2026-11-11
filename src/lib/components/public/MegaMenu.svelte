@@ -81,7 +81,7 @@
   <!-- Search — spans browse + featured; the concierge CTA runs full height beside it -->
   {#if searchPlaceholder}
     <div class="mm-col col-start-1 col-end-3 row-start-1 border-b border-ink/[0.06] px-6 pb-3.5 pt-5" style="--d:20ms">
-      <div class="flex items-center gap-2.5 rounded-none border border-ink/10 bg-white px-4 py-2.5 shadow-[0_1px_0_rgba(28,26,22,0.03)] transition focus-within:border-goldfinch-gold/60 focus-within:shadow-[0_0_0_4px_rgba(197,162,101,0.12)]">
+      <div class="flex items-center gap-2.5 rounded-none border border-ink/10 bg-white px-4 py-2.5 shadow-[0_1px_0_rgba(28,26,22,0.03)] transition focus-within:border-emnel-gold/60 focus-within:shadow-[0_0_0_4px_rgba(197,162,101,0.12)]">
         <Search size={17} strokeWidth={2.2} class="shrink-0 text-clay/60" />
         <input
           class="min-w-0 flex-1 bg-transparent text-[13.5px] font-medium text-ink outline-none placeholder:text-ink/40"
@@ -92,7 +92,7 @@
           on:keydown={(e) => e.key === 'Enter' && runSearch()}
         />
         {#if query}
-          <button type="button" class="shrink-0 text-[11px] font-bold uppercase tracking-[0.1em] text-forest transition hover:text-goldfinch-gold" on:click={runSearch}>Search</button>
+          <button type="button" class="shrink-0 text-[11px] font-bold uppercase tracking-[0.1em] text-forest transition hover:text-emnel-gold" on:click={runSearch}>Search</button>
         {/if}
       </div>
     </div>
@@ -101,9 +101,9 @@
   <!-- Column 1 · curated browse list with editorial subtitles -->
   <div class="mm-col col-start-1 row-start-2 border-r border-ink/[0.06] px-6 py-6" style="--d:60ms">
     <p class="eyebrow px-1 pb-2.5 text-ink/40">{browseTitle}</p>
-    <a class="group/all flex items-center justify-between gap-3 rounded-none bg-[#EFE7D8] px-3.5 py-3 text-sm font-bold text-forest ring-1 ring-goldfinch-gold/20 transition duration-300 hover:bg-[#EAE0CD]" {href}>
+    <a class="group/all flex items-center justify-between gap-3 rounded-none bg-[#EFE7D8] px-3.5 py-3 text-sm font-bold text-forest ring-1 ring-emnel-gold/20 transition duration-300 hover:bg-[#EAE0CD]" {href}>
       <span class="inline-flex items-center gap-3"><LayoutGrid size={17} strokeWidth={2.2} /> {allLabel}</span>
-      <ArrowRight size={15} strokeWidth={2.6} class="text-goldfinch-gold transition-transform duration-300 group-hover/all:translate-x-1" />
+      <ArrowRight size={15} strokeWidth={2.6} class="text-emnel-gold transition-transform duration-300 group-hover/all:translate-x-1" />
     </a>
     {#if filteredBrowse.length}
       <div class="mt-2 grid grid-cols-1 divide-y divide-ink/[0.06]">
@@ -115,9 +115,9 @@
           >
             <span class="flex min-w-0 items-center {dense ? 'gap-3' : 'gap-3.5'}">
               {#if dense}
-                <svelte:component this={it.icon} size={17} strokeWidth={1.9} class="shrink-0 text-clay/70 transition duration-300 group-hover/li:text-goldfinch-gold" />
+                <svelte:component this={it.icon} size={17} strokeWidth={1.9} class="shrink-0 text-clay/70 transition duration-300 group-hover/li:text-emnel-gold" />
               {:else}
-                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-none bg-ink/[0.04] text-clay/70 transition duration-300 group-hover/li:bg-goldfinch-gold/12 group-hover/li:text-goldfinch-gold">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-none bg-ink/[0.04] text-clay/70 transition duration-300 group-hover/li:bg-emnel-gold/12 group-hover/li:text-emnel-gold">
                   <svelte:component this={it.icon} size={17} strokeWidth={1.9} />
                 </span>
               {/if}
@@ -126,7 +126,7 @@
                 {#if it.subtitle}<span class="mt-0.5 block truncate text-[11.5px] leading-tight text-ink/45">{it.subtitle}</span>{/if}
               </span>
             </span>
-            <ArrowRight size={14} strokeWidth={2.4} class="shrink-0 text-ink/20 transition-all duration-300 group-hover/li:translate-x-0.5 group-hover/li:text-goldfinch-gold" />
+            <ArrowRight size={14} strokeWidth={2.4} class="shrink-0 text-ink/20 transition-all duration-300 group-hover/li:translate-x-0.5 group-hover/li:text-emnel-gold" />
           </a>
         {/each}
       </div>
@@ -159,7 +159,7 @@
         </a>
       {/each}
     </div>
-    <a class="mt-3 inline-flex items-center gap-1.5 px-1 text-[13px] font-bold text-forest transition hover:text-goldfinch-gold" {href}>
+    <a class="mt-3 inline-flex items-center gap-1.5 px-1 text-[13px] font-bold text-forest transition hover:text-emnel-gold" {href}>
       {viewAllLabel} <ArrowRight size={14} strokeWidth={2.6} />
     </a>
   </div>
@@ -171,15 +171,15 @@
     {/if}
     <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.1)_0%,rgba(20,18,15,0.24)_38%,rgba(20,18,15,0.78)_74%,rgba(20,18,15,0.96)_100%)]"></div>
     <div class="relative">
-      <p class="eyebrow text-goldfinch-gold">{cta.eyebrow}</p>
+      <p class="eyebrow text-emnel-gold">{cta.eyebrow}</p>
       <p class="mt-2.5 font-serif text-[28px] font-light leading-[1.1]">{cta.title}</p>
       <p class="mt-3 text-sm leading-[1.6] text-white/72">{cta.subtitle}</p>
       <div class="mt-5 flex flex-col gap-2.5">
-        <button type="button" class="inline-flex items-center justify-center gap-2 bg-goldfinch-gold px-5 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition duration-300 hover:bg-savanna" on:click={onCta}>
+        <button type="button" class="inline-flex items-center justify-center gap-2 bg-emnel-gold px-5 py-3 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition duration-300 hover:bg-savanna" on:click={onCta}>
           {cta.buttonLabel} <ArrowRight size={15} strokeWidth={2.6} />
         </button>
         {#if secondaryLabel && secondaryHref}
-          <a class="inline-flex items-center justify-center gap-2 border border-white/25 px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.12em] text-white transition duration-300 hover:border-goldfinch-gold hover:text-goldfinch-gold" href={secondaryHref} target="_blank" rel="noopener noreferrer">
+          <a class="inline-flex items-center justify-center gap-2 border border-white/25 px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.12em] text-white transition duration-300 hover:border-emnel-gold hover:text-emnel-gold" href={secondaryHref} target="_blank" rel="noopener noreferrer">
             <MessageCircle size={15} strokeWidth={2.3} /> {secondaryLabel}
           </a>
         {/if}
@@ -188,7 +188,7 @@
     {#if trust.length}
       <div class="relative mt-6 border-t border-white/12 pt-4">
         <p class="flex items-center gap-1.5 text-[11px] font-semibold text-white/70">
-          <span class="inline-flex text-goldfinch-gold" aria-hidden="true">
+          <span class="inline-flex text-emnel-gold" aria-hidden="true">
             {#each Array(5) as _}<Star size={12} fill="currentColor" strokeWidth={0} />{/each}
           </span>
           Loved on TripAdvisor
@@ -196,7 +196,7 @@
         <div class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5">
           {#each trust as t}
             <span class="inline-flex items-center gap-2 text-[11.5px] font-semibold text-white/80">
-              <svelte:component this={t.icon} size={15} strokeWidth={2.2} class="shrink-0 text-goldfinch-gold" /> {t.label}
+              <svelte:component this={t.icon} size={15} strokeWidth={2.2} class="shrink-0 text-emnel-gold" /> {t.label}
             </span>
           {/each}
         </div>

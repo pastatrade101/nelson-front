@@ -6,7 +6,7 @@ export type BrandColors = {
   clay: string;
   deep_green: string;
   forest: string;
-  goldfinch_gold: string;
+  emnel_gold: string;
   ink: string;
   sand: string;
   savanna: string;
@@ -26,7 +26,7 @@ export const defaultColors: BrandColors = {
   clay: '#4A3728',
   deep_green: '#1C1A16',
   forest: '#4A3728',
-  goldfinch_gold: '#C5A265',
+  emnel_gold: '#C5A265',
   ink: '#1C1A16',
   sand: '#FAFAF7',
   savanna: '#E8E0D2'
@@ -58,7 +58,7 @@ const cssVarMap: Record<keyof BrandColors, string> = {
   clay: '--c-clay',
   deep_green: '--c-deep-green',
   forest: '--c-forest',
-  goldfinch_gold: '--c-goldfinch-gold',
+  emnel_gold: '--c-emnel-gold',
   ink: '--c-ink',
   sand: '--c-sand',
   savanna: '--c-savanna'

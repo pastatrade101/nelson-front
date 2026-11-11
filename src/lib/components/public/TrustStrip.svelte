@@ -33,7 +33,7 @@
     <div class="flex items-center gap-2">
       <span class="flex" aria-hidden="true">
         {#each Array(5) as _, i}
-          <Star size={16} class="text-goldfinch-gold" fill={i < Math.round(avg) ? 'currentColor' : 'none'} />
+          <Star size={16} class="text-emnel-gold" fill={i < Math.round(avg) ? 'currentColor' : 'none'} />
         {/each}
       </span>
       <span class="font-bold text-ink">{avg.toFixed(1)}/5</span>

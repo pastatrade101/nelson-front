@@ -17,7 +17,7 @@
   /**
    * A property's photo gallery, in the lodge editor.
    *
-   * Ported from the goldfinch gallery editor: photos are added straight from
+   * Photos are added straight from
    * the media library (the picker appends and resets, so it works as a repeat
    * "add" control), duplicates are refused, and the cover is chosen explicitly
    * rather than by fiddling with arrows. The cover is simply the first photo —
@@ -106,11 +106,11 @@
     {#if images.length}
       <div class="grid gap-3 sm:grid-cols-2">
         {#each images as image, i (image.key)}
-          <div class={`grid gap-2 border bg-surface p-3 ${i === 0 ? 'border-goldfinch-gold/60' : 'border-ink/10'}`}>
+          <div class={`grid gap-2 border bg-surface p-3 ${i === 0 ? 'border-emnel-gold/60' : 'border-ink/10'}`}>
             <div class="relative aspect-[4/3] overflow-hidden bg-ink/5">
               <img class="h-full w-full object-cover" src={imgUrl(image.image_url, 480)} alt={image.alt_text} loading="lazy" />
               {#if i === 0}
-                <span class="absolute left-2 top-2 inline-flex items-center gap-1 bg-goldfinch-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink">
+                <span class="absolute left-2 top-2 inline-flex items-center gap-1 bg-emnel-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink">
                   <Star size={11} class="fill-ink" /> Cover
                 </span>
               {/if}

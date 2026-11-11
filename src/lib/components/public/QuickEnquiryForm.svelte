@@ -217,8 +217,8 @@
   .quick-form textarea { resize: vertical; }
   .quick-form input:focus,
   .quick-form select:focus,
-  .quick-form textarea:focus { outline: 2px solid rgb(var(--c-goldfinch-gold)); outline-offset: 1px; }
+  .quick-form textarea:focus { outline: 2px solid rgb(var(--c-emnel-gold)); outline-offset: 1px; }
   .quick-form button:focus-visible,
-  .quick-form a:focus-visible { outline: 3px solid rgb(var(--c-goldfinch-gold)); outline-offset: 3px; }
+  .quick-form a:focus-visible { outline: 3px solid rgb(var(--c-emnel-gold)); outline-offset: 3px; }
   .honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 </style>

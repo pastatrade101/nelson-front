@@ -48,7 +48,7 @@
           <ul class="mt-6 grid gap-3">
             {#each panel.list as item}
               <li class="flex gap-3 text-base leading-[1.75] text-white/80">
-                <span class="mt-2.5 h-1.5 w-1.5 shrink-0 bg-goldfinch-gold" aria-hidden="true"></span>
+                <span class="mt-2.5 h-1.5 w-1.5 shrink-0 bg-emnel-gold" aria-hidden="true"></span>
                 {item}
               </li>
             {/each}

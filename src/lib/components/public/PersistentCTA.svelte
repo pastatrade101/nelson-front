@@ -25,7 +25,7 @@
     <div class="px-3 py-2.5">
       <a
         {href}
-        class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-goldfinch-gold px-4 text-[15px] font-bold text-heading shadow-sm transition active:brightness-95"
+        class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emnel-gold px-4 text-[15px] font-bold text-heading shadow-sm transition active:brightness-95"
       >
         <Sparkles size={18} strokeWidth={2.4} />
         {label}

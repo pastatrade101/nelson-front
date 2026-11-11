@@ -98,7 +98,7 @@
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="max-w-3xl">
             {#if str(block.eyebrow)}
-              <p class="eyebrow text-goldfinch-gold">{str(block.eyebrow)}</p>
+              <p class="eyebrow text-emnel-gold">{str(block.eyebrow)}</p>
             {/if}
             {#if str(block.title)}
               <h2 class="type-h2 mt-3 text-heading">{str(block.title)}</h2>
@@ -180,7 +180,7 @@
         <div class="container-shell" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="max-w-3xl">
             {#if str(block.eyebrow)}
-              <p class="eyebrow text-goldfinch-gold">{str(block.eyebrow)}</p>
+              <p class="eyebrow text-emnel-gold">{str(block.eyebrow)}</p>
             {/if}
             {#if str(block.title)}
               <h2 class="type-h2 mt-3 text-heading">{str(block.title)}</h2>

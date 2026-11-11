@@ -68,7 +68,7 @@
 
     <header class="mt-6 max-w-3xl">
       {#if article.topic}
-        <p class="eyebrow text-goldfinch-gold">{article.topic}</p>
+        <p class="eyebrow text-emnel-gold">{article.topic}</p>
       {/if}
       <h1 class="type-h1 mt-3 text-heading">
         {article.title}
@@ -157,7 +157,7 @@
   }
   .essential-prose :global(blockquote) {
     margin: 1.75rem 0;
-    border-left: 2px solid rgb(var(--c-goldfinch-gold));
+    border-left: 2px solid rgb(var(--c-emnel-gold));
     padding-left: 1.25rem;
     font-family: var(--font-serif, 'Cormorant Garamond', serif);
     font-size: 1.3rem;

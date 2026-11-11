@@ -14,7 +14,7 @@
   // Offer badge derived from the tour's flags (admin-editable via those flags).
   $: badge = tour.is_featured ? 'Best Value' : tour.is_popular ? 'Popular' : index % 2 === 0 ? 'Save 10%' : 'Special Offer';
   $: badgeTone = tour.is_featured
-    ? 'bg-goldfinch-gold text-heading'
+    ? 'bg-emnel-gold text-heading'
     : tour.is_popular
       ? 'bg-forest text-white'
       : 'bg-clay text-white';

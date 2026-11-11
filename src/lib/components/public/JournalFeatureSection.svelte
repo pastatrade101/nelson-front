@@ -64,10 +64,10 @@
         <p class="brand-eyebrow">{eyebrow}</p>
         <h2 class="type-h2 mt-5 text-white">
           {title}
-          <span class="block italic text-goldfinch-gold">{accentTitle}</span>
+          <span class="block italic text-emnel-gold">{accentTitle}</span>
         </h2>
       </div>
-      <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold transition hover:text-white" href={ctaHref}>
+      <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-emnel-gold transition hover:text-white" href={ctaHref}>
         {ctaLabel}
         <ArrowRight size={15} strokeWidth={2.5} />
       </a>
@@ -91,7 +91,7 @@
               <p class="eyebrow text-white/42">{card.category}</p>
               <h3 class="type-card mt-7 text-white">{card.title}</h3>
               <p class="mt-5 line-clamp-4 text-sm font-medium leading-[1.6] text-white/58">{card.excerpt}</p>
-              <span class="mt-8 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">
+              <span class="mt-8 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-emnel-gold">
                 Read Article <ArrowRight size={14} strokeWidth={2.5} />
               </span>
             </div>

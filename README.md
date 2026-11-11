@@ -1,6 +1,6 @@
-# Goldfinch Tour Website — Frontend
+# Emnel Adventures — Frontend
 
-Public marketing site + admin CMS for Goldfinch Adventures, built with SvelteKit, Tailwind CSS, GSAP, Lenis, and Three.js (Threlte).
+Public marketing site + admin CMS for Emnel Adventures, built with SvelteKit, Tailwind CSS, GSAP, Lenis, and Three.js (Threlte).
 
 ## Stack
 - SvelteKit 2 + Svelte 5

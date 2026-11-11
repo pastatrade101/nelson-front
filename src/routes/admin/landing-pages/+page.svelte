@@ -1025,7 +1025,7 @@
                   <td class="px-4 py-4 text-ink/60">{Array.isArray(row.sections) ? row.sections.length : '-'}</td>
                   <td class="px-4 py-4">
                     {#if row.noindex !== false}
-                      <span class="inline-flex rounded-md bg-goldfinch-gold/15 px-2 py-0.5 text-xs font-semibold text-heading ring-1 ring-goldfinch-gold/25">noindex</span>
+                      <span class="inline-flex rounded-md bg-emnel-gold/15 px-2 py-0.5 text-xs font-semibold text-heading ring-1 ring-emnel-gold/25">noindex</span>
                     {:else}
                       <span class="inline-flex rounded-md bg-forest/10 px-2 py-0.5 text-xs font-semibold text-forest ring-1 ring-forest/20">indexable</span>
                     {/if}
@@ -1781,13 +1781,13 @@
         <AdminTextArea label="Meta description" name="meta_description" bind:value={form.meta_description} rows={3} />
         <MediaPicker label="Social share image (og:image)" uploadFolder="landing" bind:value={form.og_image_url} />
 
-        <div class={`grid gap-3 border p-4 ${form.noindex ? 'border-goldfinch-gold/40 bg-goldfinch-gold/10' : 'border-ink/15 bg-sand/25'}`}>
+        <div class={`grid gap-3 border p-4 ${form.noindex ? 'border-emnel-gold/40 bg-emnel-gold/10' : 'border-ink/15 bg-sand/25'}`}>
           <label class="flex cursor-pointer items-start gap-3">
             <input class="mt-0.5 h-4 w-4 accent-forest" type="checkbox" bind:checked={form.noindex} />
             <span>
               <span class="block text-sm font-semibold text-ink">
                 Hide this page from search engines (noindex)
-                <span class="ml-2 inline-flex rounded-md px-2 py-0.5 text-[11px] font-bold ring-1 {form.noindex ? 'bg-goldfinch-gold/20 text-heading ring-goldfinch-gold/30' : 'bg-forest/10 text-forest ring-forest/20'}">
+                <span class="ml-2 inline-flex rounded-md px-2 py-0.5 text-[11px] font-bold ring-1 {form.noindex ? 'bg-emnel-gold/20 text-heading ring-emnel-gold/30' : 'bg-forest/10 text-forest ring-forest/20'}">
                   {form.noindex ? 'ON — not indexed' : 'OFF — indexable'}
                 </span>
               </span>
@@ -1804,7 +1804,7 @@
           {@const tone = assessment.verdict === 'strong'
             ? 'border-forest/40 bg-forest/5'
             : assessment.verdict === 'moderate'
-              ? 'border-goldfinch-gold/50 bg-goldfinch-gold/10'
+              ? 'border-emnel-gold/50 bg-emnel-gold/10'
               : 'border-red-300 bg-red-50'}
           <div class={`grid gap-3 border p-4 ${tone}`}>
             <div class="flex flex-wrap items-center gap-2">
@@ -1813,7 +1813,7 @@
                 class="inline-flex rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 {assessment.verdict === 'strong'
                   ? 'bg-forest/15 text-forest ring-forest/30'
                   : assessment.verdict === 'moderate'
-                    ? 'bg-goldfinch-gold/20 text-heading ring-goldfinch-gold/30'
+                    ? 'bg-emnel-gold/20 text-heading ring-emnel-gold/30'
                     : 'bg-red-100 text-red-800 ring-red-300'}"
               >
                 {assessment.verdict}

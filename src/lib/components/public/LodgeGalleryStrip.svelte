@@ -122,7 +122,7 @@
     {#each images as img (img.url)}
       <a
         href={href || undefined}
-        class="group relative block h-24 shrink-0 snap-start overflow-hidden bg-ink/5 outline-none ring-goldfinch-gold ring-offset-2 focus-visible:ring-2 sm:h-28"
+        class="group relative block h-24 shrink-0 snap-start overflow-hidden bg-ink/5 outline-none ring-emnel-gold ring-offset-2 focus-visible:ring-2 sm:h-28"
         style="aspect-ratio: 4 / 3"
         aria-label={`${img.alt} — ${lodge.name}`}
         on:mouseenter={(e) => show(e, img)}
@@ -163,11 +163,11 @@
       <span class="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/10 to-transparent"></span>
       {#if rating}
         <span class="absolute right-3 top-3 inline-flex items-center gap-1 bg-surface/95 px-2 py-1 text-[11px] font-bold text-heading">
-          <Star size={11} class="fill-goldfinch-gold text-goldfinch-gold" /> {rating.toFixed(1)}<span class="font-medium text-ink/45">/10</span>
+          <Star size={11} class="fill-emnel-gold text-emnel-gold" /> {rating.toFixed(1)}<span class="font-medium text-ink/45">/10</span>
         </span>
       {/if}
       <div class="rise absolute inset-x-4 bottom-3" style="--d:60ms">
-        {#if eyebrow}<p class="eyebrow text-goldfinch-gold">{eyebrow}</p>{/if}
+        {#if eyebrow}<p class="eyebrow text-emnel-gold">{eyebrow}</p>{/if}
         <p class="type-card mt-1 text-white">{lodge.name}</p>
       </div>
     </div>

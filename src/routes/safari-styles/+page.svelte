@@ -128,7 +128,7 @@
     <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.5)_0%,rgba(28,26,22,0.22)_48%,transparent_100%)]"></div>
   {/if}
   <div class="container-shell relative py-20 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-28">
-    <p class="eyebrow text-goldfinch-gold">Safari Styles</p>
+    <p class="eyebrow text-emnel-gold">Safari Styles</p>
     <h1 class="type-h1 mt-4 max-w-3xl" use:revealHeading>
       Find the safari that fits the way you travel
     </h1>
@@ -137,7 +137,7 @@
       here's the one we'd shape a journey around.
     </p>
     {#if styles.length}
-      <p class="mt-4 text-sm font-semibold text-goldfinch-gold">{styles.length} ways to experience Tanzania</p>
+      <p class="mt-4 text-sm font-semibold text-emnel-gold">{styles.length} ways to experience Tanzania</p>
     {/if}
     <div class="mt-7 flex flex-wrap gap-2">
       {#each heroChips as chip}
@@ -145,15 +145,15 @@
       {/each}
     </div>
     <div class="mt-8 flex flex-wrap gap-3">
-      <a href="#styles" class="group inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna">
+      <a href="#styles" class="group inline-flex h-12 items-center gap-2 bg-emnel-gold px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna">
         Explore Safari Styles <ArrowRight size={16} strokeWidth={2.5} class="transition-transform group-hover:translate-x-0.5" />
       </a>
-      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 border border-white/30 px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold">
+      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 border border-white/30 px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-emnel-gold hover:text-emnel-gold">
         Plan My Safari
       </a>
     </div>
   </div>
-  <a href="#intro" aria-label="Scroll to explore" class="absolute inset-x-0 bottom-5 mx-auto grid w-fit place-items-center text-white/60 transition hover:text-goldfinch-gold">
+  <a href="#intro" aria-label="Scroll to explore" class="absolute inset-x-0 bottom-5 mx-auto grid w-fit place-items-center text-white/60 transition hover:text-emnel-gold">
     <ChevronDown size={22} class="animate-bounce" />
   </a>
 </section>
@@ -191,7 +191,7 @@
     <div class="container-shell grid gap-px overflow-hidden border-x border-white/[0.07] py-0 sm:grid-cols-2 lg:grid-cols-4">
       {#each [{ n: styles.length, s: '', l: 'Safari styles' }, { n: destCount, s: '', l: 'Destinations' }, { n: 3, s: '', l: 'Safari circuits' }, { n: 100, s: '%', l: 'Private & tailor-made' }] as stat}
         <div class="border-b border-white/[0.07] px-6 py-9 sm:border-r lg:border-b-0">
-          <p class="font-serif text-[44px] font-light leading-none text-goldfinch-gold md:text-[52px]">
+          <p class="font-serif text-[44px] font-light leading-none text-emnel-gold md:text-[52px]">
             <span use:countUp={stat.n}>0</span>{stat.s}
           </p>
           <p class="mt-3 text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">{stat.l}</p>
@@ -226,23 +226,23 @@
           {/if}
           <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,24,0)_45%,rgba(13,22,20,0.5)_100%)]"></span>
           {#if fStat?.count}
-            <span class="absolute left-5 top-5 inline-flex items-center gap-1.5 bg-goldfinch-gold px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-deep-green"><Sparkles size={12} strokeWidth={2.6} /> Most itineraries</span>
+            <span class="absolute left-5 top-5 inline-flex items-center gap-1.5 bg-emnel-gold px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-deep-green"><Sparkles size={12} strokeWidth={2.6} /> Most itineraries</span>
           {/if}
         </div>
         <div class="flex flex-col justify-center p-8 md:p-12">
-          {#if decisionLabel(featured)}<p class="eyebrow text-goldfinch-gold">{decisionLabel(featured)}</p>{/if}
+          {#if decisionLabel(featured)}<p class="eyebrow text-emnel-gold">{decisionLabel(featured)}</p>{/if}
           <h3 class="type-h3 mt-2 text-heading">{featured.name}</h3>
           {#if featured.description}<p class="mt-4 max-w-lg text-base leading-[1.75] text-ink/70">{blurb(featured.description, 280)}</p>{/if}
           {#if featured.highlights?.length}
             <div class="mt-5 flex flex-wrap gap-2">
-              {#each featured.highlights.slice(0, 5) as h}<span class="border border-goldfinch-gold/40 bg-goldfinch-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{h}</span>{/each}
+              {#each featured.highlights.slice(0, 5) as h}<span class="border border-emnel-gold/40 bg-emnel-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{h}</span>{/each}
             </div>
           {/if}
           <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
             {#if activity(featured)}<span class="text-sm text-ink/60"><span class="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/40">Pace </span>{activity(featured)}</span>{/if}
             {#if fStat?.count}<span class="text-sm text-ink/70"><span class="font-bold text-heading">{fStat.count}</span> itinerar{fStat.count === 1 ? 'y' : 'ies'}{#if fStat.from} · from <span class="font-bold text-heading">{fStat.currency} {fStat.from.toLocaleString()}</span>{/if}</span>{/if}
           </div>
-          <span class="mt-8 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-forest transition group-hover:text-goldfinch-gold">
+          <span class="mt-8 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-forest transition group-hover:text-emnel-gold">
             Explore {featured.name} <ArrowRight size={15} strokeWidth={2.6} class="transition-transform group-hover:translate-x-1" />
           </span>
         </div>
@@ -257,7 +257,7 @@
         {@const image = styleImg(style)}
         {@const s = catStats[style.slug]}
         {@const label = decisionLabel(style)}
-        <a href={hrefFor(style)} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
+        <a href={hrefFor(style)} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-emnel-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
           <div class="relative aspect-[16/10] overflow-hidden bg-deep-green">
             {#if image}
               <ResponsiveImage src={style.image_url} fallbackSrc={thumbUrl(style, 'image_url')} alt={style.name} imgClass="h-full w-full object-cover transition duration-500 group-hover:scale-105" sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" width={900} />
@@ -266,7 +266,7 @@
               <span class="pointer-events-none absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(circle, #fff 1px, transparent 1.5px); background-size: 22px 22px;" aria-hidden="true"></span>
             {/if}
             <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,24,0)_35%,rgba(13,22,20,0.85)_100%)]"></span>
-            {#if label}<span class="absolute left-4 top-4 bg-deep-green/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-goldfinch-gold backdrop-blur">{label}</span>{/if}
+            {#if label}<span class="absolute left-4 top-4 bg-deep-green/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-emnel-gold backdrop-blur">{label}</span>{/if}
             <h3 class="type-card absolute inset-x-5 bottom-4 text-white">{style.name}</h3>
           </div>
           <div class="flex flex-1 flex-col p-6">
@@ -278,7 +278,7 @@
               </div>
             {/if}
             <div class="mt-auto flex items-center justify-between gap-3 pt-6">
-              <span class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition group-hover:text-goldfinch-gold">
+              <span class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition group-hover:text-emnel-gold">
                 Explore safaris <ArrowRight size={14} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
               </span>
               {#if s?.count}<span class="shrink-0 text-[12px] text-ink/50">{s.count} trip{s.count === 1 ? '' : 's'}{#if s.from} · from {s.currency} {s.from.toLocaleString()}{/if}</span>{/if}
@@ -292,11 +292,11 @@
   <!-- ── inspiration / quote band ─────────────────────────────────────────── -->
   <section class="my-6 bg-deep-green text-white" use:fadeUpOnScroll={{ y: 16 }}>
     <div class="container-shell py-16 text-center md:py-20">
-      <Quote size={34} class="mx-auto text-goldfinch-gold/70" strokeWidth={1.6} />
+      <Quote size={34} class="mx-auto text-emnel-gold/70" strokeWidth={1.6} />
       <p class="mx-auto mt-5 max-w-3xl font-serif text-2xl font-light italic leading-[1.4] text-white md:text-[34px]">
         We don't sell packages. We design safaris around people.
       </p>
-      <p class="mt-6 text-[11px] font-bold uppercase tracking-[0.2em] text-goldfinch-gold">Nelson Laizer · Founder, Emnel Adventures</p>
+      <p class="mt-6 text-[11px] font-bold uppercase tracking-[0.2em] text-emnel-gold">Nelson Laizer · Founder, Emnel Adventures</p>
     </div>
   </section>
 
@@ -308,7 +308,7 @@
           {@const image = styleImg(style)}
           {@const s = catStats[style.slug]}
           {@const label = decisionLabel(style)}
-          <a href={hrefFor(style)} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
+          <a href={hrefFor(style)} class="style-card group flex flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-emnel-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]">
             <div class="relative aspect-[16/10] overflow-hidden bg-deep-green">
               {#if image}
                 <ResponsiveImage src={style.image_url} fallbackSrc={thumbUrl(style, 'image_url')} alt={style.name} imgClass="h-full w-full object-cover transition duration-500 group-hover:scale-105" sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" width={900} />
@@ -317,7 +317,7 @@
                 <span class="pointer-events-none absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(circle, #fff 1px, transparent 1.5px); background-size: 22px 22px;" aria-hidden="true"></span>
               {/if}
               <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,24,0)_35%,rgba(13,22,20,0.85)_100%)]"></span>
-              {#if label}<span class="absolute left-4 top-4 bg-deep-green/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-goldfinch-gold backdrop-blur">{label}</span>{/if}
+              {#if label}<span class="absolute left-4 top-4 bg-deep-green/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-emnel-gold backdrop-blur">{label}</span>{/if}
               <h3 class="type-card absolute inset-x-5 bottom-4 text-white">{style.name}</h3>
             </div>
             <div class="flex flex-1 flex-col p-6">
@@ -329,7 +329,7 @@
                 </div>
               {/if}
               <div class="mt-auto flex items-center justify-between gap-3 pt-6">
-                <span class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition group-hover:text-goldfinch-gold">
+                <span class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition group-hover:text-emnel-gold">
                   Explore safaris <ArrowRight size={14} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
                 </span>
                 {#if s?.count}<span class="shrink-0 text-[12px] text-ink/50">{s.count} trip{s.count === 1 ? '' : 's'}{#if s.from} · from {s.currency} {s.from.toLocaleString()}{/if}</span>{/if}

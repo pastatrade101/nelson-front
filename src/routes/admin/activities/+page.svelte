@@ -315,7 +315,7 @@
             {#each rows as a (a.id)}
               <tr class="transition hover:bg-sand/25">
                 <td class="px-4 py-4">
-                  <div class="font-semibold text-ink">{a.name}{#if a.is_featured}<span class="ml-2 rounded-full bg-goldfinch-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-goldfinch-gold">Featured</span>{/if}</div>
+                  <div class="font-semibold text-ink">{a.name}{#if a.is_featured}<span class="ml-2 rounded-full bg-emnel-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emnel-gold">Featured</span>{/if}</div>
                   <p class="mt-0.5 font-mono text-xs text-ink/50">{a.slug}</p>
                 </td>
                 <td class="px-4 py-4 text-ink/60">{a.location_label || a.destinations?.name || '-'}</td>
@@ -325,7 +325,7 @@
                 <td class="px-4 py-4 text-ink/60">{fmt(a.updated_at ?? a.created_at)}</td>
                 <td class="px-4 py-4">
                   <div class="flex justify-end gap-2">
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(a)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(a)}>
                       <Edit size={14} />Edit
                     </button>
                     <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(a)}>

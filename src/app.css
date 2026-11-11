@@ -16,7 +16,7 @@
      classes, but the values follow the Emnel Adventures brand palette. */
   --c-deep-green: 28 26 22; /* Charcoal #1C1A16 */
   --c-forest: 74 55 40; /* Bark #4A3728 */
-  --c-goldfinch-gold: 197 162 101; /* Gold #C5A265 */
+  --c-emnel-gold: 197 162 101; /* Gold #C5A265 */
   --c-savanna: 232 224 210; /* Linen #E8E0D2 */
   --c-sand: 250 250 247; /* Ivory #FAFAF7 */
   --c-ink: 28 26 22; /* Charcoal #1C1A16 */
@@ -103,7 +103,7 @@ li {
 }
 
 .brand-eyebrow {
-  color: rgb(var(--c-goldfinch-gold));
+  color: rgb(var(--c-emnel-gold));
   font-family: var(--font-body);
   font-size: var(--fs-eyebrow);
   font-weight: 600;
@@ -200,16 +200,16 @@ select {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.rich-content a:hover { color: rgb(var(--c-goldfinch-gold)); }
+.rich-content a:hover { color: rgb(var(--c-emnel-gold)); }
 /* Links inside one-line CMS copy (tier card notes, panel bullets): $lib/richtext inlineRichText. */
 .rich-inline a {
   color: inherit;
   font-weight: 600;
   text-decoration: underline;
-  text-decoration-color: rgb(var(--c-goldfinch-gold));
+  text-decoration-color: rgb(var(--c-emnel-gold));
   text-underline-offset: 3px;
 }
-.rich-inline a:hover { color: rgb(var(--c-goldfinch-gold)); }
+.rich-inline a:hover { color: rgb(var(--c-emnel-gold)); }
 .rich-content ul,
 .rich-content ol { margin: 0 0 1.1em; padding-left: 1.4em; }
 .rich-content ul { list-style: disc; }
@@ -219,7 +219,7 @@ select {
 .rich-content blockquote {
   margin: 1.4em 0;
   padding: 0.35em 1.1em;
-  border-left: 3px solid rgb(var(--c-goldfinch-gold));
+  border-left: 3px solid rgb(var(--c-emnel-gold));
   color: rgb(var(--c-ink) / 0.75);
   font-style: italic;
 }
@@ -271,11 +271,11 @@ select {
   color: inherit;
   font-weight: 600;
   text-decoration: underline;
-  text-decoration-color: rgb(var(--c-goldfinch-gold));
+  text-decoration-color: rgb(var(--c-emnel-gold));
   text-underline-offset: 3px;
   transition: color 0.2s ease;
 }
-.cms-rich a:hover { color: rgb(var(--c-goldfinch-gold)); }
+.cms-rich a:hover { color: rgb(var(--c-emnel-gold)); }
 .cms-rich strong { font-weight: 700; }
 .cms-rich em { font-style: italic; }
 .cms-rich ul,
@@ -296,7 +296,7 @@ select {
 .cms-rich blockquote {
   margin: 1.2em 0;
   padding: 0.2em 1em;
-  border-left: 3px solid rgb(var(--c-goldfinch-gold));
+  border-left: 3px solid rgb(var(--c-emnel-gold));
   font-style: italic;
 }
 .cms-rich img,
@@ -313,8 +313,8 @@ select {
   height: 3px;
   width: 100%;
   transform-origin: left center;
-  background: linear-gradient(90deg, rgb(var(--c-goldfinch-gold)), rgb(var(--c-savanna)));
-  box-shadow: 0 0 8px rgb(var(--c-goldfinch-gold) / 0.6);
+  background: linear-gradient(90deg, rgb(var(--c-emnel-gold)), rgb(var(--c-savanna)));
+  box-shadow: 0 0 8px rgb(var(--c-emnel-gold) / 0.6);
   animation: nav-progress 8s cubic-bezier(0.1, 0.7, 0.1, 1) forwards;
 }
 @keyframes nav-progress {
@@ -355,7 +355,7 @@ select {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgb(var(--c-goldfinch-gold) / 0.18);
+  background: rgb(var(--c-emnel-gold) / 0.18);
   pointer-events: none;
 }
 .pm-editor .column-resize-handle {
@@ -364,11 +364,11 @@ select {
   top: 0;
   bottom: -2px;
   width: 4px;
-  background: rgb(var(--c-goldfinch-gold));
+  background: rgb(var(--c-emnel-gold));
   pointer-events: none;
 }
 .pm-editor.resize-cursor { cursor: col-resize; }
-.pm-editor img.ProseMirror-selectednode { outline: 3px solid rgb(var(--c-goldfinch-gold)); }
+.pm-editor img.ProseMirror-selectednode { outline: 3px solid rgb(var(--c-emnel-gold)); }
 
 /* ── Public type scale ─────────────────────────────────────────────────────
    Applies inside .site-type, the public <main> and footer. The CMS keeps its

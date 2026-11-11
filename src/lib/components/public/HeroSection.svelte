@@ -213,23 +213,23 @@
       <p class="type-lead mt-5 max-w-[520px] text-white/90">{description}</p>
 
       <div class="mt-8 flex flex-col gap-4 [text-shadow:none] sm:flex-row sm:items-center">
-        <a class="inline-flex h-12 items-center justify-center gap-3 bg-goldfinch-gold px-7 text-[13px] font-semibold tracking-[0.08em] text-deep-green transition hover:bg-savanna sm:min-w-[230px]" href={primaryCtaUrl}>
+        <a class="inline-flex h-12 items-center justify-center gap-3 bg-emnel-gold px-7 text-[13px] font-semibold tracking-[0.08em] text-deep-green transition hover:bg-savanna sm:min-w-[230px]" href={primaryCtaUrl}>
           {primaryCta} <ArrowRight size={17} strokeWidth={2.4} />
         </a>
-        <a class="inline-flex h-12 items-center justify-center gap-3 border border-goldfinch-gold px-7 text-[13px] font-semibold tracking-[0.08em] text-white transition hover:bg-goldfinch-gold hover:text-deep-green sm:min-w-[250px]" href={secondaryCtaUrl}>
+        <a class="inline-flex h-12 items-center justify-center gap-3 border border-emnel-gold px-7 text-[13px] font-semibold tracking-[0.08em] text-white transition hover:bg-emnel-gold hover:text-deep-green sm:min-w-[250px]" href={secondaryCtaUrl}>
           {secondaryCta} <ArrowRight size={17} strokeWidth={2.4} />
         </a>
       </div>
 
       {#if reviewScore && reviewScore.count > 0}
-        <a class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-goldfinch-gold" href={reviewsHref}>
-          <Star size={16} fill="currentColor" strokeWidth={0} class="text-goldfinch-gold" aria-hidden="true" />
+        <a class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-emnel-gold" href={reviewsHref}>
+          <Star size={16} fill="currentColor" strokeWidth={0} class="text-emnel-gold" aria-hidden="true" />
           {reviewScore.average.toFixed(1)}/5 from {reviewScore.count} guest review{reviewScore.count === 1 ? '' : 's'}
         </a>
       {/if}
 
       <div class="mt-10 flex max-w-[620px] items-start gap-2.5 text-sm leading-[1.6] text-white/82">
-        <BadgeCheck size={18} class="mt-px shrink-0 text-goldfinch-gold" strokeWidth={2.1} aria-hidden="true" />
+        <BadgeCheck size={18} class="mt-px shrink-0 text-emnel-gold" strokeWidth={2.1} aria-hidden="true" />
         <span>{trustLine}</span>
       </div>
     </div>

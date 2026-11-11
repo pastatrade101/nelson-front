@@ -17,7 +17,7 @@
       {#if imageUrl}
         <ResponsiveImage src={origUrl(destination, 'main_image_url', 'image_url', 'banner_image_url')} fallbackSrc={imageUrl} width={800} alt={destination.name} imgClass="h-full w-full object-cover" sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" />
       {:else}
-        <div class="flex h-full flex-col items-center justify-center gap-3 bg-deep-green text-goldfinch-gold/70"><MapPin size={32} strokeWidth={1} /><span class="text-xs uppercase tracking-[0.18em]">{destination.country || 'Explore Tanzania'}</span></div>
+        <div class="flex h-full flex-col items-center justify-center gap-3 bg-deep-green text-emnel-gold/70"><MapPin size={32} strokeWidth={1} /><span class="text-xs uppercase tracking-[0.18em]">{destination.country || 'Explore Tanzania'}</span></div>
       {/if}
     </div>
     <div class="flex flex-1 flex-col p-6">

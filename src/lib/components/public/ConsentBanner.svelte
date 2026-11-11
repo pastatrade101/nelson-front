@@ -22,10 +22,10 @@
   >
     <div class="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
       <div class="flex min-w-0 items-start gap-3">
-        <span class="hidden h-9 w-9 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest dark:text-goldfinch-gold sm:grid"><Cookie size={18} /></span>
+        <span class="hidden h-9 w-9 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest dark:text-emnel-gold sm:grid"><Cookie size={18} /></span>
         <p class="min-w-0 text-xs leading-5 text-ink/75 sm:text-sm sm:leading-6">
           Help us improve your trip planning. Google Analytics loads only if you accept; we never send personal or trip details. See our
-          <a class="font-semibold text-forest underline dark:text-goldfinch-gold" href="/privacy">Privacy Policy</a>.
+          <a class="font-semibold text-forest underline dark:text-emnel-gold" href="/privacy">Privacy Policy</a>.
         </p>
       </div>
       <div class="flex w-full shrink-0 gap-2 sm:w-auto">

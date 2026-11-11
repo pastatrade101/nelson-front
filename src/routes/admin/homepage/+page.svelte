@@ -677,7 +677,7 @@
             <p class="mt-0.5 text-xs text-ink/45">{SECTION_LABELS[homeSectionDef(section.section_key)?.key ?? section.section_key] ?? prettyKey(section.section_key)}{section.section_key === 'login_slider' ? ' · shown on the admin login screen' : ' · shown on the homepage'}</p>
             {#if section.subtitle}<p class="mt-0.5 line-clamp-1 text-sm text-ink/60">{section.subtitle}</p>{/if}
             {#if section.button_text}
-              <span class="mt-2 inline-flex items-center gap-1 rounded-lg bg-goldfinch-gold/20 px-2 py-0.5 text-[11px] font-semibold text-heading">Button: {section.button_text}</span>
+              <span class="mt-2 inline-flex items-center gap-1 rounded-lg bg-emnel-gold/20 px-2 py-0.5 text-[11px] font-semibold text-heading">Button: {section.button_text}</span>
             {/if}
           </div>
 
@@ -687,7 +687,7 @@
               <input class="h-4 w-4 accent-forest" type="checkbox" checked={section.is_active} on:change={() => toggleActive(section)} />
               {section.is_active ? 'Active' : 'Inactive'}
             </label>
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(section)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(section)}>
               <Edit size={14} />Edit
             </button>
             <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(section)}>
@@ -817,7 +817,7 @@
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Partner logos</p>
                 <p class="mt-1 text-xs text-ink/50">Shown as an auto-scrolling strip. Transparent PNG or SVG works best.</p>
               </div>
-              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addLogo}>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" on:click={addLogo}>
                 <Plus size={14} />Add logo
               </button>
             </div>
@@ -857,7 +857,7 @@
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Login page slides</p>
                 <p class="mt-1 text-xs text-ink/50">Shown on the admin login screen — each slide has an image, a heading and a short line. Rotates automatically.</p>
               </div>
-              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addSlide}>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" on:click={addSlide}>
                 <Plus size={14} />Add slide
               </button>
             </div>
@@ -915,7 +915,7 @@
                 <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Typical cost ranges</p>
                 <p class="mt-1 text-xs text-ink/50">The "What trips typically cost" band on the homepage. Each row: trip type, a "from" price, and an optional note. (Built-in defaults show until you add rows.)</p>
               </div>
-              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addCostRange}>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" on:click={addCostRange}>
                 <Plus size={14} />Add row
               </button>
             </div>
@@ -951,7 +951,7 @@
 
             <div class="mt-1 flex flex-wrap items-center justify-between gap-2">
               <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Parks / destinations list</p>
-              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addPark}><Plus size={14} />Add park</button>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" on:click={addPark}><Plus size={14} />Add park</button>
             </div>
             {#if parkRows.length === 0}
               <p class="rounded-xl border border-dashed border-ink/15 bg-surface/60 py-4 text-center text-xs text-ink/45">No parks yet — add your first destination.</p>
@@ -981,7 +981,7 @@
             <input class="h-9 rounded-lg border border-ink/10 bg-surface px-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" placeholder="Closing quote (e.g. One conversation. One contact…)" bind:value={processIntro.quote} />
             <div class="mt-1 flex flex-wrap items-center justify-between gap-2">
               <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70">Steps</p>
-              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" on:click={addStep}><Plus size={14} />Add step</button>
+              <button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" on:click={addStep}><Plus size={14} />Add step</button>
             </div>
             {#if stepRows.length === 0}
               <p class="rounded-xl border border-dashed border-ink/15 bg-surface/60 py-4 text-center text-xs text-ink/45">No steps yet — add your first step.</p>
@@ -1054,7 +1054,7 @@
               <h3 class="text-xl font-extrabold">{form.title || prettyKey(form.section_key || 'section')}</h3>
               {#if form.subtitle}<p class="mx-auto mt-2 max-w-md text-sm text-white/80">{form.subtitle}</p>{/if}
               {#if form.button_text}
-                <span class="mt-4 inline-flex h-10 items-center rounded-xl bg-goldfinch-gold px-5 text-sm font-bold text-heading">{form.button_text}</span>
+                <span class="mt-4 inline-flex h-10 items-center rounded-xl bg-emnel-gold px-5 text-sm font-bold text-heading">{form.button_text}</span>
               {/if}
             </div>
           </div>
@@ -1115,7 +1115,7 @@
           <div class="grid grid-cols-3 gap-3 sm:grid-cols-4">
             {#each mediaItems as m (m.id)}
               <button
-                class="group grid aspect-square place-items-center overflow-hidden rounded-xl border border-ink/10 bg-sand/30 p-2 transition hover:border-goldfinch-gold/50 hover:bg-sand/60"
+                class="group grid aspect-square place-items-center overflow-hidden rounded-xl border border-ink/10 bg-sand/30 p-2 transition hover:border-emnel-gold/50 hover:bg-sand/60"
                 type="button"
                 title={m.file_name}
                 on:click={() => pickMedia(m.file_url)}

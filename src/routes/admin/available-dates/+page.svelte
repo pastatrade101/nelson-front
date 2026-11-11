@@ -365,7 +365,7 @@
       <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {#each filteredTours as tour}
           <button
-            class="rounded-none border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-goldfinch-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
+            class="rounded-none border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-emnel-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
             type="button"
             on:click={() => selectTour(tour.id)}
           >
@@ -448,7 +448,7 @@
                   </td>
                   <td class="px-4 py-4">
                     <div class="flex justify-end gap-2">
-                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(date)}>
+                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(date)}>
                         <Edit size={14} />
                         Edit
                       </button>

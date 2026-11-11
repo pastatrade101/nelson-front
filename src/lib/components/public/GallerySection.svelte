@@ -101,7 +101,7 @@
                   {/if}
                 </span>
                 {#if item.media_type === 'video'}
-                  <span class="grid h-7 w-7 place-items-center rounded-full bg-goldfinch-gold text-deep-green"><Film size={13} /></span>
+                  <span class="grid h-7 w-7 place-items-center rounded-full bg-emnel-gold text-deep-green"><Film size={13} /></span>
                 {/if}
               </span>
 
@@ -114,11 +114,11 @@
                 {/if}
                 {#if detail && i === 0}<p class="mt-1 line-clamp-1 text-sm leading-[1.6] text-white/65">{detail}</p>{/if}
                 {#if tour?.title}
-                  <span class="mt-2 inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-goldfinch-gold md:text-[11px]">
+                  <span class="mt-2 inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-emnel-gold md:text-[11px]">
                     <Route size={12} strokeWidth={2.4} /> Explore {tour.title}
                   </span>
                 {:else}
-                  <span class="mt-2 inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-goldfinch-gold md:text-[11px]">
+                  <span class="mt-2 inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-emnel-gold md:text-[11px]">
                     <Camera size={12} strokeWidth={2.4} /> View gallery
                   </span>
                 {/if}
@@ -132,8 +132,8 @@
         <aside class={`${shown.length ? 'mt-10' : ''} overflow-hidden bg-deep-green text-white`} aria-label="Published guest testimonials" use:fadeUpOnScroll={{ y: 14 }}>
           <div class="grid lg:grid-cols-[0.72fr_2.28fr]">
             <div class="border-b border-white/12 p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-9">
-              <Quote class="text-goldfinch-gold" size={28} strokeWidth={1.5} />
-              <p class="eyebrow mt-5 text-goldfinch-gold">Traveller Notes</p>
+              <Quote class="text-emnel-gold" size={28} strokeWidth={1.5} />
+              <p class="eyebrow mt-5 text-emnel-gold">Traveller Notes</p>
               <h3 class="type-h3 mt-3">Real words from real journeys.</h3>
             </div>
 
@@ -142,7 +142,7 @@
                 {@const reviewRating = rating(review)}
                 <article class={`flex min-h-[250px] flex-col p-6 sm:p-8 ${index < reviews.length - 1 ? 'border-b border-white/12 md:border-b-0 md:border-r' : ''}`}>
                   {#if reviewRating}
-                    <div class="flex gap-0.5 text-goldfinch-gold" aria-label={`${reviewRating} out of 5 stars`}>
+                    <div class="flex gap-0.5 text-emnel-gold" aria-label={`${reviewRating} out of 5 stars`}>
                       {#each Array(5) as _, starIndex}
                         <Star size={14} fill={starIndex < reviewRating ? 'currentColor' : 'none'} strokeWidth={1.7} />
                       {/each}
@@ -154,7 +154,7 @@
                       {#if review.client_image_url}
                         <img class="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-white/20" src={cdnUrl(review.client_image_url)} alt={review.client_name} width="40" height="40" loading="lazy" />
                       {:else}
-                        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-xs font-bold text-goldfinch-gold ring-1 ring-white/15">{initials(review.client_name)}</span>
+                        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-xs font-bold text-emnel-gold ring-1 ring-white/15">{initials(review.client_name)}</span>
                       {/if}
                       <div class="min-w-0">
                         <p class="truncate text-sm font-bold">{review.client_name}</p>
@@ -162,7 +162,7 @@
                       </div>
                     </div>
                     {#if review.tours?.slug && review.tours?.title}
-                      <a class="mt-4 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-goldfinch-gold transition hover:text-white" href={`/tours/${review.tours.slug}`}>
+                      <a class="mt-4 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-emnel-gold transition hover:text-white" href={`/tours/${review.tours.slug}`}>
                         <Route size={12} /> {review.tours.title}
                       </a>
                     {/if}

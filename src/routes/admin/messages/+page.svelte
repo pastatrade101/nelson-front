@@ -47,7 +47,7 @@
   type Toast = { id: string; message: string; type: 'error' | 'success' };
 
   const statusMeta: Record<Status, { chip: string; dot: string; label: string }> = {
-    new: { label: 'New', chip: 'bg-goldfinch-gold/20 text-heading ring-goldfinch-gold/30', dot: 'bg-goldfinch-gold' },
+    new: { label: 'New', chip: 'bg-emnel-gold/20 text-heading ring-emnel-gold/30', dot: 'bg-emnel-gold' },
     read: { label: 'Read', chip: 'bg-sky-50 text-sky-700 ring-sky-200/70', dot: 'bg-sky-500' },
     replied: { label: 'Replied', chip: 'bg-emerald-50 text-emerald-700 ring-emerald-200/70', dot: 'bg-emerald-500' },
     archived: { label: 'Archived', chip: 'bg-black/5 text-ink/50 ring-ink/10', dot: 'bg-black/40' }
@@ -280,7 +280,7 @@
           </thead>
           <tbody class="divide-y divide-ink/10">
             {#each rows as msg (msg.id)}
-              <tr class={`cursor-pointer transition hover:bg-sand/25 ${msg.status === 'new' ? 'bg-goldfinch-gold/[0.04]' : ''}`} on:click={() => openDetail(msg)}>
+              <tr class={`cursor-pointer transition hover:bg-sand/25 ${msg.status === 'new' ? 'bg-emnel-gold/[0.04]' : ''}`} on:click={() => openDetail(msg)}>
                 <td class="px-4 py-4">
                   <div class="flex items-center gap-3">
                     <div class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-forest/10 text-xs font-bold text-forest">{initials(msg.full_name)}</div>
@@ -303,7 +303,7 @@
                 <td class="px-4 py-4 text-ink/65">{fmt(msg.created_at)}</td>
                 <td class="px-4 py-4">
                   <div class="flex justify-end gap-2" on:click|stopPropagation role="presentation">
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openDetail(msg)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openDetail(msg)}>
                       <MailOpen size={14} />View
                     </button>
                     <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(msg)}>

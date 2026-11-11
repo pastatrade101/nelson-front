@@ -143,7 +143,7 @@
             <div class="flex items-center gap-3">
               <span class="text-sm font-semibold text-ink/60">{role.permissions.length} / {permissionCount}</span>
               {#if canEdit(role.role)}
-                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(role)}><Pencil size={13} />Edit</button>
+                <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(role)}><Pencil size={13} />Edit</button>
               {:else}
                 <span class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-sand/40 px-3 text-xs font-semibold text-ink/40"><Lock size={13} />Locked</span>
               {/if}
@@ -189,7 +189,7 @@
           <section class="rounded-2xl border border-ink/10 bg-surface p-4">
             <button class="mb-3 flex w-full items-center justify-between gap-2 text-left" type="button" on:click={() => toggleModule(keys)}>
               <span class="text-sm font-bold text-ink">{modLabel(mod)}</span>
-              <span class={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[11px] font-bold ${state.all ? 'bg-forest text-white' : state.some ? 'bg-goldfinch-gold/20 text-heading' : 'bg-sand/70 text-ink/50'}`}>
+              <span class={`inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[11px] font-bold ${state.all ? 'bg-forest text-white' : state.some ? 'bg-emnel-gold/20 text-heading' : 'bg-sand/70 text-ink/50'}`}>
                 {#if state.all}<Check size={11} />All{:else if state.some}Partial{:else}None{/if}
               </span>
             </button>

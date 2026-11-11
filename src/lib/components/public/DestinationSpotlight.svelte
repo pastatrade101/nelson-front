@@ -41,14 +41,14 @@
       <div class="absolute left-4 top-4 flex flex-wrap gap-2">
         <span class="bg-deep-green/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur">Spotlight</span>
         {#if facts.unesco}
-          <span class="inline-flex items-center gap-1 bg-goldfinch-gold px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-deep-green"><Award size={12} strokeWidth={2.6} /> UNESCO</span>
+          <span class="inline-flex items-center gap-1 bg-emnel-gold px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-deep-green"><Award size={12} strokeWidth={2.6} /> UNESCO</span>
         {/if}
       </div>
     </div>
 
     <!-- content -->
     <div class="flex flex-col justify-center p-7 md:p-10">
-      <p class="eyebrow text-goldfinch-gold">{regionLine}</p>
+      <p class="eyebrow text-emnel-gold">{regionLine}</p>
       <h2 class="type-h2 mt-2 lowercase text-heading">{destination.name}</h2>
       {#if destination.short_description}
         <p class="mt-3 max-w-xl text-base leading-[1.75] text-ink/70">{destination.short_description}</p>
@@ -57,7 +57,7 @@
       {#if chips.length}
         <div class="mt-5 flex flex-wrap gap-2">
           {#each chips as chip}
-            <span class="border border-goldfinch-gold/40 bg-goldfinch-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{chip}</span>
+            <span class="border border-emnel-gold/40 bg-emnel-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{chip}</span>
           {/each}
         </div>
       {/if}
@@ -82,7 +82,7 @@
           {#if stars}
             <span class="inline-flex items-center gap-1.5">
               <span class="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/40">Luxury</span>
-              <span class="inline-flex text-goldfinch-gold">
+              <span class="inline-flex text-emnel-gold">
                 {#each Array(5) as _, i}<Star size={13} fill={i < stars ? 'currentColor' : 'none'} strokeWidth={1.6} class={i < stars ? '' : 'text-ink/20'} />{/each}
               </span>
             </span>
@@ -101,7 +101,7 @@
           Explore {destination.name} <ArrowRight size={15} strokeWidth={2.5} />
         </a>
         {#if stat && stat.count}
-          <a class="inline-flex h-11 items-center gap-2 border border-goldfinch-gold/40 px-5 text-[12px] font-bold uppercase tracking-[0.12em] text-clay transition hover:bg-goldfinch-gold/10" href={`/tours?destination=${destination.slug}`}>
+          <a class="inline-flex h-11 items-center gap-2 border border-emnel-gold/40 px-5 text-[12px] font-bold uppercase tracking-[0.12em] text-clay transition hover:bg-emnel-gold/10" href={`/tours?destination=${destination.slug}`}>
             See itineraries
           </a>
         {/if}
@@ -118,7 +118,7 @@
       <p class="eyebrow text-clay">Safaris that visit {destination.name}</p>
       <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {#each stat.tours.slice(0, 3) as tour (tour.slug)}
-          <a class="group flex items-center justify-between gap-3 border border-ink/10 bg-surface px-4 py-3 shadow-soft transition hover:border-goldfinch-gold/40 hover:shadow-md" href={`/tours/${tour.slug}`}>
+          <a class="group flex items-center justify-between gap-3 border border-ink/10 bg-surface px-4 py-3 shadow-soft transition hover:border-emnel-gold/40 hover:shadow-md" href={`/tours/${tour.slug}`}>
             <span class="min-w-0">
               <span class="block truncate font-serif text-[16px] font-normal text-heading">{tour.title}</span>
               <span class="mt-0.5 block text-[12px] text-ink/55">

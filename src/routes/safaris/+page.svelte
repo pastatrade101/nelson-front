@@ -40,9 +40,9 @@
 <section class="bg-deep-green text-white">
   <div class="container-shell py-14 md:py-20">
     <nav class="text-xs uppercase tracking-[0.2em] text-white/55" aria-label="Breadcrumb">
-      <a href="/" class="transition hover:text-goldfinch-gold">Home</a>
+      <a href="/" class="transition hover:text-emnel-gold">Home</a>
       <span class="px-2">/</span>
-      <span class="text-goldfinch-gold">By departure market</span>
+      <span class="text-emnel-gold">By departure market</span>
     </nav>
     <h1 class="type-h1 mt-5 max-w-3xl">
       Tanzania safaris, planned around where you fly from
@@ -79,7 +79,7 @@
         {/if}
         <div class="flex flex-1 flex-col p-6">
           {#if market.hero_eyebrow}
-            <p class="eyebrow text-goldfinch-gold">{market.hero_eyebrow}</p>
+            <p class="eyebrow text-emnel-gold">{market.hero_eyebrow}</p>
           {/if}
           <h3 class="type-card mt-2 text-heading">{cardTitle(market)}</h3>
           {#if cardBlurb(market)}

@@ -31,7 +31,7 @@
   <!-- As many columns as there are price levels (up to four), so three cards fill the row. -->
   <div class={`mt-10 grid gap-4 sm:grid-cols-2 ${rows.length === 3 ? 'lg:grid-cols-3' : rows.length === 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-4'}`}>
     {#each rows as row}
-      <div class="group relative flex min-h-[200px] flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_20px_44px_rgba(28,26,22,0.14)]">
+      <div class="group relative flex min-h-[200px] flex-col overflow-hidden rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:border-emnel-gold/40 hover:shadow-[0_20px_44px_rgba(28,26,22,0.14)]">
         <!-- very faint photo texture -->
         <img
           class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.08] transition duration-700 group-hover:scale-105 group-hover:opacity-[0.14]"
@@ -41,7 +41,7 @@
           loading="lazy"
         />
         <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-surface/40 via-transparent to-transparent"></div>
-        <div class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-goldfinch-gold/0 via-goldfinch-gold/60 to-goldfinch-gold/0 opacity-0 transition group-hover:opacity-100"></div>
+        <div class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emnel-gold/0 via-emnel-gold/60 to-emnel-gold/0 opacity-0 transition group-hover:opacity-100"></div>
 
         <div class="relative flex flex-1 flex-col">
           <p class="text-sm font-bold uppercase tracking-[0.14em] text-clay">{row.label}</p>

@@ -51,9 +51,8 @@
   const levelOptions = TIER_OPTIONS;
 
   /**
-   * The ported enum vocabularies. Values are Emnel's lowercase snake_case, not
-   * goldfinch's uppercase — see the migration note in
-   * 2026-08-27-lodge-property-detail.sql for why they deliberately differ.
+   * The property enum vocabularies, in lowercase snake_case to match the
+   * database constraints (see 2026-08-27-lodge-property-detail.sql).
    * Each list leads with a blank so "not recorded" stays distinct from a guess.
    */
   const enumOptions = (values: string[]) => [
@@ -103,7 +102,7 @@
     is_featured: false,
     seo_title: '',
     meta_description: '',
-    // ── ported from the goldfinch property model ──────────────────────────
+    // ── property detail ──────────────────────────────────────────────────
     short_description: '',
     country: '',
     region: '',
@@ -626,7 +625,7 @@
             {#each rows as l (l.id)}
               <tr class="transition hover:bg-sand/25">
                 <td class="px-4 py-4">
-                  <div class="font-semibold text-ink">{l.name}{#if l.is_featured}<span class="ml-2 rounded-full bg-goldfinch-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-goldfinch-gold">Featured</span>{/if}</div>
+                  <div class="font-semibold text-ink">{l.name}{#if l.is_featured}<span class="ml-2 rounded-full bg-emnel-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emnel-gold">Featured</span>{/if}</div>
                   <p class="mt-0.5 font-mono text-xs text-ink/50">{l.slug}</p>
                 </td>
                 <td class="px-4 py-4 text-ink/60">{l.destinations?.name ?? '-'}</td>
@@ -636,7 +635,7 @@
                 <td class="px-4 py-4 text-ink/60">{fmt(l.updated_at ?? l.created_at)}</td>
                 <td class="px-4 py-4">
                   <div class="flex justify-end gap-2">
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(l)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(l)}>
                       <Edit size={14} />Edit
                     </button>
                     <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(l)}>

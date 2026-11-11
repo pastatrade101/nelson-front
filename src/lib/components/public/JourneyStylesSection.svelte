@@ -41,11 +41,11 @@
         <div class="max-w-[720px]">
           <p class="brand-eyebrow">{eyebrow}</p>
           <h2 class="type-h2 mt-5 text-heading">
-            {title}{#if accentTitle} <span class="italic text-goldfinch-gold">{accentTitle}</span>{/if}
+            {title}{#if accentTitle} <span class="italic text-emnel-gold">{accentTitle}</span>{/if}
           </h2>
           {#if subtitle}<p class="mt-5 text-base leading-[1.75] text-ink/70">{subtitle}</p>{/if}
         </div>
-        <a class="inline-flex shrink-0 items-center gap-2 pb-1 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold transition hover:text-heading" href={ctaHref}>
+        <a class="inline-flex shrink-0 items-center gap-2 pb-1 text-[12px] font-bold uppercase tracking-[0.18em] text-emnel-gold transition hover:text-heading" href={ctaHref}>
           {ctaLabel} <ArrowRight size={15} strokeWidth={2.5} />
         </a>
       </div>
@@ -58,7 +58,7 @@
         {#each cards as card (card.slug)}
           <li class="journey-card w-[78%] max-w-[340px] shrink-0 snap-start md:w-auto md:max-w-none">
             <a
-              class="group relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden bg-deep-green p-5 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold focus-visible:ring-offset-2 lg:p-6"
+              class="group relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden bg-deep-green p-5 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold focus-visible:ring-offset-2 lg:p-6"
               href={`/travel-styles/${card.slug}`}
               on:click={() => trackEvent('cta_click', { cta_name: `travel_style_${card.slug}`, cta_location: 'home_choose_journey' })}
             >
@@ -76,10 +76,10 @@
               <h3 class="type-card text-white">{card.name}</h3>
               {#if card.line}<p class="mt-2 line-clamp-2 text-sm leading-[1.6] text-white/80">{card.line}</p>{/if}
               <div class="mt-4 flex items-center justify-between gap-3 border-t border-white/20 pt-4">
-                <span class="text-[11px] font-bold uppercase tracking-[0.14em] text-goldfinch-gold">
+                <span class="text-[11px] font-bold uppercase tracking-[0.14em] text-emnel-gold">
                   {card.from ? `From ${formatUsd(card.from, $currency)} per person` : 'Price on request'}
                 </span>
-                <ArrowRight size={16} strokeWidth={2.4} class="shrink-0 text-white/80 transition group-hover:translate-x-1 group-hover:text-goldfinch-gold" />
+                <ArrowRight size={16} strokeWidth={2.4} class="shrink-0 text-white/80 transition group-hover:translate-x-1 group-hover:text-emnel-gold" />
               </div>
             </a>
           </li>
@@ -87,15 +87,15 @@
         <!-- Completes the grid with the way in for anyone still deciding. -->
         <li class="journey-card w-[78%] max-w-[340px] shrink-0 snap-start md:w-auto md:max-w-none">
           <a
-            class="group flex aspect-[4/5] flex-col justify-between border border-ink/15 bg-surface p-5 transition hover:border-goldfinch-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold lg:p-6"
+            class="group flex aspect-[4/5] flex-col justify-between border border-ink/15 bg-surface p-5 transition hover:border-emnel-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold lg:p-6"
             href="/plan-my-trip"
             on:click={() => trackEvent('cta_click', { cta_name: 'travel_style_unsure', cta_location: 'home_choose_journey' })}
           >
-            <p class="eyebrow text-goldfinch-gold">Not sure yet?</p>
+            <p class="eyebrow text-emnel-gold">Not sure yet?</p>
             <div>
               <h3 class="type-card text-heading">Tell us what you have in mind</h3>
               <p class="mt-2 text-sm leading-[1.6] text-ink/70">Share your dates, group and budget, and a local specialist will suggest the right journey.</p>
-              <span class="mt-4 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-goldfinch-gold transition group-hover:text-heading">
+              <span class="mt-4 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-emnel-gold transition group-hover:text-heading">
                 Plan My Safari <ArrowRight size={15} strokeWidth={2.5} class="transition group-hover:translate-x-1" />
               </span>
             </div>

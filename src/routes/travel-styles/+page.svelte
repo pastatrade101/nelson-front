@@ -20,9 +20,9 @@
 <section class="bg-deep-green text-white">
   <div class="container-shell py-20 md:py-28">
     <nav class="text-[11px] uppercase tracking-[0.24em] text-white/55" aria-label="Breadcrumb">
-      <a class="transition hover:text-goldfinch-gold" href="/">Home</a>
+      <a class="transition hover:text-emnel-gold" href="/">Home</a>
       <span class="px-2 text-white/25">/</span>
-      <span class="text-goldfinch-gold">Travel Styles</span>
+      <span class="text-emnel-gold">Travel Styles</span>
     </nav>
     <h1 class="type-h1 mt-9 max-w-3xl" use:revealHeading>
       How do you want to travel?

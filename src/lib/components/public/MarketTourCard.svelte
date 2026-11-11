@@ -145,7 +145,7 @@
 <article
   class={`group relative flex h-full flex-col overflow-hidden rounded-none bg-surface transition-shadow duration-300 ${
     flagship
-      ? 'border-2 border-goldfinch-gold shadow-[0_28px_70px_rgba(28,26,22,0.20)]'
+      ? 'border-2 border-emnel-gold shadow-[0_28px_70px_rgba(28,26,22,0.20)]'
       : 'border border-ink/10 shadow-soft hover:shadow-[0_26px_60px_rgba(28,26,22,0.14)]'
   } ${className}`}
 >
@@ -173,7 +173,7 @@
         </span>
       {/if}
       {#if showSignature}
-        <span class="rounded-none bg-goldfinch-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-deep-green shadow">
+        <span class="rounded-none bg-emnel-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-deep-green shadow">
           Signature Journey
         </span>
       {/if}
@@ -184,7 +184,7 @@
   <div class="flex flex-1 flex-col p-5">
     <!-- kicker -->
     <div class="flex items-baseline gap-3">
-      <span class="font-serif text-[24px] font-light leading-none text-goldfinch-gold">{indexLabel}</span>
+      <span class="font-serif text-[24px] font-light leading-none text-emnel-gold">{indexLabel}</span>
       {#if kickerLabel}
         <span class="eyebrow text-clay">{kickerLabel}</span>
       {/if}
@@ -203,7 +203,7 @@
       <p class="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink/60">
         {#each routeLine as stop, stopIndex (`${stopIndex}-${stop}`)}
           {#if stopIndex > 0}
-            <span class="h-px w-6 shrink-0 bg-goldfinch-gold" aria-hidden="true"></span>
+            <span class="h-px w-6 shrink-0 bg-emnel-gold" aria-hidden="true"></span>
           {/if}
           <span>{stop}</span>
         {/each}
@@ -212,7 +212,7 @@
 
     <!-- best for — the written override, else derived from persona_tags -->
     {#if bestForLabel}
-      <div class="mt-4 border-l-2 border-goldfinch-gold bg-savanna/55 px-3 py-2">
+      <div class="mt-4 border-l-2 border-emnel-gold bg-savanna/55 px-3 py-2">
         <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-clay">Best for</p>
         <p
           class={`mt-0.5 text-sm font-semibold leading-[1.6] text-ink/75 ${bestForOverride ? '' : 'capitalize'}`}
@@ -266,7 +266,7 @@
               <select
                 bind:value={selectedPax}
                 on:change={onPaxChange}
-                class="mt-1.5 w-full rounded-none border border-ink/15 bg-surface px-3 py-2 text-[13px] font-semibold text-heading focus:border-goldfinch-gold focus:outline-none"
+                class="mt-1.5 w-full rounded-none border border-ink/15 bg-surface px-3 py-2 text-[13px] font-semibold text-heading focus:border-emnel-gold focus:outline-none"
               >
                 {#each paxOptions as key (key)}
                   <option value={key}>{key} {Number(key) === 1 ? 'traveller' : 'travellers'}</option>

@@ -74,7 +74,7 @@
        never pushed off the card). On desktop the details below collapse to zero
        height and expand on hover/focus; on mobile they are always shown. -->
   <div class="relative z-10 p-5 md:p-6">
-    <p class="eyebrow text-goldfinch-gold">{region}</p>
+    <p class="eyebrow text-emnel-gold">{region}</p>
     <h3 class="type-card mt-1.5">{destination.name}</h3>
 
     <div class="grid grid-rows-[1fr] transition-[grid-template-rows] duration-[520ms] ease-[cubic-bezier(0.22,1,0.36,1)] md:grid-rows-[0fr] md:group-hover:grid-rows-[1fr] md:group-focus-visible:grid-rows-[1fr]">
@@ -89,7 +89,7 @@
               {#each quickFacts as f}
                 {@const FI = f.icon}
                 <div class="flex min-w-0 items-center gap-2">
-                  <span class="grid h-7 w-7 shrink-0 place-items-center bg-white/10 text-goldfinch-gold"><FI size={13} strokeWidth={2} /></span>
+                  <span class="grid h-7 w-7 shrink-0 place-items-center bg-white/10 text-emnel-gold"><FI size={13} strokeWidth={2} /></span>
                   <span class="min-w-0">
                     <span class="block text-[9px] font-bold uppercase tracking-[0.1em] text-white/45">{f.label}</span>
                     <span class="block truncate text-[12px] font-semibold text-white/90">{f.value}</span>
@@ -107,7 +107,7 @@
             </div>
           {/if}
 
-          <span class="mt-4 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition group-hover:text-goldfinch-gold">
+          <span class="mt-4 inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition group-hover:text-emnel-gold">
             Explore <ArrowRight size={14} strokeWidth={2.5} class="transition group-hover:translate-x-1" />
           </span>
         </div>

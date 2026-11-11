@@ -154,8 +154,8 @@
     </div>
 
     <!-- verdict -->
-    <div class="mt-8 flex items-start gap-3 rounded-2xl border border-goldfinch-gold/30 bg-savanna/20 p-5 md:p-6">
-      <Sparkles size={22} class="mt-0.5 shrink-0 text-goldfinch-gold" />
+    <div class="mt-8 flex items-start gap-3 rounded-2xl border border-emnel-gold/30 bg-savanna/20 p-5 md:p-6">
+      <Sparkles size={22} class="mt-0.5 shrink-0 text-emnel-gold" />
       <div>
         <p class="eyebrow text-clay">Our honest verdict</p>
         <p class="mt-2 text-base leading-[1.75] text-ink/80">{cmp.verdict}</p>
@@ -186,7 +186,7 @@
         <h2 class="type-h2 text-heading">More comparisons</h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           {#each others as o (o.slug)}
-            <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-surface p-5 transition hover:border-goldfinch-gold/40" href={`/compare/${o.slug}`}>
+            <a class="group flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-surface p-5 transition hover:border-emnel-gold/40" href={`/compare/${o.slug}`}>
               <span>
                 <span class="block text-xs font-bold uppercase tracking-[0.14em] text-clay">{o.eyebrow}</span>
                 <span class="mt-0.5 block font-serif font-normal text-heading">{o.title}</span>

@@ -2,9 +2,7 @@
   /**
    * One image, served at a sensible size — Emnel's own media pipeline.
    *
-   * Goldfinch's version of this component sits on a responsive-variant ladder this
-   * codebase does not have, so this keeps the same props and resizes through
-   * $lib/img's imgUrl() instead. Callers do not need to know the difference.
+   * Resizes through $lib/img's imgUrl(), so callers only pass a URL and a size.
    */
   import { imgUrl } from '$lib/img';
 

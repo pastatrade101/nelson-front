@@ -328,7 +328,7 @@
   <div class="container-shell relative flex min-h-[62vh] flex-col justify-end pb-14 pt-28 [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] md:min-h-[72vh] md:pb-20">
     <div class="max-w-4xl">
       {#if mp.hero_eyebrow}
-        <p class="brand-eyebrow text-goldfinch-gold">{mp.hero_eyebrow}</p>
+        <p class="brand-eyebrow text-emnel-gold">{mp.hero_eyebrow}</p>
       {/if}
       <h1 class="type-h1 mt-4 max-w-[820px] text-white">
         {heroTitle}
@@ -339,7 +339,7 @@
 
       <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
         <a
-          class="inline-flex h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna"
+          class="inline-flex h-[52px] items-center justify-center gap-3 bg-emnel-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna"
           href={heroCtaHref}
         >
           {heroCtaLabel}
@@ -347,7 +347,7 @@
         </a>
         <WhatsAppCta
           variant="ghost"
-          className="inline-flex h-[52px] items-center justify-center gap-3 border border-white/25 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold"
+          className="inline-flex h-[52px] items-center justify-center gap-3 border border-white/25 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-emnel-gold hover:text-emnel-gold"
           context="market_landing_hero"
           message={whatsappMessage}
         >

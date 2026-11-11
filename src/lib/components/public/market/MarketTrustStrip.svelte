@@ -27,7 +27,7 @@
       <ul class={`grid gap-px bg-ink/10 ${gridClass}`}>
         {#each shown as item}
           <li class="flex items-center justify-center gap-3 bg-sand px-5 py-6 text-center md:py-7">
-            <span class="h-1.5 w-1.5 shrink-0 bg-goldfinch-gold" aria-hidden="true"></span>
+            <span class="h-1.5 w-1.5 shrink-0 bg-emnel-gold" aria-hidden="true"></span>
             <span class="eyebrow text-heading">{item.label}</span>
           </li>
         {/each}

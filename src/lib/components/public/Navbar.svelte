@@ -510,15 +510,15 @@
             <div class="nav-dropdown relative" on:mouseenter={() => (openDropdown = item.dropdown ?? '')} on:mouseleave={() => (openDropdown = '')}>
               <div class="flex items-center">
                 <a
-                  class={`relative inline-flex items-center gap-1 rounded px-4 py-8 text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40 ${active ? 'text-goldfinch-gold' : 'text-white/70'}`}
+                  class={`relative inline-flex items-center gap-1 rounded px-4 py-8 text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
                 >
                   {item.label}
-                  {#if active}<span class="absolute inset-x-4 bottom-1 h-0.5 rounded-full bg-goldfinch-gold"></span>{/if}
+                  {#if active}<span class="absolute inset-x-4 bottom-1 h-0.5 rounded-full bg-emnel-gold"></span>{/if}
                 </a>
                 <button
-                  class="grid h-8 w-7 place-items-center rounded text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40"
+                  class="grid h-8 w-7 place-items-center rounded text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40"
                   type="button"
                   aria-haspopup="true"
                   aria-expanded={openDropdown === item.dropdown}
@@ -536,12 +536,12 @@
             </div>
           {:else}
             <a
-              class={`relative inline-flex items-center rounded px-4 py-8 text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/40 ${active ? 'text-goldfinch-gold' : 'text-white/70'}`}
+              class={`relative inline-flex items-center rounded px-4 py-8 text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
               href={item.href}
               aria-current={active ? 'page' : undefined}
             >
               {item.label}
-              {#if active}<span class="absolute inset-x-4 bottom-1 h-0.5 rounded-full bg-goldfinch-gold"></span>{/if}
+              {#if active}<span class="absolute inset-x-4 bottom-1 h-0.5 rounded-full bg-emnel-gold"></span>{/if}
             </a>
           {/if}
         {/each}
@@ -552,7 +552,7 @@
         <!-- Begin Your Journey CTA — opens the enquiry modal -->
         <button
           type="button"
-          class="ml-1 inline-flex items-center gap-1.5 border border-goldfinch-gold px-6 py-2.5 text-[15px] font-semibold text-goldfinch-gold shadow-sm transition hover:bg-goldfinch-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/50"
+          class="ml-1 inline-flex items-center gap-1.5 border border-emnel-gold px-6 py-2.5 text-[15px] font-semibold text-emnel-gold shadow-sm transition hover:bg-emnel-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/50"
           on:click={() => openEnquiry()}
         >
           Begin Your Journey
@@ -580,7 +580,7 @@
           </button>
         </div>
 
-        <form class="mt-5 flex h-11 items-center rounded-full bg-sand px-2 transition focus-within:ring-2 focus-within:ring-goldfinch-gold/30" on:submit|preventDefault={submitSearch} role="search">
+        <form class="mt-5 flex h-11 items-center rounded-full bg-sand px-2 transition focus-within:ring-2 focus-within:ring-emnel-gold/30" on:submit|preventDefault={submitSearch} role="search">
           <button class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink" type="submit" aria-label="Search itineraries"><Search size={17} strokeWidth={2.6} /></button>
           <input class="min-w-0 flex-1 bg-transparent px-1 text-sm font-medium text-ink outline-none placeholder:text-stone" aria-label="Search itineraries" placeholder="Search itineraries..." bind:value={searchQuery} />
         </form>
@@ -591,7 +591,7 @@
             {#if item.dropdown}
               <div class="rounded-xl">
                 <div class="flex items-center">
-                  <a class={`flex-1 rounded-xl px-3 py-3 text-[17px] font-semibold transition ${active ? 'text-forest dark:text-goldfinch-gold' : 'text-ink'}`} href={item.href} on:click={() => (menuOpen = false)}>{item.label}</a>
+                  <a class={`flex-1 rounded-xl px-3 py-3 text-[17px] font-semibold transition ${active ? 'text-forest dark:text-emnel-gold' : 'text-ink'}`} href={item.href} on:click={() => (menuOpen = false)}>{item.label}</a>
                   {#if mobileSubLinks[item.dropdown].length}
                     <button class="grid h-11 w-11 place-items-center rounded-xl text-ink/70 transition hover:bg-sand/50" type="button" aria-expanded={mobileAccordion === item.dropdown} aria-label={`Toggle ${item.label}`} on:click={() => (mobileAccordion = mobileAccordion === item.dropdown ? '' : (item.dropdown ?? ''))}>
                       <ChevronDown size={18} strokeWidth={2.6} class={`transition-transform ${mobileAccordion === item.dropdown ? 'rotate-180' : ''}`} />
@@ -607,11 +607,11 @@
                 {/if}
               </div>
             {:else}
-              <a class={`rounded-xl px-3 py-3 text-[17px] font-semibold transition ${active ? 'text-forest dark:text-goldfinch-gold' : 'text-ink'}`} href={item.href} on:click={() => (menuOpen = false)}>{item.label}</a>
+              <a class={`rounded-xl px-3 py-3 text-[17px] font-semibold transition ${active ? 'text-forest dark:text-emnel-gold' : 'text-ink'}`} href={item.href} on:click={() => (menuOpen = false)}>{item.label}</a>
             {/if}
           {/each}
 
-          <button type="button" class="mt-2 inline-flex w-full items-center justify-center gap-1.5 border border-goldfinch-gold px-4 py-3 text-sm font-semibold text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green" on:click={() => { menuOpen = false; openEnquiry(); }}>
+          <button type="button" class="mt-2 inline-flex w-full items-center justify-center gap-1.5 border border-emnel-gold px-4 py-3 text-sm font-semibold text-emnel-gold transition hover:bg-emnel-gold hover:text-deep-green" on:click={() => { menuOpen = false; openEnquiry(); }}>
             Begin Your Journey <ArrowRight size={15} strokeWidth={2.6} />
           </button>
         </nav>

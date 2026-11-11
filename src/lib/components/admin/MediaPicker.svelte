@@ -316,7 +316,7 @@
             {#each filtered as m (m.id)}
               <button
                 type="button"
-                class={`group overflow-hidden rounded-[10px] border bg-surface text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(57,61,50,0.11)] ${value === m.file_url ? 'border-goldfinch-gold ring-2 ring-goldfinch-gold/45' : 'border-ink/10 hover:border-forest/35'}`}
+                class={`group overflow-hidden rounded-[10px] border bg-surface text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(57,61,50,0.11)] ${value === m.file_url ? 'border-emnel-gold ring-2 ring-emnel-gold/45' : 'border-ink/10 hover:border-forest/35'}`}
                 on:click={() => select(m.file_url)}
               >
                 <span class="relative block aspect-[4/3] w-full overflow-hidden bg-sand/35">
@@ -334,7 +334,7 @@
                     />
                   {/if}
                   {#if value === m.file_url}
-                    <span class="absolute right-2 top-2 rounded-[8px] bg-goldfinch-gold px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-heading shadow-sm">Selected</span>
+                    <span class="absolute right-2 top-2 rounded-[8px] bg-emnel-gold px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-heading shadow-sm">Selected</span>
                   {/if}
                 </span>
                 <span class="block min-h-11 px-3 py-2">

@@ -27,7 +27,7 @@
       {:else}
         <div class="flex h-full flex-col items-center justify-center gap-5 bg-deep-green/[0.04]" aria-hidden="true">
           <span class="font-serif text-[72px] font-light leading-none text-deep-green/45">{initials}</span>
-          <span class="h-px w-10 bg-goldfinch-gold"></span>
+          <span class="h-px w-10 bg-emnel-gold"></span>
         </div>
       {/if}
     </div>
@@ -36,7 +36,7 @@
   <div class="flex flex-1 flex-col px-6 py-7 sm:px-7 sm:py-8">
     <div class="flex items-start gap-4">
       {#if !showPortrait}
-        <span class="grid h-12 w-12 shrink-0 place-items-center border border-goldfinch-gold/35 bg-linen/60 font-serif text-xl text-clay" aria-hidden="true">{initials}</span>
+        <span class="grid h-12 w-12 shrink-0 place-items-center border border-emnel-gold/35 bg-linen/60 font-serif text-xl text-clay" aria-hidden="true">{initials}</span>
       {/if}
       <div class="min-w-0">
         {#if person.role}<p class="eyebrow text-clay">{person.role}</p>{/if}

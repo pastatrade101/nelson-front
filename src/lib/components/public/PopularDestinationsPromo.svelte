@@ -93,7 +93,7 @@
         <div class="relative max-w-md">
           <p class="font-serif text-3xl italic text-savanna">discover</p>
           <p class="eyebrow mt-4 text-white/80">Limited green-season departures</p>
-          <p class="mt-5 flex items-baseline gap-2 font-extrabold leading-none text-goldfinch-gold">
+          <p class="mt-5 flex items-baseline gap-2 font-extrabold leading-none text-emnel-gold">
             <span class="text-6xl">20%</span><span class="text-xl text-white/85">better value</span>
           </p>
           <p class="mt-4 text-xl font-bold">New safari experiences in Tanzania</p>
@@ -110,7 +110,7 @@
           </div>
 
           <button
-            class="mt-5 inline-flex h-12 items-center gap-2 rounded-lg bg-goldfinch-gold px-7 font-bold text-heading shadow-lg transition hover:-translate-y-0.5 hover:brightness-105"
+            class="mt-5 inline-flex h-12 items-center gap-2 rounded-lg bg-emnel-gold px-7 font-bold text-heading shadow-lg transition hover:-translate-y-0.5 hover:brightness-105"
             type="button"
             on:click={bookNow}
           >
@@ -144,7 +144,7 @@
                   />
 
                   {#if rating}
-                    <span class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-goldfinch-gold px-2.5 py-1 text-xs font-bold text-heading shadow">
+                    <span class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-emnel-gold px-2.5 py-1 text-xs font-bold text-heading shadow">
                       <Star size={12} fill="currentColor" /> {rating.toFixed(1)}
                     </span>
                   {/if}

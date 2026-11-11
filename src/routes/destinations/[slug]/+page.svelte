@@ -300,7 +300,7 @@
             {/if}
             {#if destination.travel_insurance_note}
               <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
-                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-goldfinch-gold/15 text-goldfinch-gold"><FileCheck size={18} /></span>
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emnel-gold/15 text-emnel-gold"><FileCheck size={18} /></span>
                 <div><p class="text-sm font-bold text-ink">Travel insurance</p><p class="mt-1 text-sm leading-[1.6] text-ink/65">{destination.travel_insurance_note}</p></div>
               </div>
             {/if}

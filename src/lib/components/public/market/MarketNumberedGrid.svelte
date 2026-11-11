@@ -37,7 +37,7 @@
       <ol class={`mt-10 grid gap-px bg-ink/10 border border-ink/10 ${gridClass}`}>
         {#each shown as item, i}
           <li class="bg-surface p-7 md:p-8">
-            <span class="block font-serif text-[40px] font-light leading-none text-goldfinch-gold md:text-[52px]" aria-hidden="true">
+            <span class="block font-serif text-[40px] font-light leading-none text-emnel-gold md:text-[52px]" aria-hidden="true">
               {index(i)}
             </span>
             {#if item.title}

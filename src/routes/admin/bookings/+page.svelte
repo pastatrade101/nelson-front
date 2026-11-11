@@ -47,7 +47,7 @@
   };
 
   const statusMeta: Record<string, { chip: string; label: string }> = {
-    pending: { label: 'Pending', chip: 'bg-goldfinch-gold/20 text-heading ring-goldfinch-gold/30' },
+    pending: { label: 'Pending', chip: 'bg-emnel-gold/20 text-heading ring-emnel-gold/30' },
     contacted: { label: 'Contacted', chip: 'bg-sky-50 text-sky-700 ring-sky-200/70' },
     itinerary_sent: { label: 'Itinerary Sent', chip: 'bg-indigo-50 text-indigo-700 ring-indigo-200/70' },
     negotiating: { label: 'Negotiating', chip: 'bg-amber-50 text-amber-700 ring-amber-200/70' },
@@ -459,7 +459,7 @@
   />
 
   <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-    {#each [['Total', kpis.total, 'text-ink'], ['Pending', kpis.pending, 'text-goldfinch-gold'], ['Confirmed', kpis.confirmed, 'text-emerald-600'], ['Completed', kpis.completed, 'text-forest'], ['Cancelled / Rejected', kpis.cancelled, 'text-slate-500'], ['Unpaid', kpis.unpaid, 'text-red-500']] as [label, value, tone]}
+    {#each [['Total', kpis.total, 'text-ink'], ['Pending', kpis.pending, 'text-emnel-gold'], ['Confirmed', kpis.confirmed, 'text-emerald-600'], ['Completed', kpis.completed, 'text-forest'], ['Cancelled / Rejected', kpis.cancelled, 'text-slate-500'], ['Unpaid', kpis.unpaid, 'text-red-500']] as [label, value, tone]}
       <div class="rounded-2xl border border-ink/10 bg-surface p-4 shadow-sm">
         <p class="text-xs font-semibold text-ink/50">{label}</p>
         <p class={`mt-1 text-2xl font-extrabold ${tone}`}>{value}</p>
@@ -543,9 +543,9 @@
                 <td class="px-4 py-3 text-ink/65">{assigneeName(b.assigned_to) || '—'}</td>
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-1.5" role="presentation" on:click|stopPropagation>
-                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="View" on:click={() => openView(b)}><Eye size={15} /></button>
-                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Create quotation" title="Create a quotation for this enquiry" on:click={() => openQuote(b)}><FileText size={15} /></button>
-                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Edit" on:click={() => openEdit(b)}><Edit size={15} /></button>
+                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" aria-label="View" on:click={() => openView(b)}><Eye size={15} /></button>
+                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" aria-label="Create quotation" title="Create a quotation for this enquiry" on:click={() => openQuote(b)}><FileText size={15} /></button>
+                    <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" aria-label="Edit" on:click={() => openEdit(b)}><Edit size={15} /></button>
                     <button class="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50" type="button" aria-label="Delete" on:click={() => openDelete(b)}><Trash2 size={15} /></button>
                   </div>
                 </td>

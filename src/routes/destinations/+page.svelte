@@ -120,7 +120,7 @@
     <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(28,26,22,0.5)_0%,rgba(28,26,22,0.22)_48%,transparent_100%)]"></div>
   {/if}
   <div class="container-shell relative py-16 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-24">
-    <p class="eyebrow text-goldfinch-gold">Safari destinations</p>
+    <p class="eyebrow text-emnel-gold">Safari destinations</p>
     <h1 class="type-h1 mt-4 max-w-3xl">Where to go on safari in Tanzania</h1>
     <p class="type-lead mt-5 max-w-2xl text-white/80">
       One country, endless safari worlds. From the northern circuit's iconic parks to the wild, uncrowded south and the
@@ -128,17 +128,17 @@
     </p>
 
     <div class="mt-8 flex flex-wrap gap-3">
-      <a href="#circuits" class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna">
+      <a href="#circuits" class="inline-flex h-12 items-center gap-2 bg-emnel-gold px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna">
         Explore Destinations <ArrowRight size={16} strokeWidth={2.5} />
       </a>
-      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 border border-white/30 px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold">
+      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 border border-white/30 px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-emnel-gold hover:text-emnel-gold">
         Plan My Safari
       </a>
     </div>
 
     <div class="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/15 pt-6 text-[13px] font-medium text-white/80">
       {#each ['Arusha-based since 2016', 'Tanzania-born guides', 'Private vehicles only', 'Tailor-made journeys'] as point}
-        <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-goldfinch-gold"></span>{point}</span>
+        <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-emnel-gold"></span>{point}</span>
       {/each}
     </div>
   </div>
@@ -243,7 +243,7 @@
         />
         <div class="mt-9 grid gap-8 lg:grid-cols-[1fr_0.4fr]">
           <FAQAccordion faqs={faqs} />
-          <div class="h-max border border-goldfinch-gold/30 bg-surface p-6 shadow-soft">
+          <div class="h-max border border-emnel-gold/30 bg-surface p-6 shadow-soft">
             <p class="eyebrow text-clay">Still have questions?</p>
             <p class="mt-2 font-serif text-xl text-heading">Speak directly with our Arusha team.</p>
             <a class="mt-5 inline-flex h-11 items-center gap-2 bg-deep-green px-5 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition hover:bg-forest" href="/contact">

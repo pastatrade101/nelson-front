@@ -48,7 +48,7 @@
         {@const Icon = row.icon}
         <article class="flex flex-col gap-4 rounded-none border border-ink/10 bg-surface p-5 shadow-card sm:flex-row sm:items-center sm:justify-between">
           <div class="flex items-start gap-3">
-            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-forest/10 text-forest ring-1 ring-ink/5 dark:text-goldfinch-gold"><Icon size={19} /></span>
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-forest/10 text-forest ring-1 ring-ink/5 dark:text-emnel-gold"><Icon size={19} /></span>
             <div class="min-w-0">
               <div class="flex items-center gap-2">
                 <p class="font-bold text-ink">{row.name}</p>

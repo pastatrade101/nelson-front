@@ -11,12 +11,12 @@
 </svelte:head>
 
 <section class="relative min-h-[100svh] overflow-hidden bg-deep-green text-white">
-  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl"></div>
+  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emnel-gold/10 blur-3xl"></div>
   <div class="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-savanna/10 blur-3xl"></div>
 
   <div class="container-shell relative py-12 md:py-16">
     <div class="mx-auto mb-8 max-w-2xl text-center">
-      <p class="eyebrow text-goldfinch-gold">Begin your journey</p>
+      <p class="eyebrow text-emnel-gold">Begin your journey</p>
       <h1 class="type-h1 mt-3">A few quick questions</h1>
       <p class="type-lead mt-4 text-white/80">
         Tell us the essentials and a local specialist will shape a private Tanzania safari around your dates, budget and

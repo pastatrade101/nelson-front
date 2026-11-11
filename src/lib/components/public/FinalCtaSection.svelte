@@ -81,7 +81,7 @@
   <div class={`container-shell py-20 md:py-28 lg:py-32 ${$$slots.aside ? 'grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,500px)] lg:items-center lg:gap-14' : ''}`} use:fadeUpOnScroll={{ y: 18 }}>
     <div class="max-w-2xl">
       {#if eyebrow}
-        <p class="eyebrow text-goldfinch-gold">{eyebrow}</p>
+        <p class="eyebrow text-emnel-gold">{eyebrow}</p>
       {/if}
 
       {#if title}
@@ -102,7 +102,7 @@
           <slot />
           {#if hasPrimary}
             <a
-              class="group inline-flex h-12 w-full items-center justify-center gap-2 bg-goldfinch-gold px-8 text-sm font-semibold text-deep-green transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goldfinch-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-deep-green sm:w-auto"
+              class="group inline-flex h-12 w-full items-center justify-center gap-2 bg-emnel-gold px-8 text-sm font-semibold text-deep-green transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-deep-green sm:w-auto"
               href={primaryHref}
             >
               {primaryLabel}
@@ -128,7 +128,7 @@
       <ul class="mt-12 flex max-w-3xl flex-wrap gap-x-7 gap-y-3 border-t border-white/20 pt-6">
         {#each points as point}
           <li class="inline-flex items-center gap-2 text-[13px] font-medium text-white/80">
-            <Check size={14} strokeWidth={2.6} class="text-goldfinch-gold" />
+            <Check size={14} strokeWidth={2.6} class="text-emnel-gold" />
             {point}
           </li>
         {/each}

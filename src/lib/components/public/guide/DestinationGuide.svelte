@@ -202,7 +202,7 @@
                       aria-current={activeId === t.id ? 'location' : undefined}
                       class={`-ml-px border-l-2 py-1.5 pl-3 text-sm leading-snug transition ${
                         activeId === t.id
-                          ? 'border-goldfinch-gold font-semibold text-forest'
+                          ? 'border-emnel-gold font-semibold text-forest'
                           : 'border-transparent text-ink/60 hover:text-forest'
                       }`}
                     >
@@ -240,8 +240,8 @@
               </div>
             {:else if block.type === 'field_notes'}
               {@const isIntel = /emnel intelligence/i.test(block.title ?? '')}
-              <div class="mt-8 rounded-2xl border border-goldfinch-gold/40 bg-goldfinch-gold/[0.06] p-6">
-                <p class="brand-eyebrow inline-flex items-center gap-2 text-goldfinch-gold">
+              <div class="mt-8 rounded-2xl border border-emnel-gold/40 bg-emnel-gold/[0.06] p-6">
+                <p class="brand-eyebrow inline-flex items-center gap-2 text-emnel-gold">
                   <svelte:component this={isIntel ? ShieldCheck : Compass} size={14} strokeWidth={2.4} />
                   {block.title || 'Field Notes'}
                 </p>
@@ -252,7 +252,7 @@
                 </div>
               </div>
             {:else if block.type === 'callout'}
-              <div class="mt-6 border-l-4 border-goldfinch-gold pl-5">
+              <div class="mt-6 border-l-4 border-emnel-gold pl-5">
                 <p class="eyebrow inline-flex items-center gap-2 text-forest">
                   <svelte:component this={CALLOUT_ICON[block.variant] ?? Lightbulb} size={14} strokeWidth={2.4} />
                   {CALLOUT_LABEL[block.variant] ?? 'Insight'}
@@ -260,8 +260,8 @@
                 <p class="mt-1 text-base leading-[1.75] text-ink/80">{block.body}</p>
               </div>
             {:else if block.type === 'did_you_know'}
-              <div class="mt-8 border-y border-goldfinch-gold/50 py-4">
-                <p class="eyebrow inline-flex items-center gap-2 text-goldfinch-gold">
+              <div class="mt-8 border-y border-emnel-gold/50 py-4">
+                <p class="eyebrow inline-flex items-center gap-2 text-emnel-gold">
                   <Sparkles size={14} strokeWidth={2.4} /> Did You Know?
                 </p>
                 <p class="mt-1.5 text-base leading-[1.75] text-ink/80">{block.body}</p>

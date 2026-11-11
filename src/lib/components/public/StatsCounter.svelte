@@ -98,11 +98,11 @@
       {#each items as stat, i (stat.label)}
         {@const Icon = stat.icon}
         <div class="text-center">
-          <span class="mx-auto grid h-11 w-11 place-items-center rounded-full bg-goldfinch-gold/10 text-goldfinch-gold">
+          <span class="mx-auto grid h-11 w-11 place-items-center rounded-full bg-emnel-gold/10 text-emnel-gold">
             <Icon size={20} />
           </span>
           <p class="mt-3 text-4xl font-extrabold leading-none tracking-tight text-heading md:text-5xl">
-            {fmt(displays[i] ?? 0, stat)}<span class="text-2xl text-goldfinch-gold md:text-3xl">{stat.suffix}</span>
+            {fmt(displays[i] ?? 0, stat)}<span class="text-2xl text-emnel-gold md:text-3xl">{stat.suffix}</span>
           </p>
           <p class="mt-2 text-sm font-medium leading-5 text-ink/60">{stat.label}</p>
         </div>

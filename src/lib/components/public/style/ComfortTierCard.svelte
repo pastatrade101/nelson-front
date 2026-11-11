@@ -30,7 +30,7 @@
     {/if}
     <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 to-transparent" aria-hidden="true"></div>
     {#if tier.label}
-      <span class="absolute left-4 top-4 max-w-[calc(100%-32px)] bg-goldfinch-gold px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-deep-green">{tier.label}</span>
+      <span class="absolute left-4 top-4 max-w-[calc(100%-32px)] bg-emnel-gold px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-deep-green">{tier.label}</span>
     {/if}
     <h3 class="type-card absolute inset-x-0 bottom-0 px-5 pb-5 text-white">{tier.title}</h3>
   </div>
@@ -59,7 +59,7 @@
     {/if}
 
     {#if tier.example}
-      <div class="mt-5 border-l-2 border-goldfinch-gold bg-linen/55 px-4 py-4">
+      <div class="mt-5 border-l-2 border-emnel-gold bg-linen/55 px-4 py-4">
         <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-clay">Example safari</p>
         <div class="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-ink/75">
           {#if tier.example.days !== null}<span class="inline-flex items-center gap-1.5"><Clock size={13} />{tier.example.days}-day safari</span>{/if}

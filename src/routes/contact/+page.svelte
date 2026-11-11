@@ -12,10 +12,10 @@
 
 <!-- Header band -->
 <section class="relative overflow-hidden bg-deep-green text-white">
-  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/10 blur-3xl"></div>
+  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emnel-gold/10 blur-3xl"></div>
   <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-savanna/10 blur-3xl"></div>
   <div class="container-shell relative py-14 md:py-20">
-    <p class="eyebrow text-goldfinch-gold">Contact</p>
+    <p class="eyebrow text-emnel-gold">Contact</p>
     <h1 class="type-h1 mt-4 max-w-3xl">Let’s start planning your story.</h1>
     <p class="type-lead mt-5 max-w-2xl text-white/80">
       Tell us what you have in mind and a member of our Arusha team will be in touch within 24 hours — a real
@@ -24,7 +24,7 @@
     <div class="mt-8 flex flex-wrap gap-x-7 gap-y-3">
       {#each assurances as item}
         <span class="inline-flex items-center gap-2 text-sm font-medium text-white/85">
-          <svelte:component this={item.icon} size={17} class="text-goldfinch-gold" strokeWidth={2.2} />
+          <svelte:component this={item.icon} size={17} class="text-emnel-gold" strokeWidth={2.2} />
           {item.text}
         </span>
       {/each}

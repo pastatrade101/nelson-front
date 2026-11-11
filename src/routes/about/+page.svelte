@@ -73,7 +73,7 @@
     const strong = tone === 'dark' ? 'text-white' : 'text-heading';
     // Short beats become gold-ruled serif statements — they punctuate the column
     // instead of disappearing into it.
-    if (isStatement(p)) return `border-l-2 border-goldfinch-gold pl-4 font-serif text-[21px] font-light leading-[1.45] md:text-[23px] ${strong}`;
+    if (isStatement(p)) return `border-l-2 border-emnel-gold pl-4 font-serif text-[21px] font-light leading-[1.45] md:text-[23px] ${strong}`;
     // The opening paragraph carries a gold drop cap as the entry point.
     if (i === 0) return `dropcap text-base leading-[1.75] ${lead}`;
     return `text-base leading-[1.75] ${body}`;
@@ -113,7 +113,7 @@
         <div class="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
           {#if cms('about_hero', 'button_text') && cms('about_hero', 'button_url')}
             <a
-              class="inline-flex h-12 items-center justify-center gap-2 bg-goldfinch-gold px-7 text-[13px] font-semibold uppercase tracking-[0.08em] text-deep-green transition hover:bg-savanna"
+              class="inline-flex h-12 items-center justify-center gap-2 bg-emnel-gold px-7 text-[13px] font-semibold uppercase tracking-[0.08em] text-deep-green transition hover:bg-savanna"
               href={cms('about_hero', 'button_url')}
             >
               {cms('about_hero', 'button_text')} <ArrowRight size={17} strokeWidth={2.4} />
@@ -121,7 +121,7 @@
           {/if}
           {#if ex('about_hero', 'secondary_cta') && ex('about_hero', 'secondary_href')}
             <a
-              class="inline-flex h-12 items-center justify-center gap-2 border border-goldfinch-gold px-7 text-[13px] font-semibold uppercase tracking-[0.08em] text-white transition hover:bg-goldfinch-gold hover:text-deep-green"
+              class="inline-flex h-12 items-center justify-center gap-2 border border-emnel-gold px-7 text-[13px] font-semibold uppercase tracking-[0.08em] text-white transition hover:bg-emnel-gold hover:text-deep-green"
               href={ex('about_hero', 'secondary_href')}
             >
               {ex('about_hero', 'secondary_cta')}
@@ -131,7 +131,7 @@
 
         {#if cms('about_hero', 'content')}
           <p class="mt-9 text-sm font-medium text-white/70">
-            {#if ex('about_hero', 'trust_stars')}<span class="text-goldfinch-gold">{ex('about_hero', 'trust_stars')}</span>{/if}
+            {#if ex('about_hero', 'trust_stars')}<span class="text-emnel-gold">{ex('about_hero', 'trust_stars')}</span>{/if}
             {cms('about_hero', 'content')}
           </p>
         {/if}
@@ -142,13 +142,13 @@
 
 <!-- ── Stats: one full-width stripe directly under the hero ──────────────── -->
 {#if on('about_stats') && stats.length}
-  <section class="border-t border-goldfinch-gold/30 bg-deep-green text-white">
+  <section class="border-t border-emnel-gold/30 bg-deep-green text-white">
     <dl class="container-shell grid grid-cols-2 divide-ink/0 md:grid-cols-4">
       {#each stats as stat, i}
         <div
           class={`px-2 py-7 text-center md:px-4 md:py-8 ${i > 0 ? 'md:border-l md:border-white/12' : ''} ${i % 2 === 1 ? 'border-l border-white/12 md:border-l' : ''} ${i > 1 ? 'border-t border-white/12 md:border-t-0' : ''}`}
         >
-          <dd class="font-serif text-[28px] font-light leading-none text-goldfinch-gold md:text-[34px]">{stat.value}</dd>
+          <dd class="font-serif text-[28px] font-light leading-none text-emnel-gold md:text-[34px]">{stat.value}</dd>
           <dt class="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">{stat.label}</dt>
         </div>
       {/each}
@@ -166,7 +166,7 @@
           {cms('about_founder', 'title')}
         </h2>
         {#if ex('about_founder', 'quote')}
-          <blockquote class="mt-6 border-l-2 border-goldfinch-gold pl-5 font-serif text-[19px] italic leading-8 text-heading/85">
+          <blockquote class="mt-6 border-l-2 border-emnel-gold pl-5 font-serif text-[19px] italic leading-8 text-heading/85">
             {ex('about_founder', 'quote')}
           </blockquote>
         {/if}
@@ -188,7 +188,7 @@
           </figure>
         {/if}
         {#if cms('about_founder', 'button_text') && cms('about_founder', 'button_url')}
-          <a class="mt-6 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-goldfinch-gold" href={cms('about_founder', 'button_url')}>
+          <a class="mt-6 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-emnel-gold" href={cms('about_founder', 'button_url')}>
             {cms('about_founder', 'button_text')} <ArrowRight size={15} />
           </a>
         {/if}
@@ -239,7 +239,7 @@
           </figure>
         {/if}
         {#if ex('about_beginning', 'closing')}
-          <div class="space-y-4 border-l-2 border-goldfinch-gold/60 pl-5 {beginningVideo ? 'mt-7' : ''}">
+          <div class="space-y-4 border-l-2 border-emnel-gold/60 pl-5 {beginningVideo ? 'mt-7' : ''}">
             {#each paras(ex('about_beginning', 'closing')) as p, i}
               <p class={paraClass(p, i)}>{p}</p>
             {/each}
@@ -260,7 +260,7 @@
           <h2 class="type-h2 mt-3 text-heading">
             {cms('about_what_we_do', 'title')}
           </h2>
-          <div class="mt-6 max-w-[66ch] space-y-5 border-l-2 border-goldfinch-gold/40 bg-savanna/30 p-6 md:p-7">
+          <div class="mt-6 max-w-[66ch] space-y-5 border-l-2 border-emnel-gold/40 bg-savanna/30 p-6 md:p-7">
             {#each paras(cms('about_what_we_do', 'content')) as p, i}
               <p class={paraClass(p, i)}>{p}</p>
             {/each}
@@ -277,7 +277,7 @@
           <ul class="mt-5 grid gap-3">
             {#each licences as item}
               <li class="flex items-start gap-2.5 text-sm leading-[1.6] text-heading">
-                <Check size={16} class="mt-0.5 shrink-0 text-goldfinch-gold" strokeWidth={2.6} />
+                <Check size={16} class="mt-0.5 shrink-0 text-emnel-gold" strokeWidth={2.6} />
                 {item}
               </li>
             {/each}
@@ -303,7 +303,7 @@
           {/if}
         </div>
         {#if cms('about_guides', 'button_text') && cms('about_guides', 'button_url')}
-          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-goldfinch-gold" href={cms('about_guides', 'button_url')}>
+          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-emnel-gold" href={cms('about_guides', 'button_url')}>
             {cms('about_guides', 'button_text')} <ArrowRight size={15} />
           </a>
         {/if}
@@ -318,7 +318,7 @@
               </div>
             {/if}
             <h3 class="type-card text-heading">{g.name}</h3>
-            {#if g.title}<p class="mt-1 text-[12px] font-semibold text-goldfinch-gold">{g.title}</p>{/if}
+            {#if g.title}<p class="mt-1 text-[12px] font-semibold text-emnel-gold">{g.title}</p>{/if}
             {#if g.speciality}<p class="mt-2.5 text-sm leading-[1.6] text-ink/70">{g.speciality}</p>{/if}
             {#if g.years}<p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/50">{g.years}</p>{/if}
             {#if g.quote}
@@ -341,7 +341,7 @@
              comparable weight; sticky keeps it alongside the accordion stack. -->
         <div class="lg:sticky lg:top-28 lg:self-start">
           {#if cms('about_giving', 'title')}
-            <p class="eyebrow text-goldfinch-gold">{cms('about_giving', 'title')}</p>
+            <p class="eyebrow text-emnel-gold">{cms('about_giving', 'title')}</p>
           {/if}
           {#if cms('about_giving', 'subtitle')}
             <h2 class="type-h2 mt-3 text-white">{cms('about_giving', 'subtitle')}</h2>
@@ -354,13 +354,13 @@
             </div>
           {/if}
           {#if ex('about_giving', 'highlight')}
-            <p class="mt-6 border border-goldfinch-gold/40 bg-goldfinch-gold/10 p-4 font-serif text-lg italic leading-[1.6] text-goldfinch-gold">
+            <p class="mt-6 border border-emnel-gold/40 bg-emnel-gold/10 p-4 font-serif text-lg italic leading-[1.6] text-emnel-gold">
               {ex('about_giving', 'highlight')}
             </p>
           {/if}
           {#if cms('about_giving', 'button_text') && cms('about_giving', 'button_url')}
             <a
-              class="mt-6 inline-flex h-11 items-center justify-center gap-2 border border-goldfinch-gold px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green"
+              class="mt-6 inline-flex h-11 items-center justify-center gap-2 border border-emnel-gold px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-emnel-gold transition hover:bg-emnel-gold hover:text-deep-green"
               href={cms('about_giving', 'button_url')}
               target="_blank"
               rel="noopener noreferrer"
@@ -383,7 +383,7 @@
                   </summary>
                   <div class="border-t border-white/10 px-4 pb-5 pt-4">
                     {#if block.body}
-                      <div class="grid gap-3.5 text-base leading-[1.75] text-goldfinch-gold/90">
+                      <div class="grid gap-3.5 text-base leading-[1.75] text-emnel-gold/90">
                         {#each paras(block.body) as p}
                           <p>{p}</p>
                         {/each}
@@ -392,8 +392,8 @@
                     {#if block.items?.length}
                       <ul class="mt-4 grid gap-2 sm:grid-cols-2">
                         {#each block.items as item}
-                          <li class="flex items-start gap-2.5 text-base leading-[1.6] text-goldfinch-gold/90">
-                            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-goldfinch-gold"></span>{item}
+                          <li class="flex items-start gap-2.5 text-base leading-[1.6] text-emnel-gold/90">
+                            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emnel-gold"></span>{item}
                           </li>
                         {/each}
                       </ul>
@@ -415,7 +415,7 @@
     <div class="container-shell grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-14">
       {#if on('about_closing')}
         <div class="border border-ink/10 bg-surface p-7 shadow-soft md:p-9">
-          <span class="block h-0.5 w-14 bg-goldfinch-gold"></span>
+          <span class="block h-0.5 w-14 bg-emnel-gold"></span>
           <h2 class="type-h2 mt-5 text-heading">{cms('about_closing', 'title')}</h2>
           <div class="mt-5 max-w-[62ch] space-y-4">
             {#each paras(cms('about_closing', 'content')) as p, i}
@@ -433,7 +433,7 @@
           {/if}
           {#if cms('about_cta', 'button_text') && cms('about_cta', 'button_url')}
             <a
-              class="mt-7 inline-flex h-12 items-center justify-center gap-2 bg-goldfinch-gold px-7 text-[12px] font-bold uppercase tracking-[0.12em] text-deep-green transition hover:bg-savanna"
+              class="mt-7 inline-flex h-12 items-center justify-center gap-2 bg-emnel-gold px-7 text-[12px] font-bold uppercase tracking-[0.12em] text-deep-green transition hover:bg-savanna"
               href={cms('about_cta', 'button_url')}
             >
               {cms('about_cta', 'button_text')} <ArrowRight size={16} strokeWidth={2.5} />
@@ -465,7 +465,7 @@
     font-size: 3.5em;
     font-weight: 300;
     line-height: 0.8;
-    color: rgb(var(--c-goldfinch-gold));
+    color: rgb(var(--c-emnel-gold));
   }
 
 </style>

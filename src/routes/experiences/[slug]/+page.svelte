@@ -85,7 +85,7 @@
       <h1 class="type-h1 max-w-3xl">{name}</h1>
       {#if exp.description}<p class="type-lead mt-4 max-w-2xl text-white/85">{String(exp.description)}</p>{/if}
       <div class="mt-6 flex flex-wrap gap-3">
-        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-goldfinch-gold px-6 font-bold text-heading transition hover:brightness-105" href={`/plan-my-trip?experience=${slug}`}>
+        <a class="inline-flex h-12 items-center gap-2 rounded-xl bg-emnel-gold px-6 font-bold text-heading transition hover:brightness-105" href={`/plan-my-trip?experience=${slug}`}>
           <Sparkles size={18} /> Plan a {name} trip
         </a>
         <a class="inline-flex h-12 items-center gap-2 rounded-xl border border-white/30 px-6 font-semibold text-white transition hover:bg-surface/10" href={`/tours?experience=${slug}`}>

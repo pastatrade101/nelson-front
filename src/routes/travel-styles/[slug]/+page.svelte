@@ -145,12 +145,12 @@
   <div class="container-shell flex min-h-[min(780px,85svh)] flex-col justify-end pb-8 pt-20 md:pb-10 md:pt-28">
     <div class="max-w-3xl">
       <nav class="text-[11px] uppercase tracking-[0.24em] text-white/60" aria-label="Breadcrumb">
-        <a class="transition hover:text-goldfinch-gold" href="/">Home</a>
+        <a class="transition hover:text-emnel-gold" href="/">Home</a>
         <span class="px-2 text-white/30">/</span>
-        <a class="transition hover:text-goldfinch-gold" href="/travel-styles">Travel styles</a>
+        <a class="transition hover:text-emnel-gold" href="/travel-styles">Travel styles</a>
       </nav>
 
-      <p class="eyebrow mt-8 text-goldfinch-gold">A journey shaped around you</p>
+      <p class="eyebrow mt-8 text-emnel-gold">A journey shaped around you</p>
       <h1 class="type-h1 mt-4 max-w-[15ch]">
         {style.name}
       </h1>
@@ -163,7 +163,7 @@
       {/if}
 
       <div class="mt-8 grid gap-3 min-[400px]:flex min-[400px]:flex-wrap">
-        <a class="inline-flex min-h-12 items-center justify-center gap-2 bg-goldfinch-gold px-6 py-3 text-sm font-semibold tracking-wide text-ink transition hover:brightness-95" href={planHref}>
+        <a class="inline-flex min-h-12 items-center justify-center gap-2 bg-emnel-gold px-6 py-3 text-sm font-semibold tracking-wide text-ink transition hover:brightness-95" href={planHref}>
           Plan this trip
           <ArrowRight class="h-4 w-4" />
         </a>
@@ -177,7 +177,7 @@
       <ul class="mt-9 grid gap-x-8 gap-y-3 border-t border-white/20 pt-6 sm:grid-cols-2 lg:grid-cols-4">
         {#each model.trust as item, k (k)}
           <li class="flex items-start gap-3 text-sm leading-[1.6] text-white/90">
-            <Check class="mt-1 h-4 w-4 shrink-0 text-goldfinch-gold" strokeWidth={2.4} />
+            <Check class="mt-1 h-4 w-4 shrink-0 text-emnel-gold" strokeWidth={2.4} />
             {item}
           </li>
         {/each}
@@ -213,7 +213,7 @@
             }`}
           >
             {item.label}
-            <span class={`absolute inset-x-3.5 bottom-0 h-0.5 bg-goldfinch-gold transition-opacity ${active === item.id ? 'opacity-100' : 'opacity-0'}`}></span>
+            <span class={`absolute inset-x-3.5 bottom-0 h-0.5 bg-emnel-gold transition-opacity ${active === item.id ? 'opacity-100' : 'opacity-0'}`}></span>
           </a>
         {/each}
       </nav>
@@ -270,7 +270,7 @@
           <p class="eyebrow text-clay">What we plan around</p>
           <div class="mt-8 grid gap-8 md:grid-cols-3">
             {#each concerns as c, k (k)}
-              <blockquote class="border-l-2 border-goldfinch-gold/60 pl-5 font-serif text-[21px] font-light leading-[1.45] text-heading">“{c}”</blockquote>
+              <blockquote class="border-l-2 border-emnel-gold/60 pl-5 font-serif text-[21px] font-light leading-[1.45] text-heading">“{c}”</blockquote>
             {/each}
           </div>
         </div>
@@ -348,12 +348,12 @@
                   <h3 class="type-card text-white">{o.name}</h3>
                   {#if o.emotional_promise}<p class="mt-1 truncate text-sm leading-[1.6] text-white/70">{o.emotional_promise}</p>{/if}
                 </div>
-                <ArrowUpRight class="h-5 w-5 shrink-0 text-white/70 transition group-hover:text-goldfinch-gold" />
+                <ArrowUpRight class="h-5 w-5 shrink-0 text-white/70 transition group-hover:text-emnel-gold" />
               </div>
             </a>
           {:else}
             <!-- No image: a quiet text tile rather than an empty colour block. -->
-            <a class="group flex min-w-0 items-center justify-between gap-4 border border-ink/10 bg-surface px-6 py-6 transition hover:border-goldfinch-gold/60 hover:bg-linen/40" href={`/travel-styles/${o.slug}`}>
+            <a class="group flex min-w-0 items-center justify-between gap-4 border border-ink/10 bg-surface px-6 py-6 transition hover:border-emnel-gold/60 hover:bg-linen/40" href={`/travel-styles/${o.slug}`}>
               <div class="min-w-0">
                 <h3 class="type-card text-heading">{o.name}</h3>
                 {#if o.emotional_promise}<p class="mt-1 truncate text-sm leading-[1.6] text-ink/55">{o.emotional_promise}</p>{/if}

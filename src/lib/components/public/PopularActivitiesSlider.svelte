@@ -141,7 +141,7 @@
             {#if activity.badge}
               <span
                 class={`absolute right-3 top-3 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide shadow-md ${
-                  activity.badgeTone === 'red' ? 'bg-clay text-white' : 'bg-goldfinch-gold text-heading'
+                  activity.badgeTone === 'red' ? 'bg-clay text-white' : 'bg-emnel-gold text-heading'
                 }`}
               >
                 {activity.badge}

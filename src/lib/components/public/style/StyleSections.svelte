@@ -84,7 +84,7 @@
 
 {#snippet heading(eyebrow: string, title: string, dark = false)}
   {#if eyebrow}
-    <p class={`eyebrow ${dark ? 'text-goldfinch-gold' : 'text-clay'}`}>{eyebrow}</p>
+    <p class={`eyebrow ${dark ? 'text-emnel-gold' : 'text-clay'}`}>{eyebrow}</p>
   {/if}
   {#if title}
     <!-- Every block title is the same H2 on the shared scale. -->
@@ -121,7 +121,7 @@
             <div class="lg:col-span-5">
               {@render heading(s.eyebrow || 'Overview', s.title)}
               {#if p.callout}
-                <p class="mt-8 border-l-2 border-goldfinch-gold bg-linen/60 p-6 font-serif text-lg font-light italic leading-[1.6] text-heading md:text-xl md:leading-[1.6]">
+                <p class="mt-8 border-l-2 border-emnel-gold bg-linen/60 p-6 font-serif text-lg font-light italic leading-[1.6] text-heading md:text-xl md:leading-[1.6]">
                   {p.callout}
                 </p>
               {/if}
@@ -148,7 +148,7 @@
                 </a>
               {/if}
               {#if p.callout}
-                <p class="mt-8 max-w-[60ch] border-l-2 border-goldfinch-gold pl-6 font-serif text-lg font-light italic leading-[1.6] text-heading md:text-xl md:leading-[1.6]">{p.callout}</p>
+                <p class="mt-8 max-w-[60ch] border-l-2 border-emnel-gold pl-6 font-serif text-lg font-light italic leading-[1.6] text-heading md:text-xl md:leading-[1.6]">{p.callout}</p>
               {/if}
             </div>
           </div>
@@ -181,7 +181,7 @@
                       {/if}
                       <span class="pt-0.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-clay">{row.label}</span>
                       <div class="relative pl-7">
-                        <span class="absolute left-[3px] top-[7px] h-2.5 w-2.5 rounded-full border-2 border-goldfinch-gold bg-canvas" aria-hidden="true"></span>
+                        <span class="absolute left-[3px] top-[7px] h-2.5 w-2.5 rounded-full border-2 border-emnel-gold bg-canvas" aria-hidden="true"></span>
                         <p class="type-card text-heading">{stop.place}</p>
                         {#if stop.detail}
                           <p class="mt-1.5 text-base leading-[1.75] text-ink/65">{stop.detail}</p>
@@ -195,7 +195,7 @@
                   {#each p.rows as row, r (r)}
                     {@const slot = splitSchedule(row.label)}
                     <li class="grid gap-2 py-6 sm:grid-cols-[120px_1fr] sm:gap-8">
-                      <span class="font-serif text-[26px] font-light leading-none text-goldfinch-gold tabular-nums">{slot.time}</span>
+                      <span class="font-serif text-[26px] font-light leading-none text-emnel-gold tabular-nums">{slot.time}</span>
                       <div>
                         <p class="text-base font-semibold text-heading">{slot.title}</p>
                         <p class="mt-1.5 text-base leading-[1.75] text-ink/65">{row.text}</p>
@@ -227,7 +227,7 @@
                 <RichText value={p.outro} className="mt-8 max-w-[68ch] text-base leading-[1.75] text-ink/70" />
               {/if}
               {#if p.callout}
-                <p class="mt-8 border-l-2 border-goldfinch-gold pl-6 font-serif text-lg font-light italic leading-[1.6] text-heading md:text-xl md:leading-[1.6]">{p.callout}</p>
+                <p class="mt-8 border-l-2 border-emnel-gold pl-6 font-serif text-lg font-light italic leading-[1.6] text-heading md:text-xl md:leading-[1.6]">{p.callout}</p>
               {/if}
             </div>
           </div>
@@ -239,7 +239,7 @@
         <div class={`mt-9 grid gap-4 sm:grid-cols-2 md:mt-12 ${s.columns === 4 ? 'xl:grid-cols-4' : s.columns === 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
           {#each s.items as item, n (n)}
             <div class="min-w-0 border border-white/15 bg-white/[0.035] p-6 md:p-8">
-              <span class="inline-block border-b border-goldfinch-gold/60 pb-2 font-serif text-[25px] text-goldfinch-gold">{pad2(n + 1)}</span>
+              <span class="inline-block border-b border-emnel-gold/60 pb-2 font-serif text-[25px] text-emnel-gold">{pad2(n + 1)}</span>
               {#if item.title}<h3 class="type-card mt-5 text-white">{item.title}</h3>{/if}
               {#if item.body}<p class="mt-3 text-base leading-[1.75] text-white/80">{item.body}</p>{/if}
             </div>
@@ -328,7 +328,7 @@
           {#each s.steps as step, n (n)}
             <li class="relative min-w-0 border border-ink/10 bg-canvas p-6">
               <div class="flex items-center gap-4">
-                <span class="grid h-10 w-10 shrink-0 place-items-center bg-deep-green font-serif text-[18px] text-goldfinch-gold">{pad2(n + 1)}</span>
+                <span class="grid h-10 w-10 shrink-0 place-items-center bg-deep-green font-serif text-[18px] text-emnel-gold">{pad2(n + 1)}</span>
               </div>
               <h3 class="type-card mt-5 text-heading">{step.title}</h3>
               {#if step.body}<p class="mt-2 text-sm leading-[1.6] text-ink/65">{step.body}</p>{/if}
@@ -433,7 +433,7 @@
                 {#if group.topic}<p class="eyebrow mb-4 text-clay">{group.topic}</p>{/if}
                 <div class="space-y-2">
                   {#each group.questions as item, k (k)}
-                    <details class="style-faq group border border-ink/12 bg-surface open:border-goldfinch-gold/60 open:bg-linen/30">
+                    <details class="style-faq group border border-ink/12 bg-surface open:border-emnel-gold/60 open:bg-linen/30">
                       <summary class="flex min-h-16 cursor-pointer list-none items-start justify-between gap-4 px-5 py-5 text-left md:px-6">
                         <!-- A real heading per question: the page's Q&A structure is readable
                              by search engines and AI assistants without running script. -->

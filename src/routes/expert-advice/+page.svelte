@@ -40,7 +40,7 @@
 
 <!-- Hero -->
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
-  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
+  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emnel-gold/20 blur-3xl"></div>
   <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-savanna/15 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Expert Advice</p>
@@ -51,7 +51,7 @@
       Real answers from local experts — costs, timing, safety, and what each trip is actually like, from the team who plans these trips every day.
     </p>
     <div class="mt-7 flex flex-wrap justify-center gap-3">
-      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-7 text-sm font-semibold text-deep-green transition hover:brightness-95">
+      <a href="/plan-my-trip" class="inline-flex h-12 items-center gap-2 bg-emnel-gold px-7 text-sm font-semibold text-deep-green transition hover:brightness-95">
         Plan My Safari <ArrowRight size={18} />
       </a>
     </div>
@@ -82,7 +82,7 @@
     </div>
 
     <!-- compare promo -->
-    <div class="group mt-10 flex flex-col items-start justify-between gap-3 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)] sm:flex-row sm:items-center">
+    <div class="group mt-10 flex flex-col items-start justify-between gap-3 rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition hover:border-emnel-gold/40 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)] sm:flex-row sm:items-center">
       <div class="flex items-start gap-3">
         <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest"><GitCompare size={20} /></span>
         <div>

@@ -205,7 +205,7 @@
   />
 
   <div class="grid grid-cols-3 gap-3">
-    {#each [['Total users', stats.total, 'text-ink'], ['Active', stats.active, 'text-emerald-600'], ['Super admins', stats.superAdmins, 'text-goldfinch-gold']] as [label, value, tone]}
+    {#each [['Total users', stats.total, 'text-ink'], ['Active', stats.active, 'text-emerald-600'], ['Super admins', stats.superAdmins, 'text-emnel-gold']] as [label, value, tone]}
       <div class="rounded-2xl border border-ink/10 bg-surface p-4 shadow-sm">
         <p class="text-xs font-semibold text-ink/50">{label}</p>
         <p class={`mt-1 text-2xl font-extrabold ${tone}`}>{value}</p>
@@ -269,8 +269,8 @@
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-1.5">
                     {#if canManage(u)}
-                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Edit" on:click={() => openEdit(u)}><Edit size={15} /></button>
-                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" aria-label="Change password" on:click={() => openPassword(u)}><KeyRound size={15} /></button>
+                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" aria-label="Edit" on:click={() => openEdit(u)}><Edit size={15} /></button>
+                      <button class="grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" aria-label="Change password" on:click={() => openPassword(u)}><KeyRound size={15} /></button>
                       <button class={`grid h-9 w-9 place-items-center rounded-xl border bg-surface shadow-sm transition ${u.is_active ? 'border-amber-200 text-amber-600 hover:bg-amber-50' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'}`} type="button" aria-label={u.is_active ? 'Deactivate' : 'Activate'} on:click={() => toggleStatus(u)}><Power size={15} /></button>
                       <button class="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-surface text-red-600 shadow-sm transition hover:bg-red-50 disabled:opacity-30" type="button" aria-label="Delete" disabled={isSelf(u)} on:click={() => openDelete(u)}><Trash2 size={15} /></button>
                     {:else}

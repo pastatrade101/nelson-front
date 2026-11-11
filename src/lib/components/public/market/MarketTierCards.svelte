@@ -53,7 +53,7 @@
             {/if}
             <div class="flex flex-1 flex-col p-7">
               {#if tier.label}
-                <p class="eyebrow text-goldfinch-gold">{tier.label}</p>
+                <p class="eyebrow text-emnel-gold">{tier.label}</p>
               {/if}
               {#if tier.title}
                 <h3 class="type-card mt-3 text-heading">{tier.title}</h3>

@@ -72,13 +72,13 @@
       <span class="text-white/40">/</span>
       <span class="font-medium text-white/90">{destination.name}</span>
     </nav>
-    <p class="eyebrow text-goldfinch-gold">{regionLine}</p>
+    <p class="eyebrow text-emnel-gold">{regionLine}</p>
     <h1 class="type-h1 mt-4 max-w-4xl">{destination.name}</h1>
     {#if destination.short_description}
       <p class="type-lead mt-5 max-w-2xl text-white/85">{destination.short_description}</p>
     {/if}
     <div class="mt-8 flex flex-wrap gap-3">
-      <a class="inline-flex h-12 items-center gap-2 bg-goldfinch-gold px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-deep-green transition hover:bg-savanna" href={`/plan-my-trip?destination=${destination.slug}`}>
+      <a class="inline-flex h-12 items-center gap-2 bg-emnel-gold px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-deep-green transition hover:bg-savanna" href={`/plan-my-trip?destination=${destination.slug}`}>
         Plan a trip here <ArrowRight size={17} strokeWidth={2.4} />
       </a>
       <a class="inline-flex h-12 items-center gap-2 border border-white/30 px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-white transition hover:bg-white/10" href="/contact">
@@ -124,7 +124,7 @@
         {/if}
         {#if budgetFrom}
           <div class="flex items-center gap-3 border border-ink/10 bg-surface px-4 py-3 shadow-soft">
-            <span class="grid h-9 w-9 place-items-center bg-goldfinch-gold/15 text-goldfinch-gold"><Banknote size={17} /></span>
+            <span class="grid h-9 w-9 place-items-center bg-emnel-gold/15 text-emnel-gold"><Banknote size={17} /></span>
             <div>
               <p class="text-[11px] font-semibold uppercase tracking-wide text-ink/45">Guide price</p>
               <p class="text-sm font-bold text-ink">{budgetFrom}</p>

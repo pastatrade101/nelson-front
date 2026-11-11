@@ -22,7 +22,7 @@
 
 
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
-  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
+  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emnel-gold/20 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Experiences</p>
     <h1 class="type-h1 mx-auto mt-5 max-w-3xl" use:revealHeading>What do you want to experience?</h1>
@@ -49,7 +49,7 @@
           <div class="relative p-5 text-white">
             <h3 class="type-card">{exp.name}</h3>
             {#if exp.description}<p class="mt-1 line-clamp-2 text-sm leading-[1.6] text-white/80">{exp.description}</p>{/if}
-            <span class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-goldfinch-gold">Explore {exp.name} <ArrowRight size={15} /></span>
+            <span class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-emnel-gold">Explore {exp.name} <ArrowRight size={15} /></span>
           </div>
         </a>
       {/each}

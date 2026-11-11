@@ -64,7 +64,7 @@
         aria-hidden="true"
       ></span>
       <!-- warm gold glow -->
-      <span class="pointer-events-none absolute -left-16 -top-20 h-56 w-56 rounded-full bg-goldfinch-gold/25 blur-3xl" aria-hidden="true"></span>
+      <span class="pointer-events-none absolute -left-16 -top-20 h-56 w-56 rounded-full bg-emnel-gold/25 blur-3xl" aria-hidden="true"></span>
       <!-- faint compass watermark -->
       <Compass class="pointer-events-none absolute -bottom-8 right-6 text-white/[0.06]" size={150} strokeWidth={1.1} aria-hidden="true" />
 
@@ -77,7 +77,7 @@
         </div>
 
         <h2 class="type-h2 mt-4 text-white">
-          Find your perfect Tanzania trip in <span class="text-goldfinch-gold">60 seconds</span>.
+          Find your perfect Tanzania trip in <span class="text-emnel-gold">60 seconds</span>.
         </h2>
 
         <p class="mt-4 max-w-lg text-base leading-[1.75] text-white/75">
@@ -88,7 +88,7 @@
         <div class="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
           <a
             href="/trip-finder"
-            class="inline-flex h-14 items-center gap-2.5 rounded-none bg-goldfinch-gold px-7 text-[15px] font-bold text-heading shadow-[0_10px_28px_rgba(217,164,65,0.45)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            class="inline-flex h-14 items-center gap-2.5 rounded-none bg-emnel-gold px-7 text-[15px] font-bold text-heading shadow-[0_10px_28px_rgba(217,164,65,0.45)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             Start Trip Finder
             <ArrowRight size={18} strokeWidth={2.6} class="transition-transform duration-300 group-hover:translate-x-0.5" />

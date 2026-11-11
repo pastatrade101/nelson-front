@@ -46,7 +46,7 @@
           <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,32,40,0.15)_0%,rgba(11,26,32,0.55)_55%,rgba(11,22,28,0.92)_100%)]"></span>
 
           <div class="relative z-10">
-            <p class="eyebrow text-goldfinch-gold">{d.region || 'Indian Ocean'}</p>
+            <p class="eyebrow text-emnel-gold">{d.region || 'Indian Ocean'}</p>
             <h3 class={`mt-2 lowercase ${i === 0 ? 'type-h3' : 'type-card'}`}>{d.name}</h3>
             {#if d.short_description}
               <p class={`mt-2 max-w-lg text-white/80 ${i === 0 ? 'text-base leading-[1.75]' : 'line-clamp-2 text-sm leading-[1.6]'}`}>{d.short_description}</p>
@@ -58,7 +58,7 @@
                 {/each}
               </div>
             {/if}
-            <span class="mt-4 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white transition group-hover:text-goldfinch-gold">
+            <span class="mt-4 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white transition group-hover:text-emnel-gold">
               Explore {d.name} <ArrowRight size={14} strokeWidth={2.5} class="transition group-hover:translate-x-1" />
             </span>
             {#if s?.count}

@@ -161,10 +161,10 @@
     class={`inline-flex min-w-0 items-center gap-2 rounded-none border pl-2.5 pr-2 transition
       ${mobile ? 'bg-surface text-heading shadow-sm' : 'bg-transparent text-white'}
       ${open
-        ? 'border-goldfinch-gold ring-2 ring-goldfinch-gold/25'
+        ? 'border-emnel-gold ring-2 ring-emnel-gold/25'
         : mobile
-          ? 'border-ink/12 hover:border-goldfinch-gold/60'
-          : 'border-white/30 hover:border-goldfinch-gold/70'}
+          ? 'border-ink/12 hover:border-emnel-gold/60'
+          : 'border-white/30 hover:border-emnel-gold/70'}
       ${compact ? 'h-10' : 'h-11'} ${mobile ? 'w-full justify-between' : ''}`}
     aria-haspopup="listbox"
     aria-expanded={open}
@@ -218,7 +218,7 @@
           aria-disabled={unavailable}
           class={`flex cursor-pointer items-center gap-3 rounded-none px-2.5 py-2 transition
             ${index === activeIndex ? 'bg-sand' : ''}
-            ${isSelected ? 'bg-goldfinch-gold/12' : ''}
+            ${isSelected ? 'bg-emnel-gold/12' : ''}
             ${unavailable ? 'cursor-not-allowed opacity-40' : 'hover:bg-sand'}`}
           on:click={() => !unavailable && choose(item.code)}
           on:mouseenter={() => (activeIndex = index)}

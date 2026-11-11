@@ -264,7 +264,7 @@
               <p class="truncate text-xs text-ink/55">{s.role}</p>
             </div>
             {#if s.is_featured}
-              <span class="flex shrink-0 items-center gap-1 rounded-full bg-goldfinch-gold px-2 py-0.5 text-[11px] font-bold text-heading">
+              <span class="flex shrink-0 items-center gap-1 rounded-full bg-emnel-gold px-2 py-0.5 text-[11px] font-bold text-heading">
                 <Star size={10} fill="currentColor" />Featured
               </span>
             {/if}
@@ -285,11 +285,11 @@
           </div>
 
           <div class="mt-auto flex flex-wrap gap-2 border-t border-ink/10 pt-3">
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl bg-goldfinch-gold/15 px-3 text-xs font-semibold text-heading transition hover:bg-goldfinch-gold/30" type="button" on:click={() => toggleFeatured(s)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl bg-emnel-gold/15 px-3 text-xs font-semibold text-heading transition hover:bg-emnel-gold/30" type="button" on:click={() => toggleFeatured(s)}>
               <Star size={13} fill={s.is_featured ? 'currentColor' : 'none'} />
               {s.is_featured ? 'Unfeature' : 'Feature'}
             </button>
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(s)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(s)}>
               <Edit size={13} />Edit
             </button>
             <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(s)}>

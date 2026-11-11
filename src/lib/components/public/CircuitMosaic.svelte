@@ -51,7 +51,7 @@
 
         <!-- facts -->
         <div class={`flex flex-col justify-center p-7 md:p-11 ${i % 2 ? 'md:order-1' : ''}`}>
-          <p class="eyebrow text-goldfinch-gold">{[d.region, d.country].filter(Boolean).join(' · ') || 'Tanzania'}</p>
+          <p class="eyebrow text-emnel-gold">{[d.region, d.country].filter(Boolean).join(' · ') || 'Tanzania'}</p>
           <h3 class="type-h3 mt-3 lowercase text-heading">{d.name}</h3>
           {#if d.short_description || d.description}
             <p class="mt-4 max-w-xl text-base leading-[1.75] text-ink/70 line-clamp-3">{d.short_description || d.description}</p>
@@ -60,7 +60,7 @@
           {#if chips.length}
             <div class="mt-5 flex flex-wrap gap-2">
               {#each chips as chip}
-                <span class="border border-goldfinch-gold/40 bg-goldfinch-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{chip}</span>
+                <span class="border border-emnel-gold/40 bg-emnel-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{chip}</span>
               {/each}
             </div>
           {/if}
@@ -77,7 +77,7 @@
           {/if}
 
           <div class="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2">
-            <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold transition hover:text-heading" href={`/destinations/${d.slug}`}>
+            <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-emnel-gold transition hover:text-heading" href={`/destinations/${d.slug}`}>
               Explore {d.name} <ArrowRight size={15} strokeWidth={2.5} />
             </a>
             {#if s?.count}

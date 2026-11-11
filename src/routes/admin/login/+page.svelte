@@ -110,7 +110,7 @@
       <div class="mt-3 flex items-center gap-3">
         <h1 class="text-4xl font-extrabold tracking-tight text-heading md:text-5xl">Welcome</h1>
         <!-- decorative flight path (swap for a Lottie later) -->
-        <svg class="mt-2 h-8 w-24 shrink-0 text-goldfinch-gold" viewBox="0 0 96 32" fill="none" aria-hidden="true">
+        <svg class="mt-2 h-8 w-24 shrink-0 text-emnel-gold" viewBox="0 0 96 32" fill="none" aria-hidden="true">
           <path d="M2 27 C 28 27, 48 10, 80 7" stroke="currentColor" stroke-width="2" stroke-dasharray="3 5" stroke-linecap="round" />
           <path d="M76 1 l11 6 -11 6 3 -6 z" fill="currentColor" />
         </svg>
@@ -118,7 +118,7 @@
       <p class="mt-1 text-ink/55">Sign in to your account</p>
 
       {#if timedOut}
-        <p class="mt-5 rounded-lg border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-3 py-2.5 text-sm font-medium text-clay">
+        <p class="mt-5 rounded-lg border border-emnel-gold/30 bg-emnel-gold/10 px-3 py-2.5 text-sm font-medium text-clay">
           You were signed out due to inactivity. Please sign in again.
         </p>
       {/if}

@@ -69,7 +69,7 @@
 </script>
 
 <article
-  class="group relative flex h-full flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-goldfinch-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]"
+  class="group relative flex h-full flex-col overflow-hidden border border-ink/10 bg-surface shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-all duration-300 hover:-translate-y-1 hover:border-emnel-gold/40 hover:shadow-[0_28px_64px_rgba(28,26,22,0.18)]"
   use:tilt={{ max: 4 }}
 >
   <div class="absolute right-3 top-3 z-10">
@@ -98,9 +98,9 @@
       <!-- status badges -->
       <div class="absolute left-3 top-3 flex flex-wrap items-center gap-1.5">
         {#if tour.is_popular}
-          <span class="inline-flex items-center gap-1 bg-goldfinch-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-deep-green shadow"><Star size={11} fill="currentColor" strokeWidth={0} /> Best Seller</span>
+          <span class="inline-flex items-center gap-1 bg-emnel-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-deep-green shadow"><Star size={11} fill="currentColor" strokeWidth={0} /> Best Seller</span>
         {:else if tour.is_featured}
-          <span class="inline-flex items-center gap-1 bg-deep-green/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-goldfinch-gold backdrop-blur"><Sparkles size={11} strokeWidth={2.6} /> Recommended</span>
+          <span class="inline-flex items-center gap-1 bg-deep-green/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-emnel-gold backdrop-blur"><Sparkles size={11} strokeWidth={2.6} /> Recommended</span>
         {/if}
       </div>
       {#if country}
@@ -142,7 +142,7 @@
           <p class="font-serif text-[26px] font-light leading-none text-heading">{formatUsd(tour.price_from ?? 0, $currency)}<span class="ml-1 text-[13px] font-sans font-semibold text-ink/55">pp</span></p>
           {#if durationLabel}<p class="mt-1 inline-flex items-center gap-1 text-[12px] font-semibold text-clay"><Clock size={12} /> {durationLabel}</p>{/if}
         </div>
-        <span class="inline-flex shrink-0 items-center gap-1.5 bg-deep-green px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition group-hover:bg-goldfinch-gold group-hover:text-deep-green">
+        <span class="inline-flex shrink-0 items-center gap-1.5 bg-deep-green px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition group-hover:bg-emnel-gold group-hover:text-deep-green">
           {ctaLabel} <ArrowRight size={14} strokeWidth={2.6} class="transition-transform group-hover:translate-x-0.5" />
         </span>
       </div>

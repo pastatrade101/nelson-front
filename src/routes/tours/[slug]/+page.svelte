@@ -543,12 +543,12 @@
     <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.28)_0%,transparent_32%,transparent_54%,rgba(20,18,15,0.72)_100%)]"></div>
 
     <div class="container-shell relative flex min-h-[78vh] flex-col justify-end pb-11 pt-28 [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] md:pb-16">
-      <a class="mb-8 hidden w-fit items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/60 transition hover:text-goldfinch-gold md:inline-flex" href="/tours">
+      <a class="mb-8 hidden w-fit items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/60 transition hover:text-emnel-gold md:inline-flex" href="/tours">
         <ArrowLeft size={15} strokeWidth={2.4} /> Back to itineraries
       </a>
 
       <div class="max-w-4xl">
-        <p class="brand-eyebrow text-goldfinch-gold">{categoryName} · {destinationName}</p>
+        <p class="brand-eyebrow text-emnel-gold">{categoryName} · {destinationName}</p>
         <h1 class="type-h1 mt-4 max-w-[760px] text-white">
           {tour.title}
         </h1>
@@ -558,26 +558,26 @@
 
         <!-- key-facts stat chips -->
         <div class="mt-8 grid max-w-2xl grid-cols-1 gap-2 sm:grid-cols-3">
-          <div class="flex items-center gap-3 border-l-2 border-goldfinch-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
-            <CalendarDays class="shrink-0 text-goldfinch-gold" size={19} strokeWidth={1.7} />
+          <div class="flex items-center gap-3 border-l-2 border-emnel-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
+            <CalendarDays class="shrink-0 text-emnel-gold" size={19} strokeWidth={1.7} />
             <div class="min-w-0">
               <p class="text-[9.5px] font-bold uppercase tracking-[0.16em] text-white/50">Duration</p>
               <p class="truncate text-[13px] font-extrabold text-white">{durationText}</p>
             </div>
           </div>
-          <div class="flex items-center gap-3 border-l-2 border-goldfinch-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
-            <MapPin class="shrink-0 text-goldfinch-gold" size={19} strokeWidth={1.7} />
+          <div class="flex items-center gap-3 border-l-2 border-emnel-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
+            <MapPin class="shrink-0 text-emnel-gold" size={19} strokeWidth={1.7} />
             <div class="min-w-0">
               <p class="text-[9.5px] font-bold uppercase tracking-[0.16em] text-white/50">Destination</p>
               {#if destinationHref}
-                <a class="block truncate text-[13px] font-extrabold text-white underline decoration-white/30 underline-offset-4 transition hover:text-goldfinch-gold" href={destinationHref}>{destinationName}</a>
+                <a class="block truncate text-[13px] font-extrabold text-white underline decoration-white/30 underline-offset-4 transition hover:text-emnel-gold" href={destinationHref}>{destinationName}</a>
               {:else}
                 <p class="truncate text-[13px] font-extrabold text-white">{destinationName}</p>
               {/if}
             </div>
           </div>
-          <div class="flex items-center gap-3 border-l-2 border-goldfinch-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
-            <Wallet class="shrink-0 text-goldfinch-gold" size={19} strokeWidth={1.7} />
+          <div class="flex items-center gap-3 border-l-2 border-emnel-gold/70 bg-deep-green/45 px-3.5 py-3 backdrop-blur-md">
+            <Wallet class="shrink-0 text-emnel-gold" size={19} strokeWidth={1.7} />
             <div class="min-w-0">
               <p class="text-[9.5px] font-bold uppercase tracking-[0.16em] text-white/50">Starting from</p>
               <p class="truncate text-[13px] font-extrabold text-white">{priceText}</p>
@@ -587,14 +587,14 @@
 
         <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
           <button
-            class="inline-flex h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna"
+            class="inline-flex h-[52px] items-center justify-center gap-3 bg-emnel-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna"
             type="button"
             on:click={() => openPlanner('hero')}
           >
             Plan this trip <ArrowRight size={16} strokeWidth={2.5} />
           </button>
           <a
-            class="inline-flex h-[52px] items-center justify-center gap-3 border border-white/25 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold"
+            class="inline-flex h-[52px] items-center justify-center gap-3 border border-white/25 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-emnel-gold hover:text-emnel-gold"
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
@@ -699,7 +699,7 @@
             <ul class="mt-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
               {#each highlights as h}
                 <li class="flex items-start gap-2.5 text-base leading-[1.75] text-heading">
-                  <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-goldfinch-gold"></span>
+                  <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emnel-gold"></span>
                   {h}
                 </li>
               {/each}
@@ -787,7 +787,7 @@
                                 </p>
                               {/if}
                               {#if a.badge}
-                                <span class="mt-1.5 inline-block border border-goldfinch-gold/40 bg-goldfinch-gold/10 px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-clay">{a.badge}</span>
+                                <span class="mt-1.5 inline-block border border-emnel-gold/40 bg-emnel-gold/10 px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-clay">{a.badge}</span>
                               {/if}
                             </div>
                           </div>
@@ -884,7 +884,7 @@
                     <p class="font-semibold text-heading">{option.title}</p>
                     {#if option.label && option.label !== option.title}<p class="mt-0.5 text-sm leading-[1.6] text-ink/60">{option.label}</p>{/if}
                   </div>
-                  <span class="shrink-0 border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-clay">{priceTypeLabel(option.price_type)}</span>
+                  <span class="shrink-0 border border-emnel-gold/30 bg-emnel-gold/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-clay">{priceTypeLabel(option.price_type)}</span>
                 </div>
                 <p class="mt-3 font-serif text-[26px] font-light text-heading">{option.price ? formatUsd(option.price, $currency) : 'On request'}</p>
                 {#if option.description}<p class="mt-2 text-sm leading-[1.6] text-ink/62">{option.description}</p>{/if}
@@ -892,7 +892,7 @@
             {/each}
           </div>
 
-          <button class="mt-7 inline-flex h-12 items-center justify-center gap-2 bg-goldfinch-gold px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('pricing')}>
+          <button class="mt-7 inline-flex h-12 items-center justify-center gap-2 bg-emnel-gold px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('pricing')}>
             Get my exact quote <ArrowRight size={15} />
           </button>
         </section>
@@ -903,7 +903,7 @@
     <aside id="plan-this-trip" class="hidden self-stretch lg:block">
       <div use:stickBelowTabs class="sticky">
         <BookingForm {tour} />
-        <a class="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 border border-forest/25 bg-surface text-[12px] font-bold uppercase tracking-[0.12em] text-forest transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={waHref} target="_blank" rel="noopener noreferrer">
+        <a class="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 border border-forest/25 bg-surface text-[12px] font-bold uppercase tracking-[0.12em] text-forest transition hover:border-emnel-gold hover:text-emnel-gold" href={waHref} target="_blank" rel="noopener noreferrer">
           <MessageCircle size={15} /> Prefer to talk? WhatsApp
         </a>
       </div>
@@ -916,7 +916,7 @@
       <div class="container-shell">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <SectionHeader eyebrow="Where you stay" title={stayLodges.length === 1 ? 'The property on this route' : 'The properties on this route'} description="Each night is spent at a property we know personally. Open one to see its rooms, setting and photographs." />
-          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-goldfinch-gold" href="/accommodation">
+          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-emnel-gold" href="/accommodation">
             All accommodation <ArrowRight size={14} />
           </a>
         </div>
@@ -952,7 +952,7 @@
       <div class="container-shell">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <SectionHeader eyebrow="You might also like" title="More itineraries" description="Other private routes you can compare and combine." />
-          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-goldfinch-gold" href="/tours">
+          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-emnel-gold" href="/tours">
             Browse all tours <ArrowRight size={14} />
           </a>
         </div>
@@ -973,7 +973,7 @@
       <div class="container-shell">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <SectionHeader eyebrow="Stories & guides" title="From the journal" description="Read up on the region before you enquire." />
-          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-goldfinch-gold" href="/blog">
+          <a class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition hover:text-emnel-gold" href="/blog">
             Read the blog <ArrowRight size={14} />
           </a>
         </div>
@@ -1028,10 +1028,10 @@
           No payment is required to start. Share your email for the full itinerary, or speak directly on WhatsApp for a faster answer.
         </p>
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          <button class="inline-flex h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('enquiry')}>
+          <button class="inline-flex h-[52px] items-center justify-center gap-3 bg-emnel-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('enquiry')}>
             Start a conversation <ArrowRight size={16} />
           </button>
-          <a class="inline-flex h-[52px] items-center justify-center gap-3 border border-ink/20 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-heading transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={waHref} target="_blank" rel="noopener noreferrer">
+          <a class="inline-flex h-[52px] items-center justify-center gap-3 border border-ink/20 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-heading transition hover:border-emnel-gold hover:text-emnel-gold" href={waHref} target="_blank" rel="noopener noreferrer">
             <MessageCircle size={16} /> WhatsApp us
           </a>
         </div>
@@ -1049,7 +1049,7 @@
         <p class="truncate text-[13px] font-bold text-heading">{priceText === 'On request' ? 'Price on request' : `From ${priceText}`}</p>
         <p class="truncate text-[11.5px] text-ink/55">{durationText} · {destinationName}</p>
       </div>
-      <button class="inline-flex h-11 shrink-0 items-center gap-2 bg-goldfinch-gold px-5 text-[12px] font-bold uppercase tracking-[0.12em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('mobile-bar')}>
+      <button class="inline-flex h-11 shrink-0 items-center gap-2 bg-emnel-gold px-5 text-[12px] font-bold uppercase tracking-[0.12em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('mobile-bar')}>
         Plan this trip <ArrowRight size={14} />
       </button>
     </div>

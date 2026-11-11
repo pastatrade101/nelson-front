@@ -306,7 +306,7 @@
               {/if}
             </div>
             {#if t.is_featured}
-              <span class="flex shrink-0 items-center gap-1 rounded-full bg-goldfinch-gold px-2 py-0.5 text-[11px] font-bold text-heading">
+              <span class="flex shrink-0 items-center gap-1 rounded-full bg-emnel-gold px-2 py-0.5 text-[11px] font-bold text-heading">
                 <Star size={10} fill="currentColor" />Featured
               </span>
             {/if}
@@ -314,7 +314,7 @@
 
           <div class="flex items-center gap-0.5">
             {#each Array(5) as _, i}
-              <Star size={15} class={i < t.rating ? 'text-goldfinch-gold' : 'text-ink/15'} fill={i < t.rating ? 'currentColor' : 'none'} />
+              <Star size={15} class={i < t.rating ? 'text-emnel-gold' : 'text-ink/15'} fill={i < t.rating ? 'currentColor' : 'none'} />
             {/each}
             <span class="ml-1 text-xs font-semibold text-ink/45">{t.rating}/5</span>
           </div>
@@ -332,11 +332,11 @@
           </div>
 
           <div class="mt-auto flex flex-wrap gap-2 border-t border-ink/10 pt-3">
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl bg-goldfinch-gold/15 px-3 text-xs font-semibold text-heading transition hover:bg-goldfinch-gold/30" type="button" on:click={() => toggleFeatured(t)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl bg-emnel-gold/15 px-3 text-xs font-semibold text-heading transition hover:bg-emnel-gold/30" type="button" on:click={() => toggleFeatured(t)}>
               <Star size={13} fill={t.is_featured ? 'currentColor' : 'none'} />
               {t.is_featured ? 'Unfeature' : 'Feature'}
             </button>
-            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(t)}>
+            <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(t)}>
               <Edit size={13} />Edit
             </button>
             <button class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(t)}>
@@ -380,7 +380,7 @@
           <div class="flex items-center gap-1.5">
             {#each Array(5) as _, i}
               <button type="button" class="transition hover:scale-110" aria-label={`Rate ${i + 1}`} on:click={() => (form.rating = i + 1)}>
-                <Star size={26} class={i < form.rating ? 'text-goldfinch-gold' : 'text-ink/20'} fill={i < form.rating ? 'currentColor' : 'none'} />
+                <Star size={26} class={i < form.rating ? 'text-emnel-gold' : 'text-ink/20'} fill={i < form.rating ? 'currentColor' : 'none'} />
               </button>
             {/each}
             <span class="ml-2 text-sm font-semibold text-ink/55">{form.rating} / 5</span>

@@ -99,13 +99,13 @@
   }
 
   .rich :global(li::marker) {
-    color: rgb(var(--c-goldfinch-gold));
+    color: rgb(var(--c-emnel-gold));
   }
 
   /* A quote is set off by a gold rule rather than a box, matching the editorial
      styling used across the site. */
   .rich :global(blockquote) {
-    border-left: 2px solid rgb(var(--c-goldfinch-gold));
+    border-left: 2px solid rgb(var(--c-emnel-gold));
     padding-left: 1.15em;
     font-style: italic;
     color: rgb(var(--c-heading));
@@ -121,7 +121,7 @@
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 3px;
-    text-decoration-color: rgb(var(--c-goldfinch-gold));
+    text-decoration-color: rgb(var(--c-emnel-gold));
     transition: color 0.15s ease;
   }
 
@@ -130,7 +130,7 @@
   }
 
   .rich :global(a:focus-visible) {
-    outline: 2px solid rgb(var(--c-goldfinch-gold));
+    outline: 2px solid rgb(var(--c-emnel-gold));
     outline-offset: 2px;
   }
 
@@ -144,6 +144,6 @@
   }
 
   .rich.rich-on-dark :global(a) {
-    color: rgb(var(--c-goldfinch-gold));
+    color: rgb(var(--c-emnel-gold));
   }
 </style>

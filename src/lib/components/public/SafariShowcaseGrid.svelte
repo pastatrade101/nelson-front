@@ -82,7 +82,7 @@
       <div class="max-w-[720px]">
         <p class="brand-eyebrow">{eyebrow}</p>
         <h2 class="type-h2 mt-5 text-heading">
-          {title} <span class="italic text-goldfinch-gold">{accentTitle}</span>
+          {title} <span class="italic text-emnel-gold">{accentTitle}</span>
         </h2>
         {#if isHtml(content)}
           <div class="cms-rich mt-6 text-base leading-[1.75] font-medium text-ink/70">{@html content}</div>
@@ -90,7 +90,7 @@
           <p class="mt-6 text-base leading-[1.75] font-medium text-ink/70">{content}</p>
         {/if}
       </div>
-      <a class="inline-flex shrink-0 items-center gap-2 pb-1 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold transition hover:text-heading" href={ctaHref}>
+      <a class="inline-flex shrink-0 items-center gap-2 pb-1 text-[12px] font-bold uppercase tracking-[0.18em] text-emnel-gold transition hover:text-heading" href={ctaHref}>
         {ctaLabel}
         <ArrowRight size={15} strokeWidth={2.5} />
       </a>
@@ -127,9 +127,9 @@
           <div class={`relative z-10 flex h-full min-h-[inherit] flex-col justify-end p-5 sm:p-6 ${isCompact(i) ? 'lg:p-5 xl:p-6' : 'lg:p-7'}`}>
             <div class="mb-auto flex flex-wrap gap-2">
               <span class="inline-flex items-center gap-1.5 bg-deep-green/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white backdrop-blur xl:text-[11px]">
-                <MapPin size={12} strokeWidth={2.4} class="text-goldfinch-gold" /> {card.eyebrow}
+                <MapPin size={12} strokeWidth={2.4} class="text-emnel-gold" /> {card.eyebrow}
               </span>
-              <span class="inline-flex items-center gap-1.5 bg-goldfinch-gold/18 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-goldfinch-gold backdrop-blur xl:text-[11px]">
+              <span class="inline-flex items-center gap-1.5 bg-emnel-gold/18 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-emnel-gold backdrop-blur xl:text-[11px]">
                 <CalendarDays size={12} strokeWidth={2.4} /> {card.meta}
               </span>
             </div>
@@ -147,7 +147,7 @@
 
               <div class={`${isCompact(i) ? 'mt-3' : 'mt-4'} flex flex-wrap items-center gap-2`}>
                 {#each card.tags.slice(0, isCompact(i) ? 2 : 3) as tag}
-                  <span class="border border-goldfinch-gold/40 bg-goldfinch-gold/10 px-2.5 py-1 text-[11px] font-semibold text-goldfinch-gold">
+                  <span class="border border-emnel-gold/40 bg-emnel-gold/10 px-2.5 py-1 text-[11px] font-semibold text-emnel-gold">
                     {tag}
                   </span>
                 {/each}
@@ -157,7 +157,7 @@
                 {#if card.price}
                   <span class="text-[11px] font-bold uppercase tracking-[0.14em] text-white/85 xl:text-[12px]">{card.price}</span>
                 {/if}
-                <span class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold transition group-hover:text-white xl:text-[12px]">
+                <span class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-emnel-gold transition group-hover:text-white xl:text-[12px]">
                   Explore safari
                   <ArrowRight size={15} strokeWidth={2.5} class="transition group-hover:translate-x-1" />
                 </span>

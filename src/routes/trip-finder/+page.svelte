@@ -212,7 +212,7 @@
             </button>
           {/if}
           <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-black/10">
-            <div class="h-full rounded-full bg-goldfinch-gold transition-all duration-300" style:width={`${(step / questions.length) * 100}%`}></div>
+            <div class="h-full rounded-full bg-emnel-gold transition-all duration-300" style:width={`${(step / questions.length) * 100}%`}></div>
           </div>
           <span class="shrink-0 text-xs font-semibold text-ink/70">{step + 1} / {questions.length}</span>
         </div>
@@ -271,10 +271,10 @@
                   </div>
                   <h3 class="type-card mt-1 text-heading">{rec.tour.title}</h3>
                   <p class="mt-1.5 inline-flex items-start gap-1.5 text-sm font-medium text-forest">
-                    <Sparkles size={15} class="mt-0.5 shrink-0 text-goldfinch-gold" />{rec.reason}
+                    <Sparkles size={15} class="mt-0.5 shrink-0 text-emnel-gold" />{rec.reason}
                   </p>
                   <div class="mt-4 flex flex-wrap gap-2.5">
-                    <a class="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-goldfinch-gold px-4 text-sm font-bold text-heading transition hover:brightness-105" href={planHref(rec.tour.slug)}>
+                    <a class="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emnel-gold px-4 text-sm font-bold text-heading transition hover:brightness-105" href={planHref(rec.tour.slug)}>
                       <Sparkles size={15} /> Plan This Trip
                     </a>
                     <a class="inline-flex h-10 flex-1 items-center justify-center rounded-xl border border-ink/15 bg-surface px-4 text-sm font-semibold text-ink/70 transition hover:bg-sand/60" href={`/tours/${rec.tour.slug}`}>

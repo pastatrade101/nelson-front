@@ -272,7 +272,7 @@
           >
             <span class={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${activeGroup === g.key ? 'bg-surface/15' : 'bg-sand/70'}`}><Icon size={15} /></span>
             <span class="whitespace-nowrap">{g.label}</span>
-            {#if groupDirty}<span class="ml-auto hidden h-2 w-2 shrink-0 rounded-full bg-goldfinch-gold lg:block"></span>{/if}
+            {#if groupDirty}<span class="ml-auto hidden h-2 w-2 shrink-0 rounded-full bg-emnel-gold lg:block"></span>{/if}
           </button>
         {/each}
       </nav>
@@ -348,7 +348,7 @@
   <div class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center p-4">
     <div class="pointer-events-auto flex w-full max-w-[1500px] items-center justify-between gap-4 rounded-2xl border border-ink/10 bg-surface/95 px-5 py-3 shadow-[0_-6px_30px_rgba(28,26,22,0.12)] backdrop-blur">
       <p class="text-sm font-medium text-ink/60">
-        {#if hasChanges}<span class="font-bold text-goldfinch-gold">{dirtyKeys.length}</span> unsaved change{dirtyKeys.length === 1 ? '' : 's'}{:else}All changes saved{/if}
+        {#if hasChanges}<span class="font-bold text-emnel-gold">{dirtyKeys.length}</span> unsaved change{dirtyKeys.length === 1 ? '' : 's'}{:else}All changes saved{/if}
       </p>
       <div class="flex gap-2">
         <AdminButton variant="secondary" type="button" disabled={!hasChanges || saving} on:click={discard}><RotateCcw size={15} />Discard</AdminButton>
@@ -374,7 +374,7 @@
         {:else}
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {#each mediaItems as m (m.id)}
-              <button class="group overflow-hidden rounded-xl border border-ink/10 bg-sand/30 transition hover:border-goldfinch-gold/50" type="button" on:click={() => pickMedia(m.file_url)}>
+              <button class="group overflow-hidden rounded-xl border border-ink/10 bg-sand/30 transition hover:border-emnel-gold/50" type="button" on:click={() => pickMedia(m.file_url)}>
                 <div class="aspect-square"><img class="h-full w-full object-cover transition group-hover:scale-105" src={cdnUrl(m.file_url)} alt={m.file_name} loading="lazy" /></div>
               </button>
             {/each}

@@ -3,8 +3,7 @@
    * Property gallery — a large lead image with supporting shots beside it, and a
    * lightbox for the rest.
    *
-   * Ported from goldfinch and adapted to this codebase's ResponsiveImage, which
-   * takes a URL rather than a record/fields pair. Only the lead and four
+   * Built on ResponsiveImage, which takes a URL. Only the lead and four
    * supporting shots are laid out; the remainder are reachable through the
    * lightbox, so a property with a dozen photographs does not cost a dozen
    * full-size downloads to look at one.

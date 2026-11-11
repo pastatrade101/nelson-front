@@ -107,7 +107,7 @@
             <StatusBadge status={str(c.status) || 'in_progress'} />
             <StatusBadge status={str(c.lead_status) || 'cold'} />
             <span class="text-xs font-semibold text-ink/50">Lead score {str(c.lead_score) || '0'}</span>
-            {#if c.handoff_required}<span class="rounded bg-goldfinch-gold/20 px-2 py-0.5 text-[11px] font-bold text-clay">Handoff required</span>{/if}
+            {#if c.handoff_required}<span class="rounded bg-emnel-gold/20 px-2 py-0.5 text-[11px] font-bold text-clay">Handoff required</span>{/if}
             <span class="text-xs text-ink/45">· {data.usage.calls} AI calls · ${data.usage.cost.toFixed(4)}</span>
           </div>
         </div>
@@ -115,7 +115,7 @@
           <button class="rounded-lg bg-forest px-3 py-2 text-xs font-bold text-white transition hover:bg-deep-green disabled:opacity-50" disabled={busy} on:click={() => setLead('contacted' as string)}>Mark contacted</button>
           <button class="rounded-lg bg-forest px-3 py-2 text-xs font-bold text-white transition hover:bg-deep-green disabled:opacity-50" disabled={busy} on:click={() => setLead('qualified')}>Mark qualified</button>
           <button class="rounded-lg border border-ink/15 px-3 py-2 text-xs font-bold text-ink/70 transition hover:bg-black/5 disabled:opacity-50" disabled={busy} on:click={() => setLead('lost')}>Mark lost</button>
-          <button class="inline-flex items-center gap-1.5 rounded-lg bg-goldfinch-gold px-3 py-2 text-xs font-bold text-heading transition hover:brightness-105 disabled:opacity-50" disabled={busy} on:click={createBooking}><Sparkles size={13} /> Create booking</button>
+          <button class="inline-flex items-center gap-1.5 rounded-lg bg-emnel-gold px-3 py-2 text-xs font-bold text-heading transition hover:brightness-105 disabled:opacity-50" disabled={busy} on:click={createBooking}><Sparkles size={13} /> Create booking</button>
           {#if waDigits}<a class="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-2 text-xs font-bold text-white" href={`https://wa.me/${waDigits}`} target="_blank" rel="noopener noreferrer"><MessageCircle size={13} /> WhatsApp</a>{/if}
         </div>
       </div>

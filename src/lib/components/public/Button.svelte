@@ -9,7 +9,7 @@
   const variants = {
     primary: 'bg-deep-green text-white hover:bg-forest',
     secondary: 'border border-deep-green bg-transparent text-deep-green hover:bg-deep-green hover:text-white',
-    ghost: 'border border-goldfinch-gold bg-transparent text-goldfinch-gold hover:bg-goldfinch-gold hover:text-deep-green'
+    ghost: 'border border-emnel-gold bg-transparent text-emnel-gold hover:bg-emnel-gold hover:text-deep-green'
   };
 </script>
 

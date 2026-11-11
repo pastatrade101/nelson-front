@@ -76,7 +76,7 @@
   <div use:portal class="fixed inset-0 z-[120] grid place-items-center p-4" role="alertdialog" aria-modal="true" aria-label="Session expiring">
     <div class="absolute inset-0 bg-ink/60 backdrop-blur-sm"></div>
     <div class="relative w-full max-w-sm rounded-2xl border border-ink/10 bg-surface p-6 text-center shadow-2xl">
-      <div class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-goldfinch-gold/15 text-goldfinch-gold">
+      <div class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emnel-gold/15 text-emnel-gold">
         <Clock size={22} />
       </div>
       <h2 class="mt-4 text-lg font-bold text-heading">Are you still there?</h2>

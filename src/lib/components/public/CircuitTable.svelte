@@ -54,7 +54,7 @@
 
           <div class="flex flex-wrap gap-1.5">
             {#each destinationChips(d).slice(0, 3) as tag}
-              <span class="border border-goldfinch-gold/30 bg-goldfinch-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{tag}</span>
+              <span class="border border-emnel-gold/30 bg-emnel-gold/10 px-2.5 py-1 text-[11px] font-semibold text-clay">{tag}</span>
             {/each}
           </div>
 

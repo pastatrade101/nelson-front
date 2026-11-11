@@ -47,10 +47,10 @@
 <section class="bg-deep-green text-white">
   <div class="container-shell grid items-center gap-8 pb-10 pt-28 md:grid-cols-[1.1fr_1fr] md:gap-14 md:pb-14 md:pt-32">
     <div>
-      <p class="eyebrow text-goldfinch-gold">The Emnel collection</p>
+      <p class="eyebrow text-emnel-gold">The Emnel collection</p>
       <h1 class="type-h1 mt-4 max-w-xl">Extraordinary places<br />to stay in Tanzania.</h1>
       <p class="type-lead mt-5 max-w-lg text-white/75">Safari lodges, intimate camps and island retreats. Find a stay that feels like you, then let us build the journey around it.</p>
-      <a href="#browse" class="mt-7 inline-flex h-11 items-center gap-3 border-b border-goldfinch-gold text-sm font-semibold text-goldfinch-gold">Explore the collection <ArrowRight size={16} /></a>
+      <a href="#browse" class="mt-7 inline-flex h-11 items-center gap-3 border-b border-emnel-gold text-sm font-semibold text-emnel-gold">Explore the collection <ArrowRight size={16} /></a>
     </div>
     {#if hero}<div class="relative aspect-[3/2] overflow-hidden rounded-lg"><ResponsiveImage src={origUrl(hero, 'hero_image_url', 'image_url')} fallbackSrc={lodgeImage(hero)} alt={hero.name} width={1000} sizes="(min-width:768px) 45vw, 100vw" eager priority imgClass="h-full w-full object-cover" /><a href={`/accommodation/${hero.slug}`} class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3 rounded-md bg-deep-green/80 px-4 py-3 text-xs text-white">{hero.name}<ArrowRight size={14} /></a></div>{/if}
   </div>

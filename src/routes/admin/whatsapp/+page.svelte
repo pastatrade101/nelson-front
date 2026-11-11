@@ -530,7 +530,7 @@
             </button>
           </div>
         {:else}
-          <p class="mb-2.5 flex items-start gap-2 rounded-md border border-goldfinch-gold/35 bg-goldfinch-gold/[0.08] px-3 py-2.5 text-xs text-ink/75">
+          <p class="mb-2.5 flex items-start gap-2 rounded-md border border-emnel-gold/35 bg-emnel-gold/[0.08] px-3 py-2.5 text-xs text-ink/75">
             <Clock size={14} class="mt-0.5 shrink-0 text-clay" />
             This traveller last wrote more than 24 hours ago, so WhatsApp only allows an approved template now. Free-form replies resume as soon as they message again.
           </p>

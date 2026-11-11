@@ -28,7 +28,7 @@
 
   const ACTION_META: Record<string, { label: string; cls: string }> = {
     create: { label: 'Create', cls: 'bg-emerald-500/12 text-emerald-600' },
-    update: { label: 'Update', cls: 'bg-goldfinch-gold/15 text-heading' },
+    update: { label: 'Update', cls: 'bg-emnel-gold/15 text-heading' },
     delete: { label: 'Delete', cls: 'bg-red-500/12 text-red-600' },
     status_change: { label: 'Status', cls: 'bg-sky-500/12 text-sky-600' },
     assign: { label: 'Assign', cls: 'bg-violet-500/12 text-violet-600' },
@@ -157,7 +157,7 @@
       <input type="date" class="h-10 rounded-lg border border-ink/12 bg-surface px-3 text-sm" bind:value={createdFrom} on:change={applyFilters} aria-label="From date" />
       <input type="date" class="h-10 rounded-lg border border-ink/12 bg-surface px-3 text-sm" bind:value={createdTo} on:change={applyFilters} aria-label="To date" />
       {#if activeFilters}
-        <button class="inline-flex h-10 items-center gap-1.5 rounded-lg border border-ink/12 px-3 text-sm font-semibold text-ink/65 transition hover:border-goldfinch-gold/40" type="button" on:click={clearFilters}>
+        <button class="inline-flex h-10 items-center gap-1.5 rounded-lg border border-ink/12 px-3 text-sm font-semibold text-ink/65 transition hover:border-emnel-gold/40" type="button" on:click={clearFilters}>
           <Filter size={14} /> Clear ({activeFilters})
         </button>
       {/if}
@@ -190,7 +190,7 @@
             <tr class="cursor-pointer border-b border-ink/5 transition hover:bg-sand/40" on:click={() => (viewing = r)}>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-2.5">
-                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-forest/10 text-[11px] font-bold text-forest dark:text-goldfinch-gold">{initials(actorName(r))}</span>
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-forest/10 text-[11px] font-bold text-forest dark:text-emnel-gold">{initials(actorName(r))}</span>
                   <span class="min-w-0">
                     <span class="block truncate font-semibold text-ink">{actorName(r)}</span>
                     {#if r.admin_users?.role}<span class="block text-[11px] capitalize text-ink/45">{str(r.admin_users.role).replace(/_/g, ' ')}</span>{/if}
@@ -219,8 +219,8 @@
     <div class="flex items-center justify-between text-sm text-ink/55">
       <span>Page {page} of {totalPages} · {total} entries</span>
       <div class="flex gap-2">
-        <button class="grid h-9 w-9 place-items-center rounded-lg border border-ink/12 bg-surface transition hover:border-goldfinch-gold/40 disabled:opacity-40" type="button" disabled={page <= 1} on:click={() => go(page - 1)}><ChevronLeft size={16} /></button>
-        <button class="grid h-9 w-9 place-items-center rounded-lg border border-ink/12 bg-surface transition hover:border-goldfinch-gold/40 disabled:opacity-40" type="button" disabled={page >= totalPages} on:click={() => go(page + 1)}><ChevronRight size={16} /></button>
+        <button class="grid h-9 w-9 place-items-center rounded-lg border border-ink/12 bg-surface transition hover:border-emnel-gold/40 disabled:opacity-40" type="button" disabled={page <= 1} on:click={() => go(page - 1)}><ChevronLeft size={16} /></button>
+        <button class="grid h-9 w-9 place-items-center rounded-lg border border-ink/12 bg-surface transition hover:border-emnel-gold/40 disabled:opacity-40" type="button" disabled={page >= totalPages} on:click={() => go(page + 1)}><ChevronRight size={16} /></button>
       </div>
     </div>
   {/if}

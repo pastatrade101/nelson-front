@@ -527,7 +527,7 @@
               <td class="px-4 py-4"><StatusBadge status={destination.status} /></td>
               <td class="px-4 py-4">
                 {#if destination.is_featured}
-                  <span class="inline-flex rounded-full bg-goldfinch-gold/15 px-2.5 py-1 text-xs font-semibold text-heading ring-1 ring-goldfinch-gold/30">Featured</span>
+                  <span class="inline-flex rounded-full bg-emnel-gold/15 px-2.5 py-1 text-xs font-semibold text-heading ring-1 ring-emnel-gold/30">Featured</span>
                 {:else}
                   <span class="text-xs text-ink/45">No</span>
                 {/if}
@@ -535,7 +535,7 @@
               <td class="px-4 py-4 text-ink/65">{formatDate(destination.updated_at ?? destination.created_at)}</td>
               <td class="px-4 py-4">
                 <div class="flex justify-end gap-2">
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(destination)} disabled={loadingDestination === destination.id}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(destination)} disabled={loadingDestination === destination.id}>
                     <Edit size={14} />
                     {loadingDestination === destination.id ? 'Loading…' : 'Edit'}
                   </button>
@@ -751,7 +751,7 @@
   .editor-card { display: grid; gap: 14px; border: 1px solid rgb(var(--c-ink) / .12); border-radius: 10px; padding: 20px; }
   .editor-card h4 { font-weight: 600; font-size: 15px; }
   .editor-card p { font-size: 13px; line-height: 1.65; color: rgb(var(--c-ink) / .6); }
-  .section-note { background: rgb(var(--c-sand) / .3); border-left: 3px solid rgb(var(--c-goldfinch-gold)); padding: 12px 16px; font-size: 13px; line-height: 1.7; color: rgb(var(--c-ink) / .7); }
+  .section-note { background: rgb(var(--c-sand) / .3); border-left: 3px solid rgb(var(--c-emnel-gold)); padding: 12px 16px; font-size: 13px; line-height: 1.7; color: rgb(var(--c-ink) / .7); }
   .editor-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 28px; border-top: 1px solid rgb(var(--c-ink) / .1); background: rgb(var(--c-surface)); }
   @media (max-width: 767px) {
     .destination-editor { width: 100vw; height: 100dvh; border: 0; border-radius: 0; }

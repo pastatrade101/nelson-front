@@ -83,7 +83,7 @@
   <div class="mx-auto grid max-w-[1500px] border-b border-white/[0.07] md:grid-cols-2 xl:grid-cols-4">
     {#each displayStats as stat}
       <article class="grid min-h-[116px] gap-4 border-b border-white/[0.07] px-5 py-6 sm:grid-cols-[auto_1fr] md:border-r md:border-white/[0.07] xl:border-b-0 xl:px-8">
-        <p class="font-serif text-[36px] font-light leading-none text-goldfinch-gold md:text-[42px]">{stat.value}</p>
+        <p class="font-serif text-[36px] font-light leading-none text-emnel-gold md:text-[42px]">{stat.value}</p>
         <div>
           <p class="eyebrow text-white/40">{stat.label}</p>
           <p class="mt-2 max-w-[230px] text-sm font-medium leading-[1.6] text-white/68">{stat.description}</p>
@@ -97,7 +97,7 @@
       <p class="brand-eyebrow">{eyebrow}</p>
       <h2 class="type-h2 mt-6 text-white">
         {title}
-        <span class="block italic text-goldfinch-gold">{accentTitle}</span>
+        <span class="block italic text-emnel-gold">{accentTitle}</span>
       </h2>
 
       {#if isHtml(content)}
@@ -106,14 +106,14 @@
         <p class="mt-8 text-base leading-[1.75] font-medium text-white/68">{content}</p>
       {/if}
 
-      <blockquote class="mt-8 border-l-2 border-goldfinch-gold pl-6 font-serif text-2xl italic leading-[1.45] text-goldfinch-gold md:text-[28px]">
+      <blockquote class="mt-8 border-l-2 border-emnel-gold pl-6 font-serif text-2xl italic leading-[1.45] text-emnel-gold md:text-[28px]">
         {quote}
       </blockquote>
 
       <p class="mt-8 max-w-[640px] text-base leading-[1.75] font-medium text-white/68">{closing}</p>
 
       <a
-        class="mt-10 inline-flex h-[52px] min-h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna"
+        class="mt-10 inline-flex h-[52px] min-h-[52px] items-center justify-center gap-3 bg-emnel-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna"
         href={ctaHref}
       >
         {ctaLabel}
@@ -121,17 +121,17 @@
       </a>
     </div>
 
-    <div class="border-l border-goldfinch-gold/45" use:staggeredCardReveal={{ selector: '.park-card', y: 16, stagger: 0.06 }}>
+    <div class="border-l border-emnel-gold/45" use:staggeredCardReveal={{ selector: '.park-card', y: 16, stagger: 0.06 }}>
       {#each displayParks as park}
         <article class="park-card grid gap-5 border-b border-white/[0.06] bg-white/[0.025] p-6 sm:grid-cols-[34px_1fr] md:p-8">
-          <span class="flex h-9 w-9 items-center justify-center text-goldfinch-gold" aria-hidden="true">
+          <span class="flex h-9 w-9 items-center justify-center text-emnel-gold" aria-hidden="true">
             <Sparkle size={27} fill="currentColor" strokeWidth={1.5} />
           </span>
           <div>
             <h3 class="type-card text-white">{park.title}</h3>
             <p class="mt-3 text-sm font-semibold leading-[1.6] text-white/58">{park.description}</p>
             {#if park.href}
-              <a class="mt-4 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-goldfinch-gold transition hover:text-white" href={park.href}>
+              <a class="mt-4 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-emnel-gold transition hover:text-white" href={park.href}>
                 View park <ArrowRight size={14} strokeWidth={2.5} />
               </a>
             {/if}

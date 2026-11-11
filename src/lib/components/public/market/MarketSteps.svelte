@@ -46,8 +46,8 @@
 
       <ol class={`mt-10 grid gap-8 ${gridClass}`}>
         {#each shown as step, i}
-          <li class="border-t border-goldfinch-gold/40 pt-6">
-            <span class="block font-serif text-[44px] font-light leading-none text-goldfinch-gold md:text-[56px]" aria-hidden="true">
+          <li class="border-t border-emnel-gold/40 pt-6">
+            <span class="block font-serif text-[44px] font-light leading-none text-emnel-gold md:text-[56px]" aria-hidden="true">
               {index(i)}
             </span>
             {#if step.title}

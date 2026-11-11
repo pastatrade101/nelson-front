@@ -2,7 +2,7 @@
   /**
    * Rooms, seasonal rates, highlights and inclusions for one property.
    *
-   * Ported from the goldfinch accommodation form. These four live in child
+   * These four live in child
    * tables and are saved as one document through `/lodges/:id/details`, because
    * that is how they are edited — someone adds a room while reordering rates —
    * and a per-row diff could half-apply and leave a property describing rooms it

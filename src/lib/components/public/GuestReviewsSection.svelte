@@ -43,7 +43,7 @@
       <p class="brand-eyebrow">{eyebrow}</p>
       <h2 class="type-h2 mt-5 text-heading">
         {title}
-        <span class="block italic text-goldfinch-gold">{accentTitle}</span>
+        <span class="block italic text-emnel-gold">{accentTitle}</span>
       </h2>
       <p class="mt-6 text-base leading-[1.75] font-medium text-ink/66">{subtitle}</p>
     </div>
@@ -52,7 +52,7 @@
       <div class={`grid ${gridCols}`}>
         {#each reviews as review}
           <article class="review-card min-h-[430px] border-b border-ink/10 p-8 lg:border-b-0 lg:border-r lg:p-10">
-            <div class="flex gap-1 text-goldfinch-gold" aria-label={`${review.rating} star review`}>
+            <div class="flex gap-1 text-emnel-gold" aria-label={`${review.rating} star review`}>
               {#each Array(5) as _, i}
                 <Star size={18} fill={i < review.rating ? 'currentColor' : 'none'} strokeWidth={1.7} />
               {/each}
@@ -61,14 +61,14 @@
             <div class="mt-10 border-t border-ink/10 pt-6">
               <p class="font-bold text-heading">{review.name}</p>
               <p class="mt-1 text-sm font-medium text-ink/62">{review.country}</p>
-              <p class="mt-4 inline-flex bg-linen px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">{review.label}</p>
+              <p class="mt-4 inline-flex bg-linen px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-emnel-gold">{review.label}</p>
             </div>
           </article>
         {/each}
       </div>
       <div class="flex flex-col gap-6 bg-deep-green px-8 py-8 text-white md:flex-row md:items-center md:justify-between md:px-12">
         <p class="font-serif text-[22px] italic leading-8 text-white/72">{quote}</p>
-        <a class="inline-flex h-[52px] items-center justify-center border border-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold transition hover:bg-goldfinch-gold hover:text-deep-green" href={ctaHref}>
+        <a class="inline-flex h-[52px] items-center justify-center border border-emnel-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-emnel-gold transition hover:bg-emnel-gold hover:text-deep-green" href={ctaHref}>
           {ctaLabel}
           <ArrowRight size={16} strokeWidth={2.5} />
         </a>

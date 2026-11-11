@@ -392,13 +392,13 @@
             </span>
             <span class="absolute right-2.5 top-2.5"><StatusBadge status={item.status} /></span>
             {#if item.id === heroId}
-              <span class="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-goldfinch-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-deep-green shadow"><Star size={10} fill="currentColor" strokeWidth={0} />Hero</span>
+              <span class="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-emnel-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-deep-green shadow"><Star size={10} fill="currentColor" strokeWidth={0} />Hero</span>
             {/if}
           </div>
           <div class="grid gap-2 p-4">
             <p class="truncate font-semibold text-ink">{item.title || 'Untitled'}</p>
             {#if item.caption}<p class="line-clamp-1 text-xs text-ink/55">{item.caption}</p>{/if}
-            {#if item.guest_quote}<p class="line-clamp-2 inline-flex items-start gap-1.5 text-xs italic leading-5 text-ink/65"><Quote class="mt-0.5 shrink-0 text-goldfinch-gold" size={12} />{item.guest_quote}</p>{/if}
+            {#if item.guest_quote}<p class="line-clamp-2 inline-flex items-start gap-1.5 text-xs italic leading-5 text-ink/65"><Quote class="mt-0.5 shrink-0 text-emnel-gold" size={12} />{item.guest_quote}</p>{/if}
             <div class="flex flex-wrap gap-1.5">
               <span class="rounded-full bg-sand/70 px-2 py-0.5 text-[11px] font-semibold text-ink/55">Sort {item.sort_order}</span>
               {#if galleryCategoryLabel(item.category)}
@@ -411,12 +411,12 @@
                 <span class="inline-flex items-center gap-1 rounded-full bg-forest/10 px-2 py-0.5 text-[11px] font-semibold text-forest"><MapPin size={10} />{relationLabel(item.destinations, 'name')}</span>
               {/if}
               {#if relationLabel(item.tours, 'title')}
-                <span class="inline-flex items-center gap-1 rounded-full bg-goldfinch-gold/20 px-2 py-0.5 text-[11px] font-semibold text-heading"><MapIcon size={10} />{relationLabel(item.tours, 'title')}</span>
+                <span class="inline-flex items-center gap-1 rounded-full bg-emnel-gold/20 px-2 py-0.5 text-[11px] font-semibold text-heading"><MapIcon size={10} />{relationLabel(item.tours, 'title')}</span>
               {/if}
             </div>
             <div class="mt-1 flex gap-2">
               <button
-                class={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-sm transition disabled:cursor-default ${item.id === heroId ? 'border-goldfinch-gold/50 bg-goldfinch-gold/20 text-heading' : 'border-ink/10 bg-surface text-ink hover:border-goldfinch-gold/35 hover:bg-sand/70'}`}
+                class={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-sm transition disabled:cursor-default ${item.id === heroId ? 'border-emnel-gold/50 bg-emnel-gold/20 text-heading' : 'border-ink/10 bg-surface text-ink hover:border-emnel-gold/35 hover:bg-sand/70'}`}
                 type="button"
                 title={item.id === heroId ? 'Current gallery hero' : 'Make gallery hero'}
                 aria-label={item.id === heroId ? 'Current gallery hero' : 'Make gallery hero'}
@@ -425,7 +425,7 @@
               >
                 <Star size={13} fill={item.id === heroId ? 'currentColor' : 'none'} strokeWidth={item.id === heroId ? 0 : 2} />
               </button>
-              <button class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
+              <button class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
                 <Edit size={13} />Edit
               </button>
               <button class="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(item)}>
@@ -478,12 +478,12 @@
                 <td class="px-4 py-3"><StatusBadge status={item.status} /></td>
                 <td class="px-4 py-3 text-ink/65">
                   {item.sort_order}
-                  {#if item.id === heroId}<span class="ml-1.5 inline-flex items-center gap-1 rounded-full bg-goldfinch-gold px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wide text-deep-green"><Star size={9} fill="currentColor" strokeWidth={0} />Hero</span>{/if}
+                  {#if item.id === heroId}<span class="ml-1.5 inline-flex items-center gap-1 rounded-full bg-emnel-gold px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wide text-deep-green"><Star size={9} fill="currentColor" strokeWidth={0} />Hero</span>{/if}
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-2">
                     <button
-                      class={`inline-flex h-9 w-9 items-center justify-center rounded-xl border shadow-sm transition disabled:cursor-default ${item.id === heroId ? 'border-goldfinch-gold/50 bg-goldfinch-gold/20 text-heading' : 'border-ink/10 bg-surface text-ink hover:border-goldfinch-gold/35 hover:bg-sand/70'}`}
+                      class={`inline-flex h-9 w-9 items-center justify-center rounded-xl border shadow-sm transition disabled:cursor-default ${item.id === heroId ? 'border-emnel-gold/50 bg-emnel-gold/20 text-heading' : 'border-ink/10 bg-surface text-ink hover:border-emnel-gold/35 hover:bg-sand/70'}`}
                       type="button"
                       title={item.id === heroId ? 'Current gallery hero' : 'Make gallery hero'}
                       aria-label={item.id === heroId ? 'Current gallery hero' : 'Make gallery hero'}
@@ -492,7 +492,7 @@
                     >
                       <Star size={14} fill={item.id === heroId ? 'currentColor' : 'none'} strokeWidth={item.id === heroId ? 0 : 2} />
                     </button>
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(item)}>
                       <Edit size={14} />Edit
                     </button>
                     <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(item)}>

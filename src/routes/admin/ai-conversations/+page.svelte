@@ -132,7 +132,7 @@
                   <StatusBadge status={c.lead_status || 'cold'} />
                   <span class="text-xs font-semibold text-ink/50">{c.lead_score ?? 0}</span>
                 </span>
-                {#if c.handoff_required}<span class="ml-1 rounded bg-goldfinch-gold/20 px-1.5 py-0.5 text-[10px] font-bold text-clay">Handoff</span>{/if}
+                {#if c.handoff_required}<span class="ml-1 rounded bg-emnel-gold/20 px-1.5 py-0.5 text-[10px] font-bold text-clay">Handoff</span>{/if}
               </td>
               <td class="px-4 py-3"><StatusBadge status={c.status || 'in_progress'} />{#if c.booking_request_id}<span class="ml-1 text-[10px] font-bold text-forest">• booked</span>{/if}</td>
               <td class="px-4 py-3 text-ink/70">{c.ai_message_count ?? 0}</td>

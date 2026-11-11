@@ -26,7 +26,7 @@
   const colorFields: { hint: string; key: keyof BrandColors; label: string }[] = [
     { key: 'deep_green', label: 'Deep Green', hint: 'Primary dark — sidebar, hero overlays' },
     { key: 'forest', label: 'Forest', hint: 'Primary — buttons, links, accents' },
-    { key: 'goldfinch_gold', label: 'Savanna Gold', hint: 'Accent — highlights, CTAs, badges' },
+    { key: 'emnel_gold', label: 'Savanna Gold', hint: 'Accent — highlights, CTAs, badges' },
     { key: 'sand', label: 'Sand', hint: 'Surfaces — cards, section backgrounds' },
     { key: 'savanna', label: 'Savanna', hint: 'Soft accent' },
     { key: 'ink', label: 'Ink', hint: 'Body text' },
@@ -224,14 +224,14 @@
             <div>
               <h3 class="text-xl font-extrabold">{form.site_name || 'Site name'}</h3>
               <p class="mx-auto mt-2 max-w-xs text-xs text-white/80">{form.tagline || 'Your tagline appears here.'}</p>
-              <span class="mt-4 inline-flex h-9 items-center rounded-xl bg-goldfinch-gold px-4 text-xs font-bold text-heading">Plan My Safari</span>
+              <span class="mt-4 inline-flex h-9 items-center rounded-xl bg-emnel-gold px-4 text-xs font-bold text-heading">Plan My Safari</span>
             </div>
           </div>
 
           <!-- mock card section -->
           <div class="grid gap-3 bg-sand/40 p-4">
             <div class="rounded-2xl border border-ink/10 bg-surface p-3">
-              <div class="flex items-center gap-1 text-goldfinch-gold">
+              <div class="flex items-center gap-1 text-emnel-gold">
                 {#each Array(5) as _}
                   <Star size={12} fill="currentColor" />
                 {/each}
@@ -245,7 +245,7 @@
             </div>
             <div class="flex items-center justify-between rounded-2xl bg-savanna/50 px-3 py-2">
               <span class="text-xs font-semibold text-ink/70">Savanna soft accent band</span>
-              <span class="grid h-6 w-6 place-items-center rounded-full bg-goldfinch-gold text-[10px] font-bold text-heading">GA</span>
+              <span class="grid h-6 w-6 place-items-center rounded-full bg-emnel-gold text-[10px] font-bold text-heading">GA</span>
             </div>
           </div>
 

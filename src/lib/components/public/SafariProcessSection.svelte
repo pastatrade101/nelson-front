@@ -53,7 +53,7 @@
       <p class="brand-eyebrow">{eyebrow}</p>
       <h2 class="type-h2 mt-5 text-heading">
         {title}
-        <span class="block italic text-goldfinch-gold">{accentTitle}</span>
+        <span class="block italic text-emnel-gold">{accentTitle}</span>
       </h2>
       <p class="mt-6 max-w-[700px] text-base leading-[1.75] font-medium text-ink/70">{subtitle}</p>
     </div>
@@ -63,8 +63,8 @@
         {#each displaySteps as step, i}
           <article class="process-card group relative flex min-h-[320px] flex-col border-b border-ink/10 p-8 transition-colors duration-300 hover:bg-savanna/30 lg:border-b-0 lg:border-r lg:p-10">
             <div class="flex items-center gap-4">
-              <span class="font-serif text-[52px] font-light leading-none text-goldfinch-gold sm:text-[58px]">{(i + 1).toString().padStart(2, '0')}</span>
-              <span class="h-px flex-1 origin-left scale-x-100 bg-gradient-to-r from-goldfinch-gold/50 to-transparent transition-all duration-500 group-hover:from-goldfinch-gold"></span>
+              <span class="font-serif text-[52px] font-light leading-none text-emnel-gold sm:text-[58px]">{(i + 1).toString().padStart(2, '0')}</span>
+              <span class="h-px flex-1 origin-left scale-x-100 bg-gradient-to-r from-emnel-gold/50 to-transparent transition-all duration-500 group-hover:from-emnel-gold"></span>
             </div>
             <h3 class="type-card mt-8 text-heading">{step.title}</h3>
             <p class="mt-4 text-base leading-[1.75] font-medium text-ink/66">{step.text}</p>
@@ -73,7 +73,7 @@
       </div>
       <div class="flex flex-col gap-6 bg-deep-green px-8 py-8 text-white md:flex-row md:items-center md:justify-between md:px-12">
         <p class="font-serif text-[22px] italic leading-8 text-white/74">{quote}</p>
-        <a class="inline-flex h-[52px] items-center justify-center bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" href={ctaHref}>
+        <a class="inline-flex h-[52px] items-center justify-center bg-emnel-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" href={ctaHref}>
           {ctaLabel}
           <ArrowRight size={16} strokeWidth={2.5} />
         </a>

@@ -30,7 +30,7 @@
     {#each proof as item}
       {@const Icon = item.icon}
       <article class="flex min-h-[118px] items-start gap-4 border-b border-ink/[0.08] px-5 py-6 sm:border-r lg:border-b-0 lg:px-7">
-        <span class="grid h-10 w-10 shrink-0 place-items-center bg-goldfinch-gold/12 text-goldfinch-gold">
+        <span class="grid h-10 w-10 shrink-0 place-items-center bg-emnel-gold/12 text-emnel-gold">
           <Icon size={19} strokeWidth={2.1} />
         </span>
         <div>

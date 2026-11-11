@@ -52,7 +52,7 @@
         width={1000}
       />
       <span class="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,26,22,0.03)_0%,rgba(28,26,22,0.16)_52%,rgba(28,26,22,0.86)_100%)]"></span>
-      <figcaption class="absolute inset-x-0 bottom-0 border-l-4 border-goldfinch-gold px-7 py-8 font-serif text-xl italic leading-8 text-white/82">
+      <figcaption class="absolute inset-x-0 bottom-0 border-l-4 border-emnel-gold px-7 py-8 font-serif text-xl italic leading-8 text-white/82">
         {imageCaption}
       </figcaption>
     </figure>
@@ -61,7 +61,7 @@
       <p class="brand-eyebrow">{eyebrow}</p>
       <h2 class="type-h2 mt-6 text-white">
         {title}
-        <span class="block italic text-goldfinch-gold">{accentTitle}</span>
+        <span class="block italic text-emnel-gold">{accentTitle}</span>
       </h2>
 
       {#if displayHtml}
@@ -74,17 +74,17 @@
         </div>
       {/if}
 
-      <blockquote class="mt-8 border-l-2 border-goldfinch-gold pl-6 font-serif text-[23px] italic leading-[1.5] text-goldfinch-gold md:text-[28px]">
+      <blockquote class="mt-8 border-l-2 border-emnel-gold pl-6 font-serif text-[23px] italic leading-[1.5] text-emnel-gold md:text-[28px]">
         {quote}
       </blockquote>
 
       <div class="mt-10 flex flex-col gap-4 sm:flex-row">
-        <a class="inline-flex h-[52px] items-center justify-center gap-3 bg-goldfinch-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" href={primaryHref}>
+        <a class="inline-flex h-[52px] items-center justify-center gap-3 bg-emnel-gold px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-deep-green transition hover:bg-savanna" href={primaryHref}>
           {primaryCta}
           <ArrowRight size={16} strokeWidth={2.5} />
         </a>
         {#if secondaryOn}
-          <a class="inline-flex h-[52px] items-center justify-center border border-white/22 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-goldfinch-gold hover:text-goldfinch-gold" href={secondaryHref}>
+          <a class="inline-flex h-[52px] items-center justify-center border border-white/22 px-8 text-[12px] font-bold uppercase tracking-[0.18em] text-white transition hover:border-emnel-gold hover:text-emnel-gold" href={secondaryHref}>
             {secondaryCta}
           </a>
         {/if}

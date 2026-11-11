@@ -26,7 +26,7 @@ export default {
         // match the original hex values exactly (no visual change by default).
         'deep-green': 'rgb(var(--c-deep-green) / <alpha-value>)',
         forest: 'rgb(var(--c-forest) / <alpha-value>)',
-        'goldfinch-gold': 'rgb(var(--c-goldfinch-gold) / <alpha-value>)',
+        'emnel-gold': 'rgb(var(--c-emnel-gold) / <alpha-value>)',
         ink: 'rgb(var(--c-ink) / <alpha-value>)',
         clay: 'rgb(var(--c-clay) / <alpha-value>)',
         sand: 'rgb(var(--c-sand) / <alpha-value>)',

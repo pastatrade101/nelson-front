@@ -130,7 +130,7 @@
 
   const priceTypeClass = (value: string) => {
     if (value === 'discount') return 'bg-red-50 text-red-700 ring-red-100';
-    if (['upgrade', 'single_supplement'].includes(value)) return 'bg-goldfinch-gold/15 text-heading ring-goldfinch-gold/25';
+    if (['upgrade', 'single_supplement'].includes(value)) return 'bg-emnel-gold/15 text-heading ring-emnel-gold/25';
     return 'bg-forest/10 text-forest ring-forest/20';
   };
 
@@ -365,7 +365,7 @@
       <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {#each filteredTours as tour}
           <button
-            class="rounded-none border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-goldfinch-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
+            class="rounded-none border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-emnel-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
             type="button"
             on:click={() => selectTour(tour.id)}
           >
@@ -452,7 +452,7 @@
                   </td>
                   <td class="px-4 py-4">
                     <div class="flex justify-end gap-2">
-                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(option)}>
+                      <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(option)}>
                         <Edit size={14} />
                         Edit
                       </button>

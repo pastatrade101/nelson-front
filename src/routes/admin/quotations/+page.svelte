@@ -53,7 +53,7 @@
   ];
 
   const iconButton =
-    'grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70 disabled:pointer-events-none disabled:opacity-45';
+    'grid h-9 w-9 place-items-center rounded-xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70 disabled:pointer-events-none disabled:opacity-45';
 
   let rows: Quotation[] = [];
   let tours: Tour[] = [];

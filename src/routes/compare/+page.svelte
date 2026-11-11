@@ -30,7 +30,7 @@
 
 
 <section class="relative overflow-hidden bg-gradient-to-br from-deep-green via-forest to-deep-green text-white">
-  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/20 blur-3xl"></div>
+  <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emnel-gold/20 blur-3xl"></div>
   <div class="container-shell relative py-16 text-center md:py-20">
     <p class="font-serif text-xl italic text-savanna">Compare</p>
     <h1 class="type-h1 mx-auto mt-5 max-w-3xl" use:revealHeading>Honest side-by-side comparisons</h1>
@@ -54,7 +54,7 @@
     <div class="grid gap-6 md:grid-cols-3" use:staggeredCardReveal={{ y: 16, stagger: 0.06 }}>
       {#each items as c (c.slug)}
         <a
-          class="group flex flex-col rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:border-goldfinch-gold/40 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]"
+          class="group flex flex-col rounded-none border border-ink/10 bg-surface p-6 shadow-[0_14px_40px_rgba(28,26,22,0.07)] transition-shadow duration-300 hover:border-emnel-gold/40 hover:shadow-[0_26px_60px_rgba(28,26,22,0.16)]"
           href={`/compare/${c.slug}`}
           use:tilt={{ max: 5 }}
         >

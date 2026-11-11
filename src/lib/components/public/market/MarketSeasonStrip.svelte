@@ -39,7 +39,7 @@
         {#each shown as season}
           <div class="flex flex-col border border-ink/10 bg-surface p-6 md:p-7">
             {#if season.months}
-              <p class="font-serif text-[26px] font-light leading-none text-goldfinch-gold md:text-[30px]">{season.months}</p>
+              <p class="font-serif text-[26px] font-light leading-none text-emnel-gold md:text-[30px]">{season.months}</p>
             {/if}
             {#if season.label}
               <p class="eyebrow mt-4 text-heading">{season.label}</p>
@@ -52,7 +52,7 @@
       </div>
 
       {#if note}
-        <p class="mt-8 border-l-2 border-goldfinch-gold pl-5 text-base leading-[1.75] text-ink/65">{note}</p>
+        <p class="mt-8 border-l-2 border-emnel-gold pl-5 text-base leading-[1.75] text-ink/65">{note}</p>
       {/if}
     </div>
   </section>

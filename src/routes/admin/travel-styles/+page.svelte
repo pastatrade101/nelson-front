@@ -296,7 +296,7 @@
             {#each rows as s (s.id)}
               <tr class="transition hover:bg-sand/25">
                 <td class="px-4 py-4">
-                  <div class="font-semibold text-ink">{s.name}{#if s.is_featured}<span class="ml-2 rounded-full bg-goldfinch-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-goldfinch-gold">Featured</span>{/if}</div>
+                  <div class="font-semibold text-ink">{s.name}{#if s.is_featured}<span class="ml-2 rounded-full bg-emnel-gold/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emnel-gold">Featured</span>{/if}</div>
                   <p class="mt-0.5 font-mono text-xs text-ink/50">{s.slug}</p>
                 </td>
                 <td class="px-4 py-4 text-ink/60 capitalize">{s.persona ?? '-'}</td>
@@ -305,7 +305,7 @@
                 <td class="px-4 py-4 text-ink/60">{fmt(s.updated_at ?? s.created_at)}</td>
                 <td class="px-4 py-4">
                   <div class="flex justify-end gap-2">
-                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(s)}>
+                    <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEdit(s)}>
                       <Edit size={14} />Edit
                     </button>
                     <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-surface px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50" type="button" on:click={() => openDelete(s)}>
@@ -384,12 +384,12 @@
               <ResponsiveImage src={form.hero_image_url} alt="" width={800} sizes="440px" imgClass="absolute inset-0 -z-10 h-full w-full object-cover" />
               <div class="absolute inset-0 -z-10 bg-black/65"></div>
             {/if}
-            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-goldfinch-gold">A journey shaped around you</p>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-emnel-gold">A journey shaped around you</p>
             <p class="mt-4 break-words font-serif text-[42px] leading-[1.05]">{form.name || 'Your page name'}</p>
             {#if form.emotional_promise}<p class="mt-5 break-words font-serif text-[23px] leading-snug">{form.emotional_promise}</p>{/if}
             {#if form.description}<p class="mt-5 whitespace-pre-line break-words text-[15px] leading-7 text-white/85">{form.description}</p>{/if}
             <div class="mt-7 grid gap-3 text-center text-sm font-semibold">
-              <span class="bg-goldfinch-gold px-4 py-3 text-ink">Plan this trip</span>
+              <span class="bg-emnel-gold px-4 py-3 text-ink">Plan this trip</span>
               <span class="border border-white/40 px-4 py-3">Browse itineraries</span>
             </div>
           </div>

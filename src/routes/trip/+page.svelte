@@ -67,8 +67,8 @@
       confirmed: 'bg-forest/10 text-forest',
       completed: 'bg-forest/10 text-forest',
       paid: 'bg-forest/10 text-forest',
-      partial: 'bg-goldfinch-gold/15 text-clay',
-      pending: 'bg-goldfinch-gold/15 text-clay',
+      partial: 'bg-emnel-gold/15 text-clay',
+      pending: 'bg-emnel-gold/15 text-clay',
       unpaid: 'bg-clay/10 text-clay',
       cancelled: 'bg-red-100 text-red-700'
     })[s] ?? 'bg-ink/10 text-ink/70';
@@ -123,7 +123,7 @@
   {:else if !trip}
     <!-- No / invalid / expired session -->
     <div class="mx-auto max-w-lg rounded-2xl border border-ink/10 bg-surface p-8 text-center shadow-soft">
-      <span class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-goldfinch-gold/10 text-goldfinch-gold"><MapPin size={22} /></span>
+      <span class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emnel-gold/10 text-emnel-gold"><MapPin size={22} /></span>
       <h1 class="type-h1 mt-4 text-heading">Access your trip</h1>
       <p class="type-lead mt-2 text-ink/65">
         Enter the email on your booking and we’ll send a fresh, secure link to view your trip. (Your previous link may have expired or been replaced.)
@@ -157,7 +157,7 @@
     <!-- Header -->
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p class="eyebrow text-goldfinch-gold">Your trip</p>
+        <p class="eyebrow text-emnel-gold">Your trip</p>
         <h1 class="type-h1 mt-1 text-heading">{trip.tour?.title ?? 'Your Tanzania safari'}</h1>
         <p class="mt-1 text-sm text-ink/60">Booking reference <span class="font-mono font-bold text-ink/80">{trip.booking_code}</span></p>
       </div>

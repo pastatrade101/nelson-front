@@ -66,7 +66,7 @@
 
   const chip = (on: boolean) =>
     `shrink-0 border px-4 py-2 text-[12px] font-bold uppercase tracking-[0.12em] transition ${
-      on ? 'border-forest bg-forest text-white' : 'border-ink/12 bg-surface text-ink/60 hover:border-goldfinch-gold/50'
+      on ? 'border-forest bg-forest text-white' : 'border-ink/12 bg-surface text-ink/60 hover:border-emnel-gold/50'
     }`;
 </script>
 
@@ -83,9 +83,9 @@
   <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,18,15,0.35)_0%,transparent_45%,rgba(20,18,15,0.72)_100%)]"></div>
   <div class="container-shell relative py-16 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] md:py-20">
     <nav class="mb-6 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-white/55">
-      <a class="transition hover:text-goldfinch-gold" href="/">Home</a><span>/</span><span class="text-white/80">Gallery</span>
+      <a class="transition hover:text-emnel-gold" href="/">Home</a><span>/</span><span class="text-white/80">Gallery</span>
     </nav>
-    <p class="brand-eyebrow text-goldfinch-gold">Travel Journal</p>
+    <p class="brand-eyebrow text-emnel-gold">Travel Journal</p>
     <h1 class="type-h1 mt-3 max-w-2xl">Safari Moments,<br />Unedited.</h1>
     <p class="type-lead mt-4 max-w-xl text-white/75">
       Every image tells the story of a real journey across Tanzania—from sunrise game drives in the Serengeti to quiet evenings overlooking the Ngorongoro Crater.
@@ -93,16 +93,16 @@
     {#if images.length}
       <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2.5">
         <span class="inline-flex items-center gap-2 text-sm font-bold text-white/90">
-          <Camera size={16} strokeWidth={2.2} class="text-goldfinch-gold" /> {images.length} Safari moment{images.length === 1 ? '' : 's'}
+          <Camera size={16} strokeWidth={2.2} class="text-emnel-gold" /> {images.length} Safari moment{images.length === 1 ? '' : 's'}
         </span>
         {#if destinations.length}
           <span class="h-3.5 w-px bg-white/25" aria-hidden="true"></span>
           <span class="inline-flex items-center gap-2 text-sm font-bold text-white/90">
-            <MapPin size={16} strokeWidth={2.2} class="text-goldfinch-gold" /> {destinations.length} Destination{destinations.length === 1 ? '' : 's'}
+            <MapPin size={16} strokeWidth={2.2} class="text-emnel-gold" /> {destinations.length} Destination{destinations.length === 1 ? '' : 's'}
           </span>
           <span class="h-3.5 w-px bg-white/25" aria-hidden="true"></span>
           <span class="inline-flex min-w-0 items-center gap-2 text-[13px] font-semibold text-white/70">
-            <Compass size={16} strokeWidth={2.2} class="shrink-0 text-goldfinch-gold" />
+            <Compass size={16} strokeWidth={2.2} class="shrink-0 text-emnel-gold" />
             <span class="truncate">{destinations.slice(0, 4).join(' • ')}{destinations.length > 4 ? ' …' : ''}</span>
           </span>
         {/if}
@@ -154,7 +154,7 @@
             {#if im.media_type === 'video'}
               <!-- svelte-ignore a11y-media-has-caption -->
               <video class="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110" src={cdnUrl(im.image_url)} muted playsinline preload="metadata" aria-hidden="true"></video>
-              <span class="absolute right-2.5 top-2.5 grid h-7 w-7 place-items-center rounded-full bg-goldfinch-gold text-deep-green"><Film size={13} /></span>
+              <span class="absolute right-2.5 top-2.5 grid h-7 w-7 place-items-center rounded-full bg-emnel-gold text-deep-green"><Film size={13} /></span>
             {:else}
               <ResponsiveImage
                 src={origUrl(im as unknown as Record<string, unknown>, 'image_url')}
@@ -183,7 +183,7 @@
                 {#if c}<p class="line-clamp-2 text-[13px] font-bold leading-tight text-white">{c}</p>{/if}
                 <div class="mt-1.5 flex flex-col gap-0.5">
                   {#if d?.name}<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-white/75"><MapPin size={11} strokeWidth={2.4} /> {d.name}</span>{/if}
-                  {#if t?.title}<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-goldfinch-gold/90"><Route size={11} strokeWidth={2.4} /> <span class="truncate">{t.title}</span></span>{/if}
+                  {#if t?.title}<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emnel-gold/90"><Route size={11} strokeWidth={2.4} /> <span class="truncate">{t.title}</span></span>{/if}
                 </div>
               </div>
             {/if}
@@ -257,15 +257,15 @@
     {#if c || q || month || d?.name || t?.slug}
       <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
       <div class="px-5 py-4 text-center text-white sm:px-6" on:click|stopPropagation>
-        {#if q}<p class="mx-auto max-w-2xl font-serif text-lg italic font-light md:text-xl"><Quote class="mr-1 inline text-goldfinch-gold" size={17} />{q}</p>{/if}
+        {#if q}<p class="mx-auto max-w-2xl font-serif text-lg italic font-light md:text-xl"><Quote class="mr-1 inline text-emnel-gold" size={17} />{q}</p>{/if}
         {#if c}<p class="mt-1 text-sm font-semibold text-white/80">{c}</p>{/if}
         <div class="mt-1.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[12px] font-semibold text-white/70">
           {#if month}<span class="inline-flex items-center gap-1"><CalendarDays size={13} /> {month}</span>{/if}
           {#if d?.name}
-            <a class="inline-flex items-center gap-1 transition hover:text-goldfinch-gold" href={d.slug ? `/destinations/${d.slug}` : '/destinations'}><MapPin size={13} /> {d.name}</a>
+            <a class="inline-flex items-center gap-1 transition hover:text-emnel-gold" href={d.slug ? `/destinations/${d.slug}` : '/destinations'}><MapPin size={13} /> {d.name}</a>
           {/if}
           {#if t?.slug}
-            <a class="inline-flex items-center gap-1 transition hover:text-goldfinch-gold" href={`/tours/${t.slug}`}><Camera size={13} /> {t.title ?? 'View safari'}</a>
+            <a class="inline-flex items-center gap-1 transition hover:text-emnel-gold" href={`/tours/${t.slug}`}><Camera size={13} /> {t.title ?? 'View safari'}</a>
           {/if}
         </div>
       </div>

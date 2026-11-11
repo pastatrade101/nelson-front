@@ -117,7 +117,7 @@
     <p class="mt-1 text-sm text-ink/60">Each row is one full itinerary. Existing itineraries (matched by slug) are updated; new ones are created.</p>
 
     <label
-      class="mt-5 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-ink/15 bg-sand/40 px-6 py-10 text-center transition hover:border-goldfinch-gold/60 hover:bg-sand/70"
+      class="mt-5 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-ink/15 bg-sand/40 px-6 py-10 text-center transition hover:border-emnel-gold/60 hover:bg-sand/70"
     >
       <FileUp size={26} class="text-forest" />
       <span class="text-sm font-semibold text-heading">{file ? file.name : 'Click to choose a .csv file'}</span>
@@ -160,7 +160,7 @@
     <div class="flex flex-wrap items-center gap-3">
       <h2 class="text-base font-bold text-heading">Import results</h2>
       <span class="rounded-full bg-forest/10 px-3 py-1 text-xs font-bold text-forest">{result.summary.created} created</span>
-      <span class="rounded-full bg-goldfinch-gold/15 px-3 py-1 text-xs font-bold text-clay">{result.summary.updated} updated</span>
+      <span class="rounded-full bg-emnel-gold/15 px-3 py-1 text-xs font-bold text-clay">{result.summary.updated} updated</span>
       {#if result.summary.failed}
         <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">{result.summary.failed} failed</span>
       {/if}

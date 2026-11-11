@@ -49,11 +49,11 @@
 <header class="sticky top-0 z-30 border-b border-ink/[0.08] bg-surface">
   <div class="flex h-[68px] items-center justify-between gap-3 px-4 sm:px-6">
     <div class="flex min-w-0 items-center gap-3">
-      <button class="grid h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 lg:hidden" type="button" aria-label="Open sidebar" on:click={onOpenMobile}>
+      <button class="grid h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink shadow-sm transition hover:border-emnel-gold/40 hover:bg-sand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 lg:hidden" type="button" aria-label="Open sidebar" on:click={onOpenMobile}>
         <Menu size={19} />
       </button>
 
-      <button class="hidden h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 lg:grid" type="button" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} on:click={onToggleDesktop}>
+      <button class="hidden h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-emnel-gold/40 hover:bg-sand hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 lg:grid" type="button" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} on:click={onToggleDesktop}>
         {#if collapsed}
           <PanelLeftOpen size={19} />
         {:else}
@@ -68,19 +68,19 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <button class="hidden h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-goldfinch-gold/40 hover:bg-sand hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 sm:grid" type="button" aria-label="Notifications">
+      <button class="hidden h-11 w-11 place-items-center rounded-2xl border border-ink/10 bg-surface text-ink/70 shadow-sm transition hover:border-emnel-gold/40 hover:bg-sand hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 sm:grid" type="button" aria-label="Notifications">
         <Bell size={18} />
       </button>
 
       <div class="relative">
         <button
-          class="inline-flex h-11 items-center gap-2 rounded-full border border-ink/10 bg-surface py-1 pl-1 pr-2 text-sm font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/45 hover:bg-sand/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/25"
+          class="inline-flex h-11 items-center gap-2 rounded-full border border-ink/10 bg-surface py-1 pl-1 pr-2 text-sm font-semibold text-ink shadow-sm transition hover:border-emnel-gold/45 hover:bg-sand/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/25"
           type="button"
           aria-label="Open profile menu"
           aria-expanded={profileOpen}
           on:click|stopPropagation={() => (profileOpen = !profileOpen)}
         >
-          <span class="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-forest to-deep-green text-xs font-bold uppercase text-white ring-2 ring-goldfinch-gold/35">
+          <span class="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-forest to-deep-green text-xs font-bold uppercase text-white ring-2 ring-emnel-gold/35">
             {#if user?.avatar_url}
               <img class="h-full w-full object-cover" src={cdnUrl(user.avatar_url)} alt={displayName} />
             {:else}
@@ -98,7 +98,7 @@
           >
             <div class="bg-gradient-to-br from-deep-green via-forest to-deep-green p-4 text-white">
               <div class="flex items-center gap-3">
-                <div class="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-surface/12 text-sm font-bold uppercase ring-1 ring-goldfinch-gold/50">
+                <div class="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-surface/12 text-sm font-bold uppercase ring-1 ring-emnel-gold/50">
                   {#if user?.avatar_url}
                     <img class="h-full w-full object-cover" src={cdnUrl(user.avatar_url)} alt={displayName} />
                   {:else}

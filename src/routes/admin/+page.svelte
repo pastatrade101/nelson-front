@@ -247,20 +247,20 @@
   };
 
   const statusClass = (count: number) =>
-    count > 0 ? 'bg-goldfinch-gold/15 text-heading ring-goldfinch-gold/25' : 'bg-forest/10 text-forest ring-forest/20';
+    count > 0 ? 'bg-emnel-gold/15 text-heading ring-emnel-gold/25' : 'bg-forest/10 text-forest ring-forest/20';
 
   $: kpiCards = [
     { label: 'Total Tours', value: stats.counts.totalTours, helper: 'All CMS tour packages', trend: `${stats.counts.publishedTours} published`, icon: Map, accent: 'from-forest/12 to-forest/5 text-forest' },
     { label: 'Published Tours', value: stats.counts.publishedTours, helper: 'Visible on website', trend: 'Public inventory', icon: CheckCircle, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Draft Tours', value: stats.counts.draftTours, helper: 'Waiting for publishing', trend: stats.counts.draftTours ? 'Needs review' : 'Clear', icon: FileClock, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
+    { label: 'Draft Tours', value: stats.counts.draftTours, helper: 'Waiting for publishing', trend: stats.counts.draftTours ? 'Needs review' : 'Clear', icon: FileClock, accent: 'from-emnel-gold/20 to-emnel-gold/5 text-heading' },
     { label: 'Destinations', value: stats.counts.destinations, helper: 'CMS destinations', trend: `${stats.contentHealth.publishedDestinations} published`, icon: MapPin, accent: 'from-savanna/50 to-savanna/15 text-heading' },
     { label: 'Bookings', value: stats.counts.totalBookings, helper: 'Total booking requests', trend: `${stats.counts.pendingBookings} pending`, icon: ClipboardList, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Pending Bookings', value: stats.counts.pendingBookings, helper: 'Need response', trend: stats.counts.pendingBookings ? 'Action needed' : 'No backlog', icon: Clock, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
+    { label: 'Pending Bookings', value: stats.counts.pendingBookings, helper: 'Need response', trend: stats.counts.pendingBookings ? 'Action needed' : 'No backlog', icon: Clock, accent: 'from-emnel-gold/20 to-emnel-gold/5 text-heading' },
     { label: 'Revenue', value: formatMoney(stats.counts.totalRevenue), helper: 'Paid booking records', trend: 'Finance view', icon: CircleDollarSign, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Messages', value: stats.counts.unreadMessages, helper: 'Unread customer messages', trend: stats.counts.unreadMessages ? 'Follow up' : 'Inbox clear', icon: Mail, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
+    { label: 'Messages', value: stats.counts.unreadMessages, helper: 'Unread customer messages', trend: stats.counts.unreadMessages ? 'Follow up' : 'Inbox clear', icon: Mail, accent: 'from-emnel-gold/20 to-emnel-gold/5 text-heading' },
     { label: 'Media Files', value: stats.counts.mediaFiles, helper: 'Reusable CMS assets', trend: 'Image library', icon: Images, accent: 'from-savanna/50 to-savanna/15 text-heading' },
     { label: 'Blog Posts', value: stats.counts.blogPosts, helper: 'Published and draft posts', trend: `${stats.contentHealth.publishedBlogPosts} published`, icon: Newspaper, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'AI Conversations', value: stats.counts.aiConversations, helper: 'Safari advisor sessions', trend: 'Lead intelligence', icon: Bot, accent: 'from-goldfinch-gold/20 to-goldfinch-gold/5 text-heading' },
+    { label: 'AI Conversations', value: stats.counts.aiConversations, helper: 'Safari advisor sessions', trend: 'Lead intelligence', icon: Bot, accent: 'from-emnel-gold/20 to-emnel-gold/5 text-heading' },
     { label: 'Confirmed Bookings', value: stats.counts.confirmedBookings, helper: 'Ready for operations', trend: 'Operations queue', icon: CalendarCheck, accent: 'from-forest/12 to-forest/5 text-forest' }
   ] satisfies KpiCard[];
 
@@ -276,7 +276,7 @@
   $: pipelineTotal = Object.values(stats.bookingPipeline).reduce((sum, value) => sum + value, 0);
 
   $: pipelineItems = [
-    { label: 'Pending', value: stats.bookingPipeline.pending, color: 'bg-goldfinch-gold' },
+    { label: 'Pending', value: stats.bookingPipeline.pending, color: 'bg-emnel-gold' },
     { label: 'Confirmed', value: stats.bookingPipeline.confirmed, color: 'bg-forest' },
     { label: 'Cancelled', value: stats.bookingPipeline.cancelled, color: 'bg-slate-400' },
     { label: 'Completed', value: stats.bookingPipeline.completed, color: 'bg-deep-green' },
@@ -386,7 +386,7 @@
 {:else}
   <div class="mx-auto grid w-full max-w-[1500px] gap-6">
     <section class="relative overflow-hidden rounded-none border border-white/10 bg-gradient-to-br from-deep-green via-forest to-[#14382d] p-6 text-white shadow-[0_26px_80px_rgba(28,26,22,0.18)] lg:p-8">
-      <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-goldfinch-gold/25 blur-3xl"></div>
+      <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emnel-gold/25 blur-3xl"></div>
       <div class="pointer-events-none absolute bottom-0 left-1/3 h-44 w-44 rounded-full bg-savanna/10 blur-3xl"></div>
 
       <div class="relative grid gap-8 xl:grid-cols-[1fr_360px] xl:items-end">
@@ -406,7 +406,7 @@
           </p>
 
           <div class="mt-6 flex flex-wrap gap-3">
-            <a class="inline-flex h-11 items-center gap-2 rounded-2xl bg-goldfinch-gold px-4 text-sm font-bold text-heading shadow-lg shadow-black/10 transition hover:bg-savanna focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/tours/new">
+            <a class="inline-flex h-11 items-center gap-2 rounded-2xl bg-emnel-gold px-4 text-sm font-bold text-heading shadow-lg shadow-black/10 transition hover:bg-savanna focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/tours/new">
               <Plus size={16} />
               Add Tour
             </a>
@@ -449,9 +449,9 @@
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {#each kpiCards as card}
           {@const Icon = card.icon}
-          <article class="group rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.055)] transition hover:-translate-y-0.5 hover:border-goldfinch-gold/35 hover:shadow-[0_24px_70px_rgba(28,26,22,0.1)]">
+          <article class="group rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.055)] transition hover:-translate-y-0.5 hover:border-emnel-gold/35 hover:shadow-[0_24px_70px_rgba(28,26,22,0.1)]">
             <div class="flex items-start justify-between gap-4">
-              <div class={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${card.accent} ring-1 ring-ink/5 dark:text-goldfinch-gold`}>
+              <div class={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${card.accent} ring-1 ring-ink/5 dark:text-emnel-gold`}>
                 <Icon size={21} />
               </div>
               {#if card.trend}
@@ -474,7 +474,7 @@
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Booking pipeline</p>
             <h2 class="mt-1 text-xl font-bold text-ink">Requests by status</h2>
           </div>
-          <ChartPie class="text-goldfinch-gold" size={22} />
+          <ChartPie class="text-emnel-gold" size={22} />
         </div>
         <div class="mt-4">
           {#if pipelineTotal > 0}
@@ -491,7 +491,7 @@
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Content overview</p>
             <h2 class="mt-1 text-xl font-bold text-ink">Inventory at a glance</h2>
           </div>
-          <ChartBar class="text-goldfinch-gold" size={22} />
+          <ChartBar class="text-emnel-gold" size={22} />
         </div>
         <div class="mt-4">
           <ChartCanvas {...contentBarCfg} height={300} />
@@ -506,14 +506,14 @@
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Operational snapshot</p>
             <h2 class="mt-1 text-xl font-bold text-ink">What needs attention</h2>
           </div>
-          <AlertTriangle class="text-goldfinch-gold" size={22} />
+          <AlertTriangle class="text-emnel-gold" size={22} />
         </div>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
           {#each operationalItems as item}
             {@const Icon = item.icon}
-            <a class="flex items-center gap-3 rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-goldfinch-gold/35 hover:bg-sand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={item.href}>
-              <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10 dark:text-goldfinch-gold">
+            <a class="flex items-center gap-3 rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-emnel-gold/35 hover:bg-sand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={item.href}>
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10 dark:text-emnel-gold">
                 <Icon size={17} />
               </span>
               <span class="min-w-0 flex-1">
@@ -532,14 +532,14 @@
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Quick actions</p>
             <h2 class="mt-1 text-xl font-bold text-ink">Move faster</h2>
           </div>
-          <Sparkles class="text-goldfinch-gold" size={22} />
+          <Sparkles class="text-emnel-gold" size={22} />
         </div>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
           {#each quickActions as action}
             {@const Icon = action.icon}
-            <a class="group flex items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-3 shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={action.href} aria-label={action.label}>
-              <span class="grid h-10 w-10 place-items-center rounded-xl bg-forest/10 text-forest transition group-hover:bg-forest group-hover:text-white dark:text-goldfinch-gold dark:group-hover:text-white">
+            <a class="group flex items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-3 shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={action.href} aria-label={action.label}>
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-forest/10 text-forest transition group-hover:bg-forest group-hover:text-white dark:text-emnel-gold dark:group-hover:text-white">
                 <Icon size={17} />
               </span>
               <span class="min-w-0">
@@ -586,7 +586,7 @@
             {@const Icon = item.icon}
             <div class="rounded-2xl border border-ink/10 bg-sand/20 p-4">
               <div class="flex items-start gap-3">
-                <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10 dark:text-goldfinch-gold">
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10 dark:text-emnel-gold">
                   <Icon size={17} />
                 </span>
                 <div class="min-w-0 flex-1">
@@ -596,7 +596,7 @@
                   </div>
                   <p class="mt-1 text-xs text-ink/55">{item.helper}</p>
                   <div class="mt-3 h-2 overflow-hidden rounded-full bg-surface">
-                    <div class="h-full rounded-full bg-gradient-to-r from-forest to-goldfinch-gold" style={`width: ${item.value}%`}></div>
+                    <div class="h-full rounded-full bg-gradient-to-r from-forest to-emnel-gold" style={`width: ${item.value}%`}></div>
                   </div>
                 </div>
               </div>
@@ -710,7 +710,7 @@
         <div class="mt-4 grid gap-3">
           {#if stats.featured.tours.length}
             {#each stats.featured.tours as tour}
-              <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-goldfinch-gold/35 hover:bg-sand/50" href="/admin/tours">
+              <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-emnel-gold/35 hover:bg-sand/50" href="/admin/tours">
                 <p class="font-semibold text-ink">{textValue(tour, 'title', 'Untitled tour')}</p>
                 <p class="mt-1 text-xs text-ink/55">{formatMoney(Number(tour.price_from ?? 0))} · {textValue(tour, 'status')}</p>
               </a>
@@ -726,7 +726,7 @@
         <div class="mt-4 grid gap-3">
           {#if stats.featured.destinations.length}
             {#each stats.featured.destinations as destination}
-              <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-goldfinch-gold/35 hover:bg-sand/50" href="/admin/destinations">
+              <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-emnel-gold/35 hover:bg-sand/50" href="/admin/destinations">
                 <p class="font-semibold text-ink">{textValue(destination, 'name', 'Untitled destination')}</p>
                 <p class="mt-1 text-xs text-ink/55">{textValue(destination, 'country', 'Tanzania')} · {textValue(destination, 'status')}</p>
               </a>
@@ -742,7 +742,7 @@
         <div class="mt-4 grid gap-3">
           {#if stats.featured.blogPosts.length}
             {#each stats.featured.blogPosts as post}
-              <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-goldfinch-gold/35 hover:bg-sand/50" href="/admin/blog">
+              <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-emnel-gold/35 hover:bg-sand/50" href="/admin/blog">
                 <p class="font-semibold text-ink">{textValue(post, 'title', 'Untitled post')}</p>
                 <p class="mt-1 text-xs text-ink/55">{textValue(post, 'status')} · {formatDate(post.published_at ?? post.created_at)}</p>
               </a>

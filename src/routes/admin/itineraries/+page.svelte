@@ -123,7 +123,7 @@
         <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {#each filteredTours as tour (tour.id)}
             <button
-              class="rounded-none border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-goldfinch-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
+              class="rounded-none border border-ink/10 bg-sand/20 p-4 text-left transition hover:border-emnel-gold/45 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20"
               type="button"
               on:click={() => selectTour(tour.id)}
             >
@@ -150,7 +150,7 @@
             </div>
           </div>
           <a
-            class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-ink/15 bg-surface px-4 text-sm font-semibold text-ink transition hover:border-goldfinch-gold/40 hover:bg-sand"
+            class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-ink/15 bg-surface px-4 text-sm font-semibold text-ink transition hover:border-emnel-gold/40 hover:bg-sand"
             href={`/admin/tours/${selectedTour.id}/edit#itinerary`}
           >
             <ExternalLink size={15} /> Open full tour editor

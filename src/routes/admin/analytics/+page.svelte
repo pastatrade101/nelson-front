@@ -323,7 +323,7 @@
   })();
   const TONE: Record<Insight['tone'], string> = {
     up: 'bg-emerald-500/12 text-emerald-600', down: 'bg-red-500/12 text-red-600',
-    good: 'bg-forest/12 text-forest', warn: 'bg-amber-500/15 text-amber-600', neutral: 'bg-goldfinch-gold/15 text-clay'
+    good: 'bg-forest/12 text-forest', warn: 'bg-amber-500/15 text-amber-600', neutral: 'bg-emnel-gold/15 text-clay'
   };
 
   // ── Business-friendly event names (toggle vs raw GA4 names) ──────────────────
@@ -396,7 +396,7 @@
       <Filter size={15} class="mr-1 text-ink/40" />
       {#each RANGES as r}
         <button
-          class={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${range === r.k ? 'bg-forest text-white' : 'border border-ink/10 bg-surface text-ink/65 hover:border-goldfinch-gold/40'}`}
+          class={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${range === r.k ? 'bg-forest text-white' : 'border border-ink/10 bg-surface text-ink/65 hover:border-emnel-gold/40'}`}
           type="button"
           on:click={() => setRange(r.k)}
         >{r.l}</button>
@@ -420,7 +420,7 @@
       hint="Pick a date range above to retry." />
   {:else}
     <!-- ── AI INSIGHTS (first thing you see) ─────────────────────────────── -->
-    <div class="rounded-none border border-goldfinch-gold/30 bg-gradient-to-br from-forest/[0.04] to-goldfinch-gold/[0.06] p-5 shadow-card">
+    <div class="rounded-none border border-emnel-gold/30 bg-gradient-to-br from-forest/[0.04] to-emnel-gold/[0.06] p-5 shadow-card">
       <div class="mb-3 flex items-center gap-2">
         <span class="grid h-8 w-8 place-items-center rounded-xl bg-forest text-white"><Sparkles size={17} /></span>
         <div>
@@ -455,11 +455,11 @@
         {@const m = c.series.length ? momentum(c.series) : null}
         <button
           type="button"
-          class="group rounded-none border border-ink/10 bg-surface p-5 text-left shadow-card transition hover:-translate-y-0.5 hover:border-goldfinch-gold/40 hover:shadow-[0_16px_40px_-18px_rgba(28,26,22,0.35)]"
+          class="group rounded-none border border-ink/10 bg-surface p-5 text-left shadow-card transition hover:-translate-y-0.5 hover:border-emnel-gold/40 hover:shadow-[0_16px_40px_-18px_rgba(28,26,22,0.35)]"
           on:click={() => scrollTo(c.anchor)}
         >
           <div class="flex items-start justify-between">
-            <span class="grid h-11 w-11 place-items-center rounded-2xl bg-forest/10 text-forest ring-1 ring-ink/5 dark:text-goldfinch-gold"><Icon size={19} /></span>
+            <span class="grid h-11 w-11 place-items-center rounded-2xl bg-forest/10 text-forest ring-1 ring-ink/5 dark:text-emnel-gold"><Icon size={19} /></span>
             {#if m}
               <span class={`inline-flex items-center gap-0.5 rounded-full px-2 py-1 text-[10px] font-bold ${m.pct >= 0 ? 'bg-emerald-500/12 text-emerald-600' : 'bg-red-500/12 text-red-600'}`}>
                 {#if m.pct >= 0}<ArrowUpRight size={12} />{:else}<ArrowDownRight size={12} />{/if}{Math.abs(m.pct)}%
@@ -483,9 +483,9 @@
       <!-- header: neutral branding · connection summary · quick actions -->
       <div class="flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-deep-green to-forest p-5 text-white">
         <div class="flex items-center gap-3">
-          <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/12 text-goldfinch-gold ring-1 ring-white/15"><ShieldCheck size={20} /></span>
+          <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/12 text-emnel-gold ring-1 ring-white/15"><ShieldCheck size={20} /></span>
           <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-goldfinch-gold">Website Intelligence</p>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-emnel-gold">Website Intelligence</p>
             <h3 class="font-serif text-xl font-light leading-tight">Health, behaviour &amp; what to fix next</h3>
           </div>
         </div>
@@ -502,7 +502,7 @@
           <button type="button" on:click={copyLink} class="inline-flex items-center gap-1.5 rounded-lg bg-white/12 px-3 py-1.5 text-xs font-bold ring-1 ring-white/15 transition hover:bg-white/20" aria-label="Copy dashboard link">
             {#if copied}<Check size={14} /> Copied{:else}<Link2 size={14} /> Copy link{/if}
           </button>
-          <a class="inline-flex items-center gap-1.5 rounded-lg bg-goldfinch-gold px-3 py-1.5 text-xs font-bold text-deep-green transition hover:brightness-105" href={clarityUrl} target="_blank" rel="noopener noreferrer">
+          <a class="inline-flex items-center gap-1.5 rounded-lg bg-emnel-gold px-3 py-1.5 text-xs font-bold text-deep-green transition hover:brightness-105" href={clarityUrl} target="_blank" rel="noopener noreferrer">
             Open Clarity <ExternalLink size={13} />
           </a>
         </div>
@@ -640,7 +640,7 @@
         {/if}
 
         <!-- AI analyst summary — supporting, grounded in real data (not a chatbot) -->
-        <div class="rounded-2xl border border-goldfinch-gold/25 bg-gradient-to-br from-goldfinch-gold/[0.06] to-transparent p-4">
+        <div class="rounded-2xl border border-emnel-gold/25 bg-gradient-to-br from-emnel-gold/[0.06] to-transparent p-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <p class="flex items-center gap-1.5 text-[13px] font-bold text-clay">
               <Sparkles size={15} /> AI analyst summary
@@ -751,7 +751,7 @@
           {#each funnelSteps as step, i}
             <button
               type="button"
-              class={`rounded-xl border p-3 text-center transition ${activeStep === i ? 'border-forest bg-forest/[0.06]' : step.key === bottleneck?.key ? 'border-amber-400/60 bg-amber-50/40' : 'border-ink/10 bg-sand/25 hover:border-goldfinch-gold/40'}`}
+              class={`rounded-xl border p-3 text-center transition ${activeStep === i ? 'border-forest bg-forest/[0.06]' : step.key === bottleneck?.key ? 'border-amber-400/60 bg-amber-50/40' : 'border-ink/10 bg-sand/25 hover:border-emnel-gold/40'}`}
               on:click={() => (activeStep = activeStep === i ? -1 : i)}
             >
               <p class="text-2xl font-extrabold text-heading">{step.rate}%</p>
@@ -761,7 +761,7 @@
         </div>
         {#if activeStep >= 0 && funnelSteps[activeStep]}
           <div class="mt-3 flex gap-3 rounded-xl border border-ink/[0.07] bg-sand/25 p-4">
-            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-goldfinch-gold/15 text-clay"><Lightbulb size={17} /></span>
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emnel-gold/15 text-clay"><Lightbulb size={17} /></span>
             <div>
               <p class="text-sm font-bold text-ink">{funnelSteps[activeStep].dropoff}% drop off at “{funnelSteps[activeStep].label}”</p>
               <p class="mt-0.5 text-xs leading-5 text-ink/60">{funnelSteps[activeStep].tip}</p>
@@ -817,7 +817,7 @@
                             <span class="font-bold text-ink/50">{row.value}</span>
                           </div>
                           <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-sand/50">
-                            <div class="h-full rounded-full bg-gradient-to-r from-forest to-goldfinch-gold" style={`width: ${(row.value / block.list.max) * 100}%`}></div>
+                            <div class="h-full rounded-full bg-gradient-to-r from-forest to-emnel-gold" style={`width: ${(row.value / block.list.max) * 100}%`}></div>
                           </div>
                         </div>
                       {/each}
@@ -889,7 +889,7 @@
               <p class="text-2xl font-extrabold text-heading">{s.value}</p>
               <p class="mt-0.5 text-xs font-semibold capitalize text-ink/60">{s.label.replace(/_/g, ' ')}</p>
               <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-sand/50">
-                <div class="h-full rounded-full bg-gradient-to-r from-forest to-goldfinch-gold" style={`width: ${(s.value / statusRows.max) * 100}%`}></div>
+                <div class="h-full rounded-full bg-gradient-to-r from-forest to-emnel-gold" style={`width: ${(s.value / statusRows.max) * 100}%`}></div>
               </div>
             </div>
           {/each}
@@ -933,7 +933,7 @@
                     <span class="font-bold text-ink/55">{row.value}</span>
                   </div>
                   <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-sand/50">
-                    <div class="h-full rounded-full bg-gradient-to-r from-forest to-goldfinch-gold" style={`width: ${(row.value / block.max) * 100}%`}></div>
+                    <div class="h-full rounded-full bg-gradient-to-r from-forest to-emnel-gold" style={`width: ${(row.value / block.max) * 100}%`}></div>
                   </div>
                 </div>
               {/each}
@@ -965,7 +965,7 @@
                     <span class="font-bold text-ink/55">{ev.value}</span>
                   </div>
                   <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-sand/50">
-                    <div class="h-full rounded-full bg-gradient-to-r from-forest to-goldfinch-gold" style={`width: ${(ev.value / topEventRows.max) * 100}%`}></div>
+                    <div class="h-full rounded-full bg-gradient-to-r from-forest to-emnel-gold" style={`width: ${(ev.value / topEventRows.max) * 100}%`}></div>
                   </div>
                 </div>
               {/each}

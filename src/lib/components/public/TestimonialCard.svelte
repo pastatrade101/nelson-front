@@ -34,7 +34,7 @@
       {/if}
     </div>
     {#if featured}
-      <span class="flex shrink-0 items-center gap-1 rounded-full bg-goldfinch-gold px-2 py-0.5 text-[11px] font-bold text-heading">
+      <span class="flex shrink-0 items-center gap-1 rounded-full bg-emnel-gold px-2 py-0.5 text-[11px] font-bold text-heading">
         <Star size={10} fill="currentColor" />Featured
       </span>
     {/if}
@@ -43,7 +43,7 @@
   <!-- rating -->
   <div class="flex items-center gap-0.5">
     {#each Array(5) as _, i}
-      <Star size={15} class={i < rating ? 'text-goldfinch-gold' : 'text-ink/15'} fill={i < rating ? 'currentColor' : 'none'} />
+      <Star size={15} class={i < rating ? 'text-emnel-gold' : 'text-ink/15'} fill={i < rating ? 'currentColor' : 'none'} />
     {/each}
     <span class="ml-1 text-xs font-semibold text-ink/65">{rating}/5</span>
   </div>

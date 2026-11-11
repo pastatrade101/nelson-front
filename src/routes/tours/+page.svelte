@@ -190,7 +190,7 @@
 
 <section class="container-shell py-10 md:py-14">
   {#if personaCfg}
-    <div class="overflow-hidden rounded-none border border-goldfinch-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
+    <div class="overflow-hidden rounded-none border border-emnel-gold/20 bg-gradient-to-br from-sand via-sand to-savanna/40 p-7 md:p-9">
       <p class="font-serif text-xl italic text-clay">For {personaCfg.label}</p>
       {#key personaCfg.headline}
         <h1 class="type-h1 mt-2 max-w-2xl text-heading" use:revealHeading>{personaCfg.headline}</h1>
@@ -214,7 +214,7 @@
     </p>
     <!-- trust badges -->
     <div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[12px] font-semibold text-ink/70">
-      <span class="inline-flex items-center gap-1.5"><span class="text-goldfinch-gold">★★★★★</span> Rated by travellers</span>
+      <span class="inline-flex items-center gap-1.5"><span class="text-emnel-gold">★★★★★</span> Rated by travellers</span>
       {#each ['100% private & tailor-made', 'Local safari experts', 'No hidden costs', '24/7 travel support'] as claim}
         <span class="inline-flex items-center gap-1.5"><Check size={13} class="text-forest" strokeWidth={3} /> {claim}</span>
       {/each}
@@ -239,7 +239,7 @@
     <aside class={`${filtersOpen ? 'block' : 'hidden'} min-w-0 lg:block`}>
       <div class="filter-scroll grid min-w-0 gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overscroll-contain lg:pb-2">
         <!-- search card -->
-        <div class="rounded-2xl border border-goldfinch-gold/30 bg-sand/40 p-5">
+        <div class="rounded-2xl border border-emnel-gold/30 bg-sand/40 p-5">
           <p class="font-serif text-lg font-bold text-heading">Your Safari</p>
           <form class="mt-4 grid gap-3" on:submit={submitSearch}>
             <label class="grid gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink/70">

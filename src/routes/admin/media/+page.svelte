@@ -356,11 +356,11 @@
           </div>
 
           <div class="flex flex-wrap justify-end gap-2">
-            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => copyUrl(media)}>
+            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => copyUrl(media)}>
               <Copy size={14} />
               Copy URL
             </button>
-            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(media)}>
+            <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(media)}>
               <Edit size={14} />
               Edit
             </button>
@@ -413,11 +413,11 @@
               <td class="px-4 py-3 text-ink/65">{formatDate(media.created_at)}</td>
               <td class="px-4 py-3">
                 <div class="flex justify-end gap-2">
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => copyUrl(media)}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => copyUrl(media)}>
                     <Copy size={14} />
                     Copy
                   </button>
-                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-goldfinch-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(media)}>
+                  <button class="inline-flex h-9 items-center gap-2 rounded-xl border border-ink/10 bg-surface px-3 text-xs font-semibold text-ink shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/70" type="button" on:click={() => openEditModal(media)}>
                     <Edit size={14} />
                     Edit
                   </button>
@@ -462,7 +462,7 @@
       <form class="mt-6 grid gap-4" on:submit|preventDefault={uploadMedia}>
         <label class="grid gap-2 text-sm font-medium text-ink">
           <span>Image or video file{uploadCount > 1 ? 's' : ''}</span>
-          <input class="rounded-2xl border border-dashed border-forest/25 bg-sand/25 px-4 py-4 text-sm text-ink file:mr-3 file:rounded-xl file:border-0 file:bg-forest file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:border-goldfinch-gold/45" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple on:change={handleUploadFileChange} />
+          <input class="rounded-2xl border border-dashed border-forest/25 bg-sand/25 px-4 py-4 text-sm text-ink file:mr-3 file:rounded-xl file:border-0 file:bg-forest file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:border-emnel-gold/45" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple on:change={handleUploadFileChange} />
           <span class="text-xs text-ink/55">{uploadFileName || 'Images (JPG/PNG/WebP, ≤5MB) or video (MP4/WebM/MOV, ≤50MB). Select multiple to upload at once.'}</span>
         </label>
 
