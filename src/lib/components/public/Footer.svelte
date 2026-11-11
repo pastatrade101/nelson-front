@@ -14,7 +14,6 @@
   const countryHref = (country: string) => canonicalHref(`/${country.toLowerCase().replace(/\s+/g, '-')}-safaris`);
 
   import { Mail, Phone } from '@lucide/svelte';
-  import { trackEvent } from '$lib/analytics';
   import { brand } from '$lib/brand';
   import { canonicalHref } from '$lib/redirects';
   import { branding } from '$lib/branding';
@@ -62,12 +61,12 @@
       {#if contactEmail || contactPhone}
         <div class="mt-4 grid gap-1.5 text-sm text-white/70">
           {#if contactEmail}
-            <a class="inline-flex w-fit items-center gap-2 transition hover:text-white" href={`mailto:${contactEmail}`} on:click={() => trackEvent('email_click')}>
+            <a class="inline-flex w-fit items-center gap-2 transition hover:text-white" href={`mailto:${contactEmail}`}>
               <Mail size={15} class="text-white/50" />{contactEmail}
             </a>
           {/if}
           {#if contactPhone}
-            <a class="inline-flex w-fit items-center gap-2 transition hover:text-white" href={`tel:${contactPhone}`} on:click={() => trackEvent('phone_click')}>
+            <a class="inline-flex w-fit items-center gap-2 transition hover:text-white" href={`tel:${contactPhone}`}>
               <Phone size={15} class="text-white/50" />{contactPhone}
             </a>
           {/if}

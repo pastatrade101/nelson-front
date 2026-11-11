@@ -245,14 +245,21 @@
   //    over the current page. The address stays a real page for new tabs,
   //    crawlers and anyone without JavaScript.
   const WHATSAPP_LINK = /^(?:https?:\/\/)?(?:wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\b|^whatsapp:/i;
+  // Where on the page a contact link was clicked, for the event's context.
+  const linkContext = (link: Element) =>
+    link.closest('footer') ? 'footer' : link.closest('header, nav') ? 'header' : link.closest('[role="dialog"]') ? 'popup' : 'page_link';
   const onDocumentClick = (event: MouseEvent) => {
     if (isAdmin || event.defaultPrevented) return;
     const link = (event.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
     if (!link) return;
     if (WHATSAPP_LINK.test(link.href)) {
-      if (!('waTracked' in link.dataset)) trackEvent('whatsapp_click', { metadata: { context: 'page_link' } });
+      if (!('waTracked' in link.dataset)) trackEvent('whatsapp_click', { metadata: { context: linkContext(link) } });
       return;
     }
+    // Every email and phone link on the site, wherever it sits (footer,
+    // contact page, CMS copy), counted once here rather than per component.
+    if (/^mailto:/i.test(link.href)) return trackEvent('email_click', { metadata: { context: linkContext(link) } });
+    if (/^tel:/i.test(link.href)) return trackEvent('phone_click', { metadata: { context: linkContext(link) } });
     const url = new URL(link.href, window.location.href);
     const plain = event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && (!link.target || link.target === '_self');
     if (plain && url.origin === window.location.origin && url.pathname === '/plan-my-trip' && path !== '/plan-my-trip' && !link.hasAttribute('download')) {

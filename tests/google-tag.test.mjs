@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { tagId, verificationCode, googleTagHead, googleTagBody } from '../src/lib/googleTag.ts';
 
 test('tag ids are checked against their format; the first valid one wins', () => {
-  assert.equal(tagId('ga4', ' g-7y0g632949 '), 'G-7Y0G632949');
-  assert.equal(tagId('ga4', '', 'G-7Y0G632949'), 'G-7Y0G632949', 'falls back to the next candidate');
+  assert.equal(tagId('ga4', ' g-h39l5rhrnc '), 'G-H39L5RHRNC');
+  assert.equal(tagId('ga4', '', 'G-H39L5RHRNC'), 'G-H39L5RHRNC', 'falls back to the next candidate');
   assert.equal(tagId('ga4', 'UA-12345-1'), '');
   assert.equal(tagId('ads', 'AW-1234567890'), 'AW-1234567890');
   assert.equal(tagId('ads', 'AW-12345/abcDEF'), '', 'a conversion label is not a tag id');
@@ -23,14 +23,14 @@ test('the Search Console code is read from any form it is pasted in', () => {
 
 test('no ids, no tags', () => {
   assert.equal(googleTagHead({ ga4: '', ads: '', gtm: '' }), '');
-  assert.equal(googleTagBody({ ga4: 'G-7Y0G632949', ads: '', gtm: '' }), '');
+  assert.equal(googleTagBody({ ga4: 'G-H39L5RHRNC', ads: '', gtm: '' }), '');
 });
 
 test('consent defaults to denied before any tag loads, and gtag.js loads once for GA4 and Ads', () => {
-  const head = googleTagHead({ ga4: 'G-7Y0G632949', ads: 'AW-1234567890', gtm: '' });
+  const head = googleTagHead({ ga4: 'G-H39L5RHRNC', ads: 'AW-1234567890', gtm: '' });
   assert.ok(head.indexOf("gtag('consent','default'") < head.indexOf('googletagmanager.com'));
   assert.equal(head.match(/gtag\/js\?id=/g).length, 1);
-  assert.ok(head.includes("gtag('config','G-7Y0G632949'"));
+  assert.ok(head.includes("gtag('config','G-H39L5RHRNC'"));
   assert.ok(head.includes("gtag('config','AW-1234567890')"));
   assert.ok(head.includes('if(!window.emnelGoogleTag)'), 'guarded against a second run');
   assert.ok(!head.includes('gtm.js'));

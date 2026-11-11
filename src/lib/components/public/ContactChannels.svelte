@@ -1,6 +1,5 @@
 <script lang="ts">
   import { ArrowRight, BadgeCheck, Clock, Globe, Mail, MapPin, MessageCircle, Phone } from '@lucide/svelte';
-  import { trackEvent } from '$lib/analytics';
   import { brand } from '$lib/brand';
   import { publicSettings, settingText } from '$lib/settings';
   import WhatsAppCta from './WhatsAppCta.svelte';
@@ -57,7 +56,6 @@
   <div class="grid gap-4 sm:grid-cols-2">
     <a
       href={`mailto:${contactEmail}`}
-      on:click={() => trackEvent('email_click')}
       class="group flex items-start gap-3 rounded-xl border border-ink/10 bg-surface p-4 shadow-soft transition hover:border-forest/30 hover:shadow-md"
     >
       <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-forest/10 text-forest transition group-hover:bg-forest group-hover:text-white">
@@ -71,7 +69,6 @@
 
     <a
       href={telHref}
-      on:click={() => trackEvent('phone_click')}
       class="group flex items-start gap-3 rounded-xl border border-ink/10 bg-surface p-4 shadow-soft transition hover:border-forest/30 hover:shadow-md"
     >
       <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-forest/10 text-forest transition group-hover:bg-forest group-hover:text-white">
