@@ -227,9 +227,8 @@
   $: pageSource = ga4Cfg && ga4!.topPages.length ? 'ga4' : 'clarity';
   $: browserRows = clarity?.byBrowser ?? [];
 
-  // Connection panel — Makutano AI is always live; the rest reflect real config.
+  // Connection panel — each row reflects real config.
   $: hubSources = [
-    { key: 'makutano', label: 'Makutano AI', connected: true, note: 'First-party events · live' },
     { key: 'ga4', label: 'Google Analytics 4', connected: ga4Cfg, note: ga4Cfg ? 'Traffic API · live' : 'Add GA4 credentials' },
     { key: 'clarity', label: 'Microsoft Clarity', connected: clarityConnected, note: cCfg ? 'Recordings + data export · live' : clarityConnected ? 'Recordings live · export off' : 'Not connected' }
   ];
@@ -510,7 +509,7 @@
 
       <div class="grid gap-5 p-5">
         <!-- connection panel -->
-        <div class="grid gap-2.5 sm:grid-cols-3">
+        <div class="grid gap-2.5 sm:grid-cols-2">
           {#each hubSources as s}
             <div class="flex items-center gap-2.5 rounded-xl border border-ink/[0.07] bg-sand/20 px-3.5 py-2.5">
               <span class={`h-2.5 w-2.5 shrink-0 rounded-full ${s.connected ? 'bg-emerald-500 ring-4 ring-emerald-500/15' : 'bg-ink/20'}`}></span>

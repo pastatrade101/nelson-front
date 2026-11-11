@@ -10,7 +10,7 @@
   export let label: string;
   export let value: number | null = null;
   export let format: 'number' | 'percent' | 'duration' | 'currency' = 'number';
-  export let source = 'makutano';
+  export let source = 'website';
   export let available = true;
   export let deepLink: string | undefined = undefined;
   export let deepLinkLabel = 'Open in Clarity';
