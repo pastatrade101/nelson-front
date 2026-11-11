@@ -442,6 +442,10 @@
   };
 
   onMount(async () => {
+    // Links from the overview open the list already filtered (?status=pending).
+    const params = new URLSearchParams(window.location.search);
+    statusFilter = params.get('status') || statusFilter;
+    paymentFilter = params.get('payment_status') || paymentFilter;
     await Promise.all([loadBookings(), loadKpis(), loadOptions()]);
   });
 </script>

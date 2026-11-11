@@ -1,756 +1,493 @@
 <script lang="ts">
+  /**
+   * The CMS overview, ordered by the questions people open it with: is money
+   * owed to us, is anybody waiting on us, where do the quotations stand, and
+   * did the messages we sent arrive. Content health comes last — it matters,
+   * it just is not urgent.
+   *
+   * Every figure comes from Emnel's own records (GET /dashboard/stats). Nothing
+   * is projected or estimated: a number here either happened or is absent.
+   */
   import { onMount } from 'svelte';
   import type { Component } from 'svelte';
   import {
     AlertTriangle,
-    Bot,
+    ArrowRight,
+    Ban,
     CalendarCheck,
-    ChartBar,
-    ChartPie,
-    CheckCircle,
-    CircleDollarSign,
+    CheckCircle2,
     ClipboardList,
-    Clock,
-    FileClock,
-    ImagePlus,
-    Images,
+    Inbox,
     Mail,
-    Map,
-    MapPin,
-    MessageSquare,
-    Newspaper,
     Plus,
-    Route,
-    SearchCheck,
-    ShieldCheck,
+    Send,
     Sparkles,
-    Tags,
-    Upload
+    TrendingUp,
+    Wallet
   } from '@lucide/svelte';
   import { api } from '$lib/api/client';
   import ChartCanvas from '$lib/components/admin/ChartCanvas.svelte';
-  import { barConfig, doughnutConfig } from '$lib/charts';
+  import { funnelConfig, lineConfig } from '$lib/charts';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
 
-  type CountStats = {
-    aiConversations: number;
-    blogPosts: number;
-    confirmedBookings: number;
-    destinations: number;
-    draftTours: number;
-    mediaFiles: number;
-    pendingBookings: number;
-    publishedTours: number;
-    totalBookings: number;
-    totalRevenue: number;
-    totalTours: number;
-    unreadMessages: number;
+  type Money = { received: number; refunded: number; outstanding: number };
+  type DeliveryReason = { status: 'skipped' | 'failed'; channel: string; detail: string; count: number };
+  type Commerce = {
+    days: number;
+    money: Record<string, Money>;
+    currencies: string[];
+    series: Array<{ date: string; received: number; enquiries: number; accepted: number }>;
+    pipeline: Record<string, number>;
+    quotedValue: number;
+    acceptedValue: number;
+    winRate: number | null;
+    attention: { pendingEnquiries: number; quotationsToSend: number; unpaidConfirmed: number };
+    delivery: { sent: number; skipped: number; failed: number };
+    deliveryReasons?: DeliveryReason[];
   };
 
-  type BookingPipeline = {
-    cancelled: number;
-    completed: number;
-    confirmed: number;
-    pending: number;
-    rejected: number;
-  };
-
-  type ContentHealth = {
-    publishedBlogPosts: number;
-    publishedDestinations: number;
-    publishedFaqs: number;
-    publishedTestimonials: number;
-    toursMissingImages: number;
-    toursWithSeo: number;
-    toursWithoutAvailableDates: number;
-    toursWithoutItinerary: number;
-  };
-
-  type DashboardRow = Record<string, unknown>;
-
-  type DashboardStats = {
-    bookingPipeline: BookingPipeline;
-    contentHealth: ContentHealth;
-    counts: CountStats;
-    featured: {
-      blogPosts: DashboardRow[];
-      destinations: DashboardRow[];
-      tours: DashboardRow[];
-    };
-    recent: {
-      auditLogs: DashboardRow[];
-      bookings: DashboardRow[];
-      media: DashboardRow[];
-      messages: DashboardRow[];
-      tours: DashboardRow[];
-    };
-  };
-
-  type KpiCard = {
-    accent: string;
-    helper: string;
-    icon: Component;
-    label: string;
-    trend?: string;
-    value: string | number;
-  };
-
-  type ActionItem = {
-    description: string;
-    href: string;
-    icon: Component;
-    label: string;
-  };
-
-  const emptyStats: DashboardStats = {
-    counts: {
-      aiConversations: 0,
-      blogPosts: 0,
-      confirmedBookings: 0,
-      destinations: 0,
-      draftTours: 0,
-      mediaFiles: 0,
-      pendingBookings: 0,
-      publishedTours: 0,
-      totalBookings: 0,
-      totalRevenue: 0,
-      totalTours: 0,
-      unreadMessages: 0
-    },
-    bookingPipeline: {
-      pending: 0,
-      confirmed: 0,
-      cancelled: 0,
-      completed: 0,
-      rejected: 0
-    },
-    contentHealth: {
-      toursWithSeo: 0,
-      toursMissingImages: 0,
-      toursWithoutItinerary: 0,
-      toursWithoutAvailableDates: 0,
-      publishedDestinations: 0,
-      publishedBlogPosts: 0,
-      publishedFaqs: 0,
-      publishedTestimonials: 0
-    },
-    recent: {
-      bookings: [],
-      messages: [],
-      tours: [],
-      media: [],
-      auditLogs: []
-    },
-    featured: {
-      tours: [],
-      destinations: [],
-      blogPosts: []
-    }
-  };
-
-  const quickActions: ActionItem[] = [
-    { label: 'Create New Tour', description: 'Build a new travel product', href: '/admin/tours/new', icon: Plus },
-    { label: 'Add Destination', description: 'Manage countries and regions', href: '/admin/destinations', icon: MapPin },
-    { label: 'Add Category', description: 'Organize tour experiences', href: '/admin/categories', icon: Tags },
-    { label: 'Upload Media', description: 'Add reusable CMS assets', href: '/admin/media', icon: Upload },
-    { label: 'Add Blog Post', description: 'Publish travel guidance', href: '/admin/blog', icon: Newspaper },
-    { label: 'View Messages', description: 'Respond to customer leads', href: '/admin/messages', icon: Mail },
-    { label: 'Review Bookings', description: 'Track booking requests', href: '/admin/bookings', icon: ClipboardList },
-    { label: 'AI Conversations', description: 'Review safari advisor sessions', href: '/admin/ai-conversations', icon: Bot }
-  ];
-
-  let stats: DashboardStats = emptyStats;
+  let stats: Record<string, any> | null = null;
+  let commerce: Commerce | null = null;
   let loading = true;
   let error = '';
-  let adminName = 'Emnel Super Admin';
-
-  const numberValue = (source: Record<string, unknown>, key: string) => Number(source[key] ?? 0) || 0;
-
-  const arrayValue = (source: Record<string, unknown>, key: string) => {
-    const value = source[key];
-    return Array.isArray(value) ? (value as DashboardRow[]) : [];
-  };
-
-  const normalizeStats = (data: Record<string, unknown>): DashboardStats => {
-    const countsSource = (data.counts && typeof data.counts === 'object' ? data.counts : data) as Record<string, unknown>;
-    const bookingSource = (data.bookingPipeline && typeof data.bookingPipeline === 'object' ? data.bookingPipeline : {}) as Record<string, unknown>;
-    const healthSource = (data.contentHealth && typeof data.contentHealth === 'object' ? data.contentHealth : {}) as Record<string, unknown>;
-    const recentSource = (data.recent && typeof data.recent === 'object' ? data.recent : {}) as Record<string, unknown>;
-    const featuredSource = (data.featured && typeof data.featured === 'object' ? data.featured : {}) as Record<string, unknown>;
-
-    return {
-      counts: {
-        totalTours: numberValue(countsSource, 'totalTours') || numberValue(countsSource, 'tours'),
-        publishedTours: numberValue(countsSource, 'publishedTours'),
-        draftTours: numberValue(countsSource, 'draftTours'),
-        destinations: numberValue(countsSource, 'destinations'),
-        totalBookings: numberValue(countsSource, 'totalBookings') || numberValue(countsSource, 'bookings'),
-        pendingBookings: numberValue(countsSource, 'pendingBookings'),
-        confirmedBookings: numberValue(countsSource, 'confirmedBookings'),
-        totalRevenue: numberValue(countsSource, 'totalRevenue'),
-        unreadMessages: numberValue(countsSource, 'unreadMessages') || numberValue(countsSource, 'newMessages'),
-        mediaFiles: numberValue(countsSource, 'mediaFiles'),
-        blogPosts: numberValue(countsSource, 'blogPosts') || numberValue(countsSource, 'posts'),
-        aiConversations: numberValue(countsSource, 'aiConversations')
-      },
-      bookingPipeline: {
-        pending: numberValue(bookingSource, 'pending'),
-        confirmed: numberValue(bookingSource, 'confirmed'),
-        cancelled: numberValue(bookingSource, 'cancelled'),
-        completed: numberValue(bookingSource, 'completed'),
-        rejected: numberValue(bookingSource, 'rejected')
-      },
-      contentHealth: {
-        toursWithSeo: numberValue(healthSource, 'toursWithSeo'),
-        toursMissingImages: numberValue(healthSource, 'toursMissingImages'),
-        toursWithoutItinerary: numberValue(healthSource, 'toursWithoutItinerary'),
-        toursWithoutAvailableDates: numberValue(healthSource, 'toursWithoutAvailableDates'),
-        publishedDestinations: numberValue(healthSource, 'publishedDestinations'),
-        publishedBlogPosts: numberValue(healthSource, 'publishedBlogPosts'),
-        publishedFaqs: numberValue(healthSource, 'publishedFaqs'),
-        publishedTestimonials: numberValue(healthSource, 'publishedTestimonials')
-      },
-      recent: {
-        bookings: arrayValue(recentSource, 'bookings'),
-        messages: arrayValue(recentSource, 'messages'),
-        tours: arrayValue(recentSource, 'tours'),
-        media: arrayValue(recentSource, 'media'),
-        auditLogs: arrayValue(recentSource, 'auditLogs')
-      },
-      featured: {
-        tours: arrayValue(featuredSource, 'tours'),
-        destinations: arrayValue(featuredSource, 'destinations'),
-        blogPosts: arrayValue(featuredSource, 'blogPosts')
-      }
-    };
-  };
-
-  const formatMoney = (value: number) => `USD ${value.toLocaleString()}`;
-
-  const formatDate = (value?: unknown) => {
-    if (!value) return 'No date';
-    return new Intl.DateTimeFormat('en', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(String(value)));
-  };
-
-  const textValue = (row: DashboardRow, key: string, fallback = '-') => String(row[key] ?? fallback);
-
-  const relationText = (row: DashboardRow, key: string, childKey = 'title') => {
-    const value = row[key];
-    if (Array.isArray(value)) return String((value[0] as DashboardRow | undefined)?.[childKey] ?? '');
-    if (value && typeof value === 'object') return String((value as DashboardRow)[childKey] ?? '');
-    return '';
-  };
-
-  const percent = (value: number, total: number) => {
-    if (total <= 0) return 0;
-    return Math.min(Math.round((value / total) * 100), 100);
-  };
-
-  const statusClass = (count: number) =>
-    count > 0 ? 'bg-emnel-gold/15 text-heading ring-emnel-gold/25' : 'bg-forest/10 text-forest ring-forest/20';
-
-  $: kpiCards = [
-    { label: 'Total Tours', value: stats.counts.totalTours, helper: 'All CMS tour packages', trend: `${stats.counts.publishedTours} published`, icon: Map, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Published Tours', value: stats.counts.publishedTours, helper: 'Visible on website', trend: 'Public inventory', icon: CheckCircle, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Draft Tours', value: stats.counts.draftTours, helper: 'Waiting for publishing', trend: stats.counts.draftTours ? 'Needs review' : 'Clear', icon: FileClock, accent: 'from-emnel-gold/20 to-emnel-gold/5 text-heading' },
-    { label: 'Destinations', value: stats.counts.destinations, helper: 'CMS destinations', trend: `${stats.contentHealth.publishedDestinations} published`, icon: MapPin, accent: 'from-savanna/50 to-savanna/15 text-heading' },
-    { label: 'Bookings', value: stats.counts.totalBookings, helper: 'Total booking requests', trend: `${stats.counts.pendingBookings} pending`, icon: ClipboardList, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Pending Bookings', value: stats.counts.pendingBookings, helper: 'Need response', trend: stats.counts.pendingBookings ? 'Action needed' : 'No backlog', icon: Clock, accent: 'from-emnel-gold/20 to-emnel-gold/5 text-heading' },
-    { label: 'Revenue', value: formatMoney(stats.counts.totalRevenue), helper: 'Paid booking records', trend: 'Finance view', icon: CircleDollarSign, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'Messages', value: stats.counts.unreadMessages, helper: 'Unread customer messages', trend: stats.counts.unreadMessages ? 'Follow up' : 'Inbox clear', icon: Mail, accent: 'from-emnel-gold/20 to-emnel-gold/5 text-heading' },
-    { label: 'Media Files', value: stats.counts.mediaFiles, helper: 'Reusable CMS assets', trend: 'Image library', icon: Images, accent: 'from-savanna/50 to-savanna/15 text-heading' },
-    { label: 'Blog Posts', value: stats.counts.blogPosts, helper: 'Published and draft posts', trend: `${stats.contentHealth.publishedBlogPosts} published`, icon: Newspaper, accent: 'from-forest/12 to-forest/5 text-forest' },
-    { label: 'AI Conversations', value: stats.counts.aiConversations, helper: 'Safari advisor sessions', trend: 'Lead intelligence', icon: Bot, accent: 'from-emnel-gold/20 to-emnel-gold/5 text-heading' },
-    { label: 'Confirmed Bookings', value: stats.counts.confirmedBookings, helper: 'Ready for operations', trend: 'Operations queue', icon: CalendarCheck, accent: 'from-forest/12 to-forest/5 text-forest' }
-  ] satisfies KpiCard[];
-
-  $: operationalItems = [
-    { label: 'Pending bookings', value: stats.counts.pendingBookings, href: '/admin/bookings', icon: ClipboardList },
-    { label: 'Unread messages', value: stats.counts.unreadMessages, href: '/admin/messages', icon: Mail },
-    { label: 'Draft tours', value: stats.counts.draftTours, href: '/admin/tours', icon: FileClock },
-    { label: 'Tours missing images', value: stats.contentHealth.toursMissingImages, href: '/admin/tours', icon: ImagePlus },
-    { label: 'Tours need itinerary', value: stats.contentHealth.toursWithoutItinerary, href: '/admin/itineraries', icon: Route },
-    { label: 'Tours need dates', value: stats.contentHealth.toursWithoutAvailableDates, href: '/admin/available-dates', icon: CalendarCheck }
-  ];
-
-  $: pipelineTotal = Object.values(stats.bookingPipeline).reduce((sum, value) => sum + value, 0);
-
-  $: pipelineItems = [
-    { label: 'Pending', value: stats.bookingPipeline.pending, color: 'bg-emnel-gold' },
-    { label: 'Confirmed', value: stats.bookingPipeline.confirmed, color: 'bg-forest' },
-    { label: 'Cancelled', value: stats.bookingPipeline.cancelled, color: 'bg-slate-400' },
-    { label: 'Completed', value: stats.bookingPipeline.completed, color: 'bg-deep-green' },
-    { label: 'Rejected', value: stats.bookingPipeline.rejected, color: 'bg-red-400' }
-  ];
-
-  $: healthItems = [
-    {
-      label: 'SEO completed',
-      helper: `${stats.contentHealth.toursWithSeo} of ${stats.counts.totalTours} tours`,
-      value: percent(stats.contentHealth.toursWithSeo, stats.counts.totalTours),
-      icon: SearchCheck
-    },
-    {
-      label: 'Tour images added',
-      helper: `${Math.max(stats.counts.totalTours - stats.contentHealth.toursMissingImages, 0)} of ${stats.counts.totalTours} tours`,
-      value: percent(Math.max(stats.counts.totalTours - stats.contentHealth.toursMissingImages, 0), stats.counts.totalTours),
-      icon: Images
-    },
-    {
-      label: 'Destinations published',
-      helper: `${stats.contentHealth.publishedDestinations} of ${stats.counts.destinations} destinations`,
-      value: percent(stats.contentHealth.publishedDestinations, stats.counts.destinations),
-      icon: MapPin
-    },
-    {
-      label: 'Blog content added',
-      helper: `${stats.contentHealth.publishedBlogPosts} published posts`,
-      value: percent(stats.contentHealth.publishedBlogPosts, Math.max(stats.counts.blogPosts, 1)),
-      icon: Newspaper
-    },
-    {
-      label: 'FAQs ready',
-      helper: `${stats.contentHealth.publishedFaqs} published FAQs`,
-      value: stats.contentHealth.publishedFaqs > 0 ? 100 : 0,
-      icon: ShieldCheck
-    },
-    {
-      label: 'Testimonials ready',
-      helper: `${stats.contentHealth.publishedTestimonials} published testimonials`,
-      value: stats.contentHealth.publishedTestimonials > 0 ? 100 : 0,
-      icon: MessageSquare
-    }
-  ];
-
-  $: currentPeriod = new Intl.DateTimeFormat('en', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  }).format(new Date());
-
-  // ── Chart.js configs (brand-coloured, animated) ──────────────────────────
-  $: pipelineDonutCfg = doughnutConfig(
-    [
-      { label: 'Pending', value: stats.bookingPipeline.pending },
-      { label: 'Confirmed', value: stats.bookingPipeline.confirmed },
-      { label: 'Cancelled', value: stats.bookingPipeline.cancelled },
-      { label: 'Completed', value: stats.bookingPipeline.completed },
-      { label: 'Rejected', value: stats.bookingPipeline.rejected }
-    ].filter((x) => x.value > 0),
-    ' requests'
-  );
-
-  $: contentBarCfg = barConfig([
-    { label: 'Tours', value: stats.counts.totalTours },
-    { label: 'Destinations', value: stats.counts.destinations },
-    { label: 'Bookings', value: stats.counts.totalBookings },
-    { label: 'Blog', value: stats.counts.blogPosts },
-    { label: 'Media', value: stats.counts.mediaFiles }
-  ]);
 
   onMount(async () => {
-    loading = true;
-    error = '';
-
     try {
-      const [statsResponse, userResponse] = await Promise.all([
-        api.dashboard.stats(),
-        api.auth.me().catch(() => null)
-      ]);
-
-      stats = normalizeStats(statsResponse.data);
-
-      if (userResponse?.data && typeof userResponse.data === 'object') {
-        const user = userResponse.data as Record<string, unknown>;
-        adminName = String(user.name ?? user.email ?? adminName);
-      }
-    } catch (requestError) {
-      error = requestError instanceof Error ? requestError.message : 'Unable to load dashboard stats.';
+      const res = await api.dashboard.stats();
+      stats = res.data as Record<string, any>;
+      commerce = (stats?.commerce ?? null) as Commerce | null;
+    } catch (err) {
+      error = err instanceof Error ? err.message : 'Unable to load the dashboard.';
     } finally {
       loading = false;
     }
   });
+
+  const money = (value: unknown, code = 'USD') =>
+    `${code} ${Number(value ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+
+  const exact = (value: unknown, code = 'USD') =>
+    `${code} ${Number(value ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  /** Short labels; a 30-point axis has no room for years. */
+  const tick = (iso: string) =>
+    new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
+
+  const hour = new Date().getHours();
+  $: greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
+  /** The trading currency: whichever has seen the most money. */
+  $: primary = (commerce?.currencies ?? []).slice().sort((a, b) => {
+    const m = commerce!.money;
+    return (m[b].received + m[b].outstanding) - (m[a].received + m[a].outstanding);
+  })[0] ?? 'USD';
+  $: pot = commerce?.money?.[primary] ?? { received: 0, refunded: 0, outstanding: 0 };
+
+  /**
+   * Only what someone can act on, and only when there is something to act on.
+   * A permanent row of zeroes trains people to stop reading the section.
+   */
+  $: todo = !commerce
+    ? []
+    : [
+        {
+          key: 'pending',
+          count: commerce.attention.pendingEnquiries,
+          label: commerce.attention.pendingEnquiries === 1 ? 'enquiry still pending' : 'enquiries still pending',
+          detail: 'Trip requests not yet moved on from Pending — reply, quote, or update the status.',
+          href: '/admin/bookings?status=pending',
+          icon: Inbox,
+          tone: 'urgent'
+        },
+        {
+          key: 'tosend',
+          count: commerce.attention.quotationsToSend,
+          label: commerce.attention.quotationsToSend === 1 ? 'quotation drafted, not sent' : 'quotations drafted, not sent',
+          detail: 'Written and waiting. The traveller has not seen these yet.',
+          href: '/admin/quotations',
+          icon: Send,
+          tone: 'warn'
+        },
+        {
+          key: 'unpaid',
+          count: commerce.attention.unpaidConfirmed,
+          label: commerce.attention.unpaidConfirmed === 1 ? 'confirmed trip not fully paid' : 'confirmed trips not fully paid',
+          detail: 'Agreed and going ahead, money still outstanding.',
+          href: '/admin/bookings?status=confirmed&payment_status=unpaid',
+          icon: CalendarCheck,
+          tone: 'warn'
+        }
+      ].filter((row) => row.count > 0);
+
+  $: urgentCount = todo.filter((t) => t.tone === 'urgent').reduce((n, t) => n + t.count, 0);
+
+  // ── Charts ──────────────────────────────────────────────────────────────
+  $: series = commerce?.series ?? [];
+  $: hasMoneyHistory = series.some((d) => d.received > 0);
+  $: hasEnquiryHistory = series.some((d) => d.enquiries > 0);
+
+  $: moneyChart = lineConfig(series.map((d) => tick(d.date)), series.map((d) => d.received), primary);
+  $: enquiryChart = lineConfig(series.map((d) => tick(d.date)), series.map((d) => d.enquiries));
+
+  /** The live stages only — settled outcomes (declined, expired) are reported as numbers. */
+  const STAGES: Array<[string, string]> = [
+    ['draft', 'Draft'],
+    ['sent', 'Sent'],
+    ['viewed', 'Viewed'],
+    ['accepted', 'Accepted']
+  ];
+  $: funnelStages = STAGES.map(([key, label]) => ({ label, value: commerce?.pipeline?.[key] ?? 0 }));
+  $: hasFunnel = funnelStages.some((s) => s.value > 0);
+  $: funnelChart = funnelConfig(funnelStages);
+  $: settled = (commerce?.pipeline?.declined ?? 0) + (commerce?.pipeline?.expired ?? 0);
+
+  // ── Delivery ────────────────────────────────────────────────────────────
+  $: delivery = commerce?.delivery ?? { sent: 0, skipped: 0, failed: 0 };
+  $: deliveryTotal = delivery.sent + delivery.skipped + delivery.failed;
+  $: deliveryRate = deliveryTotal ? Math.round((delivery.sent / deliveryTotal) * 100) : null;
+  $: deliveryReasons = commerce?.deliveryReasons ?? [];
+  const CHANNEL_LABEL: Record<string, string> = { whatsapp: 'WhatsApp', email: 'Email', email_staff: 'Staff email' };
+
+  $: counts = (stats?.counts ?? {}) as Record<string, number>;
+  $: recentBookings = (stats?.recent?.bookings ?? []) as Array<Record<string, any>>;
+  $: recentMessages = (stats?.recent?.messages ?? []) as Array<Record<string, any>>;
+
+  const when = (value: unknown) =>
+    value
+      ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(String(value)))
+      : '';
+
+  const QUICK: Array<{ label: string; href: string; icon: Component }> = [
+    { label: 'New quotation', href: '/admin/quotations', icon: Plus },
+    { label: 'Record a payment', href: '/admin/payments', icon: Wallet },
+    { label: 'Bookings', href: '/admin/bookings', icon: ClipboardList },
+    { label: 'Inbox', href: '/admin/messages', icon: Mail }
+  ];
+
+  // `min-w-0` keeps chart canvases and long names inside a phone viewport.
+  const card = 'min-w-0 max-w-full rounded-[10px] border border-ink/10 bg-surface p-4 shadow-sm sm:p-5';
+  const eyebrow = 'text-[11px] font-bold uppercase tracking-[0.16em] text-forest/70';
+  const emptyNote = 'mt-6 rounded-[8px] border border-dashed border-ink/15 px-4 py-8 text-center text-sm text-ink/45';
 </script>
 
-{#if loading}
-  <div class="mx-auto grid w-full max-w-[1500px] gap-6">
-    <div class="min-h-[260px] animate-pulse rounded-none bg-gradient-to-br from-forest/80 to-deep-green"></div>
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {#each Array(12) as _}
-        <div class="h-36 animate-pulse rounded-none border border-ink/10 bg-surface/80"></div>
-      {/each}
-    </div>
-  </div>
-{:else if error}
+{#if error}
   <ErrorState message={error} />
+{:else if loading}
+  <div class="grid gap-4">
+    {#each Array(3) as _}
+      <div class="h-32 animate-pulse rounded-[10px] border border-ink/10 bg-sand/30"></div>
+    {/each}
+  </div>
 {:else}
-  <div class="mx-auto grid w-full max-w-[1500px] gap-6">
-    <section class="relative overflow-hidden rounded-none border border-white/10 bg-gradient-to-br from-deep-green via-forest to-[#14382d] p-6 text-white shadow-[0_26px_80px_rgba(28,26,22,0.18)] lg:p-8">
-      <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emnel-gold/25 blur-3xl"></div>
-      <div class="pointer-events-none absolute bottom-0 left-1/3 h-44 w-44 rounded-full bg-savanna/10 blur-3xl"></div>
+  <div class="grid min-w-0 max-w-full gap-4 sm:gap-5">
+    <!-- ── The band: money, and whether anyone is waiting ──────────────── -->
+    <section
+      class="relative min-w-0 overflow-hidden rounded-[10px] border border-white/10 bg-gradient-to-br from-deep-green via-forest to-[#232620] p-4 text-white shadow-[0_26px_80px_rgba(57,61,50,0.18)] sm:p-6 lg:p-8"
+    >
+      <div class="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-emnel-gold/10 blur-3xl"></div>
 
-      <div class="relative grid gap-8 xl:grid-cols-[1fr_360px] xl:items-end">
-        <div>
-          <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/10 px-3 py-1.5 text-xs font-semibold text-savanna backdrop-blur">
-            <Sparkles size={14} />
-            Emnel Adventures Platform
-          </div>
-          <h1 class="mt-5 max-w-4xl text-3xl font-bold tracking-normal text-white sm:text-4xl lg:text-5xl">
-            Welcome back, {adminName}
+      <div class="relative grid min-w-0 gap-4 sm:gap-5 lg:grid-cols-[1.1fr_1fr] lg:items-end">
+        <div class="min-w-0">
+          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-emnel-gold">{greeting}</p>
+          <h1 class="mt-2 font-serif text-[1.75rem] font-semibold leading-[1.1] sm:text-3xl md:text-[38px]">
+            {#if urgentCount > 0}
+              {urgentCount} {urgentCount === 1 ? 'enquiry is' : 'enquiries are'} waiting on you
+            {:else if todo.length}
+              Nothing urgent — {todo.length} {todo.length === 1 ? 'item' : 'items'} in hand
+            {:else}
+              Everything is clear
+            {/if}
           </h1>
-          <p class="mt-3 max-w-2xl text-base leading-7 text-savanna/85">
-            Here is what is happening across your travel platform today.
+          <p class="mt-2 max-w-lg text-sm leading-relaxed text-white/70 [overflow-wrap:anywhere]">
+            {#if urgentCount > 0}
+              Travellers asked for a trip and the request is still marked Pending. The list below shows where the work is.
+            {:else if todo.length}
+              Nothing is blocked. What is below is work in flight, not work overdue.
+            {:else}
+              No pending enquiries, no unsent quotations, and nothing outstanding on a confirmed trip.
+            {/if}
           </p>
-          <p class="mt-4 max-w-2xl text-sm font-semibold leading-6 text-white/80">
-            Where the wild speaks, we know how to listen.
-          </p>
-
-          <div class="mt-6 flex flex-wrap gap-3">
-            <a class="inline-flex h-11 items-center gap-2 rounded-2xl bg-emnel-gold px-4 text-sm font-bold text-heading shadow-lg shadow-black/10 transition hover:bg-savanna focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/tours/new">
-              <Plus size={16} />
-              Add Tour
-            </a>
-            <a class="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-surface/10 px-4 text-sm font-bold text-white backdrop-blur transition hover:bg-surface/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/bookings">
-              <ClipboardList size={16} />
-              View Bookings
-            </a>
-            <a class="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-surface/10 px-4 text-sm font-bold text-white backdrop-blur transition hover:bg-surface/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-savanna" href="/admin/media">
-              <Upload size={16} />
-              Upload Media
-            </a>
-          </div>
         </div>
 
-        <div class="rounded-none border border-white/10 bg-surface/10 p-5 backdrop-blur">
-          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-savanna/80">Current period</p>
-          <p class="mt-2 text-2xl font-bold text-white">{currentPeriod}</p>
-          <div class="mt-5 grid grid-cols-2 gap-3">
-            <div class="rounded-2xl bg-surface/10 p-3">
-              <p class="text-xs text-savanna/75">Pending bookings</p>
-              <p class="mt-1 text-2xl font-bold">{stats.counts.pendingBookings}</p>
-            </div>
-            <div class="rounded-2xl bg-surface/10 p-3">
-              <p class="text-xs text-savanna/75">Unread messages</p>
-              <p class="mt-1 text-2xl font-bold">{stats.counts.unreadMessages}</p>
-            </div>
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
+          <div class="min-w-0 rounded-[8px] bg-white/[0.07] p-3 ring-1 ring-white/10 sm:p-4">
+            <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-white/55">Received</p>
+            <p class="mt-1 break-words font-serif text-2xl font-semibold leading-none text-emnel-gold sm:text-3xl">{money(pot.received, primary)}</p>
+            <p class="mt-1.5 text-[11px] text-white/50">
+              {#if pot.refunded > 0}less {money(pot.refunded, primary)} refunded{:else}all time{/if}
+            </p>
+          </div>
+          <div class="min-w-0 rounded-[8px] bg-white/[0.07] p-3 ring-1 ring-white/10 sm:p-4">
+            <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-white/55">Outstanding</p>
+            <p class="mt-1 break-words font-serif text-2xl font-semibold leading-none text-white sm:text-3xl">{money(pot.outstanding, primary)}</p>
+            <p class="mt-1.5 text-[11px] text-white/50">
+              {commerce?.attention.unpaidConfirmed ?? 0} confirmed {(commerce?.attention.unpaidConfirmed ?? 0) === 1 ? 'trip' : 'trips'}
+            </p>
           </div>
         </div>
       </div>
+
+      {#if commerce && commerce.currencies.length > 1}
+        <!-- Only when there genuinely is more than one. Currencies are never added together. -->
+        {@const others = commerce.currencies.filter((c) => c !== primary)}
+        <p class="relative mt-4 text-[11px] text-white/50">
+          Also holding
+          {#each others as code, i}
+            {i > 0 ? ' · ' : ' '}{exact(commerce.money[code].received, code)}
+          {/each}
+        </p>
+      {/if}
     </section>
 
-    <section aria-labelledby="dashboard-kpis">
-      <div class="mb-4 flex items-end justify-between gap-4">
+    <!-- ── What needs a human ──────────────────────────────────────────── -->
+    {#if todo.length}
+      <section class="grid min-w-0 gap-3">
         <div>
-          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Platform pulse</p>
-          <h2 id="dashboard-kpis" class="mt-1 text-xl font-bold text-ink">Key metrics</h2>
+          <p class={eyebrow}>Waiting on you</p>
+          <h2 class="mt-1 text-xl font-bold text-ink">Where the work is</h2>
         </div>
-      </div>
-
-      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {#each kpiCards as card}
-          {@const Icon = card.icon}
-          <article class="group rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.055)] transition hover:-translate-y-0.5 hover:border-emnel-gold/35 hover:shadow-[0_24px_70px_rgba(28,26,22,0.1)]">
-            <div class="flex items-start justify-between gap-4">
-              <div class={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${card.accent} ring-1 ring-ink/5 dark:text-emnel-gold`}>
-                <Icon size={21} />
-              </div>
-              {#if card.trend}
-                <span class="rounded-full bg-sand/70 px-2.5 py-1 text-[11px] font-bold text-ink/58 ring-1 ring-ink/5">{card.trend}</span>
-              {/if}
-            </div>
-            <p class="mt-4 text-sm font-semibold text-ink/58">{card.label}</p>
-            <p class="mt-2 text-3xl font-bold tracking-normal text-ink">{card.value}</p>
-            <p class="mt-2 text-sm leading-5 text-ink/55">{card.helper}</p>
-          </article>
-        {/each}
-      </div>
-    </section>
-
-    <!-- Analytics charts (Chart.js) -->
-    <section class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Booking pipeline</p>
-            <h2 class="mt-1 text-xl font-bold text-ink">Requests by status</h2>
-          </div>
-          <ChartPie class="text-emnel-gold" size={22} />
-        </div>
-        <div class="mt-4">
-          {#if pipelineTotal > 0}
-            <ChartCanvas {...pipelineDonutCfg} height={300} />
-          {:else}
-            <p class="grid h-[260px] place-items-center text-sm text-ink/45">No booking requests yet.</p>
-          {/if}
-        </div>
-      </div>
-
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-card">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Content overview</p>
-            <h2 class="mt-1 text-xl font-bold text-ink">Inventory at a glance</h2>
-          </div>
-          <ChartBar class="text-emnel-gold" size={22} />
-        </div>
-        <div class="mt-4">
-          <ChartCanvas {...contentBarCfg} height={300} />
-        </div>
-      </div>
-    </section>
-
-    <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Operational snapshot</p>
-            <h2 class="mt-1 text-xl font-bold text-ink">What needs attention</h2>
-          </div>
-          <AlertTriangle class="text-emnel-gold" size={22} />
-        </div>
-
-        <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          {#each operationalItems as item}
-            {@const Icon = item.icon}
-            <a class="flex items-center gap-3 rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-emnel-gold/35 hover:bg-sand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={item.href}>
-              <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10 dark:text-emnel-gold">
-                <Icon size={17} />
+        <div class="grid min-w-0 gap-2 md:grid-cols-2 xl:grid-cols-3">
+          {#each todo as row (row.key)}
+            <a
+              class="group flex min-w-0 items-start gap-3 rounded-[10px] border bg-surface p-3.5 shadow-sm transition hover:shadow-md sm:p-4
+                {row.tone === 'urgent' ? 'border-clay/30' : 'border-emnel-gold/35'}"
+              href={row.href}
+            >
+              <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl {row.tone === 'urgent' ? 'bg-clay/10 text-clay' : 'bg-emnel-gold/15 text-heading'}">
+                <svelte:component this={row.icon} size={18} />
               </span>
               <span class="min-w-0 flex-1">
-                <span class="block text-sm font-bold text-ink">{item.label}</span>
-                <span class="mt-1 block text-xs text-ink/55">{item.value > 0 ? `${item.value} item${item.value === 1 ? '' : 's'} need review` : 'Clear'}</span>
-              </span>
-              <span class={`rounded-full px-2.5 py-1 text-xs font-bold ring-1 ${statusClass(item.value)}`}>{item.value}</span>
-            </a>
-          {/each}
-        </div>
-      </div>
-
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Quick actions</p>
-            <h2 class="mt-1 text-xl font-bold text-ink">Move faster</h2>
-          </div>
-          <Sparkles class="text-emnel-gold" size={22} />
-        </div>
-
-        <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          {#each quickActions as action}
-            {@const Icon = action.icon}
-            <a class="group flex items-center gap-3 rounded-2xl border border-ink/10 bg-surface p-3 shadow-sm transition hover:border-emnel-gold/35 hover:bg-sand/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/20" href={action.href} aria-label={action.label}>
-              <span class="grid h-10 w-10 place-items-center rounded-xl bg-forest/10 text-forest transition group-hover:bg-forest group-hover:text-white dark:text-emnel-gold dark:group-hover:text-white">
-                <Icon size={17} />
-              </span>
-              <span class="min-w-0">
-                <span class="block truncate text-sm font-bold text-ink">{action.label}</span>
-                <span class="mt-0.5 block truncate text-xs text-ink/55">{action.description}</span>
-              </span>
-            </a>
-          {/each}
-        </div>
-      </div>
-    </section>
-
-    <section class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
-        <div>
-          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Booking pipeline</p>
-          <h2 class="mt-1 text-xl font-bold text-ink">Request status</h2>
-        </div>
-
-        <div class="mt-5 grid gap-4">
-          {#each pipelineItems as item}
-            {@const width = percent(item.value, Math.max(pipelineTotal, 1))}
-            <div>
-              <div class="flex items-center justify-between gap-3 text-sm">
-                <span class="font-semibold text-ink">{item.label}</span>
-                <span class="font-bold text-ink/65">{item.value}</span>
-              </div>
-              <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-sand">
-                <div class={`h-full rounded-full ${item.color}`} style={`width: ${width}%`}></div>
-              </div>
-            </div>
-          {/each}
-        </div>
-      </div>
-
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
-        <div>
-          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Content health</p>
-          <h2 class="mt-1 text-xl font-bold text-ink">Publishing readiness</h2>
-        </div>
-
-        <div class="mt-5 grid gap-4 md:grid-cols-2">
-          {#each healthItems as item}
-            {@const Icon = item.icon}
-            <div class="rounded-2xl border border-ink/10 bg-sand/20 p-4">
-              <div class="flex items-start gap-3">
-                <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-forest ring-1 ring-ink/10 dark:text-emnel-gold">
-                  <Icon size={17} />
+                <span class="flex items-baseline gap-1.5">
+                  <span class="text-2xl font-extrabold leading-none text-ink">{row.count}</span>
+                  <span class="min-w-0 text-sm font-semibold text-ink/80 [overflow-wrap:anywhere]">{row.label}</span>
                 </span>
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center justify-between gap-3">
-                    <p class="text-sm font-bold text-ink">{item.label}</p>
-                    <p class="text-xs font-bold text-forest">{item.value}%</p>
-                  </div>
-                  <p class="mt-1 text-xs text-ink/55">{item.helper}</p>
-                  <div class="mt-3 h-2 overflow-hidden rounded-full bg-surface">
-                    <div class="h-full rounded-full bg-gradient-to-r from-forest to-emnel-gold" style={`width: ${item.value}%`}></div>
-                  </div>
-                </div>
-              </div>
+                <span class="mt-1 block text-xs leading-5 text-ink/55">{row.detail}</span>
+              </span>
+              <ArrowRight size={15} class="mt-1 shrink-0 text-ink/25 transition group-hover:translate-x-0.5 group-hover:text-ink/50" />
+            </a>
+          {/each}
+        </div>
+      </section>
+    {:else}
+      <section class="flex items-center gap-3 rounded-[10px] border border-emerald-200/60 bg-emerald-50/60 p-4">
+        <CheckCircle2 size={20} class="shrink-0 text-emerald-600" />
+        <p class="text-sm text-emerald-900">Nothing is waiting on a decision — no pending enquiries, no unsent quotations, no unpaid confirmed trips.</p>
+      </section>
+    {/if}
+
+    <!-- ── Trend ───────────────────────────────────────────────────────── -->
+    <section class="grid min-w-0 gap-4 xl:grid-cols-2">
+      <div class={card}>
+        <div class="flex items-baseline justify-between gap-3">
+          <div>
+            <p class={eyebrow}><TrendingUp size={12} class="mr-1 inline" /> Last {commerce?.days ?? 30} days</p>
+            <h2 class="mt-1 text-xl font-bold text-ink">Money received</h2>
+          </div>
+          <p class="text-right text-sm font-bold text-ink">{exact(series.reduce((n, d) => n + d.received, 0), primary)}</p>
+        </div>
+        {#if hasMoneyHistory}
+          <div class="mt-4 min-w-0"><ChartCanvas {...moneyChart} height={220} /></div>
+        {:else}
+          <!-- An empty chart would read as a measured zero; this says there is no history yet. -->
+          <p class={emptyNote}>No payments recorded in this period yet.</p>
+        {/if}
+      </div>
+
+      <div class={card}>
+        <div class="flex items-baseline justify-between gap-3">
+          <div>
+            <p class={eyebrow}>Last {commerce?.days ?? 30} days</p>
+            <h2 class="mt-1 text-xl font-bold text-ink">Enquiries</h2>
+          </div>
+          <p class="text-right text-sm font-bold text-ink">{series.reduce((n, d) => n + d.enquiries, 0)}</p>
+        </div>
+        {#if hasEnquiryHistory}
+          <div class="mt-4 min-w-0"><ChartCanvas {...enquiryChart} height={220} /></div>
+        {:else}
+          <p class={emptyNote}>No enquiries in this period.</p>
+        {/if}
+      </div>
+    </section>
+
+    <!-- ── Deals ───────────────────────────────────────────────────────── -->
+    <section class="grid min-w-0 gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+      <div class={card}>
+        <div class="flex items-baseline justify-between gap-3">
+          <div>
+            <p class={eyebrow}>Quotations</p>
+            <h2 class="mt-1 text-xl font-bold text-ink">Where deals stand</h2>
+          </div>
+          <a class="text-xs font-semibold text-forest underline underline-offset-4 hover:no-underline" href="/admin/quotations">Open</a>
+        </div>
+        {#if hasFunnel}
+          <div class="mt-4 min-w-0"><ChartCanvas {...funnelChart} height={240} /></div>
+          {#if settled > 0}
+            <p class="mt-2 text-xs text-ink/50">
+              Also settled: {commerce?.pipeline?.declined ?? 0} declined · {commerce?.pipeline?.expired ?? 0} expired
+            </p>
+          {/if}
+        {:else}
+          <p class={emptyNote}>No quotations raised yet.</p>
+        {/if}
+      </div>
+
+      <div class="grid min-w-0 gap-3">
+        <div class={card}>
+          <p class={eyebrow}>Accepted value</p>
+          <p class="mt-1 font-serif text-3xl font-semibold leading-none text-heading">{money(commerce?.acceptedValue, primary)}</p>
+          <p class="mt-1.5 text-xs text-ink/50">
+            Across {commerce?.pipeline?.accepted ?? 0} accepted {(commerce?.pipeline?.accepted ?? 0) === 1 ? 'quotation' : 'quotations'}
+          </p>
+        </div>
+        <div class={card}>
+          <p class={eyebrow}>Still deciding</p>
+          <p class="mt-1 font-serif text-3xl font-semibold leading-none text-heading">{money(commerce?.quotedValue, primary)}</p>
+          <p class="mt-1.5 text-xs text-ink/50">Sent or viewed, not yet answered</p>
+        </div>
+        <div class={card}>
+          <p class={eyebrow}>Acceptance rate</p>
+          {#if commerce?.winRate == null}
+            <!-- No decided quotations, so any percentage would be invented. -->
+            <p class="mt-1 font-serif text-3xl font-semibold leading-none text-ink/35">—</p>
+            <p class="mt-1.5 text-xs text-ink/50">Nothing has been decided yet</p>
+          {:else}
+            <p class="mt-1 font-serif text-3xl font-semibold leading-none text-emerald-600">{commerce.winRate}%</p>
+            <p class="mt-1.5 text-xs text-ink/50">Of quotations that got an answer. Undecided ones are excluded — a quote sent yesterday is not a refusal.</p>
+          {/if}
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Did our messages land ───────────────────────────────────────── -->
+    <section class={card}>
+      <div class="flex flex-wrap items-baseline justify-between gap-3">
+        <div>
+          <p class={eyebrow}>Last {commerce?.days ?? 30} days</p>
+          <h2 class="mt-1 text-xl font-bold text-ink">Quotation messages</h2>
+          <p class="mt-0.5 text-xs text-ink/50">Email and WhatsApp sent to travellers when a quotation is ready, updated or accepted.</p>
+        </div>
+        {#if deliveryRate != null}
+          <p class="text-sm font-bold {deliveryRate >= 90 ? 'text-emerald-600' : deliveryRate >= 60 ? 'text-amber-600' : 'text-clay'}">
+            {deliveryRate}% delivered
+          </p>
+        {/if}
+      </div>
+
+      {#if deliveryTotal === 0}
+        <p class="mt-4 rounded-[8px] border border-dashed border-ink/15 px-4 py-6 text-center text-sm text-ink/45">No quotation messages in this period.</p>
+      {:else}
+        <div class="mt-4 grid min-w-0 gap-3 sm:grid-cols-3">
+          {#each [['Delivered', delivery.sent, 'text-emerald-600', 'bg-emerald-500'], ['Skipped', delivery.skipped, 'text-amber-600', 'bg-amber-400'], ['Failed', delivery.failed, 'text-clay', 'bg-clay']] as [label, value, tone, accent]}
+            <div class="flex items-center gap-3 rounded-[8px] border border-ink/10 px-3.5 py-3">
+              <span class={`h-9 w-1 shrink-0 rounded-full ${accent}`}></span>
+              <span class="min-w-0">
+                <span class={`block text-2xl font-extrabold leading-none ${tone}`}>{value}</span>
+                <span class="mt-0.5 block text-[11px] font-semibold text-ink/50">{label}</span>
+              </span>
             </div>
+          {/each}
+        </div>
+
+        {#if deliveryReasons.length}
+          <!-- The reasons recorded with each message that did not go out. A
+               provider rejecting everything looks just like nobody sending
+               anything, and this is the only place the difference shows. -->
+          <ul class="mt-3 grid gap-1.5 rounded-[8px] bg-sand/40 px-3.5 py-2.5 text-xs leading-6 text-ink/70">
+            {#each deliveryReasons as r}
+              <li class="flex items-start gap-2">
+                <svelte:component this={r.status === 'failed' ? AlertTriangle : Ban} size={14} class={`mt-1 shrink-0 ${r.status === 'failed' ? 'text-clay' : 'text-amber-600'}`} />
+                <span>
+                  <strong>{r.count} {CHANNEL_LABEL[r.channel] ?? r.channel}</strong>
+                  {r.status === 'failed' ? 'failed' : 'skipped'}: {r.detail}
+                </span>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      {/if}
+    </section>
+
+    <!-- ── Movement ────────────────────────────────────────────────────── -->
+    <section class="grid min-w-0 gap-4 lg:grid-cols-2 xl:grid-cols-[1fr_1fr_0.7fr]">
+      <div class={card}>
+        <div class="flex items-baseline justify-between gap-3">
+          <h2 class="text-base font-bold text-ink">Latest enquiries</h2>
+          <a class="text-xs font-semibold text-forest underline underline-offset-4 hover:no-underline" href="/admin/bookings">All</a>
+        </div>
+        {#if recentBookings.length}
+          <ul class="mt-3 grid gap-2">
+            {#each recentBookings.slice(0, 5) as b}
+              <li class="flex min-w-0 items-baseline justify-between gap-3 border-b border-ink/[0.06] pb-2 last:border-0 last:pb-0">
+                <span class="min-w-0">
+                  <span class="block truncate text-sm font-semibold text-heading">{b.full_name}</span>
+                  <span class="font-mono text-[11px] text-ink/45">{b.booking_code}</span>
+                </span>
+                <span class="shrink-0 text-[11px] text-ink/45">{when(b.created_at)}</span>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <p class="mt-4 text-sm text-ink/45">No enquiries yet.</p>
+        {/if}
+      </div>
+
+      <div class={card}>
+        <div class="flex items-baseline justify-between gap-3">
+          <h2 class="text-base font-bold text-ink">
+            Latest messages
+            {#if counts.unreadMessages}<span class="ml-1 rounded-full bg-clay/10 px-2 py-0.5 text-[11px] font-bold text-clay">{counts.unreadMessages} new</span>{/if}
+          </h2>
+          <a class="text-xs font-semibold text-forest underline underline-offset-4 hover:no-underline" href="/admin/messages">Inbox</a>
+        </div>
+        {#if recentMessages.length}
+          <ul class="mt-3 grid gap-2">
+            {#each recentMessages.slice(0, 5) as m}
+              <li class="flex min-w-0 items-baseline justify-between gap-3 border-b border-ink/[0.06] pb-2 last:border-0 last:pb-0">
+                <span class="min-w-0">
+                  <span class="flex items-center gap-1.5 truncate text-sm font-semibold text-heading">
+                    {#if m.status === 'new'}<span class="h-1.5 w-1.5 shrink-0 rounded-full bg-clay" title="New"></span>{/if}
+                    {m.full_name ?? m.name ?? 'Someone'}
+                  </span>
+                  <span class="block truncate text-[11px] text-ink/45">{m.subject ?? m.email ?? ''}</span>
+                </span>
+                <span class="shrink-0 text-[11px] text-ink/45">{when(m.created_at)}</span>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <p class="mt-4 text-sm text-ink/45">No messages yet.</p>
+        {/if}
+      </div>
+
+      <div class={card}>
+        <h2 class="text-base font-bold text-ink">Jump to</h2>
+        <div class="mt-3 grid gap-2">
+          {#each QUICK as q}
+            <a class="flex items-center gap-2.5 rounded-xl border border-ink/10 px-3 py-2.5 text-sm font-semibold text-heading transition hover:bg-sand/40" href={q.href}>
+              <svelte:component this={q.icon} size={15} class="text-ink/45" />
+              {q.label}
+            </a>
           {/each}
         </div>
       </div>
     </section>
 
-    <section class="grid gap-6 xl:grid-cols-3">
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)] xl:col-span-2">
+    <!-- ── The website itself. Kept, deliberately last. ─────────────────── -->
+    <section class={card}>
+      <div class="flex items-baseline justify-between gap-3">
         <div>
-          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Recent activity</p>
-          <h2 class="mt-1 text-xl font-bold text-ink">Latest movement</h2>
+          <p class={eyebrow}><Sparkles size={12} class="mr-1 inline" /> The website</p>
+          <h2 class="mt-1 text-xl font-bold text-ink">Content</h2>
         </div>
-
-        <div class="mt-5 grid gap-4 md:grid-cols-2">
-          <div class="rounded-2xl bg-sand/25 p-4">
-            <h3 class="text-sm font-bold text-ink">Recent bookings</h3>
-            <div class="mt-3 grid gap-3">
-              {#if stats.recent.bookings.length}
-                {#each stats.recent.bookings as booking}
-                  <div class="rounded-xl bg-surface p-3 ring-1 ring-ink/10">
-                    <p class="text-sm font-semibold text-ink">{textValue(booking, 'full_name', 'Guest')}</p>
-                    <p class="mt-1 text-xs text-ink/55">{relationText(booking, 'tours') || textValue(booking, 'booking_code')} · {textValue(booking, 'status')}</p>
-                  </div>
-                {/each}
-              {:else}
-                <p class="rounded-xl bg-surface p-3 text-sm text-ink/55 ring-1 ring-ink/10">No booking activity yet.</p>
-              {/if}
-            </div>
-          </div>
-
-          <div class="rounded-2xl bg-sand/25 p-4">
-            <h3 class="text-sm font-bold text-ink">Recent messages</h3>
-            <div class="mt-3 grid gap-3">
-              {#if stats.recent.messages.length}
-                {#each stats.recent.messages as message}
-                  <div class="rounded-xl bg-surface p-3 ring-1 ring-ink/10">
-                    <p class="text-sm font-semibold text-ink">{textValue(message, 'full_name', 'Visitor')}</p>
-                    <p class="mt-1 text-xs text-ink/55">{textValue(message, 'subject', 'General inquiry')} · {textValue(message, 'status')}</p>
-                  </div>
-                {/each}
-              {:else}
-                <p class="rounded-xl bg-surface p-3 text-sm text-ink/55 ring-1 ring-ink/10">No recent messages.</p>
-              {/if}
-            </div>
-          </div>
-
-          <div class="rounded-2xl bg-sand/25 p-4">
-            <h3 class="text-sm font-bold text-ink">Recently added tours</h3>
-            <div class="mt-3 grid gap-3">
-              {#if stats.recent.tours.length}
-                {#each stats.recent.tours as tour}
-                  <div class="rounded-xl bg-surface p-3 ring-1 ring-ink/10">
-                    <p class="text-sm font-semibold text-ink">{textValue(tour, 'title', 'Untitled tour')}</p>
-                    <p class="mt-1 text-xs text-ink/55">{textValue(tour, 'status')} · {formatDate(tour.created_at)}</p>
-                  </div>
-                {/each}
-              {:else}
-                <p class="rounded-xl bg-surface p-3 text-sm text-ink/55 ring-1 ring-ink/10">No tours have been added yet.</p>
-              {/if}
-            </div>
-          </div>
-
-          <div class="rounded-2xl bg-sand/25 p-4">
-            <h3 class="text-sm font-bold text-ink">Recent media uploads</h3>
-            <div class="mt-3 grid gap-3">
-              {#if stats.recent.media.length}
-                {#each stats.recent.media as media}
-                  <div class="rounded-xl bg-surface p-3 ring-1 ring-ink/10">
-                    <p class="truncate text-sm font-semibold text-ink">{textValue(media, 'file_name', 'Media file')}</p>
-                    <p class="mt-1 text-xs text-ink/55">{textValue(media, 'file_type')} · {formatDate(media.created_at)}</p>
-                  </div>
-                {/each}
-              {:else}
-                <p class="rounded-xl bg-surface p-3 text-sm text-ink/55 ring-1 ring-ink/10">No media uploads yet.</p>
-              {/if}
-            </div>
-          </div>
-        </div>
+        <a class="text-xs font-semibold text-forest underline underline-offset-4 hover:no-underline" href="/admin/tours">Manage</a>
       </div>
-
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
-        <div>
-          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-forest/70">Audit trail</p>
-          <h2 class="mt-1 text-xl font-bold text-ink">Admin actions</h2>
-        </div>
-        <div class="mt-5 grid gap-3">
-          {#if stats.recent.auditLogs.length}
-            {#each stats.recent.auditLogs as log}
-              <div class="rounded-2xl border border-ink/10 bg-sand/25 p-3">
-                <p class="text-sm font-bold capitalize text-ink">{textValue(log, 'action')}</p>
-                <p class="mt-1 text-xs text-ink/55">{textValue(log, 'entity_type')} · {formatDate(log.created_at)}</p>
-              </div>
-            {/each}
-          {:else}
-            <div class="rounded-2xl border border-dashed border-forest/20 bg-sand/25 p-5 text-center">
-              <ShieldCheck class="mx-auto text-forest" size={24} />
-              <p class="mt-3 text-sm font-bold text-ink">No audit logs yet</p>
-              <p class="mt-1 text-xs leading-5 text-ink/55">Admin actions will appear here once CMS activity is recorded.</p>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </section>
-
-    <section class="grid gap-6 xl:grid-cols-3">
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
-        <h2 class="text-xl font-bold text-ink">Featured tours</h2>
-        <div class="mt-4 grid gap-3">
-          {#if stats.featured.tours.length}
-            {#each stats.featured.tours as tour}
-              <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-emnel-gold/35 hover:bg-sand/50" href="/admin/tours">
-                <p class="font-semibold text-ink">{textValue(tour, 'title', 'Untitled tour')}</p>
-                <p class="mt-1 text-xs text-ink/55">{formatMoney(Number(tour.price_from ?? 0))} · {textValue(tour, 'status')}</p>
-              </a>
-            {/each}
-          {:else}
-            <a class="block rounded-2xl border border-dashed border-forest/20 bg-sand/25 p-4 text-sm font-semibold text-forest" href="/admin/tours">Mark tours as featured</a>
-          {/if}
-        </div>
-      </div>
-
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
-        <h2 class="text-xl font-bold text-ink">Featured destinations</h2>
-        <div class="mt-4 grid gap-3">
-          {#if stats.featured.destinations.length}
-            {#each stats.featured.destinations as destination}
-              <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-emnel-gold/35 hover:bg-sand/50" href="/admin/destinations">
-                <p class="font-semibold text-ink">{textValue(destination, 'name', 'Untitled destination')}</p>
-                <p class="mt-1 text-xs text-ink/55">{textValue(destination, 'country', 'Tanzania')} · {textValue(destination, 'status')}</p>
-              </a>
-            {/each}
-          {:else}
-            <a class="block rounded-2xl border border-dashed border-forest/20 bg-sand/25 p-4 text-sm font-semibold text-forest" href="/admin/destinations">Feature destination content</a>
-          {/if}
-        </div>
-      </div>
-
-      <div class="rounded-none border border-ink/10 bg-surface p-5 shadow-[0_18px_50px_rgba(28,26,22,0.06)]">
-        <h2 class="text-xl font-bold text-ink">Latest blog posts</h2>
-        <div class="mt-4 grid gap-3">
-          {#if stats.featured.blogPosts.length}
-            {#each stats.featured.blogPosts as post}
-              <a class="block rounded-2xl border border-ink/10 bg-sand/25 p-4 transition hover:border-emnel-gold/35 hover:bg-sand/50" href="/admin/blog">
-                <p class="font-semibold text-ink">{textValue(post, 'title', 'Untitled post')}</p>
-                <p class="mt-1 text-xs text-ink/55">{textValue(post, 'status')} · {formatDate(post.published_at ?? post.created_at)}</p>
-              </a>
-            {/each}
-          {:else}
-            <a class="block rounded-2xl border border-dashed border-forest/20 bg-sand/25 p-4 text-sm font-semibold text-forest" href="/admin/blog">Create the first blog post</a>
-          {/if}
-        </div>
+      <div class="mt-4 grid min-w-0 grid-cols-2 gap-2 lg:grid-cols-5">
+        {#each [['Published tours', counts.publishedTours], ['Drafts', counts.draftTours], ['Destinations', counts.destinations], ['Blog posts', counts.blogPosts], ['Media', counts.mediaFiles]] as [label, value]}
+          <div class="rounded-[8px] border border-ink/10 px-3 py-2.5">
+            <span class="block text-xl font-extrabold leading-none text-ink">{value ?? 0}</span>
+            <span class="mt-1 block text-[11px] font-semibold text-ink/50">{label}</span>
+          </div>
+        {/each}
       </div>
     </section>
   </div>
