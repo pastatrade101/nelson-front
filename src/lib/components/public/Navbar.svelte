@@ -477,7 +477,8 @@
     : `bg-deep-green ${scrolled ? 'border-transparent shadow-[0_8px_28px_rgba(28,26,22,0.20)]' : 'border-white/10'}`
 }`} use:navbarEntrance>
   <!-- ── mobile top bar ─────────────────────────────────────────────────── -->
-  <div class="flex h-[70px] min-w-0 items-center justify-between gap-2 px-3 sm:gap-3 sm:px-5 xl:hidden">
+  <!-- 24px sides: the same edges as the page content (.container-shell). -->
+  <div class="flex h-[70px] min-w-0 items-center justify-between gap-2 px-6 sm:gap-3 xl:hidden">
     <button class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/5 text-white" type="button" aria-label="Toggle menu" aria-expanded={menuOpen} on:click={() => (menuOpen = !menuOpen)}>
       <Menu size={24} strokeWidth={2.4} />
     </button>
@@ -494,11 +495,14 @@
 
   <!-- ── desktop nav row (single bar: huge logo left · nav + CTA right) ───── -->
   <div class="hidden xl:block">
-    <!-- Below 2xl (1536px) the logo, type and spacing step down so the row fits on one line from 1280px. -->
-    <div class="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-4 px-4 2xl:gap-6">
+    <!-- On the page's own container, so the logo and the CTA line up with the content
+         edges. The container is 1320px at most, so the type stays at 15px; from 2xl
+         (1536px) only the logo and spacing step up. One line from 1280px. -->
+    <div class="container-shell flex items-center justify-between gap-4">
       <!-- logo: left, oversized -->
-      <a href="/" class="flex shrink-0 items-center py-2" aria-label="Emnel Adventures home">
-        <img src={logoSrc} alt={siteName} class="h-[76px] w-auto object-contain 2xl:h-24" />
+      <!-- The logo file has ~9% transparent padding; the negative margin puts the mark on the content edge. -->
+      <a href="/" class="-ml-[17px] flex shrink-0 items-center py-2 2xl:-ml-[19px]" aria-label="Emnel Adventures home">
+        <img src={logoSrc} alt={siteName} class="h-[72px] w-auto object-contain 2xl:h-20" />
       </a>
 
       <!-- nav links + CTA, aligned right. The links run the bar's full height, so
@@ -513,12 +517,12 @@
             <div class="nav-dropdown relative flex after:absolute after:inset-x-0 after:top-full after:h-px after:content-['']" on:mouseenter={() => (openDropdown = item.dropdown ?? '')} on:mouseleave={() => (openDropdown = '')}>
               <div class="flex items-stretch">
                 <a
-                  class={`relative inline-flex items-center gap-1 rounded whitespace-nowrap px-2.5 py-8 text-[15px] 2xl:px-4 2xl:text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
+                  class={`relative inline-flex items-center gap-1 rounded whitespace-nowrap px-2 py-8 text-[15px] 2xl:px-2.5 font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
                 >
                   {item.label}
-                  {#if active}<span class="absolute inset-x-2.5 -bottom-px h-0.5 bg-emnel-gold 2xl:inset-x-4"></span>{/if}
+                  {#if active}<span class="absolute inset-x-2 -bottom-px h-0.5 bg-emnel-gold 2xl:inset-x-2.5"></span>{/if}
                 </a>
                 <button
                   class="grid h-8 w-6 place-items-center self-center rounded 2xl:w-7 text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40"
@@ -539,12 +543,12 @@
             </div>
           {:else}
             <a
-              class={`relative inline-flex items-center rounded whitespace-nowrap px-2.5 py-8 text-[15px] 2xl:px-4 2xl:text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
+              class={`relative inline-flex items-center rounded whitespace-nowrap px-2 py-8 text-[15px] 2xl:px-2.5 font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
               href={item.href}
               aria-current={active ? 'page' : undefined}
             >
               {item.label}
-              {#if active}<span class="absolute inset-x-2.5 -bottom-px h-0.5 bg-emnel-gold 2xl:inset-x-4"></span>{/if}
+              {#if active}<span class="absolute inset-x-2 -bottom-px h-0.5 bg-emnel-gold 2xl:inset-x-2.5"></span>{/if}
             </a>
           {/if}
         {/each}
@@ -555,7 +559,7 @@
         <!-- Begin Your Journey CTA — opens the enquiry modal -->
         <button
           type="button"
-          class="ml-1 inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border border-emnel-gold px-4 py-2.5 text-[14px] font-semibold 2xl:px-6 2xl:text-[15px] text-emnel-gold shadow-sm transition hover:bg-emnel-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/50"
+          class="ml-1 inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border border-emnel-gold px-4 py-2.5 text-[14px] font-semibold 2xl:px-5 2xl:text-[15px] text-emnel-gold shadow-sm transition hover:bg-emnel-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/50"
           on:click={() => openEnquiry()}
         >
           Begin Your Journey
