@@ -614,17 +614,18 @@
   <!-- ── Sticky section-tab bar ───────────────────────────────────────────── -->
   <div id="tour-tabs" use:stickBelowNav class="sticky top-0 z-30 border-b border-ink/10 bg-canvas/95 backdrop-blur">
     <div class="container-shell flex min-h-[60px] items-center justify-between gap-4">
-      <div class="hide-scroll flex min-w-0 flex-1 gap-6 overflow-x-auto" role="tablist" aria-label="Itinerary sections">
+      <!-- The tabs run the bar's full height and 1px into its border, so the active line covers the border. -->
+      <div class="hide-scroll -mb-px flex min-w-0 flex-1 gap-6 self-stretch overflow-x-auto" role="tablist" aria-label="Itinerary sections">
         {#each tourNavLinks as link}
           <button
             type="button"
             role="tab"
             aria-selected={activeTab === link.key}
-            class={`relative shrink-0 whitespace-nowrap py-4 text-[13px] font-semibold transition ${activeTab === link.key ? 'text-heading' : 'text-ink/55 hover:text-heading'}`}
+            class={`relative flex shrink-0 items-center whitespace-nowrap py-4 text-[13px] font-semibold transition ${activeTab === link.key ? 'text-heading' : 'text-ink/55 hover:text-heading'}`}
             on:click={() => selectTab(link.key)}
           >
             {link.label}
-            <span class={`absolute inset-x-0 -bottom-px h-0.5 bg-clay transition-opacity ${activeTab === link.key ? 'opacity-100' : 'opacity-0'}`}></span>
+            <span class={`absolute inset-x-0 bottom-0 h-0.5 bg-clay transition-opacity ${activeTab === link.key ? 'opacity-100' : 'opacity-0'}`}></span>
           </button>
         {/each}
       </div>

@@ -74,7 +74,7 @@
 <div
   {id}
   use:positionMega
-  class="mega absolute top-full z-50 grid max-h-[calc(100dvh-8rem)] w-[min(1260px,calc(100vw-32px))] grid-cols-[336px_minmax(0,1fr)_312px] grid-rows-[auto_minmax(0,1fr)] overflow-y-auto rounded-none border border-ink/[0.08] bg-[#FAF8F4] shadow-[0_36px_90px_-24px_rgba(28,26,22,0.35)]"
+  class="mega absolute top-[calc(100%+1px)] z-50 grid max-h-[calc(100dvh-8rem)] w-[min(1260px,calc(100vw-32px))] grid-cols-[336px_minmax(0,1fr)_312px] grid-rows-[auto_minmax(0,1fr)] overflow-y-auto rounded-none border border-ink/[0.08] bg-[#FAF8F4] shadow-[0_36px_90px_-24px_rgba(28,26,22,0.35)]"
   aria-label={browseTitle}
   transition:fly={{ y: 10, duration: 230, opacity: 0 }}
 >

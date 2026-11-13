@@ -502,15 +502,15 @@
       </a>
 
       <!-- nav links + CTA, aligned right. The links run the bar's full height, so
-           the active underline sits on its bottom edge and a mega menu opens flush
-           below it rather than over it. -->
+           the active underline covers the bar's bottom border and a mega menu opens
+           flush below it rather than over it. -->
       <div class="flex items-center gap-2 self-stretch">
         <nav class="flex items-stretch gap-1 self-stretch" aria-label="Primary">
           {#each NAV as item}
           {@const active = isActive(path, item.href)}
           {#if item.dropdown}
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div class="nav-dropdown relative flex" on:mouseenter={() => (openDropdown = item.dropdown ?? '')} on:mouseleave={() => (openDropdown = '')}>
+            <div class="nav-dropdown relative flex after:absolute after:inset-x-0 after:top-full after:h-px after:content-['']" on:mouseenter={() => (openDropdown = item.dropdown ?? '')} on:mouseleave={() => (openDropdown = '')}>
               <div class="flex items-stretch">
                 <a
                   class={`relative inline-flex items-center gap-1 rounded whitespace-nowrap px-2.5 py-8 text-[15px] 2xl:px-4 2xl:text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
@@ -518,7 +518,7 @@
                   aria-current={active ? 'page' : undefined}
                 >
                   {item.label}
-                  {#if active}<span class="absolute inset-x-2.5 bottom-0 h-0.5 bg-emnel-gold 2xl:inset-x-4"></span>{/if}
+                  {#if active}<span class="absolute inset-x-2.5 -bottom-px h-0.5 bg-emnel-gold 2xl:inset-x-4"></span>{/if}
                 </a>
                 <button
                   class="grid h-8 w-6 place-items-center self-center rounded 2xl:w-7 text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40"
@@ -544,7 +544,7 @@
               aria-current={active ? 'page' : undefined}
             >
               {item.label}
-              {#if active}<span class="absolute inset-x-2.5 bottom-0 h-0.5 bg-emnel-gold 2xl:inset-x-4"></span>{/if}
+              {#if active}<span class="absolute inset-x-2.5 -bottom-px h-0.5 bg-emnel-gold 2xl:inset-x-4"></span>{/if}
             </a>
           {/if}
         {/each}
