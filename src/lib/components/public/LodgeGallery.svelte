@@ -8,18 +8,15 @@
    * lightbox, so a property with a dozen photographs does not cost a dozen
    * full-size downloads to look at one.
    */
-  import { onDestroy, tick } from 'svelte';
-  import { ChevronLeft, ChevronRight, Expand, X } from '@lucide/svelte';
+  import { Expand } from '@lucide/svelte';
+  import PhotoLightbox from './PhotoLightbox.svelte';
   import ResponsiveImage from './ResponsiveImage.svelte';
   import type { LodgeImage } from '$lib/types';
 
   export let images: LodgeImage[] = [];
   export let propertyName = '';
 
-  let open = false;
-  let index = 0;
-  let dialog: HTMLDivElement;
-  let previouslyFocused: HTMLElement | null = null;
+  let viewer: PhotoLightbox;
 
   // The cover leads, then the saved order; the same photograph is never shown
   // twice (the embed returns rows unordered, and a URL can be saved twice).
@@ -44,51 +41,9 @@
   const alt = (image: LodgeImage, position: number) =>
     image.alt_text || image.caption || (propertyName ? `${propertyName} — photo ${position + 1}` : '');
 
-  const show = async (at: number) => {
-    previouslyFocused = document.activeElement as HTMLElement | null;
-    index = at;
-    open = true;
-    await tick();
-    dialog?.focus();
-  };
-
-  const close = () => {
-    open = false;
-    previouslyFocused?.focus();
-    previouslyFocused = null;
-  };
-
-  const step = (delta: number) => {
-    index = (index + delta + ordered.length) % ordered.length;
-  };
-
-  const onKeydown = (event: KeyboardEvent) => {
-    if (!open) return;
-    if (event.key === 'Escape') { event.preventDefault(); close(); }
-    if (event.key === 'ArrowRight') { event.preventDefault(); step(1); }
-    if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); }
-  };
-
-  // The lightbox is rendered into <body>. Its page section fades in with a
-  // transform, and a transformed ancestor becomes the containing block for
-  // `position: fixed` and caps its z-index — so inside the section the lightbox
-  // was clipped to the section's box and later sections drew over it.
-  const toBody = (node: HTMLElement) => {
-    document.body.appendChild(node);
-    return { destroy: () => node.remove() };
-  };
-
-  // The page scrolls behind an open lightbox otherwise.
-  $: if (typeof document !== 'undefined') {
-    document.body.style.overflow = open ? 'hidden' : '';
-  }
-
-  onDestroy(() => {
-    if (typeof document !== 'undefined') document.body.style.overflow = '';
-  });
+  const show = (at: number) => viewer.show(at);
+  $: photos = ordered.map((image, n) => ({ url: image.image_url ?? '', alt: alt(image, n), caption: image.caption }));
 </script>
-
-<svelte:window on:keydown={onKeydown} />
 
 {#if lead}
   <div class={`grid gap-2 ${supporting.length ? 'sm:grid-cols-[1.6fr_1fr]' : ''}`}>
@@ -141,58 +96,4 @@
   {/if}
 {/if}
 
-{#if open && ordered.length}
-  <div
-    bind:this={dialog}
-    use:toBody
-    class="fixed inset-0 z-[100] grid place-items-center bg-ink/[0.92] p-4"
-    role="dialog"
-    aria-modal="true"
-    aria-label={`${propertyName} gallery`}
-    tabindex="-1"
-    on:click|self={close}
-    on:keydown={onKeydown}
-  >
-    <button
-      class="absolute right-4 top-4 grid h-11 w-11 place-items-center border border-white/25 text-white transition hover:bg-white/10"
-      type="button"
-      on:click={close}
-      aria-label="Close gallery"
-    >
-      <X size={18} />
-    </button>
-
-    <figure class="max-h-full w-full max-w-5xl">
-      <ResponsiveImage
-        src={ordered[index].image_url ?? ''}
-        alt={alt(ordered[index], index)}
-        width={1600}
-        sizes="90vw"
-        imgClass="max-h-[76vh] w-full object-contain"
-      />
-      {#if ordered[index].caption}
-        <figcaption class="mt-3 text-center text-sm text-white/70">{ordered[index].caption}</figcaption>
-      {/if}
-      <p class="mt-2 text-center text-xs text-white/45">{index + 1} of {ordered.length}</p>
-    </figure>
-
-    {#if ordered.length > 1}
-      <button
-        class="absolute left-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center border border-white/25 text-white transition hover:bg-white/10 md:left-6"
-        type="button"
-        on:click|stopPropagation={() => step(-1)}
-        aria-label="Previous photo"
-      >
-        <ChevronLeft size={20} />
-      </button>
-      <button
-        class="absolute right-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center border border-white/25 text-white transition hover:bg-white/10 md:right-6"
-        type="button"
-        on:click|stopPropagation={() => step(1)}
-        aria-label="Next photo"
-      >
-        <ChevronRight size={20} />
-      </button>
-    {/if}
-  </div>
-{/if}
+<PhotoLightbox bind:this={viewer} {photos} label={`${propertyName} gallery`} />

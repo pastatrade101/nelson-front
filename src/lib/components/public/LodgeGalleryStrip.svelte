@@ -6,7 +6,8 @@
    * The card is portalled to <body> and positioned with fixed coordinates, so
    * no overflow-hidden ancestor (the day accordion, the scrolling row itself)
    * can clip it. It opens only for a fine pointer; on touch the row simply
-   * scrolls and each photo links to the property page.
+   * scrolls. A click or tap on a photo opens it full size in the photo viewer;
+   * the property page is the card's "View property" and the viewer's link.
    *
    * Every fact is shown only when the property actually has it — nothing is
    * inferred or filled in.
@@ -15,6 +16,7 @@
   import { cubicOut } from 'svelte/easing';
   import { fade } from 'svelte/transition';
   import { ArrowRight, BedDouble, Baby, Heart, MapPin, Plane, Star, Trees, Wifi, Car } from '@lucide/svelte';
+  import PhotoLightbox from '$lib/components/public/PhotoLightbox.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import { lodgeBestForLabel, lodgePlaceLine, lodgeRating, levelLabel, settingLabels, typeLabel, wifiLabel } from '$lib/lodge';
   import type { Lodge } from '$lib/types';
@@ -91,6 +93,13 @@
 
   onDestroy(() => clearTimeout(hideTimer));
 
+  // ── photo viewer ────────────────────────────────────────────────────────
+  let viewer: PhotoLightbox;
+  const openViewer = (at: number) => {
+    closeNow();
+    viewer.show(at);
+  };
+
   // ── motion ──────────────────────────────────────────────────────────────
   const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   $: below = pos.top != null;
@@ -119,12 +128,13 @@
 
   <!-- One row: scrolls sideways when the gallery is longer than the column. -->
   <div class="strip -mx-1 mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1">
-    {#each images as img (img.url)}
-      <a
-        href={href || undefined}
-        class="group relative block h-24 shrink-0 snap-start overflow-hidden bg-ink/5 outline-none ring-emnel-gold ring-offset-2 focus-visible:ring-2 sm:h-28"
+    {#each images as img, n (img.url)}
+      <button
+        type="button"
+        class="group relative block h-24 shrink-0 cursor-zoom-in snap-start overflow-hidden bg-ink/5 outline-none ring-emnel-gold ring-offset-2 focus-visible:ring-2 sm:h-28"
         style="aspect-ratio: 4 / 3"
-        aria-label={`${img.alt} — ${lodge.name}`}
+        aria-label={`View photo ${n + 1} of ${images.length}: ${img.alt} — ${lodge.name}`}
+        on:click={() => openViewer(n)}
         on:mouseenter={(e) => show(e, img)}
         on:mouseleave={() => hide()}
         on:focus={(e) => show(e, img)}
@@ -137,10 +147,20 @@
           sizes="160px"
           imgClass="h-full w-full object-cover transition duration-500 group-hover:scale-[1.06]"
         />
-      </a>
+      </button>
     {/each}
   </div>
 </figure>
+
+<PhotoLightbox bind:this={viewer} photos={images} label={`${lodge.name} photos`}>
+  {#if href}
+    <p class="mt-4 text-center">
+      <a class="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-white/85 transition hover:text-white" {href}>
+        About {lodge.name} <ArrowRight size={15} />
+      </a>
+    </p>
+  {/if}
+</PhotoLightbox>
 
 {#if open && active}
   <div
