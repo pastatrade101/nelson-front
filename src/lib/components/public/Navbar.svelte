@@ -487,38 +487,41 @@
     </a>
 
     <div class="flex shrink-0 items-center gap-2">
-      <CurrencySelector compact />
+      <div class="shrink-0"><CurrencySelector compact /></div>
       <WhatsAppCta variant="icon" message={waMessage} context="navbar" ariaLabel={waButtonText} />
     </div>
   </div>
 
   <!-- ── desktop nav row (single bar: huge logo left · nav + CTA right) ───── -->
   <div class="hidden xl:block">
-    <div class="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-6 px-4">
+    <!-- Below 2xl (1536px) the logo, type and spacing step down so the row fits on one line from 1280px. -->
+    <div class="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-4 px-4 2xl:gap-6">
       <!-- logo: left, oversized -->
       <a href="/" class="flex shrink-0 items-center py-2" aria-label="Emnel Adventures home">
-        <img src={logoSrc} alt={siteName} class="h-24 w-auto object-contain" />
+        <img src={logoSrc} alt={siteName} class="h-[76px] w-auto object-contain 2xl:h-24" />
       </a>
 
-      <!-- nav links + CTA, aligned right -->
-      <div class="flex items-center gap-2">
-        <nav class="flex items-center gap-1" aria-label="Primary">
+      <!-- nav links + CTA, aligned right. The links run the bar's full height, so
+           the active underline sits on its bottom edge and a mega menu opens flush
+           below it rather than over it. -->
+      <div class="flex items-center gap-2 self-stretch">
+        <nav class="flex items-stretch gap-1 self-stretch" aria-label="Primary">
           {#each NAV as item}
           {@const active = isActive(path, item.href)}
           {#if item.dropdown}
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div class="nav-dropdown relative" on:mouseenter={() => (openDropdown = item.dropdown ?? '')} on:mouseleave={() => (openDropdown = '')}>
-              <div class="flex items-center">
+            <div class="nav-dropdown relative flex" on:mouseenter={() => (openDropdown = item.dropdown ?? '')} on:mouseleave={() => (openDropdown = '')}>
+              <div class="flex items-stretch">
                 <a
-                  class={`relative inline-flex items-center gap-1 rounded px-4 py-8 text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
+                  class={`relative inline-flex items-center gap-1 rounded whitespace-nowrap px-2.5 py-8 text-[15px] 2xl:px-4 2xl:text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
                 >
                   {item.label}
-                  {#if active}<span class="absolute inset-x-4 bottom-1 h-0.5 rounded-full bg-emnel-gold"></span>{/if}
+                  {#if active}<span class="absolute inset-x-2.5 bottom-0 h-0.5 bg-emnel-gold 2xl:inset-x-4"></span>{/if}
                 </a>
                 <button
-                  class="grid h-8 w-7 place-items-center rounded text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40"
+                  class="grid h-8 w-6 place-items-center self-center rounded 2xl:w-7 text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40"
                   type="button"
                   aria-haspopup="true"
                   aria-expanded={openDropdown === item.dropdown}
@@ -536,12 +539,12 @@
             </div>
           {:else}
             <a
-              class={`relative inline-flex items-center rounded px-4 py-8 text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
+              class={`relative inline-flex items-center rounded whitespace-nowrap px-2.5 py-8 text-[15px] 2xl:px-4 2xl:text-[16.5px] font-medium transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/40 ${active ? 'text-emnel-gold' : 'text-white/70'}`}
               href={item.href}
               aria-current={active ? 'page' : undefined}
             >
               {item.label}
-              {#if active}<span class="absolute inset-x-4 bottom-1 h-0.5 rounded-full bg-emnel-gold"></span>{/if}
+              {#if active}<span class="absolute inset-x-2.5 bottom-0 h-0.5 bg-emnel-gold 2xl:inset-x-4"></span>{/if}
             </a>
           {/if}
         {/each}
@@ -552,7 +555,7 @@
         <!-- Begin Your Journey CTA — opens the enquiry modal -->
         <button
           type="button"
-          class="ml-1 inline-flex items-center gap-1.5 border border-emnel-gold px-6 py-2.5 text-[15px] font-semibold text-emnel-gold shadow-sm transition hover:bg-emnel-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/50"
+          class="ml-1 inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border border-emnel-gold px-4 py-2.5 text-[14px] font-semibold 2xl:px-6 2xl:text-[15px] text-emnel-gold shadow-sm transition hover:bg-emnel-gold hover:text-deep-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emnel-gold/50"
           on:click={() => openEnquiry()}
         >
           Begin Your Journey
