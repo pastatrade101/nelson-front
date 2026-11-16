@@ -7,7 +7,7 @@
   import ShortlistButton from './ShortlistButton.svelte';
   import { currency, formatUsd } from '$lib/currency';
   import type { Tour } from '$lib/types';
-  import { tierLabel } from '$lib/tiers';
+  import { tourTierLabel } from '$lib/tiers';
 
   export let tour: Tour;
   /**
@@ -52,7 +52,7 @@
   };
 
   $: country = tour.destinations?.country || tour.destinations?.name || '';
-  $: comfort = tierLabel(tour.budget_tier);
+  $: comfort = tourTierLabel(tour);
   $: durationLabel =
     tour.duration_days != null
       ? `${tour.duration_days} day${tour.duration_days === 1 ? '' : 's'}${tour.duration_nights ? `, ${tour.duration_nights} nights` : ''}`

@@ -32,7 +32,7 @@
   import { origUrl, thumbUrl } from '$lib/img';
   import { hasRichContent, toMetaText, toPlainText } from '$lib/richtext';
   import { publicSettings, settingText } from '$lib/settings';
-  import { tierLabel } from '$lib/tiers';
+  import { tierLabel, tourTierLabel } from '$lib/tiers';
   import BookingForm from '$lib/components/public/BookingForm.svelte';
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import EmailItineraryCapture from '$lib/components/public/EmailItineraryCapture.svelte';
@@ -108,9 +108,11 @@
   let error = '';
 
   // All planning entries share the full-page stepper and retain tour context.
-  const openPlanner = (source = '') => {
-    trackEvent('request_trip_opened', { tour_id: tour?.id, metadata: { source } });
-    void goto(planTripHref({ tour: tour?.slug, from: $page.url.pathname, placement: source }));
+  // `extra` carries a chosen comfort level into the planner as a topic, which
+  // its summary shows and the enquiry keeps.
+  const openPlanner = (source = '', extra: Record<string, string> = {}) => {
+    trackEvent('request_trip_opened', { tour_id: tour?.id, metadata: { source, ...extra } });
+    void goto(planTripHref({ tour: tour?.slug, from: $page.url.pathname, placement: source, ...extra }));
   };
 
   // "About this safari" prose is clamped to ~4 lines with a Read more toggle;
@@ -156,7 +158,7 @@
         { label: tour.duration_days ? `Why ${tour.duration_days} days` : 'Why this length', value: String(tour.duration_rationale ?? '').trim() },
         { label: 'Best season', value: String(tour.best_season ?? '').trim() },
         { label: 'Not suited for', value: String(tour.not_suited_for ?? '').trim() },
-        { label: 'Comfort tiers', value: (Array.isArray(tour.comfort_tiers) ? tour.comfort_tiers : []).map((k) => tierLabel(k)).filter(Boolean).join(' · ') }
+        { label: 'Comfort levels', value: (Array.isArray(tour.comfort_tiers) ? tour.comfort_tiers : []).map((k) => tierLabel(k)).filter(Boolean).join(' · ') }
       ].filter((row) => row.value)
     : [];
 
@@ -193,7 +195,21 @@
         ...(tour.main_image_url ? { image: tour.main_image_url } : {}),
         // Who runs the trip: the company entity every page carries.
         provider: { '@id': `${origin}/#organization` },
-        ...(tour.price_from
+        // Two or more comfort levels: one AggregateOffer spanning their adult
+        // prices, so search and assistants read the real range, not just "from".
+        ...(offerPrices.length > 1
+          ? {
+              offers: {
+                '@type': 'AggregateOffer',
+                lowPrice: Math.min(...offerPrices),
+                highPrice: Math.max(...offerPrices),
+                offerCount: offerPrices.length,
+                priceCurrency: tour.currency ?? 'USD',
+                url: `${origin}/tours/${tour.slug}`,
+                availability: (tour as { is_available?: boolean }).is_available === false ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock'
+              }
+            }
+          : tour.price_from
           ? {
               offers: {
                 '@type': 'Offer',
@@ -312,6 +328,36 @@
   $: exclusionTitles = exclusions.map((exc) => exc.title);
   $: priceOptions = [...(tour?.tour_price_options ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
+  // Pricing options are the tour's comfort levels (Classic, Mid-Luxury,
+  // Luxury): `price` is per adult, `child_price` per child (2026-11-16), and
+  // the description lists the lodges. A separate "Per child" option with the
+  // same title as a level is read as that level's child price, so either way
+  // of entering it works. Supplements, upgrades and discounts are listed
+  // under the table. A price of 0 or none reads "On request".
+  type ComfortRow = { id: string; title: string; adult: number | null; child: number | null; perGroup: boolean; lodges: string };
+  const sameTitle = (a?: string | null, b?: string | null) => (a ?? '').trim().toLowerCase() === (b ?? '').trim().toLowerCase();
+  const positive = (value: unknown) => {
+    const n = Number(value);
+    return value != null && value !== '' && Number.isFinite(n) && n > 0 ? n : null;
+  };
+  $: comfortRows = priceOptions
+    .filter((o) => !o.price_type || o.price_type === 'per_person' || o.price_type === 'per_group')
+    .map((o): ComfortRow => {
+      const paired = priceOptions.find((c) => c.price_type === 'per_child' && sameTitle(c.title, o.title));
+      return {
+        id: o.id,
+        title: o.title,
+        adult: positive(o.price),
+        child: positive(o.child_price) ?? positive(paired?.price),
+        perGroup: o.price_type === 'per_group',
+        lodges: (o.description ?? '').trim()
+      };
+    });
+  $: extraOptions = priceOptions.filter(
+    (o) => !comfortRows.some((row) => row.id === o.id) && !(o.price_type === 'per_child' && comfortRows.some((row) => sameTitle(row.title, o.title)))
+  );
+  $: offerPrices = comfortRows.map((row) => row.adult).filter((n): n is number => n != null);
+
   $: galleryImages = [...(tour?.tour_images ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: highlights = tour?.highlights ?? [];
   $: groupSize = tour
@@ -427,7 +473,7 @@
   $: tripFacts = [
     tour?.duration_days ? { icon: CalendarDays, label: 'Duration', value: durationText } : null,
     groupSize ? { icon: Users, label: 'Group size', value: groupSize } : null,
-    tierLabel(tour?.budget_tier) ? { icon: Sparkles, label: 'Style', value: tierLabel(tour?.budget_tier) } : null,
+    tourTierLabel(tour) ? { icon: Sparkles, label: 'Comfort', value: tourTierLabel(tour) } : null,
     tour?.difficulty_level ? { icon: Mountain, label: 'Pace', value: `${tour.difficulty_level}` } : null,
     { icon: Route, label: 'Route', value: routeLabel },
     tour?.minimum_age ? { icon: Check, label: 'Minimum age', value: `${tour.minimum_age}+` } : null
@@ -841,57 +887,76 @@
         </section>
       {/if}
 
-      <!-- Prices -->
+      <!-- Prices: one row per comfort level -->
       {#if priceOptions.length}
         <section id="pricing" class="scroll-mt-32">
           <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> Pricing</span>
-          <h2 class="type-h2 mt-4 text-heading">Tour rates</h2>
+          <h2 class="type-h2 mt-4 text-heading">{comfortRows.length > 1 ? 'Prices by comfort level' : 'Tour rates'}</h2>
           <p class="mt-4 max-w-[640px] text-base leading-[1.75] text-ink/70">
-            Indicative rates from the live record. Final pricing is confirmed by the Emnel team around your dates, group size and chosen lodges.
+            {#if comfortRows.length > 1}
+              The same route at every level; what changes is where you stay. Prices are per person, and the Emnel team confirms the final figure for your dates, group size and lodges.
+            {:else}
+              Indicative rates from the live record. Final pricing is confirmed by the Emnel team around your dates, group size and chosen lodges.
+            {/if}
           </p>
 
-          <!-- desktop table -->
-          <div class="mt-8 hidden overflow-hidden border border-ink/10 md:block">
-            <table class="w-full border-collapse text-left">
-              <thead>
-                <tr class="bg-deep-green text-white">
-                  <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em]">Option</th>
-                  <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em]">Basis</th>
-                  <th class="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-[0.14em]">From</th>
-                </tr>
-              </thead>
-              <tbody>
-                {#each priceOptions as option, i (option.id)}
-                  <tr class={i % 2 === 0 ? 'bg-surface' : 'bg-savanna/35'}>
-                    <td class="border-t border-ink/[0.06] px-5 py-4 align-top">
-                      <p class="font-semibold text-heading">{option.title}</p>
-                      {#if option.label && option.label !== option.title}<p class="mt-0.5 text-sm leading-[1.6] text-ink/60">{option.label}</p>{/if}
-                      {#if option.description}<p class="mt-1.5 text-sm leading-[1.6] text-ink/60">{option.description}</p>{/if}
-                    </td>
-                    <td class="border-t border-ink/[0.06] px-5 py-4 align-top text-[13.5px] text-ink/70">{priceTypeLabel(option.price_type)}</td>
-                    <td class="border-t border-ink/[0.06] px-5 py-4 text-right align-top font-serif text-[22px] font-light text-heading">{option.price ? formatUsd(option.price, $currency) : 'On request'}</td>
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
-          </div>
-
-          <!-- mobile cards -->
-          <div class="mt-8 grid gap-2.5 md:hidden">
-            {#each priceOptions as option (option.id)}
-              <div class="border border-ink/10 bg-surface p-5">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <p class="font-semibold text-heading">{option.title}</p>
-                    {#if option.label && option.label !== option.title}<p class="mt-0.5 text-sm leading-[1.6] text-ink/60">{option.label}</p>{/if}
+          {#if comfortRows.length}
+            <!-- One block per level: name and lodges, then the two prices side by side
+                 so they line up down the list for comparison at every width. -->
+            <div class="mt-8 border border-ink/10 bg-surface">
+              {#each comfortRows as row, i (row.id)}
+                <article class={`p-5 md:p-6 ${i ? 'border-t border-ink/[0.08]' : ''}`}>
+                  <h3 class="text-[18px] font-semibold leading-snug text-heading">{row.title}</h3>
+                  {#if row.lodges}
+                    <p class="mt-1.5 flex max-w-[62ch] gap-2 text-sm leading-[1.6] text-ink/65">
+                      <BedDouble size={15} class="mt-[3px] shrink-0 text-clay" aria-hidden="true" />
+                      <span>{row.lodges}</span>
+                    </p>
+                  {/if}
+                  <div class="mt-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-t border-ink/[0.06] pt-4">
+                    <dl class="grid grid-cols-2 gap-x-10 sm:gap-x-14">
+                      <div>
+                        <dt class="text-xs text-ink/60">Per adult{row.perGroup ? ' (group)' : ''}</dt>
+                        <dd class="mt-1.5 font-serif text-[26px] font-light leading-none text-heading [font-variant-numeric:tabular-nums]">
+                          {#if row.adult}{formatUsd(row.adult, $currency)}{:else}<span class="font-sans text-sm text-ink/60">On request</span>{/if}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs text-ink/60">Per child</dt>
+                        <dd class="mt-1.5 font-serif text-[26px] font-light leading-none text-heading [font-variant-numeric:tabular-nums]">
+                          {#if row.child}{formatUsd(row.child, $currency)}{:else}<span class="font-sans text-sm text-ink/60">On request</span>{/if}
+                        </dd>
+                      </div>
+                    </dl>
+                    <button
+                      class="inline-flex min-h-11 w-full items-center justify-center gap-1.5 border border-deep-green/25 px-4 text-[13px] font-semibold text-deep-green transition hover:border-deep-green hover:bg-deep-green hover:text-white sm:w-auto"
+                      type="button"
+                      on:click={() => openPlanner('pricing', { topic: `Comfort level: ${row.title}` })}
+                    >
+                      Plan at {row.title} <ArrowRight size={14} />
+                    </button>
                   </div>
-                  <span class="shrink-0 border border-emnel-gold/30 bg-emnel-gold/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-clay">{priceTypeLabel(option.price_type)}</span>
-                </div>
-                <p class="mt-3 font-serif text-[26px] font-light text-heading">{option.price ? formatUsd(option.price, $currency) : 'On request'}</p>
-                {#if option.description}<p class="mt-2 text-sm leading-[1.6] text-ink/62">{option.description}</p>{/if}
-              </div>
-            {/each}
-          </div>
+                </article>
+              {/each}
+            </div>
+          {/if}
+
+          {#if extraOptions.length}
+            <div class="mt-8">
+              <h3 class="text-[15px] font-semibold text-heading">Supplements and offers</h3>
+              <ul class="mt-3 border-t border-ink/[0.08]">
+                {#each extraOptions as option (option.id)}
+                  <li class="flex items-start justify-between gap-4 border-b border-ink/[0.08] py-3.5">
+                    <div class="min-w-0">
+                      <p class="font-medium text-heading">{option.title}</p>
+                      <p class="mt-0.5 text-sm leading-[1.6] text-ink/60">{priceTypeLabel(option.price_type)}{option.description ? ` · ${option.description}` : ''}</p>
+                    </div>
+                    <p class="shrink-0 font-serif text-[20px] font-light text-heading [font-variant-numeric:tabular-nums]">{option.price ? formatUsd(option.price, $currency) : 'On request'}</p>
+                  </li>
+                {/each}
+              </ul>
+            </div>
+          {/if}
 
           <button class="mt-7 inline-flex h-12 items-center justify-center gap-2 bg-emnel-gold px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-deep-green transition hover:bg-savanna" type="button" on:click={() => openPlanner('pricing')}>
             Get my exact quote <ArrowRight size={15} />

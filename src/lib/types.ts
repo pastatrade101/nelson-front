@@ -242,7 +242,10 @@ export type TourPriceOption = {
   tour_id?: string;
   title: string;
   label?: string | null;
+  /** Price per adult for this comfort level. */
   price: number;
+  /** Price per child for the same level; null = on request (2026-11-16). */
+  child_price?: number | null;
   currency?: string | null;
   price_type?: string | null;
   description?: string | null;

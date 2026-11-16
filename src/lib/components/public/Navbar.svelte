@@ -6,7 +6,7 @@
   import { ArrowDownToLine, ArrowRight, BadgeCheck, BedDouble, Binoculars, Camera, ChevronDown, Compass, Gem, Handshake, Headphones, Heart, Home, MapPin, Menu, MessageCircle, Mountain, Plane, Route, Search, ShieldCheck, Sparkles, Tent, Users, Wallet, Waves, X } from '@lucide/svelte';
   import { fade, fly } from 'svelte/transition';
   import MegaMenu from './MegaMenu.svelte';
-  import { TIER_KEYS, TIER_LABELS, tierLabel } from '$lib/tiers';
+  import { TIER_KEYS, TIER_LABELS, tierLabel, tourTierLabel } from '$lib/tiers';
   import CurrencySelector from './CurrencySelector.svelte';
   import { canonicalHref } from '$lib/redirects';
   import WhatsAppCta from './WhatsAppCta.svelte';
@@ -404,7 +404,7 @@
           image: (t.main_image_url_thumbnail || t.main_image_url) as string,
           description: t.short_description ? String(t.short_description) : undefined,
           badge: t.is_popular ? 'Best Seller' : t.is_featured ? 'Recommended' : undefined,
-          tier: cardTier(t.budget_tier),
+          tier: tourTierLabel(t) || undefined,
           duration: durationLabel(t.duration_days),
           price: priceLabel(t.price_from, t.currency)
         }));

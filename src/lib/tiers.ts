@@ -61,3 +61,32 @@ export const tierStars = (v?: string | null): number => {
 
 /** Options for admin/select dropdowns (no "Not set" head — add it in the caller). */
 export const TIER_OPTIONS = TIER_KEYS.map((k) => ({ value: k, label: TIER_LABELS[k] }));
+
+/**
+ * Every tier a tour can be booked at, lowest first: the "Available comfort
+ * tiers" ticked in the tour editor, or, for a tour nobody has ticked yet, its
+ * single budget tier. One page per route is sold at several levels, so the
+ * comfort filter, cards and AI matching all read this rather than
+ * `budget_tier` alone. `budget_tier` stays the level the "From" price is for.
+ */
+export const tourTierKeys = (tour?: { comfort_tiers?: unknown; budget_tier?: unknown } | null): TierKey[] => {
+  if (!tour) return [];
+  const ticked = Array.isArray(tour.comfort_tiers)
+    ? tour.comfort_tiers.map((value) => normalizeTier(String(value))).filter((key): key is TierKey => Boolean(key))
+    : [];
+  const keys = ticked.length ? ticked : [normalizeTier(typeof tour.budget_tier === 'string' ? tour.budget_tier : null)].filter((key): key is TierKey => Boolean(key));
+  return [...new Set(keys)].sort((a, b) => TIER_RANK[a] - TIER_RANK[b]);
+};
+
+/**
+ * The tour's comfort levels as one short label for cards and tables:
+ * "Luxury", "Classic · Luxury", or "Classic to Luxury" for three or more
+ * consecutive levels (a range reads shorter than a list on a card).
+ */
+export const tourTierLabel = (tour?: { comfort_tiers?: unknown; budget_tier?: unknown } | null): string => {
+  const keys = tourTierKeys(tour);
+  if (!keys.length) return '';
+  const consecutive = keys.every((key, i) => i === 0 || TIER_RANK[key] === TIER_RANK[keys[i - 1]] + 1);
+  if (keys.length >= 3 && consecutive) return `${TIER_LABELS[keys[0]]} to ${TIER_LABELS[keys[keys.length - 1]]}`;
+  return keys.map((key) => TIER_LABELS[key]).join(' · ');
+};

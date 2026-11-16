@@ -6,7 +6,7 @@
   import { trackEvent, trackSearch } from '$lib/analytics';
   import { revealHeading, staggeredCardReveal } from '$lib/animations';
   import { EXPERIENCE_TO_CATEGORY, PERSONA_ORDER, PERSONAS } from '$lib/data/personas';
-  import { TIER_KEYS, TIER_LABELS, normalizeTier, tierRank } from '$lib/tiers';
+  import { TIER_KEYS, TIER_LABELS, TIER_RANK, tourTierKeys } from '$lib/tiers';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import RangeSlider from '$lib/components/public/RangeSlider.svelte';
@@ -18,7 +18,11 @@
 
   // ---- canonical comfort tiers (shown as Classic · Mid-Luxury · Luxury · Ultra Luxury) ----
   const TIERS = TIER_KEYS.map((k) => ({ key: k, label: TIER_LABELS[k] }));
-  const normTier = normalizeTier;
+  // A tour is listed under every tier ticked in "Available comfort tiers"
+  // (falling back to its budget tier), so one route page sold at Classic,
+  // Mid-Luxury and Luxury appears under each of them.
+  const tiersOf = (t: Tour): string[] => tourTierKeys(t);
+  const topTierRank = (t: Tour) => Math.max(-1, ...tourTierKeys(t).map((k) => TIER_RANK[k]));
 
   // ---- data (SSR-loaded in +page.ts) ----
   $: allTours = (data.tours ?? []) as Tour[];
@@ -87,13 +91,13 @@
   // Reactive so the counts update once tours load. A plain function call in the
   // template (`{tierCount(t.key)}`) doesn't re-run when `base` changes, so it
   // stayed frozen at the initial value (0, before the fetch resolved).
-  $: tierCounts = Object.fromEntries(TIERS.map((tier) => [tier.key, base.filter((t) => normTier(t.budget_tier) === tier.key).length]));
+  $: tierCounts = Object.fromEntries(TIERS.map((tier) => [tier.key, base.filter((t) => tiersOf(t).includes(tier.key)).length]));
 
   // full result
   $: result = base.filter(
     (t) =>
       (urlCategories.size === 0 || (t.tour_categories?.slug ? urlCategories.has(t.tour_categories.slug) : false)) &&
-      (selectedTiers.length === 0 || selectedTiers.includes(normTier(t.budget_tier))) &&
+      (selectedTiers.length === 0 || tiersOf(t).some((key) => selectedTiers.includes(key))) &&
       (t.duration_days == null || (t.duration_days >= lengthLo && t.duration_days <= lengthHi)) &&
       ((t.price_from ?? 0) >= priceLo && (t.price_from ?? 0) <= priceHi) &&
       (!popularOnly || Boolean(t.is_popular)) &&
@@ -114,7 +118,7 @@
     if (sort === 'duration_asc') return r.sort((a, b) => (a.duration_days ?? 0) - (b.duration_days ?? 0));
     if (sort === 'duration_desc') return r.sort((a, b) => (b.duration_days ?? 0) - (a.duration_days ?? 0));
     if (sort === 'popular') return r.sort((a, b) => Number(Boolean(b.is_popular)) - Number(Boolean(a.is_popular)) || Number(Boolean(b.is_featured)) - Number(Boolean(a.is_featured)));
-    if (sort === 'luxury') return r.sort((a, b) => tierRank(b.budget_tier) - tierRank(a.budget_tier));
+    if (sort === 'luxury') return r.sort((a, b) => topTierRank(b) - topTierRank(a));
     if (sort === 'value') return r.sort((a, b) => (a.price_from ?? 0) / (a.duration_days || 1) - (b.price_from ?? 0) / (b.duration_days || 1));
     // recommended: persona match → featured → popular
     return r.sort((a, b) => {

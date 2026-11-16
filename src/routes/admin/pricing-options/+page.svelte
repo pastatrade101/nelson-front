@@ -30,6 +30,7 @@
     id: string;
     label?: string | null;
     price: number | string;
+    child_price?: number | string | null;
     price_type: PriceType;
     sort_order?: number | string | null;
     title: string;
@@ -79,10 +80,15 @@
   let editingOption: PricingOption | null = null;
   let optionToDelete: PricingOption | null = null;
   let toasts: Toast[] = [];
+  // True once the database has the child_price column (2026-11-16 migration):
+  // the options endpoint returns every column, so the key shows up on a read.
+  // Before that, the field is only sent when an editor fills it in.
+  let childPriceLive = false;
   let form = {
     currency: 'USD',
     description: '',
     price: '',
+    child_price: '',
     price_type: 'per_person',
     sort_order: '0',
     title: '',
@@ -141,6 +147,7 @@
     id: String(value.id ?? ''),
     label: value.label ? String(value.label) : '',
     price: (value.price ?? 0) as number | string,
+    child_price: (value.child_price ?? null) as number | string | null,
     price_type: String(value.price_type ?? 'per_person') as PriceType,
     sort_order: (value.sort_order ?? 0) as number | string,
     title: String(value.title ?? value.label ?? 'Untitled price option'),
@@ -182,6 +189,7 @@
     try {
       const response = await api.pricingOptions.byTour(selectedTourId);
       pricingOptions = response.data.map((item) => normalizePricingOption(item));
+      if (response.data.some((item) => item && typeof item === 'object' && 'child_price' in item)) childPriceLive = true;
     } catch (requestError) {
       optionsError = requestError instanceof Error ? requestError.message : 'Unable to load pricing options.';
     } finally {
@@ -208,6 +216,7 @@
       currency: selectedTour?.currency || 'USD',
       description: '',
       price: '',
+      child_price: '',
       price_type: 'per_person',
       sort_order: nextSortOrder(),
       title: '',
@@ -232,6 +241,7 @@
       currency: option.currency || selectedTour?.currency || 'USD',
       description: option.description ?? '',
       price: String(option.price ?? ''),
+      child_price: option.child_price == null ? '' : String(option.child_price),
       price_type: option.price_type || 'per_person',
       sort_order: String(option.sort_order ?? 0),
       title: option.title,
@@ -251,6 +261,7 @@
     if (!String(form.title ?? '').trim()) return 'Title is required.';
     if (String(form.price ?? '').trim() === '') return 'Price is required.';
     if (Number(form.price) < 0) return 'Price must be zero or positive.';
+    if (String(form.child_price ?? '').trim() !== '' && !(Number(form.child_price) >= 0)) return 'Price per child must be zero or positive, or left blank.';
     if (String(form.sort_order ?? '').trim() && !Number.isInteger(Number(form.sort_order))) return 'Sort order must be a whole number.';
     return '';
   };
@@ -259,6 +270,10 @@
     currency: (form.currency || 'USD').trim().toUpperCase(),
     description: form.description.trim() || null,
     price: Number(form.price),
+    // Blank = "On request" on the tour page.
+    ...(childPriceLive || String(form.child_price ?? '').trim() !== ''
+      ? { child_price: String(form.child_price ?? '').trim() === '' ? null : Number(form.child_price) }
+      : {}),
     price_type: form.price_type,
     sort_order: Number(form.sort_order || 0),
     title: form.title.trim(),
@@ -421,6 +436,7 @@
                 <th class="px-4 py-3 font-semibold">Pricing Option</th>
                 <th class="px-4 py-3 font-semibold">Type</th>
                 <th class="px-4 py-3 font-semibold">Price</th>
+                <th class="px-4 py-3 font-semibold">Per child</th>
                 <th class="px-4 py-3 font-semibold">Sort Order</th>
                 <th class="px-4 py-3 font-semibold">Description</th>
                 <th class="px-4 py-3 text-right font-semibold">Actions</th>
@@ -446,6 +462,7 @@
                     </span>
                   </td>
                   <td class="px-4 py-4 font-semibold text-ink">{formatMoney(option.price, option.currency || selectedTour.currency || 'USD')}</td>
+                  <td class="px-4 py-4 text-ink/70">{option.child_price != null && option.child_price !== '' ? formatMoney(option.child_price, option.currency || selectedTour.currency || 'USD') : 'On request'}</td>
                   <td class="px-4 py-4 text-ink/65">{option.sort_order ?? 0}</td>
                   <td class="max-w-xs px-4 py-4 text-ink/62">
                     <p class="line-clamp-2">{option.description || '-'}</p>
@@ -487,18 +504,20 @@
       </div>
 
       <div class="mt-6 grid gap-4 md:grid-cols-[1fr_180px]">
-        <AdminFormInput label="Title" name="title" bind:value={form.title} placeholder="Adult rate, Private group, Single supplement..." required />
+        <AdminFormInput label="Title" name="title" bind:value={form.title} placeholder="Classic, Mid-Luxury or Luxury (or a supplement)" required />
         <AdminFormInput label="Sort order" name="sort_order" type="number" bind:value={form.sort_order} />
       </div>
 
-      <div class="mt-4 grid gap-4 md:grid-cols-3">
-        <AdminFormInput label="Price" name="price" type="number" bind:value={form.price} placeholder="2500" required />
+      <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <AdminFormInput label={form.price_type === 'per_person' ? 'Price per adult' : 'Price'} name="price" type="number" bind:value={form.price} placeholder="2500" required />
+        <AdminFormInput label="Price per child" name="child_price" type="number" bind:value={form.child_price} placeholder="Blank = on request" />
         <AdminFormInput label="Currency" name="currency" bind:value={form.currency} placeholder="USD" />
         <AdminSelect label="Price type" name="price_type" bind:value={form.price_type} options={priceTypeOptions} />
       </div>
+      <p class="mt-2 text-xs leading-5 text-ink/55">For a comfort level, name it Classic, Mid-Luxury or Luxury, enter the adult and child price, and list the lodges below. The tour page shows each level as a row of its price table.</p>
 
       <div class="mt-4">
-        <AdminTextArea label="Description" name="description" bind:value={form.description} rows={4} placeholder="Explain when this price applies..." />
+        <AdminTextArea label="Description (lodges at this level)" name="description" bind:value={form.description} rows={4} placeholder="Tarangire Treetops, The Manor at Ngorongoro & Serengeti Under Canvas" />
       </div>
 
       <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

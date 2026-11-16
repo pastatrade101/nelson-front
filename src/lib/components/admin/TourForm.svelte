@@ -524,7 +524,7 @@
               </label>
             {/each}
           </div>
-          <p class="text-xs leading-5 text-ink/55">The tiers this itinerary can be run at. The budget tier above stays the one it is priced and filtered at.</p>
+          <p class="text-xs leading-5 text-ink/55">Every level this itinerary can be run at. The tour is listed under each ticked level in the Comfort level filter on /tours, and its cards show them all. The budget tier below is the level the “From” price is for; set each level’s adult and child price and lodges in Pricing Options.</p>
         </div>
       </section>
       {/if}

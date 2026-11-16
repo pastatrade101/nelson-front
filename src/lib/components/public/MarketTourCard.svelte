@@ -12,7 +12,7 @@
   import { ArrowRight, Clock } from '@lucide/svelte';
   import { origUrl, thumbUrl } from '$lib/img';
   import { currency, formatUsd } from '$lib/currency';
-  import { tierLabel } from '$lib/tiers';
+  import { tourTierLabel } from '$lib/tiers';
   import { trackEvent } from '$lib/analytics';
   import type { AnalyticsEventName } from '$lib/analytics';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
@@ -89,7 +89,7 @@
     tour.duration_days ? `${tour.duration_days} ${tour.duration_days === 1 ? 'Day' : 'Days'}` : '',
     tour.duration_nights ? `${tour.duration_nights} ${tour.duration_nights === 1 ? 'Night' : 'Nights'}` : ''
   ].filter(Boolean);
-  $: comfortLabel = tierLabel(tour.budget_tier);
+  $: comfortLabel = tourTierLabel(tour);
 
   // A split-nights override replaces the Duration row — only the legs the admin
   // actually filled in appear; with neither set the stored duration stands.

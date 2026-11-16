@@ -40,7 +40,7 @@
   import type { CurrencyStoreState } from '$lib/currency';
   import { imgUrl, origUrl, thumbUrl } from '$lib/img';
   import { breadcrumbLd, faqLd, plainText } from '$lib/seo';
-  import { tierLabel } from '$lib/tiers';
+  import { tourTierLabel } from '$lib/tiers';
   import type { FAQ, MarketPackageOverride, MarketPageBlock, Tour } from '$lib/types';
   import type { PageData } from './$types';
 
@@ -266,7 +266,7 @@
     // A tour nobody typed them for keeps a blank cell.
     { label: 'Parks', value: (_t, ov) => nonEmpty(ov.route_stops).join(' · ') },
     { label: 'Zanzibar nights', value: (_t, ov) => nightsLabel(ov.zanzibar_nights) },
-    { label: 'Comfort', value: (t) => tierLabel(t.budget_tier) },
+    { label: 'Comfort', value: (t) => tourTierLabel(t) },
     { label: 'Group size', value: (t) => groupSizeLabel(t) },
     { label: 'From', value: (t, _ov, state) => (t.price_from != null ? formatUsd(t.price_from, state) : '') }
   ];

@@ -11,7 +11,7 @@
   import { thumbUrl } from '$lib/img';
   import { currency, formatUsd } from '$lib/currency';
   import { lodgeImage, levelLabel, typeLabel } from '$lib/lodge';
-  import { tierLabel } from '$lib/tiers';
+  import { tourTierLabel } from '$lib/tiers';
   import type { GuideBlock, Lodge, Tour } from '$lib/types';
   import { plainText } from '$lib/seo';
 
@@ -28,7 +28,7 @@
   const pickTours = (ids: string[] = []) => ids.map((id) => tours.find((t) => t.id === id)).filter((t): t is Tour => Boolean(t));
   const pickLodges = (ids: string[] = []) => ids.map((id) => lodges.find((l) => l.id === id)).filter((l): l is Lodge => Boolean(l));
   const tourMeta = (t: Tour) =>
-    [t.duration_days ? `${t.duration_days} days${t.duration_nights ? ` · ${t.duration_nights} nights` : ''}` : '', tierLabel(t.budget_tier)]
+    [t.duration_days ? `${t.duration_days} days${t.duration_nights ? ` · ${t.duration_nights} nights` : ''}` : '', tourTierLabel(t)]
       .filter(Boolean)
       .join(' · ');
   const lodgeMeta = (l: Lodge) => [typeLabel(l), (l as { destinations?: { name?: string } | null }).destinations?.name].filter(Boolean).join(' · ');

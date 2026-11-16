@@ -5,6 +5,7 @@
   import ResponsiveImage from './ResponsiveImage.svelte';
   import { isHtml, toPlainText } from '$lib/richtext';
   import { currency, formatUsd, type CurrencyStoreState } from '$lib/currency';
+  import { tourTierLabel } from '$lib/tiers';
   import type { Tour } from '$lib/types';
 
   type ShowcaseCard = {
@@ -38,7 +39,7 @@
     const duration = tour.duration_days ? `${tour.duration_days} day${tour.duration_days === 1 ? '' : 's'}` : 'Tailor-made';
     const tags = [
       tour.experience_type,
-      tour.budget_tier,
+      tourTierLabel(tour),
       ...(tour.highlights ?? [])
     ]
       .filter((tag): tag is string => typeof tag === 'string' && tag.trim().length > 0)
