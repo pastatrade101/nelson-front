@@ -32,7 +32,9 @@
   import { origUrl, thumbUrl } from '$lib/img';
   import { hasRichContent, toMetaText, toPlainText } from '$lib/richtext';
   import { publicSettings, settingText } from '$lib/settings';
-  import { tierLabel, tourTierLabel } from '$lib/tiers';
+  import { comfortPricing, priceGrid, tierLabel, tourTierLabel, type GridBand, type TierKey } from '$lib/tiers';
+  import TourPriceGrid from '$lib/components/public/TourPriceGrid.svelte';
+  import TourRequestModal from '$lib/components/public/TourRequestModal.svelte';
   import BookingForm from '$lib/components/public/BookingForm.svelte';
   import BlogCard from '$lib/components/public/BlogCard.svelte';
   import EmailItineraryCapture from '$lib/components/public/EmailItineraryCapture.svelte';
@@ -110,9 +112,24 @@
   // All planning entries share the full-page stepper and retain tour context.
   // `extra` carries a chosen comfort level into the planner as a topic, which
   // its summary shows and the enquiry keeps.
+  // A tour with a price grid uses the two-step request form instead (opened
+  // at step 1 here; a price in the grid opens it at step 2).
   const openPlanner = (source = '', extra: Record<string, string> = {}) => {
     trackEvent('request_trip_opened', { tour_id: tour?.id, metadata: { source, ...extra } });
+    if (gridColumns.length && requestModal) {
+      void requestModal.open({ step: 1, entry: 'plan_button', placement: source });
+      return;
+    }
     void goto(planTripHref({ tour: tour?.slug, from: $page.url.pathname, placement: source, ...extra }));
+  };
+
+  let requestModal: TourRequestModal;
+  const onPriceCell = (event: CustomEvent<{ tier: TierKey; band: GridBand }>) => {
+    const { tier, band } = event.detail;
+    const label = gridColumns.find((c) => c.tier === tier)?.label ?? tierLabel(tier);
+    trackEvent('price_cell_click', { tour_id: tour?.id, tour_title: tour?.title, comfort_tier: tier, travellers: band.from });
+    // The 3–4 and 5–6 rows start from their lower number; the guest can change it.
+    void requestModal?.open({ step: 2, tier, adults: band.from, entry: 'price_cell', entryCell: `${label} · ${band.label}`, placement: 'grid' });
   };
 
   // "About this safari" prose is clamped to ~4 lines with a Read more toggle;
@@ -328,35 +345,17 @@
   $: exclusionTitles = exclusions.map((exc) => exc.title);
   $: priceOptions = [...(tour?.tour_price_options ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
-  // Pricing options are the tour's comfort levels (Classic, Mid-Luxury,
-  // Luxury): `price` is per adult, `child_price` per child (2026-11-16), and
-  // the description lists the lodges. A separate "Per child" option with the
-  // same title as a level is read as that level's child price, so either way
-  // of entering it works. Supplements, upgrades and discounts are listed
-  // under the table. A price of 0 or none reads "On request".
-  type ComfortRow = { id: string; title: string; adult: number | null; child: number | null; perGroup: boolean; lodges: string };
-  const sameTitle = (a?: string | null, b?: string | null) => (a ?? '').trim().toLowerCase() === (b ?? '').trim().toLowerCase();
-  const positive = (value: unknown) => {
-    const n = Number(value);
-    return value != null && value !== '' && Number.isFinite(n) && n > 0 ? n : null;
-  };
-  $: comfortRows = priceOptions
-    .filter((o) => !o.price_type || o.price_type === 'per_person' || o.price_type === 'per_group')
-    .map((o): ComfortRow => {
-      const paired = priceOptions.find((c) => c.price_type === 'per_child' && sameTitle(c.title, o.title));
-      return {
-        id: o.id,
-        title: o.title,
-        adult: positive(o.price),
-        child: positive(o.child_price) ?? positive(paired?.price),
-        perGroup: o.price_type === 'per_group',
-        lodges: (o.description ?? '').trim()
-      };
-    });
-  $: extraOptions = priceOptions.filter(
-    (o) => !comfortRows.some((row) => row.id === o.id) && !(o.price_type === 'per_child' && comfortRows.some((row) => sameTitle(row.title, o.title)))
-  );
-  $: offerPrices = comfortRows.map((row) => row.adult).filter((n): n is number => n != null);
+  // The pricing options read as comfort levels — adult and child price and
+  // lodges per level, child rates paired by title — see comfortPricing in $lib/tiers.
+  $: comfortPrices = comfortPricing(priceOptions);
+  $: comfortRows = comfortPrices.rows;
+  $: extraOptions = comfortPrices.extras;
+  // Comfort level x group size, when the tour's options carry them; such a
+  // tour shows the grid and the two-step request form instead of the list.
+  $: gridColumns = priceGrid(tour, priceOptions);
+  $: offerPrices = gridColumns.length
+    ? gridColumns.flatMap((c) => c.cells.map((cell) => cell.price)).filter((n): n is number => n != null)
+    : comfortRows.map((row) => row.adult).filter((n): n is number => n != null);
 
   $: galleryImages = [...(tour?.tour_images ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   $: highlights = tour?.highlights ?? [];
@@ -887,8 +886,8 @@
         </section>
       {/if}
 
-      <!-- Prices: one row per comfort level -->
-      {#if priceOptions.length}
+      <!-- Prices: one row per comfort level (tours without a price grid) -->
+      {#if priceOptions.length && !gridColumns.length}
         <section id="pricing" class="scroll-mt-32">
           <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> Pricing</span>
           <h2 class="type-h2 mt-4 text-heading">{comfortRows.length > 1 ? 'Prices by comfort level' : 'Tour rates'}</h2>
@@ -922,7 +921,7 @@
                         </dd>
                       </div>
                       <div>
-                        <dt class="text-xs text-ink/60">Per child</dt>
+                        <dt class="text-xs text-ink/60">Per child{row.childNote ? `, ${row.childNote}` : ''}</dt>
                         <dd class="mt-1.5 font-serif text-[26px] font-light leading-none text-heading [font-variant-numeric:tabular-nums]">
                           {#if row.child}{formatUsd(row.child, $currency)}{:else}<span class="font-sans text-sm text-ink/60">On request</span>{/if}
                         </dd>
@@ -968,13 +967,58 @@
     <!-- sticky booking sidebar (desktop) -->
     <aside id="plan-this-trip" class="hidden self-stretch lg:block">
       <div use:stickBelowTabs class="sticky">
-        <BookingForm {tour} />
+        {#if gridColumns.length}
+          <section class="border border-ink/10 bg-white p-6 sm:p-8">
+            <Compass size={28} class="text-clay" strokeWidth={1.3} />
+            <h3 class="type-card mt-5 text-heading">Request this safari</h3>
+            <p class="mt-4 text-base leading-[1.75] text-ink/65">Choose your comfort level and who is travelling, see an estimate, and Nelson replies within 24 hours with your route and exact price.</p>
+            <p class="mt-5 flex items-center gap-2 text-xs text-ink/65"><Check size={14} /> No payment needed to ask</p>
+            <button class="mt-6 flex min-h-12 w-full items-center justify-center gap-3 bg-deep-green px-4 py-3 text-sm font-semibold text-white hover:bg-forest" type="button" on:click={() => openPlanner('sidebar')}>
+              Plan this trip <ArrowRight size={16} />
+            </button>
+          </section>
+        {:else}
+          <BookingForm {tour} />
+        {/if}
         <a class="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 border border-forest/25 bg-surface text-[12px] font-bold uppercase tracking-[0.12em] text-forest transition hover:border-emnel-gold hover:text-emnel-gold" href={waHref} target="_blank" rel="noopener noreferrer">
           <MessageCircle size={15} /> Prefer to talk? WhatsApp
         </a>
       </div>
     </aside>
   </div>
+
+  <!-- ── Price grid: full width, so four comfort levels fit beside the sizes ── -->
+  {#if gridColumns.length}
+    <section id="pricing" class="scroll-mt-32 border-t border-ink/[0.07] bg-canvas py-14 md:py-20">
+      <div class="container-shell">
+        <span class="eyebrow inline-flex items-center gap-2.5 text-clay"><span class="h-px w-6 bg-clay"></span> Pricing</span>
+        <TourPriceGrid
+          columns={gridColumns}
+          note={tour.price_note ?? ''}
+          {waHref}
+          on:cell={onPriceCell}
+          on:plan={() => openPlanner('grid')}
+          on:whatsapp={() => trackEvent('whatsapp_click', { tour_id: tour?.id, cta_location: 'price_grid' })}
+        />
+        {#if extraOptions.length}
+          <div class="mt-10 max-w-[760px]">
+            <h3 class="text-[15px] font-semibold text-heading">Supplements and offers</h3>
+            <ul class="mt-3 border-t border-ink/[0.08]">
+              {#each extraOptions as option (option.id)}
+                <li class="flex items-start justify-between gap-4 border-b border-ink/[0.08] py-3.5">
+                  <div class="min-w-0">
+                    <p class="font-medium text-heading">{option.title}</p>
+                    <p class="mt-0.5 text-sm leading-[1.6] text-ink/60">{priceTypeLabel(option.price_type)}{option.description ? ` · ${option.description}` : ''}</p>
+                  </div>
+                  <p class="shrink-0 font-serif text-[20px] font-light text-heading [font-variant-numeric:tabular-nums]">{option.price ? formatUsd(option.price, $currency) : 'On request'}</p>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
+      </div>
+    </section>
+  {/if}
 
   <!-- ── Where you stay: the properties linked to this route's nights ──────── -->
   {#if stayLodges.length}
@@ -1121,6 +1165,10 @@
     </div>
   </div>
   <div class="h-20 lg:hidden"></div>
+{/if}
+
+{#if tour && gridColumns.length}
+  <TourRequestModal bind:this={requestModal} {tour} columns={gridColumns} {waDigits} />
 {/if}
 
 {#if touristTripLd}<JsonLd data={touristTripLd} />{/if}

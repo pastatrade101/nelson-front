@@ -236,5 +236,16 @@ export const formatUsd = (amountUsd: string | number | null | undefined, state =
   return formatAmount(converted, targetCurrency, state);
 };
 
+/**
+ * A price in whole units ("$3,500"), for the price grid and the request
+ * form's estimate, where cents are noise. Same conversion as formatUsd.
+ */
+export const formatUsdWhole = (amountUsd: string | number | null | undefined, state = get(currency), targetCurrency = state.selectedCurrency) => {
+  const converted = convertUsd(amountUsd, state, targetCurrency);
+  if (!converted) return '';
+  const config = state.supportedCurrencies.find((item) => item.code === targetCurrency) ?? USD;
+  return formatter({ ...config, decimalDigits: 0 }).format(new BigNumber(converted).decimalPlaces(0, BigNumber.ROUND_HALF_UP).toNumber());
+};
+
 export const selectedCurrencyMeta = (state = get(currency)) =>
   state.supportedCurrencies.find((item) => item.code === state.selectedCurrency) ?? USD;

@@ -287,6 +287,9 @@ export const api = {
     list: (params?: Record<string, QueryValue>) =>
       apiRequest<Paginated<Record<string, unknown>>>(`/pricing-options${queryString(params)}`),
     byTour: (tourId: string) => apiRequest<Record<string, unknown>[]>(`/tours/${tourId}/pricing-options`),
+    /** Save the tour's whole comfort level x group size grid in one go. */
+    saveGrid: (tourId: string, body: Record<string, unknown>) =>
+      apiRequest<Record<string, unknown>[]>(`/tours/${tourId}/price-grid`, { method: 'PUT', body }),
     get: (id: string) => apiRequest<Record<string, unknown>>(`/pricing-options/${id}`),
     create: (body: Record<string, unknown>) =>
       apiRequest<Record<string, unknown>>('/pricing-options', { method: 'POST', body }),

@@ -52,6 +52,8 @@ export type Tour = {
   not_suited_for?: string | null;
   /** Tier keys: essential | classic | luxury | ultra_luxury. */
   comfort_tiers?: string[] | null;
+  /** The line under "Prices for this safari" (2026-11-18). */
+  price_note?: string | null;
   short_description?: string;
   full_description?: string;
   destination_id?: string | null;
@@ -250,6 +252,13 @@ export type TourPriceOption = {
   price_type?: string | null;
   description?: string | null;
   sort_order?: number | null;
+  /** Price grid column (2026-11-18): essential | classic | luxury | ultra_luxury. Null on old-style options. */
+  comfort_tier?: string | null;
+  /** Price grid row: the group sizes this adult price is for (1–1, 2–2, 3–4, 5–6). */
+  travellers_from?: number | null;
+  travellers_to?: number | null;
+  /** Lodges at this comfort level, shown under the tier heading. */
+  lodges?: string | null;
 };
 
 export type TourImage = {

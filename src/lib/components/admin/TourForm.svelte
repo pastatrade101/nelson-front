@@ -107,7 +107,9 @@
     duration_rationale: '',
     best_season: '',
     not_suited_for: '',
-    comfort_tiers: [] as string[]
+    comfort_tiers: [] as string[],
+    // The line under "Prices for this safari" (2026-11-18-tour-price-grid.sql)
+    price_note: ''
   };
 
   // persona_tags is stored as free text and has drifted (couple/couples,
@@ -281,9 +283,11 @@
         duration_rationale: String(tour.duration_rationale ?? ''),
         best_season: String(tour.best_season ?? ''),
         not_suited_for: String(tour.not_suited_for ?? ''),
-        comfort_tiers: Array.isArray(tour.comfort_tiers) ? (tour.comfort_tiers as string[]).filter((k) => TIER_OPTIONS.some((o) => o.value === k)) : []
+        comfort_tiers: Array.isArray(tour.comfort_tiers) ? (tour.comfort_tiers as string[]).filter((k) => TIER_OPTIONS.some((o) => o.value === k)) : [],
+        price_note: String(tour.price_note ?? '')
       };
       reasonFieldsLive = 'comfort_tiers' in tour;
+      priceNoteLive = 'price_note' in tour;
 
       slugManuallyEdited = true;
     } catch (requestError) {
@@ -327,8 +331,13 @@
     start_location: form.start_location || null,
     status: form.status,
     title: String(form.title ?? '').trim(),
-    ...reasonPayload()
+    ...reasonPayload(),
+    // Sent only once the column exists (edit) or when filled (new tour), so
+    // saving keeps working before the price-grid SQL has run.
+    ...(priceNoteLive && (mode === 'edit' || form.price_note.trim()) ? { price_note: form.price_note.trim() || null } : {})
   });
+
+  let priceNoteLive = true;
 
   // The "reason to exist" columns arrive with a database migration
   // (2026-11-10-tour-reason-fields.sql). Until it has run, a tour loaded for
@@ -502,6 +511,13 @@
           <AdminFormInput label="Start location" name="start_location" bind:value={form.start_location} />
           <AdminFormInput label="End location" name="end_location" bind:value={form.end_location} />
         </div>
+
+        {#if priceNoteLive}
+          <div class="mt-4 grid gap-1.5">
+            <AdminFormInput label="Price note" name="price_note" bind:value={form.price_note} maxLength={240} placeholder="Per person, sharing, including park fees and the flight to Zanzibar." />
+            <p class="text-xs leading-5 text-ink/55">The first line under “Prices for this safari” on the tour page; the site adds “Choose your comfort level and group size to request this safari.” Left empty, it reads “Per person, sharing.”</p>
+          </div>
+        {/if}
       </section>
 
       {#if reasonFieldsLive}
@@ -524,7 +540,7 @@
               </label>
             {/each}
           </div>
-          <p class="text-xs leading-5 text-ink/55">Every level this itinerary can be run at. The tour is listed under each ticked level in the Comfort level filter on /tours, and its cards show them all. The budget tier below is the level the “From” price is for; set each level’s adult and child price and lodges in Pricing Options.</p>
+          <p class="text-xs leading-5 text-ink/55">Every level this itinerary can be run at. The tour is listed under each ticked level in the Comfort level filter on /tours, and its cards show them all. The budget tier below is the level the “From” price is for; enter each level’s prices by group size, child price and lodges in the Price grid below.</p>
         </div>
       </section>
       {/if}

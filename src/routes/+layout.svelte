@@ -37,6 +37,7 @@
   import { loadClarity } from '$lib/clarity';
   import { googleTagBody, googleTagHead, tagId, verificationCode, type GoogleTagIds } from '$lib/googleTag';
   import { openEnquiry } from '$lib/enquiry';
+  import { captureAttribution } from '$lib/attribution';
 
   $: path = $page.url.pathname;
   $: isAdmin = path.startsWith('/admin');
@@ -271,6 +272,8 @@
   onMount(() => {
     // Capture phase: SvelteKit's router claims link clicks before they bubble to document.
     document.addEventListener('click', onDocumentClick, true);
+    // The ad or campaign this visit came from, kept for an enquiry later on.
+    captureAttribution();
     void setupGsap();
     // Apply the SSR-loaded branding's client-side effects (brand-color-vars style
     // tag + favicon) right away, then refresh from the API (also retries if the

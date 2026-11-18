@@ -6,7 +6,7 @@
   import { trackEvent, trackSearch } from '$lib/analytics';
   import { revealHeading, staggeredCardReveal } from '$lib/animations';
   import { EXPERIENCE_TO_CATEGORY, PERSONA_ORDER, PERSONAS } from '$lib/data/personas';
-  import { TIER_KEYS, TIER_LABELS, TIER_RANK, tourTierKeys } from '$lib/tiers';
+  import { TIER_KEYS, TIER_LABELS, TIER_RANK, gridLevelPrices, levelPrices, tourTierKeys } from '$lib/tiers';
   import EmptyState from '$lib/components/public/EmptyState.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import RangeSlider from '$lib/components/public/RangeSlider.svelte';
@@ -23,6 +23,27 @@
   // Mid-Luxury and Luxury appears under each of them.
   const tiersOf = (t: Tour): string[] => tourTierKeys(t);
   const topTierRank = (t: Tour) => Math.max(-1, ...tourTierKeys(t).map((k) => TIER_RANK[k]));
+
+  // Each comfort level's lowest adult price: from the price grid when the tour
+  // has one, else from its older per-level options.
+  const tierPrices = (t: Tour) => {
+    const options = t.tour_price_options ?? [];
+    const grid = gridLevelPrices(options);
+    return grid.length ? grid : levelPrices(options);
+  };
+
+  // The price the slider and the price sorts read (Nelson's brief): the "From"
+  // price, unless the Comfort filter is on, in which case each ticked level's
+  // lowest adult price, so a trip from $3,500 at Classic shows for
+  // $5,000–$7,000 once Luxury is ticked and its Luxury price is $6,000. A tour
+  // with no price for the ticked levels keeps its "From" price.
+  const pricesOf = (t: Tour, tiers: string[]): number[] => {
+    const from = [t.price_from ?? 0];
+    if (!tiers.length) return from;
+    const picked = tierPrices(t).filter((l) => l.tier && tiers.includes(l.tier)).map((l) => l.price);
+    return picked.length ? picked : from;
+  };
+  const lowestPrice = (t: Tour, tiers: string[]) => Math.min(...pricesOf(t, tiers));
 
   // ---- data (SSR-loaded in +page.ts) ----
   $: allTours = (data.tours ?? []) as Tour[];
@@ -52,7 +73,9 @@
   $: personaCfg = persona ? PERSONAS[persona] : null;
 
   const initRanges = () => {
-    const prices = allTours.map((t) => t.price_from ?? 0).filter((n) => n > 0);
+    // The slider spans every price it can be asked to match: "From" prices and
+    // each level's price, so ticking Luxury never puts a tour beyond its end.
+    const prices = allTours.flatMap((t) => [t.price_from ?? 0, ...tierPrices(t).map((l) => l.price)]).filter((n) => n > 0);
     const durs = allTours.map((t) => t.duration_days ?? 0).filter((n) => n > 0);
     priceMin = prices.length ? Math.floor(Math.min(...prices)) : 0;
     priceMax = prices.length ? Math.ceil(Math.max(...prices)) : 10000;
@@ -99,7 +122,7 @@
       (urlCategories.size === 0 || (t.tour_categories?.slug ? urlCategories.has(t.tour_categories.slug) : false)) &&
       (selectedTiers.length === 0 || tiersOf(t).some((key) => selectedTiers.includes(key))) &&
       (t.duration_days == null || (t.duration_days >= lengthLo && t.duration_days <= lengthHi)) &&
-      ((t.price_from ?? 0) >= priceLo && (t.price_from ?? 0) <= priceHi) &&
+      pricesOf(t, selectedTiers).some((p) => p >= priceLo && p <= priceHi) &&
       (!popularOnly || Boolean(t.is_popular)) &&
       // A persona in the URL now narrows the list rather than just reordering it.
       // It used to sort only, so arriving from a travel style showed the whole
@@ -113,13 +136,13 @@
   $: personaHasMatches = persona ? base.some((t) => personaTags(t).includes(persona)) : false;
   $: sorted = (() => {
     const r = [...result];
-    if (sort === 'price_asc') return r.sort((a, b) => (a.price_from ?? 0) - (b.price_from ?? 0));
-    if (sort === 'price_desc') return r.sort((a, b) => (b.price_from ?? 0) - (a.price_from ?? 0));
+    if (sort === 'price_asc') return r.sort((a, b) => lowestPrice(a, selectedTiers) - lowestPrice(b, selectedTiers));
+    if (sort === 'price_desc') return r.sort((a, b) => lowestPrice(b, selectedTiers) - lowestPrice(a, selectedTiers));
     if (sort === 'duration_asc') return r.sort((a, b) => (a.duration_days ?? 0) - (b.duration_days ?? 0));
     if (sort === 'duration_desc') return r.sort((a, b) => (b.duration_days ?? 0) - (a.duration_days ?? 0));
     if (sort === 'popular') return r.sort((a, b) => Number(Boolean(b.is_popular)) - Number(Boolean(a.is_popular)) || Number(Boolean(b.is_featured)) - Number(Boolean(a.is_featured)));
     if (sort === 'luxury') return r.sort((a, b) => topTierRank(b) - topTierRank(a));
-    if (sort === 'value') return r.sort((a, b) => (a.price_from ?? 0) / (a.duration_days || 1) - (b.price_from ?? 0) / (b.duration_days || 1));
+    if (sort === 'value') return r.sort((a, b) => lowestPrice(a, selectedTiers) / (a.duration_days || 1) - lowestPrice(b, selectedTiers) / (b.duration_days || 1));
     // recommended: persona match → featured → popular
     return r.sort((a, b) => {
       const p = persona ? Number(personaTags(b).includes(persona)) - Number(personaTags(a).includes(persona)) : 0;

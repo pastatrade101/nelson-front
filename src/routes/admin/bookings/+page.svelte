@@ -71,6 +71,8 @@
     website_booking_form: 'Website',
     begin_your_journey: 'Homepage enquiry',
     plan_my_trip: 'Plan My Safari',
+    tour_enquiry: 'Tour price request',
+    email_itinerary: 'Itinerary by email',
     ai_handoff: 'AI Advisor',
     whatsapp: 'WhatsApp',
     admin_created: 'Admin',

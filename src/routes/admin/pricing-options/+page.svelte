@@ -3,6 +3,7 @@
   import { fade, scale } from 'svelte/transition';
   import { CircleDollarSign, Edit, Plus, Save, Search, Trash2, X } from '@lucide/svelte';
   import { api } from '$lib/api/client';
+  import { GRID_BANDS, TIER_KEYS, TIER_LABELS, normalizeTier } from '$lib/tiers';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
@@ -35,6 +36,10 @@
     sort_order?: number | string | null;
     title: string;
     tour_id: string;
+    comfort_tier?: string | null;
+    travellers_from?: number | null;
+    travellers_to?: number | null;
+    lodges?: string | null;
   };
 
   type Toast = {
@@ -84,7 +89,21 @@
   // the options endpoint returns every column, so the key shows up on a read.
   // Before that, the field is only sent when an editor fills it in.
   let childPriceLive = false;
+  // The same for the price grid columns (2026-11-18): comfort level, group size, lodges.
+  let gridLive = false;
+  const tierOptions: Option[] = [{ label: 'Not in the price grid', value: '' }, ...TIER_KEYS.map((key) => ({ label: TIER_LABELS[key], value: key }))];
+  const bandOptions: Option[] = GRID_BANDS.map((band) => ({ label: band.note ? `${band.label} (${band.note})` : band.label, value: band.key }));
+  const bandKeyOf = (from?: number | null, to?: number | null) => GRID_BANDS.find((band) => band.from === from && band.to === to)?.key ?? '2';
+  const gridText = (option: PricingOption) => {
+    const tier = normalizeTier(option.comfort_tier);
+    if (!tier) return '';
+    const band = GRID_BANDS.find((b) => b.from === option.travellers_from && b.to === option.travellers_to);
+    return `${TIER_LABELS[tier]} · ${band?.label ?? `${option.travellers_from}–${option.travellers_to} travellers`}`;
+  };
   let form = {
+    comfort_tier: '',
+    band: '2',
+    lodges: '',
     currency: 'USD',
     description: '',
     price: '',
@@ -151,7 +170,11 @@
     price_type: String(value.price_type ?? 'per_person') as PriceType,
     sort_order: (value.sort_order ?? 0) as number | string,
     title: String(value.title ?? value.label ?? 'Untitled price option'),
-    tour_id: String(value.tour_id ?? '')
+    tour_id: String(value.tour_id ?? ''),
+    comfort_tier: (value.comfort_tier ?? null) as string | null,
+    travellers_from: value.travellers_from == null ? null : Number(value.travellers_from),
+    travellers_to: value.travellers_to == null ? null : Number(value.travellers_to),
+    lodges: (value.lodges ?? null) as string | null
   });
 
   const loadTours = async () => {
@@ -190,6 +213,7 @@
       const response = await api.pricingOptions.byTour(selectedTourId);
       pricingOptions = response.data.map((item) => normalizePricingOption(item));
       if (response.data.some((item) => item && typeof item === 'object' && 'child_price' in item)) childPriceLive = true;
+      if (response.data.some((item) => item && typeof item === 'object' && 'comfort_tier' in item)) gridLive = true;
     } catch (requestError) {
       optionsError = requestError instanceof Error ? requestError.message : 'Unable to load pricing options.';
     } finally {
@@ -213,6 +237,9 @@
 
   const resetForm = () => {
     form = {
+      comfort_tier: '',
+      band: '2',
+      lodges: '',
       currency: selectedTour?.currency || 'USD',
       description: '',
       price: '',
@@ -238,6 +265,9 @@
   const openEditModal = (option: PricingOption) => {
     editingOption = option;
     form = {
+      comfort_tier: normalizeTier(option.comfort_tier) || '',
+      band: bandKeyOf(option.travellers_from, option.travellers_to),
+      lodges: option.lodges ?? '',
       currency: option.currency || selectedTour?.currency || 'USD',
       description: option.description ?? '',
       price: String(option.price ?? ''),
@@ -277,8 +307,17 @@
     price_type: form.price_type,
     sort_order: Number(form.sort_order || 0),
     title: form.title.trim(),
-    tour_id: form.tour_id || selectedTourId
+    tour_id: form.tour_id || selectedTourId,
+    // Price grid fields: sent once the columns exist, or when a level is chosen.
+    ...(gridLive || form.comfort_tier ? gridPayload() : {})
   });
+
+  const gridPayload = () => {
+    const band = GRID_BANDS.find((b) => b.key === form.band) ?? GRID_BANDS[1];
+    return form.comfort_tier
+      ? { comfort_tier: form.comfort_tier, travellers_from: band.from, travellers_to: band.to, lodges: form.lodges.trim() || null }
+      : { comfort_tier: null, travellers_from: null, travellers_to: null, lodges: form.lodges.trim() || null };
+  };
 
   const savePricingOption = async () => {
     const validationError = validateForm();
@@ -435,6 +474,7 @@
               <tr>
                 <th class="px-4 py-3 font-semibold">Pricing Option</th>
                 <th class="px-4 py-3 font-semibold">Type</th>
+                <th class="px-4 py-3 font-semibold">Price grid</th>
                 <th class="px-4 py-3 font-semibold">Price</th>
                 <th class="px-4 py-3 font-semibold">Per child</th>
                 <th class="px-4 py-3 font-semibold">Sort Order</th>
@@ -461,11 +501,12 @@
                       {priceTypeLabel(option.price_type)}
                     </span>
                   </td>
+                  <td class="px-4 py-4 text-ink/70">{gridText(option) || '-'}</td>
                   <td class="px-4 py-4 font-semibold text-ink">{formatMoney(option.price, option.currency || selectedTour.currency || 'USD')}</td>
                   <td class="px-4 py-4 text-ink/70">{option.child_price != null && option.child_price !== '' ? formatMoney(option.child_price, option.currency || selectedTour.currency || 'USD') : 'On request'}</td>
                   <td class="px-4 py-4 text-ink/65">{option.sort_order ?? 0}</td>
                   <td class="max-w-xs px-4 py-4 text-ink/62">
-                    <p class="line-clamp-2">{option.description || '-'}</p>
+                    <p class="line-clamp-2">{option.lodges || option.description || '-'}</p>
                   </td>
                   <td class="px-4 py-4">
                     <div class="flex justify-end gap-2">
@@ -514,7 +555,22 @@
         <AdminFormInput label="Currency" name="currency" bind:value={form.currency} placeholder="USD" />
         <AdminSelect label="Price type" name="price_type" bind:value={form.price_type} options={priceTypeOptions} />
       </div>
-      <p class="mt-2 text-xs leading-5 text-ink/55">For a comfort level, name it Classic, Mid-Luxury or Luxury, enter the adult and child price, and list the lodges below. The tour page shows each level as a row of its price table.</p>
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <AdminSelect label="Comfort level (price grid)" name="comfort_tier" bind:value={form.comfort_tier} options={tierOptions} />
+        {#if form.comfort_tier}
+          <AdminSelect label="Travellers" name="band" bind:value={form.band} options={bandOptions} />
+        {/if}
+      </div>
+      {#if form.comfort_tier}
+        <div class="mt-4">
+          <AdminFormInput label="Lodges at this level" name="lodges" bind:value={form.lodges} placeholder="Tulia, Tarangire Sopa, Marera Valley, Serengeti Serena" />
+        </div>
+      {/if}
+      <p class="mt-2 text-xs leading-5 text-ink/55">
+        For the tour page’s price grid, choose the comfort level and group size; the price is then per adult for that many travellers, and the child price is for a child under 11. Quicker: enter the whole grid at once in the tour editor, under
+        {#if selectedTourId}<a class="font-semibold text-forest underline underline-offset-2" href={`/admin/tours/${selectedTourId}/edit#price-grid`}>Price grid</a>{:else}Price grid{/if}.
+        Options without a comfort level (supplements, upgrades, discounts) are listed under the prices.
+      </p>
 
       <div class="mt-4">
         <AdminTextArea label="Description (lodges at this level)" name="description" bind:value={form.description} rows={4} placeholder="Tarangire Treetops, The Manor at Ngorongoro & Serengeti Under Canvas" />

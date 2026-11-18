@@ -42,7 +42,14 @@ export type AnalyticsEventName =
   | 'cta_click'
   | 'whatsapp_click'
   | 'phone_click'
-  | 'email_click';
+  | 'email_click'
+  // The tour-page price grid and its two-step request form (2026-11-18).
+  // enquiry_submit is the Google Ads / Microsoft Ads conversion: mark it as a
+  // key event in GA4 and import it into Google Ads.
+  | 'price_cell_click'
+  | 'enquiry_step1_view'
+  | 'enquiry_step2_view'
+  | 'enquiry_submit';
 
 // Forward these to gtag under their GA4-recommended name (GA4 only — the
 // first-party layer still receives the original name for report continuity).
@@ -67,7 +74,11 @@ const SAFE_KEYS = [
   'accommodation_level', 'duration_days', 'price_from', 'currency', 'budget_range', 'traveller_type',
   'list_name', 'item_position', 'cta_name', 'cta_type', 'cta_location', 'page_section',
   'search_term', 'results_count', 'sort_option', 'filter_name', 'lead_type', 'transaction_id',
-  'form_name', 'method', 'error_type', 'error_code'
+  'form_name', 'method', 'error_type', 'error_code',
+  // Price grid / request form: comfort level, adult count, the estimate shown,
+  // where the form was opened from, and `value` (the estimate again, under
+  // the name Google Ads reads as the conversion value).
+  'comfort_tier', 'travellers', 'estimated_total', 'entry_point', 'value'
 ] as const;
 
 type SafeKey = (typeof SAFE_KEYS)[number];
