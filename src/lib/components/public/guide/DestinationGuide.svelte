@@ -1,17 +1,27 @@
 <script lang="ts">
-  import { onDestroy, tick } from 'svelte';
+  /**
+   * The destination's long-form travel guide, laid out as chapters rather than
+   * one reading column. Each Part heading opens a chapter band; inside it the
+   * text runs in a main column with tips and notes beside it, and tables,
+   * photos and picks run the full width. Month-by-month tables become a season
+   * strip and short tables become side-by-side columns (see guideLayout.ts).
+   *
+   * The guide's "Quick facts" block is shown in the page's overview, so it is
+   * left out here.
+   */
+  import { ArrowRight, Compass, Lightbulb, Sparkles } from '@lucide/svelte';
   import RichText from '../RichText.svelte';
-  import { browser } from '$app/environment';
-  import { Compass, Lightbulb, ShieldCheck, Sparkles } from '@lucide/svelte';
   import ComparisonTable from '$lib/components/public/ComparisonTable.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
+  import GuideColumns from './GuideColumns.svelte';
   import GuidePick from './GuidePick.svelte';
   import { thumbUrl } from '$lib/img';
   import { currency, formatUsd } from '$lib/currency';
   import { lodgeImage, levelLabel, typeLabel } from '$lib/lodge';
   import { tourTierLabel } from '$lib/tiers';
+  import { findQuickFacts, tableView, toChapters } from '$lib/guideLayout';
   import type { GuideBlock, Lodge, Tour } from '$lib/types';
   import { plainText } from '$lib/seo';
 
@@ -23,6 +33,8 @@
   /** Published records the Tours / Accommodation blocks point at (loaded by the page). */
   export let tours: Tour[] = [];
   export let lodges: Lodge[] = [];
+  /** A second photograph of the destination, shown full width between chapters when the guide has none of its own. */
+  export let breakImage = '';
 
   // In the editor's order; anything unpublished or deleted is simply skipped.
   const pickTours = (ids: string[] = []) => ids.map((id) => tours.find((t) => t.id === id)).filter((t): t is Tour => Boolean(t));
@@ -34,13 +46,12 @@
   const lodgeMeta = (l: Lodge) => [typeLabel(l), (l as { destinations?: { name?: string } | null }).destinations?.name].filter(Boolean).join(' · ');
 
   // Split a body string into paragraphs on blank lines. Rendered as escaped text.
-  const paras = (s: string): string[] =>
-    (s ?? '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const paras = (s: string): string[] => (s ?? '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
 
   const CALLOUT_LABEL: Record<string, string> = {
-    guide_tip: "Guide's Tip",
-    local_insight: 'Local Insight',
-    safari_wisdom: 'Safari Wisdom'
+    guide_tip: 'Guide’s tip',
+    local_insight: 'Local insight',
+    safari_wisdom: 'Safari wisdom'
   };
   const CALLOUT_ICON: Record<string, typeof Compass> = {
     guide_tip: Lightbulb,
@@ -48,49 +59,29 @@
     safari_wisdom: Sparkles
   };
 
-  const slugify = (s: string) =>
-    (s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  const partBase = (b: GuideBlock): string =>
-    'part-' + ('part' in b && b.part != null ? b.part : slugify('title' in b ? String(b.title ?? '') : 'section'));
-  const partId = (b: GuideBlock, index: number): string => {
-    const base = partBase(b);
-    // Keep existing incoming anchor links; disambiguate repeated headings only.
-    return bodyBlocks.slice(0, index).some((other) => other.type === 'part' && partBase(other) === base) ? `${base}-${index}` : base;
-  };
-
   const toAccordion = (items: { q: string; a: string }[] = []) =>
     items.map((it, i) => ({ id: `${(it.q ?? '').slice(0, 48)}-${i}`, question: it.q, answer: it.a }));
 
-  // Guide tables store rows as flat string arrays. ComparisonTable takes plain
-  // data with the leading cell as the row label (it repeats the column headers
-  // per cell when the table reflows into cards on mobile).
-  const toComparisonRows = (rows: string[][] = []) =>
-    (rows ?? []).map((r) => ({ label: r?.[0] ?? '', cells: (r ?? []).slice(1) }));
+  // Guide tables store rows as flat string arrays. ComparisonTable takes the
+  // leading cell as the row label.
+  const toComparisonRows = (rows: string[][] = []) => rows.map((r) => ({ label: r[0] ?? '', cells: r.slice(1) }));
 
   // Internal build artifacts that leaked into a few guides — never shown.
   const ARTIFACT = /end of (the )?(master )?guide|developer|implementation notes?|ready for extract|schematic (map|driving|diagram|route)/i;
-  const isArtifact = (b: GuideBlock): boolean =>
-    b?.type === 'richtext' && ARTIFACT.test((b as { body?: string }).body ?? '');
+  const isArtifact = (b: GuideBlock): boolean => b?.type === 'richtext' && ARTIFACT.test((b as { body?: string }).body ?? '');
 
-  // The "Quick Facts" block (the one carrying best-time / ideal-visit) is
-  // promoted into the floating quick-facts bar, so it isn't repeated inline.
-  $: quickFacts = blocks.find(
-    (b): b is Extract<GuideBlock, { type: 'facts' }> =>
-      b?.type === 'facts' && (/quick facts|at a glance/i.test(b.title ?? '') || (b.items ?? []).some((it) => /best time|ideal visit/i.test(it.label ?? '')))
-  );
+  $: quickFacts = findQuickFacts(blocks);
 
-  // Blocks actually rendered inline: drop artifacts, the promoted quick-facts
-  // block, and image placeholders that have no real photo yet.
-  $: bodyBlocks = blocks.filter(
-    (b) => !isArtifact(b) && b !== quickFacts && !(b?.type === 'photo' && !(b as { url?: string }).url)
-  );
+  // Blocks actually laid out: drop artifacts, the quick facts (shown in the
+  // overview) and photo placeholders that have no real photo yet.
+  $: bodyBlocks = blocks.filter((b) => !isArtifact(b) && b !== quickFacts && !(b?.type === 'photo' && !(b as { url?: string }).url));
+  $: chapters = toChapters(bodyBlocks);
+  $: contents = chapters.filter((c) => c.part).map((c) => ({ id: c.id, title: c.part?.title ?? '' }));
+  $: hasOwnPhotos = bodyBlocks.some((b) => b.type === 'photo');
+  // The photo break sits after the second chapter, where the long read begins.
+  $: breakAfter = breakImage && !hasOwnPhotos && chapters.length >= 3 ? 1 : -1;
 
-  // Table of contents, built from the `part` blocks.
-  $: toc = bodyBlocks.flatMap((b, i) =>
-    b.type === 'part' ? [{ id: partId(b, i), num: b.part, title: b.title }] : []
-  );
-
-  // Aggregate every FAQ item across all faq blocks into one FAQPage schema.
+  // Every FAQ item across the guide's faq blocks, plus the page's own, in one FAQPage.
   $: faqItems = blocks
     .filter((b): b is Extract<GuideBlock, { type: 'faq' }> => b?.type === 'faq')
     .flatMap((b) => b.items ?? [])
@@ -100,272 +91,219 @@
   $: faqLd = faqItems.length
     ? {
         '@type': 'FAQPage',
-        mainEntity: faqItems.map((it) => ({
-          '@type': 'Question',
-          name: it.q,
-          acceptedAnswer: { '@type': 'Answer', text: it.a }
-        }))
+        mainEntity: faqItems.map((it) => ({ '@type': 'Question', name: it.q, acceptedAnswer: { '@type': 'Answer', text: it.a } }))
       }
     : null;
 
   const reviewedLabel = (d: string | null): string => {
     if (!d) return '';
     const dt = new Date(d);
-    return Number.isNaN(dt.getTime())
-      ? ''
-      : dt.toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
+    return Number.isNaN(dt.getTime()) ? '' : dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'long' });
   };
-
-  // Scrollspy — highlight the part currently in view. Re-runs when blocks change
-  // (the detail page reuses this component across destinations).
-  let activeId = '';
-  let observer: IntersectionObserver | undefined;
-  let spyVersion = 0;
-  const setupSpy = async () => {
-    if (!browser) return;
-    const version = ++spyVersion;
-    observer?.disconnect();
-    await tick();
-    if (version !== spyVersion) return;
-    observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) activeId = (e.target as HTMLElement).id;
-        });
-      },
-      { rootMargin: '-20% 0px -70% 0px', threshold: 0 }
-    );
-    toc.forEach((t) => {
-      const el = document.getElementById(t.id);
-      if (el) observer?.observe(el);
-    });
-    if (!toc.some((item) => item.id === activeId)) activeId = toc[0]?.id ?? '';
-  };
-  $: if (browser && blocks) void setupSpy();
-  onDestroy(() => { spyVersion++; observer?.disconnect(); });
+  $: reviewed = reviewedLabel(reviewedAt);
 </script>
 
 {#if faqLd}
   <JsonLd data={faqLd} />
 {/if}
 
-{#if bodyBlocks.length}
-  <section id="guide-top" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] bg-canvas py-14 md:py-16">
-    <div class="container-shell">
-      <div class="mb-8 flex flex-wrap items-end justify-between gap-3 border-b border-ink/10 pb-6">
-        <div><p class="eyebrow text-clay">The travel guide</p><h2 class="type-h2 mt-2 text-heading">{destinationName ? `Get to know ${destinationName}` : 'Plan with local insight'}</h2></div>
-        {#if reviewedLabel(reviewedAt)}<p class="text-xs text-ink/50">Last reviewed {reviewedLabel(reviewedAt)}</p>{/if}
+{#if chapters.length}
+  <!-- Contents: what the guide covers, as links to each chapter. -->
+  <section id="guide-top" class="scroll-mt-[calc(var(--nav-h)+64px)] bg-deep-green py-14 text-white md:py-20">
+    <div class="container-shell grid gap-8 lg:grid-cols-12 lg:gap-14">
+      <div class="lg:col-span-4">
+        <h2 class="type-h2 text-white">{destinationName ? `${destinationName} travel guide` : 'Travel guide'}</h2>
+        <p class="mt-4 text-[15px] leading-[1.7] text-white/70">
+          {#if contents.length}{contents.length} chapters, from where to go to how to get there.{/if}
+          {#if reviewed}<span class="block">Last reviewed {reviewed}.</span>{/if}
+        </p>
       </div>
-      <!-- Floating quick-facts bar (real "Quick Facts" from the guide) -->
-      {#if quickFacts?.items?.length}
-        <div class="mb-10 rounded-lg border border-ink/10 bg-surface p-6 md:p-7">
-          <p class="eyebrow text-clay">{quickFacts.title || 'At a glance'}</p>
-          <dl class="mt-5 grid gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
-            {#each quickFacts.items as it}
-              <div class="border-t border-ink/10 pt-3">
-                <dt class="text-[10px] font-bold uppercase tracking-[0.16em] text-ink/40">{it.label}</dt>
-                <dd class="mt-1 text-sm font-semibold leading-[1.6] text-heading">{it.value}</dd>
-              </div>
+      {#if contents.length}
+        <nav class="lg:col-span-8" aria-label="Travel guide contents">
+          {#if contents.length > 8}
+            <!-- Phones: a long contents list folds away. -->
+            <details class="guide-toc border-y border-white/15 md:hidden">
+              <summary class="flex min-h-12 cursor-pointer items-center justify-between text-[15px] font-semibold text-white">
+                Show all {contents.length} chapters <ArrowRight size={16} class="rotate-90 transition" />
+              </summary>
+              <ol class="pb-2">
+                {#each contents as item (item.id)}
+                  <li><a class="flex min-h-11 items-center border-t border-white/10 text-[15px] text-white/80 hover:text-white" href={`#${item.id}`}>{item.title}</a></li>
+                {/each}
+              </ol>
+            </details>
+          {/if}
+          <!-- Two columns read top to bottom, like a contents page. -->
+          <ol class={`gap-x-10 sm:columns-2 ${contents.length > 8 ? 'hidden md:block' : ''}`}>
+            {#each contents as item (item.id)}
+              <li class="break-inside-avoid">
+                <a class="group flex min-h-12 items-center justify-between gap-4 border-b border-white/15 py-3 text-[15px] leading-snug text-white/85 transition hover:text-white" href={`#${item.id}`}>
+                  {item.title}
+                  <ArrowRight size={15} class="shrink-0 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-emnel-gold" />
+                </a>
+              </li>
             {/each}
-          </dl>
-        </div>
+          </ol>
+        </nav>
       {/if}
+    </div>
+  </section>
 
-      <!-- Two columns only when there is a contents list to fill the first one;
-           without Part headings the body used to fall into the 240px column. -->
-      <div class={toc.length ? 'lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-14' : 'mx-auto max-w-3xl'}>
-        <!-- Table of contents -->
-        {#if toc.length}
-          <aside class="mb-8 lg:mb-0">
-            <div class="lg:sticky lg:top-[calc(var(--nav-h)+88px)]">
-              <!-- mobile: collapsible -->
-              <details class="rounded-xl border border-ink/10 bg-surface lg:hidden">
-                <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-heading">On this page</summary>
-                <nav aria-label="Travel guide contents" class="grid max-h-80 gap-0.5 overflow-y-auto border-t border-ink/10 p-2">
-                  {#each toc as t}
-                    <a
-                      href={`#${t.id}`}
-                      class="rounded-md px-3 py-2 text-sm text-ink/70 transition hover:bg-sand hover:text-forest"
-                    >
-                      {t.num ? `Part ${t.num} · ` : ''}{t.title}
-                    </a>
-                  {/each}
-                </nav>
-              </details>
-              <!-- desktop: sticky rail -->
-              <div class="hidden lg:block">
-                <p class="brand-eyebrow mb-3">On this page</p>
-                <nav aria-label="Travel guide contents" class="grid max-h-[calc(100dvh-var(--nav-h)-150px)] gap-1 overflow-y-auto border-l border-ink/10">
-                  {#each toc as t}
-                    <a
-                      href={`#${t.id}`}
-                      aria-current={activeId === t.id ? 'location' : undefined}
-                      class={`-ml-px border-l-2 py-1.5 pl-3 text-sm leading-snug transition ${
-                        activeId === t.id
-                          ? 'border-emnel-gold font-semibold text-forest'
-                          : 'border-transparent text-ink/60 hover:text-forest'
-                      }`}
-                    >
-                      {t.num ? `Part ${t.num} · ` : ''}{t.title}
-                    </a>
-                  {/each}
-                </nav>
-              </div>
-            </div>
-          </aside>
+  {#each chapters as chapter, i (chapter.id)}
+    <section id={chapter.id} class={`guide-chapter scroll-mt-[calc(var(--nav-h)+64px)] py-16 md:py-24 ${i % 2 ? 'bg-linen/45' : 'bg-canvas'}`}>
+      <div class="container-shell">
+        {#if chapter.part}
+          <header class="max-w-3xl">
+            <h2 class="type-h2 text-heading">{chapter.part.title}</h2>
+            {#if chapter.part.subtitle}
+              <p class="mt-3 font-serif text-xl italic leading-snug text-clay">{chapter.part.subtitle}</p>
+            {/if}
+          </header>
         {/if}
 
-        <!-- Guide body -->
-        <div class="guide-body min-w-0 max-w-3xl [&>*:first-child]:mt-0">
-          {#each bodyBlocks as block, i (i)}
-            {#if block.type === 'part'}
-              <div id={partId(block, i)} class="mt-14 scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/10 pt-8 first:mt-0 first:border-0 first:pt-0">
-                {#if block.part}<p class="eyebrow text-clay">Part {block.part}</p>{/if}
-                <h2 class="type-h2 mt-2 text-heading">
-                  {block.title}
-                </h2>
-                {#if block.subtitle}
-                  <p class="mt-2 font-serif text-lg italic text-clay">{block.subtitle}</p>
-                {/if}
-              </div>
-            {:else if block.type === 'richtext'}
-              <div class="mt-8">
-                {#if block.heading}
-                  <h3 class="type-h3 text-heading">{block.heading}</h3>
-                {/if}
-                  <!-- RichText so a paragraph can link to the destination, safari
-                       or journal post it mentions. Falls back to the escaped
-                       paragraph path for the plain text already written here. -->
-                  <RichText value={block.body} className="mt-3 text-base leading-[1.75] text-ink/75" />
-              </div>
-            {:else if block.type === 'field_notes'}
-              {@const isIntel = /emnel intelligence/i.test(block.title ?? '')}
-              <div class="mt-8 rounded-2xl border border-emnel-gold/40 bg-emnel-gold/[0.06] p-6">
-                <p class="brand-eyebrow inline-flex items-center gap-2 text-emnel-gold">
-                  <svelte:component this={isIntel ? ShieldCheck : Compass} size={14} strokeWidth={2.4} />
-                  {block.title || 'Field Notes'}
-                </p>
-                <div class="mt-2 space-y-3">
-                  {#each paras(block.body) as p}
-                    <p class="text-base leading-[1.75] text-ink/80">{p}</p>
+        {#each chapter.segments as segment, s (s)}
+          <div class={chapter.part || s > 0 ? 'mt-10 md:mt-12' : ''}>
+            {#if segment.kind === 'run'}
+              <div class="grid gap-8 lg:grid-cols-12 lg:gap-14">
+                <div class={`guide-text min-w-0 lg:col-span-8 ${segment.main.length ? '' : 'grid gap-5'}`}>
+                  {#each segment.main as block, b (b)}
+                    {#if block.type === 'richtext'}
+                      <div class={b ? 'mt-8' : ''}>
+                        {#if block.heading}<h3 class="type-h3 mb-3 text-heading">{block.heading}</h3>{/if}
+                        <!-- RichText so a paragraph can link to the places it mentions. -->
+                        <RichText value={block.body} className="max-w-[68ch] text-base leading-[1.8] text-ink/75" />
+                      </div>
+                    {:else if block.type === 'faq'}
+                      <div class={b ? 'mt-10' : ''}>
+                        {#if block.title}<h3 class="type-h3 mb-4 text-heading">{block.title}</h3>{/if}
+                        <FAQAccordion faqs={toAccordion(block.items)} headingLevel={block.title ? 4 : 3} />
+                      </div>
+                    {/if}
                   {/each}
+                  <!-- With no text beside them, the notes take the main column. -->
+                  {#if !segment.main.length}
+                    {#each segment.notes as note, n (n)}
+                      {@render noteBlock(note)}
+                    {/each}
+                  {/if}
                 </div>
-              </div>
-            {:else if block.type === 'callout'}
-              <div class="mt-6 border-l-4 border-emnel-gold pl-5">
-                <p class="eyebrow inline-flex items-center gap-2 text-forest">
-                  <svelte:component this={CALLOUT_ICON[block.variant] ?? Lightbulb} size={14} strokeWidth={2.4} />
-                  {CALLOUT_LABEL[block.variant] ?? 'Insight'}
-                </p>
-                <p class="mt-1 text-base leading-[1.75] text-ink/80">{block.body}</p>
-              </div>
-            {:else if block.type === 'did_you_know'}
-              <div class="mt-8 border-y border-emnel-gold/50 py-4">
-                <p class="eyebrow inline-flex items-center gap-2 text-emnel-gold">
-                  <Sparkles size={14} strokeWidth={2.4} /> Did You Know?
-                </p>
-                <p class="mt-1.5 text-base leading-[1.75] text-ink/80">{block.body}</p>
-              </div>
-            {:else if block.type === 'facts'}
-              <div class="mt-8 rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
-                {#if block.title}
-                  <h3 class="type-h3 text-heading">{block.title}</h3>
+                {#if segment.main.length && segment.notes.length}
+                  <aside class="grid content-start gap-5 lg:sticky lg:top-[calc(var(--nav-h)+96px)] lg:col-span-4 lg:self-start">
+                    {#each segment.notes as note, n (n)}
+                      {@render noteBlock(note)}
+                    {/each}
+                  </aside>
                 {/if}
-                <dl class="mt-3 grid gap-x-10 sm:grid-cols-2">
-                  {#each block.items ?? [] as item}
-                    <div class="border-b border-ink/[0.06] py-3">
-                      <dt class="text-sm font-semibold text-ink/60">{item.label}</dt>
-                      <dd class="mt-1 text-sm leading-[1.6] text-ink">{item.value}</dd>
-                    </div>
-                  {/each}
-                </dl>
               </div>
-            {:else if block.type === 'table'}
-              <div class="mt-8">
-                <ComparisonTable
-                  columns={block.columns ?? []}
-                  rows={toComparisonRows(block.rows)}
-                  caption={block.title ?? ''}
-                />
-              </div>
-            {:else if block.type === 'photo'}
-              <figure class="mt-8">
-                <ResponsiveImage
-                  src={block.url}
-                  alt={block.alt || block.caption}
-                  imgClass="w-full rounded-2xl object-cover shadow-soft"
-                  sizes="(min-width:768px) 768px, 100vw"
-                />
-                {#if block.caption}
-                  <figcaption class="mt-2 text-sm italic leading-[1.6] text-ink/50">{block.caption}</figcaption>
+            {:else}
+              {@const block = segment.block}
+              {#if block.type === 'table'}
+                {@const view = tableView(block)}
+                {#if view.kind === 'season'}
+                  <GuideColumns table={view.table} months={view.months} seasonCol={view.seasonCol} />
+                {:else if view.kind === 'columns'}
+                  <GuideColumns table={view.table} />
+                {:else}
+                  <ComparisonTable columns={view.table.columns} rows={toComparisonRows(view.table.rows)} caption={view.table.title} />
                 {/if}
-              </figure>
-            {:else if block.type === 'faq'}
-              <div class="mt-10">
-                {#if block.title}
-                  <h3 class="type-h3 mb-4 text-heading">{block.title}</h3>
-                {/if}
-                <FAQAccordion faqs={toAccordion(block.items)} headingLevel={block.title ? 4 : 3} />
-              </div>
-            {:else if block.type === 'tours'}
-              {@const picked = pickTours(block.tour_ids)}
-              {#if picked.length}
-                <div class="mt-10">
+              {:else if block.type === 'photo' && block.url}
+                <figure>
+                  <div class="relative aspect-[4/3] overflow-hidden bg-deep-green sm:aspect-[16/9] lg:aspect-[21/9]">
+                    <ResponsiveImage src={block.url} alt={block.alt || block.caption || destinationName} imgClass="absolute inset-0 h-full w-full object-cover" sizes="(min-width:1320px) 1320px, 100vw" width={1600} />
+                  </div>
+                  {#if block.caption}<figcaption class="mt-3 max-w-[68ch] text-sm leading-[1.6] text-ink/55">{block.caption}</figcaption>{/if}
+                </figure>
+              {:else if block.type === 'tours'}
+                {@const picked = pickTours(block.tour_ids)}
+                {#if picked.length}
                   {#if block.title}<h3 class="type-h3 text-heading">{block.title}</h3>{/if}
-                  {#if block.intro}<p class="mt-2 text-base leading-[1.75] text-ink/70">{block.intro}</p>{/if}
-                  <div class="mt-5 grid gap-3 md:grid-cols-2">
+                  {#if block.intro}<p class="mt-2 max-w-[68ch] text-base leading-[1.75] text-ink/70">{block.intro}</p>{/if}
+                  <div class="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                     {#each picked as tour (tour.id)}
                       <GuidePick
                         href={`/tours/${tour.slug}`}
                         title={tour.title}
                         image={tour.main_image_url ?? ''}
                         fallbackImage={thumbUrl(tour, 'main_image_url')}
-                        eyebrow="Safari"
                         meta={tourMeta(tour)}
                         price={tour.price_from ? formatUsd(tour.price_from, $currency) : ''}
                         priceNote={tour.price_from ? 'pp' : ''}
                       />
                     {/each}
                   </div>
-                </div>
-              {/if}
-            {:else if block.type === 'lodges'}
-              {@const picked = pickLodges(block.lodge_ids)}
-              {#if picked.length}
-                <div class="mt-10">
+                {/if}
+              {:else if block.type === 'lodges'}
+                {@const picked = pickLodges(block.lodge_ids)}
+                {#if picked.length}
                   {#if block.title}<h3 class="type-h3 text-heading">{block.title}</h3>{/if}
-                  {#if block.intro}<p class="mt-2 text-base leading-[1.75] text-ink/70">{block.intro}</p>{/if}
-                  <div class="mt-5 grid gap-3 md:grid-cols-2">
+                  {#if block.intro}<p class="mt-2 max-w-[68ch] text-base leading-[1.75] text-ink/70">{block.intro}</p>{/if}
+                  <div class="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                     {#each picked as lodge (lodge.id)}
-                      <GuidePick
-                        href={`/accommodation/${lodge.slug}`}
-                        title={lodge.name}
-                        image={lodgeImage(lodge)}
-                        eyebrow={levelLabel(lodge) || 'Stay'}
-                        meta={lodgeMeta(lodge)}
-                      />
+                      <GuidePick href={`/accommodation/${lodge.slug}`} title={lodge.name} image={lodgeImage(lodge)} meta={[levelLabel(lodge), lodgeMeta(lodge)].filter(Boolean).join(' · ')} />
                     {/each}
                   </div>
-                </div>
+                {/if}
               {/if}
             {/if}
-          {/each}
-
-          {#if toc.length}
-            <a
-              href="#guide-top"
-              class="mt-14 inline-block text-sm font-semibold text-forest transition hover:text-heading"
-            >
-              ↑ Back to top
-            </a>
-          {/if}
-        </div>
+          </div>
+        {/each}
       </div>
-    </div>
-  </section>
+    </section>
+
+    {#if i === breakAfter}
+      <figure class="relative h-[56vh] min-h-[300px] overflow-hidden bg-deep-green md:max-h-[640px]">
+        <ResponsiveImage src={breakImage} alt={destinationName} imgClass="absolute inset-0 h-full w-full object-cover" sizes="100vw" width={2000} />
+      </figure>
+    {/if}
+  {/each}
 {/if}
 
+{#snippet noteBlock(note: GuideBlock)}
+  {#if note.type === 'callout'}
+    <div class="border border-ink/10 bg-surface p-6">
+      <p class="flex items-center gap-2 text-sm font-semibold text-heading">
+        <svelte:component this={CALLOUT_ICON[note.variant] ?? Lightbulb} size={16} class="text-clay" />
+        {CALLOUT_LABEL[note.variant] ?? 'Insight'}
+      </p>
+      <p class="mt-2.5 text-[15px] leading-[1.7] text-ink/75">{note.body}</p>
+    </div>
+  {:else if note.type === 'did_you_know'}
+    <div class="py-1">
+      <p class="text-sm font-semibold text-clay">Did you know?</p>
+      <p class="mt-2 font-serif text-[21px] font-normal leading-[1.45] text-heading">{note.body}</p>
+    </div>
+  {:else if note.type === 'field_notes'}
+    <div class="bg-deep-green p-6 text-white">
+      <p class="text-sm font-semibold text-emnel-gold">{note.title || 'Field notes'}</p>
+      <div class="mt-2.5 grid gap-3">
+        {#each paras(note.body) as p}
+          <p class="text-[15px] leading-[1.7] text-white/85">{p}</p>
+        {/each}
+      </div>
+    </div>
+  {:else if note.type === 'facts'}
+    <div class="border border-ink/10 bg-surface p-6">
+      {#if note.title}<h3 class="type-card text-heading">{note.title}</h3>{/if}
+      <dl class={note.title ? 'mt-3' : ''}>
+        {#each note.items ?? [] as item}
+          <div class="border-t border-ink/10 py-3 first:border-t-0 first:pt-0 last:pb-0">
+            <dt class="text-[13px] text-ink/55">{item.label}</dt>
+            <dd class="mt-0.5 text-[15px] leading-[1.6] text-heading">{item.value}</dd>
+          </div>
+        {/each}
+      </dl>
+    </div>
+  {/if}
+{/snippet}
+
 <style>
-  .guide-body { overflow-wrap: anywhere; }
-  .guide-body :global(.rich table) { max-width: 100%; }
+  .guide-text {
+    overflow-wrap: anywhere;
+  }
+  .guide-text :global(.rich table) {
+    max-width: 100%;
+  }
+  .guide-toc[open] summary :global(svg) {
+    transform: rotate(-90deg);
+  }
 </style>

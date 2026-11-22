@@ -9,6 +9,12 @@
   export let essentialsLive = false;
   /** Whether the /safaris markets hub has anything published in it. */
   export let marketsLive = false;
+  /** The published travel styles in the CMS order (root layout), so a new style is listed without a code change. */
+  export let travelStyles: { name: string; slug: string }[] = [];
+
+  // The whole site is about Tanzania, so the column drops the leading word:
+  // "Tanzania Family Safaris" reads as "Family Safaris". The full name stays as the link title.
+  const styleLabel = (name: string) => name.replace(/^Tanzania\s+/i, '');
 
   // The hub path, past any redirect (Tanzania's lives at its destination guide).
   const countryHref = (country: string) => canonicalHref(`/${country.toLowerCase().replace(/\s+/g, '-')}-safaris`);
@@ -69,11 +75,11 @@
       title: 'Travel Styles',
       links: [
         { href: '/travel-styles', label: 'All Travel Styles' },
-        { href: '/travel-styles/great-migration-safari', label: 'Great Migration' },
-        { href: '/travel-styles/tanzania-family-safari', label: 'Family Safaris' },
-        { href: '/travel-styles/honeymoon', label: 'Honeymoon Safaris' },
-        { href: '/travel-styles/tanzania-safari-zanzibar', label: 'Safari & Zanzibar' },
-        { href: '/travel-styles/tanzania-day-safari', label: 'Day Safaris' }
+        ...travelStyles.map((style): FooterLink => ({
+          href: `/travel-styles/${style.slug}`,
+          label: styleLabel(style.name),
+          title: styleLabel(style.name) !== style.name ? style.name : undefined
+        }))
       ]
     },
     {

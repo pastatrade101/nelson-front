@@ -131,7 +131,7 @@
   {#if style.hero_image_url}
     <ResponsiveImage
       src={style.hero_image_url}
-      alt=""
+      alt={style.name}
       sizes="100vw"
       width={1920}
       eager
@@ -341,7 +341,7 @@
           {@const img = o.hero_image_url || o.image_url}
           {#if img}
             <a class="group relative isolate flex aspect-[16/10] items-end overflow-hidden bg-deep-green p-6" href={`/travel-styles/${o.slug}`}>
-              <ResponsiveImage src={img} alt="" sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" width={720} imgClass="absolute inset-0 -z-10 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
+              <ResponsiveImage src={img} alt={o.name} sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" width={720} imgClass="absolute inset-0 -z-10 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
               <div class="absolute inset-0 -z-10 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent"></div>
               <div class="flex w-full items-end justify-between gap-4">
                 <div class="min-w-0">

@@ -67,27 +67,56 @@ const hasMarketPages = async (fetch: typeof globalThis.fetch): Promise<boolean> 
 /**
  * Photography for the site's call-to-action bands: the banner and main images
  * of the featured tours. Loaded once here so every CTA can show a real trip photo
- * without its page fetching anything. Returns [] on failure; the band then
- * falls back to the brand gradient.
+ * without its page fetching anything. Each photo carries its tour's name as
+ * the image description. Returns [] on failure; the band then falls back to
+ * the brand gradient.
  */
-const ctaImages = async (fetch: typeof globalThis.fetch): Promise<string[]> => {
+const ctaImages = async (fetch: typeof globalThis.fetch): Promise<{ url: string; alt: string }[]> => {
   try {
     const res = await fetch('/api/tours?status=published&is_featured=true&limit=12');
     if (!res.ok) return [];
-    const json = (await res.json()) as { data?: { items?: Array<{ banner_image_url?: string | null; main_image_url?: string | null }> } };
+    const json = (await res.json()) as {
+      data?: { items?: Array<{ title?: string | null; banner_image_url?: string | null; main_image_url?: string | null }> };
+    };
     // Wide banners first, then each tour's main photo, so pages rarely share one.
     const items = json?.data?.items ?? [];
-    const urls = [...items.map((t) => t.banner_image_url), ...items.map((t) => t.main_image_url)].filter(
-      (u): u is string => Boolean(u)
-    );
-    return [...new Set(urls)];
+    const photos = [
+      ...items.map((t) => ({ url: t.banner_image_url, alt: t.title })),
+      ...items.map((t) => ({ url: t.main_image_url, alt: t.title }))
+    ];
+    const seen = new Set<string>();
+    return photos.flatMap((photo) => {
+      const url = String(photo.url ?? '').trim();
+      if (!url || seen.has(url)) return [];
+      seen.add(url);
+      return [{ url, alt: String(photo.alt ?? '').trim() }];
+    });
+  } catch {
+    return [];
+  }
+};
+
+/**
+ * The published travel styles, in the CMS order, for the footer's Travel
+ * Styles menu: a style published in the CMS is listed there without a code
+ * change. `fields=nav` returns names and links only. Returns [] on failure;
+ * the footer then lists just "All Travel Styles".
+ */
+const navStyles = async (fetch: typeof globalThis.fetch): Promise<{ name: string; slug: string }[]> => {
+  try {
+    const res = await fetch('/api/travel-styles?status=published&fields=nav&limit=50');
+    if (!res.ok) return [];
+    const json = (await res.json()) as { data?: { items?: Array<{ name?: string | null; slug?: string | null }> } };
+    return (json?.data?.items ?? [])
+      .map((style) => ({ name: String(style.name ?? '').trim(), slug: String(style.slug ?? '').trim() }))
+      .filter((style) => style.name && style.slug);
   } catch {
     return [];
   }
 };
 
 export const load: LayoutLoad = async ({ fetch, url }) => {
-  const [brandingResult, essentialsLive, countries, marketsLive, ctaPhotos, seoOverride, publicSettings] = await Promise.all([
+  const [brandingResult, essentialsLive, countries, marketsLive, ctaPhotos, seoOverride, publicSettings, travelStyles] = await Promise.all([
     (async () => {
       try {
         const res = await fetch('/api/branding');
@@ -122,12 +151,13 @@ export const load: LayoutLoad = async ({ fetch, url }) => {
       } catch {
         return {};
       }
-    })()
+    })(),
+    navStyles(fetch)
   ]);
 
   // The business's name is the one in Settings; the Branding record's copy
   // ("Emnel Adventures Africa") must not reach the page or its data.
   const branding = { ...brandingResult, ...settingsNames(publicSettings) };
 
-  return { branding, essentialsLive, countries, marketsLive, ctaImages: ctaPhotos, seoOverride, publicSettings };
+  return { branding, essentialsLive, countries, marketsLive, ctaImages: ctaPhotos, seoOverride, publicSettings, travelStyles };
 };

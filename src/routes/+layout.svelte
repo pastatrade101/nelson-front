@@ -355,6 +355,7 @@
     countries={data.countries ?? []}
     essentialsLive={data.essentialsLive ?? false}
     marketsLive={data.marketsLive ?? false}
+    travelStyles={data.travelStyles ?? []}
   />
   <ShortlistFab />
   <ConsentBanner />

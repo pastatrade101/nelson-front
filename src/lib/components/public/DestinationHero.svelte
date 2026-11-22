@@ -1,20 +1,35 @@
 <script lang="ts">
-  import { ArrowRight, Banknote, Compass, Globe } from '@lucide/svelte';
+  import { ArrowRight } from '@lucide/svelte';
   import RichText from './RichText.svelte';
   import { origUrl, thumbUrl } from '$lib/img';
   import ScoreBars from '$lib/components/public/ScoreBars.svelte';
   import ResponsiveImage from './ResponsiveImage.svelte';
-  import { currency, formatUsd } from '$lib/currency';
+  import { currency, formatUsdWhole } from '$lib/currency';
   import type { Destination } from '$lib/types';
   import type { DestinationScores } from '$lib/data/destination-scores';
 
   export let destination: Destination;
+  /** The guide's quick facts (best time, how long to stay…), shown beside the overview. */
+  export let facts: { label: string; value: string }[] = [];
+
+  // The guide's facts first; country, circuit and guide price only where the
+  // facts don't already say them.
+  $: glance = (() => {
+    const list = facts.filter((f) => f?.label?.trim() && f?.value?.trim());
+    const has = (re: RegExp) => list.some((f) => re.test(f.label));
+    return [
+      ...list,
+      ...(destination.country && !has(/country|location/i) ? [{ label: 'Country', value: destination.country }] : []),
+      ...(destination.region && !has(/circuit|region|location/i) ? [{ label: 'Circuit', value: destination.region }] : []),
+      ...(budgetFrom && !has(/price|cost|budget/i) ? [{ label: 'Guide price', value: budgetFrom }] : [])
+    ];
+  })();
 
   // All computed from real destination fields; each section hides itself when the
   // client hasn't filled the data, so nothing ever renders empty or broken.
   $: heroImage = destination.banner_image_url || destination.main_image_url || destination.image_url || '';
   $: regionLine = [destination.region, destination.country].filter(Boolean).join(' · ') || 'Tanzania';
-  $: budgetFrom = destination.score_budget_from ? `From ${formatUsd(destination.score_budget_from, $currency)}` : '';
+  $: budgetFrom = destination.score_budget_from ? `From ${formatUsdWhole(destination.score_budget_from, $currency)}` : '';
 
   $: destScores = ((): DestinationScores | undefined => {
     const raw = [
@@ -72,17 +87,17 @@
       <span class="text-white/40">/</span>
       <span class="font-medium text-white/90">{destination.name}</span>
     </nav>
-    <p class="eyebrow text-emnel-gold">{regionLine}</p>
-    <h1 class="type-h1 mt-4 max-w-4xl">{destination.name}</h1>
+    <p class="text-[15px] font-medium text-white/80">{regionLine}</p>
+    <h1 class="type-h1 mt-3 max-w-4xl">{destination.name}</h1>
     {#if destination.short_description}
       <p class="type-lead mt-5 max-w-2xl text-white/85">{destination.short_description}</p>
     {/if}
     <div class="mt-8 flex flex-wrap gap-3">
-      <a class="inline-flex h-12 items-center gap-2 bg-emnel-gold px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-deep-green transition hover:bg-savanna" href={`/plan-my-trip?destination=${destination.slug}`}>
-        Plan a trip here <ArrowRight size={17} strokeWidth={2.4} />
+      <a class="inline-flex h-12 items-center gap-2 bg-emnel-gold px-6 text-[15px] font-semibold text-deep-green transition hover:bg-savanna" href={`/plan-my-trip?destination=${destination.slug}`}>
+        Plan a trip here <ArrowRight size={17} strokeWidth={2.2} />
       </a>
-      <a class="inline-flex h-12 items-center gap-2 border border-white/30 px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-white transition hover:bg-white/10" href="/contact">
-        Talk to a Specialist
+      <a class="inline-flex h-12 items-center gap-2 border border-white/30 px-6 text-[15px] font-semibold text-white transition hover:bg-white/10" href="/contact">
+        Talk to a specialist
       </a>
     </div>
   </div>
@@ -90,60 +105,49 @@
 
 <slot />
 
-<!-- Overview & at-a-glance -->
-<section id="overview" class="container-shell scroll-mt-[calc(var(--nav-h)+96px)] py-12 md:py-16">
-  <div class={destScores ? 'grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16' : ''}>
-    <div class="min-w-0 max-w-3xl">
-      <p class="eyebrow text-clay">Overview</p>
-      <h2 class="type-h2 mt-3 text-heading">Why go to {destination.name}</h2>
+<!-- Overview: why go, with the facts and scores at a glance beside it. -->
+<section id="overview" class="scroll-mt-[calc(var(--nav-h)+64px)] bg-canvas py-16 md:py-24">
+  <div class="container-shell">
+    <div class={glance.length || destScores ? 'grid gap-12 lg:grid-cols-12 lg:gap-14' : ''}>
+      <div class="min-w-0 lg:col-span-7">
+        <h2 class="type-h2 text-heading">Why go to {destination.name}</h2>
         <!-- RichText, so links written in the CMS render as real anchors. It
              also handles the plain text that predates the editor, so existing
              descriptions keep working unchanged. -->
-        <RichText value={destination.description} className="mt-5 text-base leading-[1.75] text-ink/75" />
-      {#if heroChips.length}
-        <p class="mt-5 text-sm font-medium leading-[1.6] text-forest">{heroChips.join(' · ')}</p>
-      {/if}
-      <div class="mt-7 flex flex-wrap gap-3">
-        {#if destination.country}
-          <div class="flex items-center gap-3 border border-ink/10 bg-surface px-4 py-3 shadow-soft">
-            <span class="grid h-9 w-9 place-items-center bg-forest/10 text-forest"><Globe size={17} /></span>
-            <div>
-              <p class="text-[11px] font-semibold uppercase tracking-wide text-ink/45">Country</p>
-              <p class="text-sm font-bold text-ink">{destination.country}</p>
-            </div>
-          </div>
-        {/if}
-        {#if destination.region}
-          <div class="flex items-center gap-3 border border-ink/10 bg-surface px-4 py-3 shadow-soft">
-            <span class="grid h-9 w-9 place-items-center bg-forest/10 text-forest"><Compass size={17} /></span>
-            <div>
-              <p class="text-[11px] font-semibold uppercase tracking-wide text-ink/45">Circuit</p>
-              <p class="text-sm font-bold text-ink">{destination.region}</p>
-            </div>
-          </div>
-        {/if}
-        {#if budgetFrom}
-          <div class="flex items-center gap-3 border border-ink/10 bg-surface px-4 py-3 shadow-soft">
-            <span class="grid h-9 w-9 place-items-center bg-emnel-gold/15 text-emnel-gold"><Banknote size={17} /></span>
-            <div>
-              <p class="text-[11px] font-semibold uppercase tracking-wide text-ink/45">Guide price</p>
-              <p class="text-sm font-bold text-ink">{budgetFrom}</p>
-            </div>
-          </div>
+        <RichText value={destination.description} className="mt-6 max-w-[68ch] text-base leading-[1.8] text-ink/75" />
+        {#if heroChips.length}
+          <p class="mt-6 text-[15px] font-semibold leading-[1.6] text-forest">{heroChips.join(' · ')}</p>
         {/if}
       </div>
-    </div>
 
-    {#if destScores}
-      <div class="content-start">
-        <div class="border border-ink/10 bg-surface p-6 shadow-soft">
-          <div class="flex items-center justify-between gap-3">
-            <p class="eyebrow text-clay">How {destination.name} scores</p>
-            <a class="text-xs font-semibold text-forest transition hover:text-heading" href="/destination-scores">Compare all</a>
-          </div>
-          <div class="mt-4"><ScoreBars scores={destScores} /></div>
-        </div>
-      </div>
-    {/if}
+      {#if glance.length || destScores}
+        <aside class="grid content-start gap-10 lg:col-span-5 lg:pl-4">
+          {#if glance.length}
+            <div>
+              <h3 class="type-card text-heading">{destination.name} at a glance</h3>
+              <dl class="mt-4 border-t border-ink/15">
+                {#each glance as item (item.label)}
+                  <div class="grid gap-1 border-b border-ink/10 py-3.5 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-5">
+                    <dt class="text-[13px] leading-[1.6] text-ink/55">{item.label}</dt>
+                    <dd class="text-[15px] leading-[1.6] text-heading">{item.value}</dd>
+                  </div>
+                {/each}
+              </dl>
+            </div>
+          {/if}
+          {#if destScores}
+            <div>
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="type-card text-heading">How it scores</h3>
+                <a class="group inline-flex items-center gap-1 text-sm font-semibold text-deep-green transition hover:text-clay" href="/destination-scores">
+                  Compare destinations <ArrowRight size={14} class="transition group-hover:translate-x-0.5" />
+                </a>
+              </div>
+              <div class="mt-4 border-t border-ink/15 pt-4"><ScoreBars scores={destScores} /></div>
+            </div>
+          {/if}
+        </aside>
+      {/if}
+    </div>
   </div>
 </section>

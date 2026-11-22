@@ -19,6 +19,8 @@
   export let secondaryHref = '';
   // Background media. Precedence: video > explicit image > a featured tour photo > brand gradient.
   export let imageUrl = '';
+  /** Description of `imageUrl`. A featured tour photo is described by its tour's name. */
+  export let imageAlt = '';
   export let videoUrl = '';
   // Crop / focus (the admin "Crop / focus" control) applied as object-position.
   export let imagePosition = 'center';
@@ -43,15 +45,18 @@
   };
 
   /** Same page → same photo on server and client; different pages → different photos. */
-  const pick = (list: string[], key: string) => {
-    if (!list.length) return '';
+  type TourPhoto = { url: string; alt: string };
+  const pick = (list: TourPhoto[], key: string): TourPhoto | null => {
+    if (!list.length) return null;
     let h = 0;
     for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
     return list[h % list.length];
   };
 
-  $: tourPhotos = (($page.data as { ctaImages?: string[] })?.ctaImages ?? []).filter(Boolean);
-  $: bgImage = imageUrl || pick(tourPhotos, `${$page.url.pathname}|${seed}`);
+  $: tourPhotos = (($page.data as { ctaImages?: TourPhoto[] })?.ctaImages ?? []).filter((photo) => photo?.url);
+  $: tourPhoto = imageUrl ? null : pick(tourPhotos, `${$page.url.pathname}|${seed}`);
+  $: bgImage = imageUrl || tourPhoto?.url || '';
+  $: bgAlt = imageUrl ? imageAlt : tourPhoto?.alt ?? '';
 
   $: overlayStyle = overlayGradient
     ? `background:linear-gradient(90deg, ${hexToRgba(overlayColor, overlayOpacity + 0.2)} 0%, ${hexToRgba(overlayColor, overlayOpacity * 0.95)} 48%, ${hexToRgba(overlayColor, overlayOpacity * 0.15)} 100%)`
@@ -66,7 +71,7 @@
     <!-- svelte-ignore a11y-media-has-caption -->
     <video class="absolute inset-0 -z-10 h-full w-full object-cover" style={`object-position:${imagePosition}`} src={cdnUrl(videoUrl)} poster={cdnUrl(bgImage)} autoplay muted loop playsinline></video>
   {:else if bgImage}
-    <ResponsiveImage src={bgImage} imgClass="absolute inset-0 -z-10 h-full w-full object-cover" imgStyle={`object-position:${imagePosition}`} sizes="100vw" width={1920} alt="" />
+    <ResponsiveImage src={bgImage} imgClass="absolute inset-0 -z-10 h-full w-full object-cover" imgStyle={`object-position:${imagePosition}`} sizes="100vw" width={1920} alt={bgAlt} />
   {:else}
     <div class="absolute inset-0 -z-10 bg-gradient-to-br from-deep-green via-forest to-deep-green"></div>
   {/if}

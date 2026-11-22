@@ -148,9 +148,25 @@
       seo_title: s.seo_title ?? '',
       meta_description: s.meta_description ?? ''
     };
-    blocks = Array.isArray(s.sections) ? (s.sections as Record<string, unknown>[]) : [];
+    blocks = Array.isArray(s.sections) ? (s.sections as Record<string, unknown>[]).map(withGalleryAlts) : [];
     slugManuallyEdited = true;
     modalOpen = true;
+  };
+
+  // The imported galleries keep each photo's description under `alt`; the editor's
+  // field is `image_alt`. Move it across so the description shows in the field
+  // (and saves under the editor's key) instead of reading as missing.
+  const withGalleryAlts = (block: Record<string, unknown>): Record<string, unknown> => {
+    if (block.type !== 'imagegrid' || !Array.isArray(block.images)) return block;
+    return {
+      ...block,
+      images: (block.images as Record<string, unknown>[]).map((image) => {
+        if (!image || typeof image !== 'object' || !('alt' in image)) return image;
+        const { alt, ...rest } = image;
+        const stored = typeof rest.image_alt === 'string' ? rest.image_alt.trim() : '';
+        return { ...rest, image_alt: stored || (typeof alt === 'string' ? alt : '') };
+      })
+    };
   };
 
   const closeModal = () => { modalOpen = false; editing = null; form = emptyForm(); blocks = []; slugManuallyEdited = false; };

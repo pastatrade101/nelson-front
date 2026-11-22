@@ -8,7 +8,6 @@
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
   import { staggeredCardReveal } from '$lib/animations/motion';
-  import BlogCard from '$lib/components/public/BlogCard.svelte';
   import DestinationCard from '$lib/components/public/DestinationCard.svelte';
   import DestinationHero from '$lib/components/public/DestinationHero.svelte';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
@@ -21,8 +20,8 @@
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import { breadcrumbLd, faqLd, faqPairs } from '$lib/seo';
   import { ownedFaqs } from '$lib/faqEntities';
-  import { FileCheck, HeartPulse, Phone, Plane, Shield, ShieldCheck } from '@lucide/svelte';
-  import type { Activity, BlogPost, Destination, FAQ, Lodge, Tour, TripPoint } from '$lib/types';
+  import { findQuickFacts } from '$lib/guideLayout';
+  import type { Activity, Destination, FAQ, Lodge, Tour, TripPoint } from '$lib/types';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -42,10 +41,15 @@
   $: relatedTours = ((data.tours ?? []) as Array<Tour & { match?: string }>);
   $: popularTours = ((data.popularTours ?? []) as Tour[]);
   $: otherDestinations = ((data.otherDestinations ?? []) as Destination[]);
-  let recentPosts: BlogPost[] = [];
-  // Stays come from the SSR load; the page lays out twelve and links to the rest.
+  // Stays come from the SSR load; the page lays out six and links to the rest.
   $: allLodges = ((data.lodges ?? []) as Lodge[]);
-  $: lodges = allLodges.slice(0, 12);
+  $: lodges = allLodges.slice(0, 6);
+
+  // The guide's quick facts open the page, beside the overview.
+  $: quickFacts = findQuickFacts(destination?.guide ?? []);
+  // A second photograph for the guide's photo break: the first one that isn't the hero's.
+  $: heroPhoto = destination ? destination.banner_image_url || destination.main_image_url || destination.image_url || '' : '';
+  $: breakImage = destination ? [destination.main_image_url, destination.image_url, destination.banner_image_url].find((u) => u && u !== heroPhoto) ?? '' : '';
   let activities: Activity[] = [];
   let tripPoints: TripPoint[] = [];
   $: faqs = ((data.faqs ?? []) as FAQ[]);
@@ -81,15 +85,11 @@
   );
 
   const loadRelated = async (dest: Destination) => {
-    const [postRes, activityRes, tripPointRes] = await Promise.allSettled([
-      api.blog.list({ limit: 3 }),
+    const [activityRes, tripPointRes] = await Promise.allSettled([
       api.activities.list({ destination_id: dest.id, limit: 3 }),
       api.tripPoints.list({ destination_id: dest.id, limit: 4 })
     ]);
 
-    if (postRes.status === 'fulfilled') {
-      recentPosts = postRes.value.data.items ?? [];
-    }
     if (activityRes.status === 'fulfilled') {
       activities = activityRes.value.data.items ?? [];
     }
@@ -158,17 +158,17 @@
   <!-- With a guide, its FAQPage already includes these; otherwise the page carries its own. -->
   {#if !destination.guide?.length && ownFaqPairs.length}<JsonLd data={faqLd(ownFaqPairs)} />{/if}
   <JsonLd data={destinationStructuredData(destination, origin)} />
-  <DestinationHero {destination}>
+  <DestinationHero {destination} facts={quickFacts?.items ?? []}>
   {#if itemListLd}<JsonLd data={itemListLd} />{/if}
 
   <!-- Plan your time here: the page's onward routes in one place, as real links. -->
   {#if sectionLinks.length}
     <nav class="sticky top-[var(--nav-h)] z-20 border-b border-ink/10 bg-surface" aria-label={`Explore ${destination.name}`}>
       <div class="container-shell">
-        <ul class="flex gap-6 overflow-x-auto py-5">
+        <ul class="flex gap-7 overflow-x-auto py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {#each sectionLinks as link (link.href)}
             <li>
-              <a class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold text-deep-green hover:underline hover:underline-offset-4" href={link.href}>
+              <a class="inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap text-[14px] font-semibold text-deep-green transition hover:text-clay" href={link.href}>
                 {link.label}{#if link.count}<span class="font-normal text-ink/45">({link.count})</span>{/if}
               </a>
             </li>
@@ -183,30 +183,29 @@
 {#if destination}
   <!-- Long-form destination guide (the editorial "destination template") -->
   {#if destination.guide?.length}
-    <DestinationGuide destinationName={destination.name} blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={ownFaqPairs} tours={(data.guideTours ?? []) as Tour[]} lodges={(data.guideLodges ?? []) as Lodge[]} />
+    <DestinationGuide destinationName={destination.name} blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={ownFaqPairs} tours={(data.guideTours ?? []) as Tour[]} lodges={(data.guideLodges ?? []) as Lodge[]} {breakImage} />
   {/if}
 
   <!-- Safaris through this destination: connected tours first, then popular ones -->
   {#if relatedTours.length || popularTours.length}
-    <section id="tours" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
+    <section id="tours" class="scroll-mt-[calc(var(--nav-h)+64px)] border-t border-ink/10 bg-canvas py-16 md:py-24">
       <div class="container-shell">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <SectionHeader
-            eyebrow="Safaris"
             title={relatedTours.length ? `Safaris through ${destination.name}` : 'Popular safaris'}
             description={relatedTours.length
               ? `Private itineraries that visit ${destination.name} or spend a night at one of its lodges.`
               : `Our most-travelled private safaris — any of them can be shaped to include ${destination.name}.`}
           />
           <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
+            class="group inline-flex items-center gap-1.5 text-sm font-semibold text-deep-green transition hover:text-clay"
             href={relatedTours.length ? `/tours?destination=${encodeURIComponent(destination.slug)}` : '/tours'}
           >
-            {relatedTours.length ? `All tours in ${destination.name}` : 'Browse all safaris'} <ArrowRight size={16} />
+            {relatedTours.length ? `All tours in ${destination.name}` : 'Browse all safaris'} <ArrowRight size={16} class="transition group-hover:translate-x-0.5" />
           </a>
         </div>
         {#if relatedTours.length}
-          <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
+          <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
             {#each relatedTours as tour (tour.id)}
               <TourCardRich {tour} />
             {/each}
@@ -214,9 +213,9 @@
         {/if}
         {#if popularTours.length}
           {#if relatedTours.length}
-            <p class="eyebrow mt-14 text-heading">Popular safaris</p>
+            <h3 class="type-h3 mt-16 text-heading">Popular safaris</h3>
           {/if}
-          <div class={`grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${relatedTours.length ? 'mt-6' : 'mt-9'}`} use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
+          <div class={`grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${relatedTours.length ? 'mt-6' : 'mt-10'}`} use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
             {#each popularTours as tour (tour.id)}
               <TourCardRich {tour} />
             {/each}
@@ -228,14 +227,13 @@
 
   <!-- Top things to do (activities) -->
   {#if activities.length}
-    <section class="py-14 md:py-20">
+    <section class="border-t border-ink/10 bg-canvas py-16 md:py-24">
       <div class="container-shell">
         <SectionHeader
-          eyebrow="Things to do"
           title={`Top experiences in ${destination.name}`}
           description="Stand-out activities our specialists build into trips here — book them as part of your itinerary."
         />
-        <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
           {#each activities as activity (activity.id)}
             <ActivityCard {activity} />
           {/each}
@@ -246,131 +244,93 @@
 
   <!-- Where to stay (recommended lodges & camps) -->
   {#if lodges.length}
-    <section id="stays" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] bg-canvas py-14 md:py-20">
+    <section id="stays" class="scroll-mt-[calc(var(--nav-h)+64px)] bg-linen/45 py-16 md:py-24">
       <div class="container-shell">
-        <SectionHeader
-          eyebrow="Where to stay"
-          title={`Lodges & camps in ${destination.name}`}
-          description="Accommodation our specialists recommend and book — chosen for location, comfort and value."
-        />
-        <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <SectionHeader
+            title={`Lodges & camps in ${destination.name}`}
+            description="Accommodation our specialists recommend and book — chosen for location, comfort and value."
+          />
+          <a class="group inline-flex items-center gap-1.5 text-sm font-semibold text-deep-green transition hover:text-clay" href={`/accommodation?destination=${encodeURIComponent(destination.name)}`}>
+            {allLodges.length > lodges.length ? `See all stays in ${destination.name}` : `Compare stays in ${destination.name}`} <ArrowRight size={16} class="transition group-hover:translate-x-0.5" />
+          </a>
+        </div>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
           {#each lodges as lodge (lodge.id)}
             <LodgeCard {lodge} />
           {/each}
         </div>
-        <a class="mt-10 inline-flex items-center gap-2 border-b border-deep-green/30 pb-1 text-sm font-semibold text-deep-green transition hover:border-deep-green" href={`/accommodation?destination=${encodeURIComponent(destination.name)}`}>
-          {allLodges.length > lodges.length ? `See all stays in ${destination.name}` : `Compare stays in ${destination.name}`} <ArrowRight size={14} />
-        </a>
       </div>
     </section>
   {/if}
 
-  <!-- Health & safety -->
+  <!-- Health & safety: the answer first, the practical notes beside it -->
   {#if hasSafety}
-    <section id="health-safety" class="scroll-mt-[calc(var(--nav-h)+96px)] py-14 md:py-20">
-      <div class="container-shell">
-        <SectionHeader
-          eyebrow="Health &amp; safety"
-          title={`Staying safe in ${destination.name}`}
-          description="Honest, practical guidance for your trip. See our full guide for more."
-        />
-        <div class="mt-9 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+    <section id="health-safety" class="scroll-mt-[calc(var(--nav-h)+64px)] bg-canvas py-16 md:py-24">
+      <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-14">
+        <div class="lg:col-span-5">
+          <h2 class="type-h2 text-heading">Staying safe in {destination.name}</h2>
           {#if destination.safety_overview}
-            <div class="rounded-2xl border border-ink/10 bg-surface p-6 shadow-soft">
-              <div class="flex items-center gap-3">
-                <span class="grid h-11 w-11 place-items-center rounded-xl bg-forest/10 text-forest"><ShieldCheck size={20} /></span>
-                <h3 class="type-card text-ink">Is it safe?</h3>
-              </div>
-              <p class="mt-3 text-base leading-[1.75] text-ink/70">{destination.safety_overview}</p>
-            </div>
+            <p class="mt-6 max-w-[60ch] text-base leading-[1.8] text-ink/75">{destination.safety_overview}</p>
           {/if}
-
-          <div class="grid gap-4">
-            {#if destination.health_vaccinations}
-              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
-                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-clay/10 text-clay"><HeartPulse size={18} /></span>
-                <div><p class="text-sm font-bold text-ink">Health &amp; vaccinations</p><p class="mt-1 text-sm leading-[1.6] text-ink/65">{destination.health_vaccinations}</p></div>
-              </div>
-            {/if}
-            {#if destination.security_advice}
-              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
-                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-forest/10 text-forest"><Shield size={18} /></span>
-                <div><p class="text-sm font-bold text-ink">Security</p><p class="mt-1 text-sm leading-[1.6] text-ink/65">{destination.security_advice}</p></div>
-              </div>
-            {/if}
-            {#if destination.travel_insurance_note}
-              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
-                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emnel-gold/15 text-emnel-gold"><FileCheck size={18} /></span>
-                <div><p class="text-sm font-bold text-ink">Travel insurance</p><p class="mt-1 text-sm leading-[1.6] text-ink/65">{destination.travel_insurance_note}</p></div>
-              </div>
-            {/if}
-            {#if destination.emergency_contacts}
-              <div class="flex gap-3 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
-                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-forest/10 text-forest"><Phone size={18} /></span>
-                <div><p class="text-sm font-bold text-ink">Emergency contacts</p><p class="mt-1 text-sm leading-[1.6] text-ink/65">{destination.emergency_contacts}</p></div>
-              </div>
-            {/if}
-          </div>
+          <a class="group mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-deep-green transition hover:text-clay" href="/safety">
+            Read the full health &amp; safety guide <ArrowRight size={16} class="transition group-hover:translate-x-0.5" />
+          </a>
         </div>
-        <a class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading" href="/safety">
-          Read the full health &amp; safety guide <ArrowRight size={16} />
-        </a>
+        <dl class="border-t border-ink/15 lg:col-span-7">
+          {#each [['Health & vaccinations', destination.health_vaccinations], ['Security', destination.security_advice], ['Travel insurance', destination.travel_insurance_note], ['Emergency contacts', destination.emergency_contacts]] as [label, text] (label)}
+            {#if text}
+              <div class="grid gap-1.5 border-b border-ink/10 py-5 sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-6">
+                <dt class="text-[15px] font-semibold text-heading">{label}</dt>
+                <dd class="text-[15px] leading-[1.7] text-ink/75">{text}</dd>
+              </div>
+            {/if}
+          {/each}
+        </dl>
       </div>
     </section>
   {/if}
 
   <!-- Getting there (start & end points) -->
   {#if tripPoints.length}
-    <section id="getting-there" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
-      <div class="container-shell">
-        <SectionHeader
-          eyebrow="Getting there"
-          title={`How trips to ${destination.name} start and end`}
-          description="The airports and hub towns we use as gateways — and how we connect you onward."
-        />
-        <div class="mt-9 grid gap-5 sm:grid-cols-2">
-          {#each tripPoints as point (point.id)}
-            <div class="flex gap-4 rounded-2xl border border-ink/10 bg-surface p-5 shadow-soft">
-              <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest">
-                <Plane size={20} />
-              </div>
-              <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-2">
-                  <h3 class="type-card text-ink">{point.name}</h3>
-                  {#if point.airport_code}
-                    <span class="rounded-md bg-forest/10 px-1.5 py-0.5 font-mono text-[11px] font-bold text-forest">{point.airport_code}</span>
-                  {/if}
-                </div>
-                <p class="mt-0.5 text-xs font-semibold uppercase tracking-[0.1em] text-clay">{roleLabel(point.role)}</p>
-                {#if point.transfer_info}
-                  <p class="mt-2 text-sm leading-[1.6] text-ink/70">{point.transfer_info}</p>
-                {:else if point.description}
-                  <p class="mt-2 text-sm leading-[1.6] text-ink/70">{point.description}</p>
-                {/if}
-              </div>
-            </div>
-          {/each}
+    <section id="getting-there" class="scroll-mt-[calc(var(--nav-h)+64px)] border-t border-ink/10 bg-canvas py-16 md:py-24">
+      <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-14">
+        <div class="lg:col-span-5">
+          <h2 class="type-h2 text-heading">How trips to {destination.name} start and end</h2>
+          <p class="mt-6 max-w-[60ch] text-base leading-[1.8] text-ink/70">The airports and hub towns we use as gateways, and how we connect you onward.</p>
         </div>
+        <ul class="border-t border-ink/15 lg:col-span-7">
+          {#each tripPoints as point (point.id)}
+            <li class="border-b border-ink/10 py-5">
+              <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <h3 class="type-card text-heading">{point.name}{#if point.airport_code}<span class="ml-2 font-sans text-[14px] font-semibold text-ink/50">{point.airport_code}</span>{/if}</h3>
+                <span class="text-[13px] font-semibold text-clay">{roleLabel(point.role)}</span>
+              </div>
+              {#if point.transfer_info || point.description}
+                <p class="mt-2 max-w-[68ch] text-[15px] leading-[1.7] text-ink/70">{point.transfer_info || point.description}</p>
+              {/if}
+            </li>
+          {/each}
+        </ul>
       </div>
     </section>
   {/if}
 
   <!-- FAQs attached to this destination (dynamic, imported per-destination) -->
   {#if faqs.length}
-    <section id="faqs" class="scroll-mt-[calc(var(--nav-h)+96px)] border-t border-ink/[0.06] py-14 md:py-20">
-      <div class="container-shell">
-        <SectionHeader
-          eyebrow="Good to know"
-          title={`${destination.name} — your questions, answered`}
-          description="Honest, specific answers to the questions we're asked most about this destination."
-        />
-        <div class="mt-9 grid gap-8">
+    <section id="faqs" class="scroll-mt-[calc(var(--nav-h)+64px)] bg-linen/45 py-16 md:py-24">
+      <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-14">
+        <div class="lg:col-span-4">
+          <h2 class="type-h2 text-heading">{destination.name}: your questions, answered</h2>
+          <p class="mt-6 text-base leading-[1.8] text-ink/70">Honest, specific answers to the questions we're asked most about this destination.</p>
+        </div>
+        <div class="grid content-start gap-10 lg:col-span-8">
           {#each faqGroups as group (group.category)}
             <div>
               {#if faqGroups.length > 1}
-                <p class="eyebrow mb-3 text-clay">{group.category}</p>
+                <h3 class="mb-3 text-[15px] font-semibold text-clay">{group.category}</h3>
               {/if}
-              <FAQAccordion faqs={group.items} headingLevel={3} />
+              <FAQAccordion faqs={group.items} headingLevel={faqGroups.length > 1 ? 4 : 3} />
             </div>
           {/each}
         </div>
@@ -380,22 +340,18 @@
 
   <!-- More destinations to explore -->
   {#if otherDestinations.length}
-    <section id="more-destinations" class="py-14 md:py-20">
+    <section id="more-destinations" class="bg-canvas py-16 md:py-24">
       <div class="container-shell">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <SectionHeader
-            eyebrow="Keep exploring"
             title="More destinations"
             description="Other places our local experts know and love across the region."
           />
-          <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
-            href="/destinations"
-          >
-            All destinations <ArrowRight size={16} />
+          <a class="group inline-flex items-center gap-1.5 text-sm font-semibold text-deep-green transition hover:text-clay" href="/destinations">
+            All destinations <ArrowRight size={16} class="transition group-hover:translate-x-0.5" />
           </a>
         </div>
-        <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
           {#each otherDestinations as item (item.id)}
             <DestinationCard destination={item} />
           {/each}
@@ -404,40 +360,13 @@
     </section>
   {/if}
 
-  <!-- Recent stories -->
-  {#if recentPosts.length}
-    <section class="border-t border-ink/[0.06] bg-sand/30 py-14 md:py-20">
-      <div class="container-shell">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-          <SectionHeader
-            eyebrow="Stories &amp; guides"
-            title="From the journal"
-            description="Travel inspiration, tips and stories from the field."
-          />
-          <a
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition hover:text-heading"
-            href="/blog"
-          >
-            Read the blog <ArrowRight size={16} />
-          </a>
-        </div>
-        <div class="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" use:staggeredCardReveal={{ y: 18, stagger: 0.07 }}>
-          {#each recentPosts as post (post.id)}
-            <BlogCard {post} />
-          {/each}
-        </div>
-      </div>
-    </section>
-  {/if}
-
   <!-- Plan-your-trip CTA so the page never dead-ends into the footer -->
   <FinalCtaSection
-    eyebrow="Start planning"
     title={`Ready to explore ${destination.name}?`}
     subtitle="Tell us what you have in mind and a local expert will craft a tailored plan — no payment needed to start."
-    primaryLabel="Plan My Safari"
+    primaryLabel="Plan my safari"
     primaryHref="/plan-my-trip"
-    secondaryLabel="Talk to an Advisor"
+    secondaryLabel="Talk to an advisor"
     secondaryHref="/contact"
   />
 {/if}

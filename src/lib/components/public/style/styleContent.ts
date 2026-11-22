@@ -534,7 +534,8 @@ export const buildStylePage = (blocks: Raw[], tours: Tour[], lodges: Lodge[] = [
 
       case 'imagegrid': {
         const images = arr<Raw>(b.images)
-          .map((im) => ({ url: str(im.image_url), caption: str(im.caption), alt: str(im.image_alt) || str(im.caption) }))
+          // The CMS field is `image_alt`; the imported style galleries store `alt`.
+          .map((im) => ({ url: str(im.image_url), caption: str(im.caption), alt: str(im.image_alt) || str(im.alt) || str(im.caption) }))
           .filter((im) => im.url);
         if (images.length) sections.push({ kind: 'gallery', id: anchor('gallery'), nav: navFor('gallery'), ...head(b), images });
         break;
