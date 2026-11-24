@@ -222,5 +222,181 @@ export const questionsNotInGuide = <T extends { question: string }>(faqs: T[], b
   return faqs.filter((faq) => !asked.some((q) => sameQuestion(faq.question, q, place)));
 };
 
+// ── Destination page sections ─────────────────────────────────────────────
+//
+// The destination page (Nelson's redesign, Nov 2026) opens with short,
+// structured sections — areas of the park, month by month, how long to stay,
+// what it costs, how to get there — and keeps the full guide below them. Each
+// section is read from the guide where the guide already holds it (a table or
+// paragraph under the matching Part), and the page then leaves that block out
+// of the full guide, so nothing is said twice.
+
+type Found<T> = { title: string; source: Block[] } & T;
+
+/** Each block with the title of the Part it sits under. */
+const withPart = (blocks: Block[] = []) => {
+  let part = '';
+  return blocks
+    .filter((b) => b && typeof b === 'object')
+    .map((block) => {
+      if (block.type === 'part') part = cleanCell(block.title);
+      return { block, part };
+    });
+};
+
+const plain = (html: string) =>
+  String(html ?? '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;|&rsquo;/g, '’')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/** The guide's table of areas ("Region | Best for | …"): one line per area. */
+export const parkAreas = (blocks: Block[] = []): Found<{ items: { name: string; text: string }[] }> | null => {
+  for (const { block, part } of withPart(blocks)) {
+    if (block.type !== 'table') continue;
+    const table = normalizeTable(block);
+    if (!/^(region|area|zone|sector|part)s?$/i.test(table.columns[0] ?? '') || table.rows.length < 2 || table.rows.length > 8) continue;
+    return { title: part, source: [block], items: table.rows.map((row) => ({ name: row[0], text: row[1] ?? '' })).filter((it) => it.name) };
+  }
+  return null;
+};
+
+export type MonthEntry = { title: string; period: string; text: string };
+
+/**
+ * The guide's month-by-month table, read as twelve months: each month gets the
+ * row whose period covers it. The tip that follows the table, if any, comes
+ * with it.
+ */
+export const monthByMonth = (blocks: Block[] = []): Found<{ months: (MonthEntry | null)[]; tip: string }> | null => {
+  const list = withPart(blocks);
+  for (let i = 0; i < list.length; i++) {
+    const { block, part } = list[i];
+    if (block.type !== 'table') continue;
+    const view = tableView(block);
+    if (view.kind !== 'season') continue;
+    const { columns, rows } = view.table;
+    const months: (MonthEntry | null)[] = Array.from({ length: 12 }, () => null);
+    rows.forEach((row, r) => {
+      const rest = row
+        .slice(2)
+        .map((cell, c) => (cell ? `${columns[c + 2] ? `${columns[c + 2]}: ` : ''}${cell}` : ''))
+        .filter(Boolean)
+        .join(' · ');
+      for (const m of view.months[r]) months[m] ??= { title: row[1] ?? '', period: row[0], text: rest };
+    });
+    const next = list[i + 1];
+    const tipBlock = next && next.part === part && (next.block.type === 'callout' || next.block.type === 'did_you_know') ? next.block : null;
+    return {
+      title: part,
+      source: tipBlock ? [block, tipBlock] : [block],
+      months,
+      tip: tipBlock ? plain((tipBlock as { body?: string }).body ?? '') : ''
+    };
+  }
+  return null;
+};
+
+/**
+ * "How many nights?" from the guide: the paragraphs under a "How many days /
+ * how long" Part that open with a bold "N nights". The one the quick facts
+ * recommend (their first number) is marked; a bold "Our advice" paragraph is
+ * kept as the closing note.
+ */
+export const nightsAdvice = (
+  blocks: Block[] = [],
+  recommendedStay = ''
+): Found<{ options: { label: string; text: string; recommended: boolean }[]; note: string }> | null => {
+  const firstNumber = (recommendedStay.match(/\d+/) ?? [''])[0];
+  for (const { block, part } of withPart(blocks)) {
+    if (block.type !== 'richtext' || !/how many (days|nights)|how long/i.test(part)) continue;
+    const paragraphs = [...String(block.body ?? '').matchAll(/<p>\s*<strong>([^<]+)<\/strong>([\s\S]*?)<\/p>/gi)].map((m) => ({
+      label: plain(m[1]).replace(/[:.]$/, ''),
+      text: plain(m[2]).replace(/^[:–—-]\s*/, '')
+    }));
+    const options = paragraphs.filter((p) => /\d/.test(p.label) && /night|day/i.test(p.label));
+    if (options.length < 2) continue;
+    const note = paragraphs.find((p) => /advice|tip/i.test(p.label));
+    return {
+      title: part,
+      source: [block],
+      options: options.map((o) => ({ ...o, text: o.text.charAt(0).toUpperCase() + o.text.slice(1), recommended: Boolean(firstNumber) && o.label.startsWith(firstNumber) })),
+      note: note ? note.text.charAt(0).toUpperCase() + note.text.slice(1) : ''
+    };
+  }
+  return null;
+};
+
+/** The guide's "how to get there" table ("Option | Best for | Typical approach"). */
+export const gettingThere = (blocks: Block[] = []): Found<{ items: { title: string; bestFor: string; route: string }[] }> | null => {
+  for (const { block, part } of withPart(blocks)) {
+    if (block.type !== 'table' || !/get (to|there)|getting (to|there)|arriv/i.test(part)) continue;
+    const { columns, rows } = normalizeTable(block);
+    if (rows.length < 1 || rows.length > 6) continue;
+    const bestCol = columns.findIndex((c, i) => i > 0 && /best for|suits?|ideal/i.test(c));
+    const routeCol = columns.findIndex((c, i) => i > 0 && i !== bestCol);
+    return {
+      title: part,
+      source: [block],
+      items: rows.map((row) => ({ title: row[0], bestFor: bestCol > 0 ? row[bestCol] : '', route: routeCol > 0 ? row[routeCol] : '' })).filter((it) => it.title)
+    };
+  }
+  return null;
+};
+
+export type CostRow = { style: string; perDay: number | null; amount: number | null; text: string; suits: string };
+
+/**
+ * The guide's price table ("Safari style | Starting from | Suitable for"):
+ * one row per comfort level, with the amount read out of the price cell and
+ * whether it is per day ("US$350 pp/day").
+ */
+export const costTable = (blocks: Block[] = []): Found<{ rows: CostRow[] }> | null => {
+  for (const { block, part } of withPart(blocks)) {
+    if (block.type !== 'table') continue;
+    const { columns, rows } = normalizeTable(block);
+    const priceCol = columns.findIndex((c) => /starting|from|price|cost|rate/i.test(c));
+    if (priceCol < 1 || rows.length < 1 || rows.length > 6) continue;
+    const suitsCol = columns.findIndex((c, i) => i > 0 && i !== priceCol);
+    const parsed = rows.map((row) => {
+      const text = row[priceCol] ?? '';
+      const match = text.replace(/,/g, '').match(/(\d{2,})/);
+      const amount = match ? Number(match[1]) : null;
+      return { style: row[0], amount, perDay: amount != null && /day|night/i.test(text) ? amount : null, text, suits: suitsCol > 0 ? row[suitsCol] ?? '' : '' };
+    });
+    if (!parsed.some((r) => r.amount != null)) continue;
+    return { title: part, source: [block], rows: parsed };
+  }
+  return null;
+};
+
+/**
+ * Destinations the guide links to, in the order it mentions them — first from
+ * a "plan your visit / combine" Part, else from anywhere in the guide. Used for
+ * "Pairs well with" when the page doesn't name its own.
+ */
+export const linkedDestinations = (blocks: Block[] = [], selfSlug = ''): string[] => {
+  const slugsIn = (list: { block: Block }[]) =>
+    list.flatMap(({ block }) =>
+      block.type === 'richtext' ? [...String(block.body ?? '').matchAll(/href="\/destinations\/([a-z0-9-]+)"/g)].map((m) => m[1]) : []
+    );
+  const all = withPart(blocks);
+  const planned = slugsIn(all.filter(({ part }) => /plan|combin|pair|itinerar/i.test(part)));
+  const found = planned.length ? planned : slugsIn(all);
+  return [...new Set(found)].filter((slug) => slug && slug !== selfSlug);
+};
+
+/** "Best time" and "How long" from the guide's quick facts, for the strip under the hero. */
+export const keyFacts = (items: { label?: string; value?: string }[] = []) => {
+  const find = (re: RegExp) => cleanCell(items.find((it) => re.test(it?.label ?? ''))?.value);
+  return {
+    bestTime: find(/best time|when to go|best season|best months/i),
+    howLong: find(/recommended stay|how long|ideal (stay|length|visit)|time needed|nights|days needed/i)
+  };
+};
+
 export const MONTH_INITIALS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 export const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

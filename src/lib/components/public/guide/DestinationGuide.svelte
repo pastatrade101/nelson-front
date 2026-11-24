@@ -13,7 +13,6 @@
   import RichText from '../RichText.svelte';
   import ComparisonTable from '$lib/components/public/ComparisonTable.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
-  import JsonLd from '$lib/components/public/JsonLd.svelte';
   import ResponsiveImage from '$lib/components/public/ResponsiveImage.svelte';
   import GuideColumns from './GuideColumns.svelte';
   import GuidePick from './GuidePick.svelte';
@@ -23,17 +22,18 @@
   import { tourTierLabel } from '$lib/tiers';
   import { findQuickFacts, tableView, toChapters } from '$lib/guideLayout';
   import type { GuideBlock, Lodge, Tour } from '$lib/types';
-  import { plainText } from '$lib/seo';
 
   export let blocks: GuideBlock[] = [];
   export let reviewedAt: string | null = null;
   export let destinationName = '';
+  /** The heading of the contents band; defaults to "<name> travel guide". */
+  export let title = '';
   /**
-   * The page's own library questions. When the guide has a FAQ they join the
-   * end of its list, so the page shows one FAQ; either way they are folded into
-   * this guide's FAQPage, so the page carries one.
+   * Blocks the page already shows in its own sections (the FAQ, the areas and
+   * price tables…), left out here so nothing is said twice. A chapter left
+   * with nothing in it is left out of the contents too.
    */
-  export let extraFaqs: { q: string; a: string }[] = [];
+  export let skip: GuideBlock[] = [];
   /** Published records the Tours / Accommodation blocks point at (loaded by the page). */
   export let tours: Tour[] = [];
   export let lodges: Lodge[] = [];
@@ -76,33 +76,15 @@
 
   $: quickFacts = findQuickFacts(blocks);
 
-  // Blocks actually laid out: drop artifacts, the quick facts (shown in the
-  // overview) and photo placeholders that have no real photo yet.
-  $: withLibrary = ((): GuideBlock[] => {
-    const at = blocks.map((b) => b?.type).lastIndexOf('faq');
-    if (at < 0 || !extraFaqs.length) return blocks;
-    return blocks.map((b, i) => (i === at && b.type === 'faq' ? { ...b, items: [...(b.items ?? []), ...extraFaqs] } : b));
-  })();
-  $: bodyBlocks = withLibrary.filter((b) => !isArtifact(b) && b !== quickFacts && !(b?.type === 'photo' && !(b as { url?: string }).url));
+  // Blocks actually laid out: drop artifacts, the quick facts (shown at the top
+  // of the page), the blocks the page shows itself and photo placeholders that
+  // have no real photo yet.
+  $: bodyBlocks = blocks.filter((b) => !isArtifact(b) && b !== quickFacts && !skip.includes(b) && !(b?.type === 'photo' && !(b as { url?: string }).url));
   $: chapters = toChapters(bodyBlocks);
   $: contents = chapters.filter((c) => c.part).map((c) => ({ id: c.id, title: c.part?.title ?? '' }));
   $: hasOwnPhotos = bodyBlocks.some((b) => b.type === 'photo');
   // The photo break sits after the second chapter, where the long read begins.
   $: breakAfter = breakImage && !hasOwnPhotos && chapters.length >= 3 ? 1 : -1;
-
-  // Every FAQ item across the guide's faq blocks, plus the page's own, in one FAQPage.
-  $: faqItems = blocks
-    .filter((b): b is Extract<GuideBlock, { type: 'faq' }> => b?.type === 'faq')
-    .flatMap((b) => b.items ?? [])
-    .concat(extraFaqs)
-    .map((item) => ({ q: plainText(item.q), a: plainText(item.a) }))
-    .filter((item, i, items) => item.q && item.a && items.findIndex((other) => other.q === item.q) === i);
-  $: faqLd = faqItems.length
-    ? {
-        '@type': 'FAQPage',
-        mainEntity: faqItems.map((it) => ({ '@type': 'Question', name: it.q, acceptedAnswer: { '@type': 'Answer', text: it.a } }))
-      }
-    : null;
 
   const reviewedLabel = (d: string | null): string => {
     if (!d) return '';
@@ -112,16 +94,12 @@
   $: reviewed = reviewedLabel(reviewedAt);
 </script>
 
-{#if faqLd}
-  <JsonLd data={faqLd} />
-{/if}
-
 {#if chapters.length}
   <!-- Contents: what the guide covers, as links to each chapter. -->
   <section id="guide-top" class="scroll-mt-[calc(var(--nav-h)+64px)] bg-deep-green py-14 text-white md:py-20">
     <div class="container-shell grid gap-8 lg:grid-cols-12 lg:gap-14">
       <div class="lg:col-span-4">
-        <h2 class="type-h2 text-white">{destinationName ? `${destinationName} travel guide` : 'Travel guide'}</h2>
+        <h2 class="type-h2 text-white">{title || (destinationName ? `${destinationName} travel guide` : 'Travel guide')}</h2>
         <p class="mt-4 text-[15px] leading-[1.7] text-white/70">
           {#if contents.length}{contents.length} chapters, from where to go to how to get there.{/if}
           {#if reviewed}<span class="block">Last reviewed {reviewed}.</span>{/if}

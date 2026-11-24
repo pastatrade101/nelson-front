@@ -42,7 +42,9 @@
       { key: 'tagline', label: 'Tagline', type: 'text', public: true, default: 'Private Tanzania safaris, designed in Arusha' },
       { key: 'brand_statement', label: 'Brand statement', type: 'textarea', public: true, default: 'Where the wild speaks, we know how to listen.' },
       { key: 'logo_url', label: 'Logo', type: 'image', public: true, helper: 'Public logo image.' },
-      { key: 'favicon_url', label: 'Favicon', type: 'image', public: true }
+      { key: 'favicon_url', label: 'Favicon', type: 'image', public: true },
+      { key: 'trust_line', label: 'Destination page trust line', type: 'text', public: true, helper: 'One line under the buttons at the top of destination pages, e.g. what is true of every safari you run. Left empty, nothing is shown.' },
+      { key: 'trust_points', label: 'Enquiry form trust points', type: 'textarea', public: true, helper: 'Short facts under the enquiry form on destination pages, one per line (licences, memberships, since when). Left empty, nothing is shown.' }
     ] },
     { key: 'contact', label: 'Contact', icon: MapPin, fields: [
       { key: 'contact_email', label: 'Contact email', type: 'email', public: true },

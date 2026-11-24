@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { beforeNavigate } from '$app/navigation';
-  import { BookOpen, Check, ChevronRight, Edit, ExternalLink, FileText, Image, MapPin, Plus, Save, Search, Settings2, ShieldCheck, Trash2, X } from '@lucide/svelte';
-  import { destinationChanges, validateDestination, type DestinationIssue } from '$lib/admin/destination-form';
+  import { BookOpen, Check, ChevronRight, Edit, ExternalLink, FileText, Image, LayoutList, MapPin, Plus, Save, Search, Settings2, ShieldCheck, Trash2, X } from '@lucide/svelte';
+  import { cleanPage, destinationChanges, editablePage, validateDestination, type DestinationIssue, type EditablePage } from '$lib/admin/destination-form';
   import { api } from '$lib/api/client';
   import AdminButton from '$lib/components/admin/AdminButton.svelte';
   import AdminEmptyState from '$lib/components/admin/AdminEmptyState.svelte';
   import MediaPicker from '$lib/components/admin/MediaPicker.svelte';
   import DestinationGuideEditor from '$lib/components/admin/DestinationGuideEditor.svelte';
+  import DestinationPageEditor from '$lib/components/admin/DestinationPageEditor.svelte';
   import AdminFormInput from '$lib/components/admin/AdminFormInput.svelte';
   import AdminPageHeader from '$lib/components/admin/AdminPageHeader.svelte';
   import AdminSelect from '$lib/components/admin/AdminSelect.svelte';
@@ -55,6 +56,7 @@
     og_image_url?: string | null;
     guide?: unknown[];
     guide_reviewed_at?: string | null;
+    page?: unknown;
     created_at?: string;
     updated_at?: string;
     deleted_at?: string | null;
@@ -90,6 +92,7 @@
     travel_insurance_note: string;
     guide: any[];
     guide_reviewed_at: string;
+    page: EditablePage;
   };
 
   type Toast = {
@@ -127,7 +130,8 @@
     status: 'draft',
     travel_insurance_note: '',
     guide: [],
-    guide_reviewed_at: ''
+    guide_reviewed_at: '',
+    page: editablePage(null)
   });
 
   const statusOptions = [
@@ -156,6 +160,7 @@
   const sections = [
     { id: 'overview', label: 'Overview', hint: 'Name, location & introduction', icon: FileText },
     { id: 'images', label: 'Photography', hint: 'Cards, banner & sharing', icon: Image },
+    { id: 'page', label: 'Page sections', hint: 'Summary, highlights & your way', icon: LayoutList },
     { id: 'guide', label: 'Travel guide', hint: 'Build the destination story', icon: BookOpen },
     { id: 'planning', label: 'Trip planning', hint: 'Ratings, budget & map', icon: MapPin },
     { id: 'safety', label: 'Health & safety', hint: 'Practical travel advice', icon: ShieldCheck },
@@ -345,7 +350,8 @@
       status: destination.status ?? 'draft',
       travel_insurance_note: destination.travel_insurance_note ?? '',
       guide: Array.isArray(destination.guide) ? JSON.parse(JSON.stringify(destination.guide)) : [],
-      guide_reviewed_at: destination.guide_reviewed_at ?? ''
+      guide_reviewed_at: destination.guide_reviewed_at ?? '',
+      page: editablePage(destination.page)
     };
     void loadMedia();
     slugManuallyEdited = true;
@@ -399,7 +405,8 @@
       status: form.status,
       travel_insurance_note: form.travel_insurance_note || null,
       guide: form.guide,
-      guide_reviewed_at: form.guide_reviewed_at || null
+      guide_reviewed_at: form.guide_reviewed_at || null,
+      page: cleanPage(form.page)
     };
   };
 
@@ -418,7 +425,9 @@
         }
         showToast('Destination updated successfully.');
       } else {
-        await api.destinations.create(payload());
+        // A page with no sections filled in is left out, as it was before the field existed.
+        const { page, ...rest } = payload();
+        await api.destinations.create(page ? { ...rest, page } : rest);
         showToast('Destination created successfully.');
       }
 
@@ -644,6 +653,14 @@
                 <h4>Social sharing image</h4><p>Optional. Used when someone shares the destination link.</p>
                 <MediaPicker label="Social sharing image" media={mediaItems} uploadFolder="destinations" bind:value={form.og_image_url} />
               </div>
+            </section>
+
+            <section id="editor-page" hidden={activeSection !== 'page'} class="editor-section">
+              <DestinationPageEditor
+                bind:page={form.page}
+                media={mediaItems}
+                destinations={rows.filter((d) => d.id !== editingDestination?.id && d.status === 'published').map((d) => ({ slug: d.slug, name: d.name }))}
+              />
             </section>
 
             <section id="editor-guide" hidden={activeSection !== 'guide'} class="editor-section">

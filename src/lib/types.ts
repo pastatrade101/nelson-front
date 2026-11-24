@@ -326,6 +326,44 @@ export type Destination = {
   og_image_url?: string;
   guide?: GuideBlock[];
   guide_reviewed_at?: string | null;
+  page?: DestinationPage | null;
+};
+
+/** A "Your way" section on a destination page: one kind of traveller. */
+export type DestinationWay = {
+  /** Small label above the heading, e.g. "Families". */
+  label?: string;
+  title?: string;
+  /** Paragraphs, separated by a blank line. */
+  body?: string;
+  image_url?: string;
+  image_alt?: string;
+  nights?: string;
+  best_area?: string;
+  /** "Pair with" or "Stay with" — whatever the third fact is. */
+  extra_label?: string;
+  extra_value?: string;
+  link_label?: string;
+  link_href?: string;
+};
+
+/**
+ * The destination page's own content, outside the long guide (destinations.page).
+ * Every field is optional: the page leaves a section out until it is filled.
+ */
+export type DestinationPage = {
+  /** How headings name the place: "the Serengeti" ("Why the Serengeti", "Your Serengeti…"). */
+  short_name?: string;
+  /** "The Serengeti in short": a few factual sentences. */
+  in_short?: string;
+  /** Who last reviewed the page, e.g. "Joseph, Emnel guide". */
+  reviewed_by?: string;
+  /** The "Why" cards (up to three). */
+  highlights?: { title?: string; text?: string }[];
+  ways?: DestinationWay[];
+  guide_quote?: { quote?: string; name?: string; role?: string; image_url?: string };
+  /** Destination slugs for "Pairs well with", in order. Empty: the ones the guide links to. */
+  pairs_with?: string[];
 };
 
 export type Country = {

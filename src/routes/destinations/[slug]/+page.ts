@@ -2,6 +2,7 @@ import type { PageLoad } from './$types';
 import { error, isHttpError } from '@sveltejs/kit';
 import type { Destination, Lodge, Tour } from '$lib/types';
 import { loadFaqsFor } from '$lib/faqEntities';
+import { linkedDestinations } from '$lib/guideLayout';
 
 // SSR-load the destination so the page arrives with content already rendered,
 // instead of shipping a blank shell that then fetches the ~70KB guide over a
@@ -39,14 +40,21 @@ export const load: PageLoad = async ({ params, fetch }) => {
           loadFaqsFor(fetch, { type: 'destinations', id: destination.id }, {
             fill: (destination.guide ?? []).some((b) => b?.type === 'faq') ? 0 : 8
           }),
-          list<Lodge>(`/api/lodges?destination_id=${destination.id}&status=published&limit=13`),
+          // Every stay here: the page filters them by comfort level.
+          list<Lodge>(`/api/lodges?destination_id=${destination.id}&status=published&limit=60`),
           list<Tour & { match?: string }>(`/api/destinations/${destination.id}/tours?limit=9`),
           list<Tour>(`/api/tours?status=published&is_featured=true&limit=9`),
-          list<Destination>(`/api/destinations?status=published&limit=12`)
+          list<Destination>(`/api/destinations?status=published&limit=100`)
         ]);
         const tourIds = new Set(tours.map((t) => t.id));
         const popularTours = tours.length >= 3 ? [] : featured.filter((t) => !tourIds.has(t.id)).slice(0, 6 - Math.min(tours.length, 3));
         const otherDestinations = others.filter((d) => d.id !== destination.id && d.slug !== destination.slug).slice(0, 6);
+        // "Pairs well with": the ones the page names, else the ones its guide links to.
+        const pairSlugs = destination.page?.pairs_with?.length ? destination.page.pairs_with : linkedDestinations(destination.guide ?? [], destination.slug);
+        const pairs = pairSlugs
+          .map((slug) => others.find((d) => d.slug === slug))
+          .filter((d): d is Destination => Boolean(d) && d!.id !== destination.id)
+          .slice(0, 4);
         // Records the guide's Tours / Accommodation blocks point at, so their cards
         // are in the server HTML too. Published only — a draft is never shown.
         const guideIds = (key: 'tour_ids' | 'lodge_ids') =>
@@ -59,7 +67,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
         ]);
         const guideTours = allTours.filter((t) => wantTours.includes(t.id));
         const guideLodges = allLodges.filter((l) => wantLodges.includes(l.id));
-        return { destination, faqs, lodges, tours, popularTours, otherDestinations, guideTours, guideLodges };
+        return { destination, faqs, lodges, tours, popularTours, otherDestinations, pairs, guideTours, guideLodges };
       }
     }
   } catch (cause) {
