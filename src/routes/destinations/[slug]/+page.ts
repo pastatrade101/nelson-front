@@ -34,8 +34,11 @@ export const load: PageLoad = async ({ params, fetch }) => {
         // safaris top the tour list up when few are connected yet.
         const [faqs, lodges, tours, featured, others] = await Promise.all([
           // Its own questions (all of them), then general ones only to round out
-          // a destination that has fewer than eight.
-          loadFaqsFor(fetch, { type: 'destinations', id: destination.id }, { fill: 8 }),
+          // a destination that has fewer than eight. A guide with its own FAQ is
+          // the page's FAQ, so it takes no general ones.
+          loadFaqsFor(fetch, { type: 'destinations', id: destination.id }, {
+            fill: (destination.guide ?? []).some((b) => b?.type === 'faq') ? 0 : 8
+          }),
           list<Lodge>(`/api/lodges?destination_id=${destination.id}&status=published&limit=13`),
           list<Tour & { match?: string }>(`/api/destinations/${destination.id}/tours?limit=9`),
           list<Tour>(`/api/tours?status=published&is_featured=true&limit=9`),

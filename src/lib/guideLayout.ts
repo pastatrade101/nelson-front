@@ -177,5 +177,50 @@ export const tableView = (block: Pick<TableBlock, 'title' | 'columns' | 'rows'>)
   return { kind: 'table', table };
 };
 
+// ── FAQs ──────────────────────────────────────────────────────────────────
+
+/** The chapter that holds the guide's questions, for the page's "Questions" link. */
+export const faqChapterId = (blocks: Block[] = []): string =>
+  toChapters(blocks).find((c) => c.segments.some((s) => s.kind === 'run' && s.main.some((b) => b.type === 'faq')))?.id ?? '';
+
+// Words that don't tell two questions apart ("how", "the", "safari"…).
+const QUESTION_FILLER = new Set(
+  'a an and any are as at be by can could do does each for from get go has have how i if in into is it its me much many my of on or our should so than that the their there this to us was we what when where which who why will with would you your safari safaris trip'.split(' ')
+);
+
+/** A question's telling words: lowercase, plural "s" dropped, without filler or the place's own name. */
+const questionWords = (question: string, placeWords: Set<string>) =>
+  new Set(
+    cleanCell(question)
+      .toLowerCase()
+      .split(/[^a-z]+/)
+      .map((w) => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w))
+      .filter((w) => w && !QUESTION_FILLER.has(w) && !placeWords.has(w))
+  );
+
+/**
+ * Whether two questions ask the same thing, worded differently: at least half
+ * of their telling words are shared. "Is it better to drive or fly to the
+ * Serengeti?" and "Should I fly or drive to Serengeti?" match; "Is the
+ * Serengeti crowded?" matches neither.
+ */
+export const sameQuestion = (a: string, b: string, place = ''): boolean => {
+  const placeWords = new Set(place.toLowerCase().split(/[^a-z]+/).filter(Boolean));
+  const wa = questionWords(a, placeWords);
+  const wb = questionWords(b, placeWords);
+  const shared = [...wa].filter((w) => wb.has(w)).length;
+  const all = new Set([...wa, ...wb]).size;
+  return shared > 0 && shared / all >= 0.5;
+};
+
+/**
+ * The library questions a guide doesn't already ask. A destination whose guide
+ * has its own FAQ shows one list: the guide's, plus these.
+ */
+export const questionsNotInGuide = <T extends { question: string }>(faqs: T[], blocks: Block[] = [], place = ''): T[] => {
+  const asked = blocks.flatMap((b) => (b?.type === 'faq' ? (b.items ?? []).map((it) => it.q ?? '') : []));
+  return faqs.filter((faq) => !asked.some((q) => sameQuestion(faq.question, q, place)));
+};
+
 export const MONTH_INITIALS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 export const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

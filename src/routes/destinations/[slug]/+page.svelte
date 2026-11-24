@@ -20,7 +20,7 @@
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import { breadcrumbLd, faqLd, faqPairs } from '$lib/seo';
   import { ownedFaqs } from '$lib/faqEntities';
-  import { findQuickFacts } from '$lib/guideLayout';
+  import { faqChapterId, findQuickFacts, questionsNotInGuide } from '$lib/guideLayout';
   import type { Activity, Destination, FAQ, Lodge, Tour, TripPoint } from '$lib/types';
   import type { PageData } from './$types';
 
@@ -56,6 +56,14 @@
   // The questions this page marks up: its own. General ones that round the list
   // out are shown, but marked up on the page that owns them (ownedFaqs).
   $: ownFaqPairs = destination ? faqPairs(ownedFaqs(faqs, { type: 'destinations', id: destination.id })) : [];
+  // One FAQ per page. When the guide has its own, that is the page's FAQ: the
+  // library questions it doesn't already ask join the end of it, and the
+  // separate questions section below is left out.
+  $: guideFaqAt = faqChapterId(destination?.guide ?? []);
+  $: guideFaqs = destination && guideFaqAt
+    ? faqPairs(questionsNotInGuide(ownedFaqs(faqs, { type: 'destinations', id: destination.id }), destination.guide ?? [], destination.name))
+    : ownFaqPairs;
+  $: showFaqSection = faqs.length > 0 && !guideFaqAt;
 
   // This destination's FAQs, grouped by their (optional) category for display.
   $: faqGroups = (() => {
@@ -113,7 +121,9 @@
           : popularTours.length ? { label: 'Popular safaris', href: '#tours', count: 0 } : null,
         lodges.length ? { label: 'Where to stay', href: '#stays', count: allLodges.length } : null,
         tripPoints.length ? { label: 'Getting there', href: '#getting-there', count: 0 } : null,
-        faqs.length ? { label: 'Questions', href: '#faqs', count: 0 } : null,
+        guideFaqAt
+          ? { label: 'Questions', href: `#${guideFaqAt}`, count: 0 }
+          : showFaqSection ? { label: 'Questions', href: '#faqs', count: 0 } : null,
         { label: 'Plan a trip here', href: '/plan-my-trip', count: 0 }
       ].filter(Boolean) as { label: string; href: string; count: number }[]
     : [];
@@ -183,7 +193,7 @@
 {#if destination}
   <!-- Long-form destination guide (the editorial "destination template") -->
   {#if destination.guide?.length}
-    <DestinationGuide destinationName={destination.name} blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={ownFaqPairs} tours={(data.guideTours ?? []) as Tour[]} lodges={(data.guideLodges ?? []) as Lodge[]} {breakImage} />
+    <DestinationGuide destinationName={destination.name} blocks={destination.guide} reviewedAt={destination.guide_reviewed_at ?? null} extraFaqs={guideFaqs} tours={(data.guideTours ?? []) as Tour[]} lodges={(data.guideLodges ?? []) as Lodge[]} {breakImage} />
   {/if}
 
   <!-- Safaris through this destination: connected tours first, then popular ones -->
@@ -316,8 +326,8 @@
     </section>
   {/if}
 
-  <!-- FAQs attached to this destination (dynamic, imported per-destination) -->
-  {#if faqs.length}
+  <!-- FAQs attached to this destination, when its guide has no FAQ of its own -->
+  {#if showFaqSection}
     <section id="faqs" class="scroll-mt-[calc(var(--nav-h)+64px)] bg-linen/45 py-16 md:py-24">
       <div class="container-shell grid gap-10 lg:grid-cols-12 lg:gap-14">
         <div class="lg:col-span-4">

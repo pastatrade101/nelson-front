@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { findQuickFacts, monthsOf, normalizeTable, tableView, toChapters } from '../src/lib/guideLayout.ts';
+import { faqChapterId, findQuickFacts, monthsOf, normalizeTable, questionsNotInGuide, sameQuestion, tableView, toChapters } from '../src/lib/guideLayout.ts';
 
 test('monthsOf reads month names, ranges and year-wrapping ranges', () => {
   assert.deepEqual(monthsOf('June – October'), [5, 6, 7, 8, 9]);
@@ -74,4 +74,65 @@ test('toChapters groups text with its notes and keeps wide blocks apart', () => 
 test('findQuickFacts finds the at-a-glance block', () => {
   const facts = { type: 'facts', title: 'Serengeti at a glance', items: [] };
   assert.equal(findQuickFacts([{ type: 'facts', title: 'Lodges', items: [] }, facts]), facts);
+});
+
+// Questions as they are on the live Serengeti page: the guide's own FAQ and
+// the six attached in the FAQ library.
+const serengetiGuide = [
+  { type: 'part', part: 1, title: 'Discover the Serengeti' },
+  { type: 'richtext', body: 'Text' },
+  {
+    type: 'faq',
+    title: 'The Serengeti National Park ',
+    items: [
+      'When is the best time to visit Serengeti National Park?',
+      'Where is Serengeti National Park?',
+      'How many days do I need for a Serengeti safari?',
+      'How much does a Serengeti safari cost?',
+      'Where is the Great Wildebeest Migration in the Serengeti?',
+      'When is the wildebeest calving season in Serengeti?',
+      'Can I see the Mara River crossing in Serengeti?',
+      'Should I fly or drive to Serengeti?',
+      'Can I combine a Serengeti safari with Zanzibar?',
+      'Can I visit Serengeti from Zanzibar?',
+      'Is Serengeti safe for tourists?'
+    ].map((q) => ({ q, a: 'Answer.' }))
+  }
+];
+
+test('sameQuestion matches the same question worded differently', () => {
+  const place = 'Serengeti National Park';
+  assert.ok(sameQuestion('When is the best time to visit the Serengeti?', 'When is the best time to visit Serengeti National Park?', place));
+  assert.ok(sameQuestion('Where is the Great Migration each month?', 'Where is the Great Wildebeest Migration in the Serengeti?', place));
+  assert.ok(sameQuestion('How many days do we need in the Serengeti?', 'How many days do I need for a Serengeti safari?', place));
+  assert.ok(sameQuestion('Is it better to drive or fly to the Serengeti?', 'Should I fly or drive to Serengeti?', place));
+  assert.ok(sameQuestion('Can we combine the Serengeti with Zanzibar?', 'Can I combine a Serengeti safari with Zanzibar?', place));
+  assert.ok(!sameQuestion('Is the Serengeti crowded?', 'Is Serengeti safe for tourists?', place));
+  assert.ok(!sameQuestion('Can we combine the Serengeti with Zanzibar?', 'Can I visit Serengeti from Zanzibar?', place));
+  // A question that is only the place's name says nothing to match on.
+  assert.ok(!sameQuestion('Where is Serengeti National Park?', 'Where is the Serengeti?', place));
+});
+
+test('questionsNotInGuide keeps only the library questions the guide does not ask', () => {
+  const library = [
+    'When is the best time to visit the Serengeti?',
+    'Where is the Great Migration each month?',
+    'How many days do we need in the Serengeti?',
+    'Is it better to drive or fly to the Serengeti?',
+    'Is the Serengeti crowded?',
+    'Can we combine the Serengeti with Zanzibar?'
+  ].map((question, i) => ({ id: String(i), question }));
+  const left = questionsNotInGuide(library, serengetiGuide, 'Serengeti National Park');
+  assert.deepEqual(left.map((f) => f.question), ['Is the Serengeti crowded?']);
+
+  const tanzania = [{ type: 'faq', items: [{ q: 'Do I need malaria tablets?', a: '' }, { q: 'How many days do I need?', a: '' }] }];
+  const insurance = [{ id: 'x', question: 'Do I need travel insurance to visit Tanzania?' }];
+  assert.deepEqual(questionsNotInGuide(insurance, tanzania, 'Tanzania'), insurance);
+  assert.deepEqual(questionsNotInGuide(insurance, [], 'Tanzania'), insurance);
+});
+
+test('faqChapterId finds the chapter that holds the guide FAQ', () => {
+  assert.equal(faqChapterId(serengetiGuide), 'faq-the-serengeti-national-park');
+  assert.equal(faqChapterId([{ type: 'part', part: 2, title: 'Planning' }, { type: 'faq', items: [{ q: 'Q?', a: 'A' }] }]), 'part-2');
+  assert.equal(faqChapterId([{ type: 'richtext', body: 'No questions' }]), '');
 });

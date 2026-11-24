@@ -28,7 +28,11 @@
   export let blocks: GuideBlock[] = [];
   export let reviewedAt: string | null = null;
   export let destinationName = '';
-  /** The page's own FAQs, folded into this guide's FAQPage so the page carries one. */
+  /**
+   * The page's own library questions. When the guide has a FAQ they join the
+   * end of its list, so the page shows one FAQ; either way they are folded into
+   * this guide's FAQPage, so the page carries one.
+   */
   export let extraFaqs: { q: string; a: string }[] = [];
   /** Published records the Tours / Accommodation blocks point at (loaded by the page). */
   export let tours: Tour[] = [];
@@ -74,7 +78,12 @@
 
   // Blocks actually laid out: drop artifacts, the quick facts (shown in the
   // overview) and photo placeholders that have no real photo yet.
-  $: bodyBlocks = blocks.filter((b) => !isArtifact(b) && b !== quickFacts && !(b?.type === 'photo' && !(b as { url?: string }).url));
+  $: withLibrary = ((): GuideBlock[] => {
+    const at = blocks.map((b) => b?.type).lastIndexOf('faq');
+    if (at < 0 || !extraFaqs.length) return blocks;
+    return blocks.map((b, i) => (i === at && b.type === 'faq' ? { ...b, items: [...(b.items ?? []), ...extraFaqs] } : b));
+  })();
+  $: bodyBlocks = withLibrary.filter((b) => !isArtifact(b) && b !== quickFacts && !(b?.type === 'photo' && !(b as { url?: string }).url));
   $: chapters = toChapters(bodyBlocks);
   $: contents = chapters.filter((c) => c.part).map((c) => ({ id: c.id, title: c.part?.title ?? '' }));
   $: hasOwnPhotos = bodyBlocks.some((b) => b.type === 'photo');
