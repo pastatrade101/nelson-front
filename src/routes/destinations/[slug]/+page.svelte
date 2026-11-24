@@ -19,7 +19,7 @@
   import { trackEvent } from '$lib/analytics';
   import { api } from '$lib/api/client';
   import { currency, formatUsdWhole } from '$lib/currency';
-  import { thumbUrl } from '$lib/img';
+  import { imgUrl, thumbUrl } from '$lib/img';
   import ErrorState from '$lib/components/public/ErrorState.svelte';
   import FAQAccordion from '$lib/components/public/FAQAccordion.svelte';
   import JsonLd from '$lib/components/public/JsonLd.svelte';
@@ -344,7 +344,7 @@
             <div class={quote.image_url ? 'grid sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]' : ''}>
               {#if quote.image_url}
                 <div class="aspect-[4/3] overflow-hidden bg-white/5 sm:aspect-auto">
-                  <img src={quote.image_url} alt={quote.name || ''} loading="lazy" class="h-full w-full object-cover" />
+                  <img src={imgUrl(quote.image_url, 900)} alt={quote.name || ''} loading="lazy" class="h-full w-full object-cover" />
                 </div>
               {/if}
               <figure class="p-7 sm:p-9">

@@ -3,9 +3,12 @@
    * "Your way": one section per kind of traveller (families, couples, luxury,
    * photographers, a first safari), each with a photograph, a few
    * paragraphs, three planning facts and where to go next. Photographs
-   * alternate sides; a section without one runs full width.
+   * alternate sides and keep a landscape frame (the library's photographs
+   * are landscape, and a tall crop cut people out of them); beside a long
+   * text the photograph stays in view. A section without one runs full width.
    */
   import { ArrowRight } from '@lucide/svelte';
+  import { imgUrl } from '$lib/img';
   import type { DestinationWay } from '$lib/types';
 
   export let ways: DestinationWay[] = [];
@@ -23,10 +26,10 @@
 <div class="grid gap-14">
   {#each ways as way, i (i)}
     {@const list = facts(way)}
-    <article class={way.image_url ? 'grid items-start gap-6 sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:gap-7' : ''}>
+    <article class={way.image_url ? 'grid items-start gap-6 sm:grid-cols-2 sm:gap-7' : ''}>
       {#if way.image_url}
-        <div class={`aspect-[4/5] overflow-hidden bg-linen ${i % 2 ? 'sm:order-2' : ''}`}>
-          <img src={way.image_url} alt={way.image_alt || way.title || ''} loading="lazy" class="h-full w-full object-cover" />
+        <div class={`aspect-[4/3] overflow-hidden bg-linen sm:sticky sm:top-[calc(var(--nav-h)+76px)] ${i % 2 ? 'sm:order-2' : ''}`}>
+          <img src={imgUrl(way.image_url, 900)} alt={way.image_alt || way.title || ''} loading="lazy" class="h-full w-full object-cover" />
         </div>
       {/if}
       <div>
